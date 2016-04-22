@@ -11,10 +11,45 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160422190723) do
+ActiveRecord::Schema.define(version: 20160422214340) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "employees", force: :cascade do |t|
+    t.string   "email"
+    t.string   "first_name"
+    t.string   "last_name"
+    t.string   "workday_username"
+    t.string   "employee_id"
+    t.string   "country"
+    t.datetime "hire_date"
+    t.datetime "contract_end_date"
+    t.datetime "termination_date"
+    t.string   "job_family_id"
+    t.string   "job_family"
+    t.string   "job_profile_id"
+    t.string   "job_profile"
+    t.string   "business_title"
+    t.string   "employee_type"
+    t.string   "contingent_worker_id"
+    t.string   "contingent_worker_type"
+    t.string   "location_type"
+    t.string   "location"
+    t.string   "manager_id"
+    t.string   "cost_center"
+    t.string   "cost_center_id"
+    t.string   "personal_mobile_phone"
+    t.string   "office_phone"
+    t.string   "home_address_1"
+    t.string   "home_address_2"
+    t.string   "home_city"
+    t.string   "home_state"
+    t.string   "home_zip"
+    t.string   "image_code"
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
 
   create_table "users", force: :cascade do |t|
     t.string   "first_name"
