@@ -15,4 +15,3 @@ Takes file dumps from OT Workday and automates user creation/modification in OT 
 ## TODO
 - Remove TempController and views when we have real views
 - create ldap.yml.example
-- User :rememberable does not work
