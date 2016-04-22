@@ -9,7 +9,7 @@ class User < ActiveRecord::Base
             presence: true
   validates :email,
             presence: true,
-            uniqueness: true
+            uniqueness: { case_sensitive: false }
   validates :ldap_user,
             presence: true,
             uniqueness: true

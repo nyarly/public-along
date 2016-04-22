@@ -1,5 +1,7 @@
 require 'rails_helper'
-
+# TODO - switch to new style expect syntax. 
+# Currently, switching this test to new style expect syntax seems to break it.
+# Need to debug.
 describe User, type: :model do
   subject { FactoryGirl.build(:user) }
   it { should be_valid }
