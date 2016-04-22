@@ -1,0 +1,23 @@
+---
+
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: 5
+  host: 172.16.5.2
+  username: <username> # Check with developer for pgsql creds
+  password: <password> # Check with developer for pgsql creds
+
+development:
+  <<: *default
+  database: workday_development
+
+test:
+  <<: *default
+  database: workday_test
+#
+production:
+  <<: *default
+  database: workday_production
+  username: workday
+  password: <%= ENV['WORKDAY_DATABASE_PASSWORD'] %>
