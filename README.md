@@ -15,3 +15,4 @@ Takes file dumps from OT Workday and automates user creation/modification in OT 
 ## TODO
 - Remove TempController and views when we have real views
 - create ldap.yml.example
+- user_spec.rb switch to new style expect syntax. (needs debugging)
