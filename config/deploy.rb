@@ -1,5 +1,5 @@
 # Change these
-server '172.16.5.2', port: 80, roles: [:web, :app, :db], primary: true
+server '172.16.5.2', port: 2504, roles: [:web, :app, :db], primary: true
 
 set :repo_url,        'git@github.com:opentable/workday-integration.git'
 set :application,     'workday-integration'
