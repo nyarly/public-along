@@ -3,7 +3,7 @@ server '172.16.5.2', port: 80, roles: [:web, :app, :db], primary: true
 
 set :repo_url,        'git@github.com:opentable/workday-integration.git'
 set :application,     'workday-integration'
-set :user,            'workday_int'
+set :user,            'vagrant'
 set :puma_threads,    [4, 16]
 set :puma_workers,    0
 
