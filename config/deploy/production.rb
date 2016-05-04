@@ -1,3 +1,8 @@
+server '172.16.5.2', roles: [:web, :app, :db], primary: true
+
+# server "workday-integration-pp-sf-01.otcorp.opentable.com", :roles: [:web, :app, :db], :primary => true
+set :deploy_to, "/var/www/workday_integration"
+
 # server-based syntax
 # ======================
 # Defines a single server with a list of roles and multiple properties.
