@@ -38,13 +38,4 @@ describe Employee, type: :model do
       }
     )
   end
-
-  xit "should create an ldap connection" do
-  end
-
-  xit "should create an ad user" do
-  end
-
-  xit "should modify the user to be a normal user" do
-  end
 end

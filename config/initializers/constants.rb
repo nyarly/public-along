@@ -1,0 +1,1 @@
+BASE = "cn=Users,dc=ottest,dc=opentable,dc=com"
