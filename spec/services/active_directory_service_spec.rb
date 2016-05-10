@@ -25,7 +25,7 @@ describe ActiveDirectoryService, type: :service do
         hash_including(
           :dn => employees[0].dn,
           attributes: employees[0].attrs.merge({
-            sAMAccountName: (employees[0].first_name[0,1] + employees[0].last_name).downcase,
+            :sAMAccountName => (employees[0].first_name[0,1] + employees[0].last_name).downcase,
             :mail => (employees[0].first_name[0,1] + employees[0].last_name + "@opentable.com").downcase
           })
         )
