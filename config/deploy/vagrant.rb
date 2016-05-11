@@ -1,6 +1,7 @@
 server '172.16.5.2', roles: [:web, :app, :db], primary: true
 
 set :deploy_to, "/var/www/workday_integration"
+set :branch,    :master
 
 # server-based syntax
 # ======================
