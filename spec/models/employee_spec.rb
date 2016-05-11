@@ -113,7 +113,7 @@ describe Employee, type: :model do
     end
 
     it "should set the correct account expiry" do
-      expect(employee.generated_account_expires.to_i).to eq(1.month.from_now.to_i * 10000000 + 116444736000000000)
+      expect(employee.generated_account_expires).to eq(DateTimeHelper::FileTime.wtime(1.month.from_now))
     end
 
     it "should set the correct address" do
