@@ -42,9 +42,8 @@ class Employee < ActiveRecord::Base
   end
 
   def generated_account_expires
-    #TODO refactor windows FILETIME struct conversion
     if termination_date.present?
-      return DateTimeHelper::FileTime.wtime(termination_date)
+      DateTimeHelper::FileTime.wtime(termination_date)
     elsif contract_end_date.present?
       DateTimeHelper::FileTime.wtime(contract_end_date)
     else
