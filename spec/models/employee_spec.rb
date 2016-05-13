@@ -6,7 +6,7 @@ describe Employee, type: :model do
       first_name: "Bob",
       last_name: "Barker",
       cost_center: "OT Customer Support",
-      country: "UK"
+      country: "GB"
     )}
 
     it "should meet validations" do
@@ -34,6 +34,10 @@ describe Employee, type: :model do
 
     it "should set the correct address" do
       expect(employee.generated_address).to be_nil
+    end
+
+    it "should set the nearest time zone" do
+      expect(employee.nearest_time_zone).to eq("Europe/London")
     end
 
     it "should create attr hash" do

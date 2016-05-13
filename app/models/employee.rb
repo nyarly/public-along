@@ -5,6 +5,15 @@ class Employee < ActiveRecord::Base
             presence: true
 
   attr_accessor :sAMAccountName
+  attr_accessor :nearest_time_zone
+
+  def self.activation_group
+    where('hire_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow)
+  end
+
+  def self.deactivation_group
+    where('contract_end_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow)
+  end
 
   def cn
     first_name + " " + last_name
@@ -91,5 +100,10 @@ class Employee < ActiveRecord::Base
       postalCode: home_zip,
       thumbnailPhoto: decode_img_code(image_code)
     }.delete_if { |k,v| v.blank? } # AD does not accept nil or empty strings
+  end
+
+  def nearest_time_zone
+    # US has the broadest time zone spectrum, Pacific time is a sufficient middle ground to capture business hours between NYC and Hawaii
+    country == 'US' ? "America/Los_Angeles" : TZInfo::Country.get(country).zone_identifiers.first
   end
 end

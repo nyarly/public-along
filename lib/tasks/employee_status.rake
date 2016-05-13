@@ -1,29 +1,26 @@
 namespace :employee do
   task :change_status do
-    ads = ActiveDirectoryService.new
     new_hires = []
     terminations = []
 
-    Employee.all.each do |e|
-      zone = tz_by_country(e.country)
-      if e.hire_date && in_time_window?(e.hire_date, 3, zone)
-        new_hires << e
-      elsif e.contract_end_date && in_time_window?(e.contract_end_date, 21, zone)
-        terminations << e
-      end
+    Employee.activation_group.each do |e|
+      # Collect employees to activate if it is 3-4am on their hire date in their respective nearest time zone
+      new_hires << e if in_time_window?(e.hire_date, 3, e.nearest_time_zone)
     end
 
+    Employee.deactivation_group.each do |e|
+      # Collect employees to deactivate if it is 9-10pm on their end date in their respective nearest time zone
+      terminations << e if in_time_window?(e.contract_end_date, 21, e.nearest_time_zone)
+    end
+
+    ads = ActiveDirectoryService.new
     ads.activate(new_hires)
     ads.deactivate(terminations)
   end
 end
 
-def tz_by_country(co)
-  # US has the broadest time zone spectrum, Pacific time is a sufficient middle ground to capture business hours between NYC and Hawaii
-  co == 'US' ? "America/Los_Angeles" : TZInfo::Country.get(co).zone_identifiers.first
-end
-
 def in_time_window?(date, hour, zone)
+  # TODO refactor this as a scope in Employee model
   start_time = ActiveSupport::TimeZone.new(zone).local_to_utc(DateTime.new(date.year, date.month, date.day, hour))
   end_time = ActiveSupport::TimeZone.new(zone).local_to_utc(DateTime.new(date.year, date.month, date.day, (hour + 1)))
 
