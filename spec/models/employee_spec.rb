@@ -58,7 +58,7 @@ describe Employee, type: :model do
           employeeID: employee.employee_id,
           mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,
-          thumbnailPhoto: employee.image_code
+          thumbnailPhoto: Base64.decode64(employee.image_code)
         }
       )
     end
@@ -98,7 +98,7 @@ describe Employee, type: :model do
           employeeID: employee.employee_id,
           mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,
-          thumbnailPhoto: employee.image_code
+          thumbnailPhoto: Base64.decode64(employee.image_code)
         }
       )
     end
@@ -142,7 +142,7 @@ describe Employee, type: :model do
           department: employee.cost_center,
           mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,
-          thumbnailPhoto: employee.image_code
+          thumbnailPhoto: Base64.decode64(employee.image_code)
         }
       )
     end
@@ -188,7 +188,7 @@ describe Employee, type: :model do
           department: employee.cost_center,
           mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,
-          thumbnailPhoto: employee.image_code
+          thumbnailPhoto: Base64.decode64(employee.image_code)
         }
       )
     end
@@ -230,7 +230,7 @@ describe Employee, type: :model do
           l: "Beverly Hills",
           st: "CA",
           postalCode: "90210",
-          thumbnailPhoto: employee.image_code
+          thumbnailPhoto: Base64.decode64(employee.image_code)
         }
       )
     end
@@ -273,7 +273,7 @@ describe Employee, type: :model do
           l: "Beverly Hills",
           st: "CA",
           postalCode: "90210",
-          thumbnailPhoto: employee.image_code
+          thumbnailPhoto: Base64.decode64(employee.image_code)
         }
       )
     end
