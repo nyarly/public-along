@@ -28,6 +28,12 @@ gem "devise_ldap_authenticatable"
 # Use Puma as the app server
 gem 'puma'
 
+# Use Whenever for cron jobs
+gem 'whenever', :require => false
+
+# Use TZInfo for time zone information
+gem 'tzinfo'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
@@ -58,5 +64,6 @@ group :test do
   gem 'selenium-webdriver'
   gem 'simplecov', require: false
   gem 'shoulda-matchers'
+  gem 'timecop'
 end
 
