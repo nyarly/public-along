@@ -5,4 +5,6 @@ require "capistrano/bundler"
 require "capistrano/rbenv"
 require "capistrano/puma"
 
+require "whenever/capistrano"
+
 Dir.glob("lib/capistrano/tasks/*.rake").each { |r| import r }

@@ -30,13 +30,26 @@ class ActiveDirectoryService
     end
   end
 
-  def make_normal(employees)
+  def activate(employees)
     employees.each do |e|
       #TODO create a general validation for contingent workers
       if e.contingent_worker_type.present? && e.contract_end_date.blank?
         puts "ERROR: #{e.first_name} #{e.last_name} is a contingent worker and needs a contract_end_date. Account not activated."
       else
         ldap.replace_attribute(e.dn, :userAccountControl, "512")
+        puts ldap.get_operation_result
+      end
+    end
+  end
+
+  def deactivate(employees)
+    employees.each do |e|
+        puts "DEACTIVE"
+      #TODO create a general validation for contingent workers
+      if e.contingent_worker_type.present? && e.contract_end_date.blank?
+        puts "ERROR: #{e.first_name} #{e.last_name} is a contingent worker and needs a contract_end_date. Account not activated."
+      else
+        ldap.replace_attribute(e.dn, :userAccountControl, "514")
         puts ldap.get_operation_result
       end
     end
