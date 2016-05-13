@@ -38,7 +38,7 @@ def create_basic_new_hire(hire_date)
         home_city: nil,
         home_state: nil,
         home_zip: nil,
-        image_code: nil,
+        image_code: IMAGE,
       )
     end
 end

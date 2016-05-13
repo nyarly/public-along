@@ -61,6 +61,10 @@ class Employee < ActiveRecord::Base
     end
   end
 
+  def decode_img_code(base64_image_string)
+    Base64.decode64(base64_image_string) if base64_image_string
+  end
+
   def attrs
     {
       cn: cn,
@@ -85,7 +89,7 @@ class Employee < ActiveRecord::Base
       l: home_city,
       st: home_state,
       postalCode: home_zip,
-      thumbnailPhoto: image_code
+      thumbnailPhoto: decode_img_code(image_code)
     }.delete_if { |k,v| v.blank? } # AD does not accept nil or empty strings
   end
 end
