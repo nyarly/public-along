@@ -48,7 +48,7 @@ class Employee < ActiveRecord::Base
     puts ldap.get_operation_result
   end
 
-  def make_normal
+  def activate_account
     ldap.replace_attribute(dn, :userAccountControl, "512")
     puts ldap.get_operation_result
   end
