@@ -14,6 +14,8 @@ describe Employee, type: :model do
 
       expect(employee).to_not allow_value(nil).for(:first_name)
       expect(employee).to_not allow_value(nil).for(:last_name)
+      expect(employee).to_not allow_value(nil).for(:cost_center)
+      expect(employee).to_not allow_value(nil).for(:country)
     end
 
     it "should create a cn" do

@@ -3,6 +3,10 @@ class Employee < ActiveRecord::Base
             presence: true
   validates :last_name,
             presence: true
+  validates :cost_center,
+            presence: true
+  validates :country,
+            presence: true
 
   attr_accessor :sAMAccountName
   attr_accessor :nearest_time_zone
