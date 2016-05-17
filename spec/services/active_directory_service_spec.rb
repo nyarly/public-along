@@ -12,7 +12,11 @@ describe ActiveDirectoryService, type: :service do
     allow(ldap).to receive(:auth)
     allow(ldap).to receive(:bind)
 
+    Timecop.freeze(Time.now)
+  end
 
+  after :each do
+    Timecop.return
   end
 
   context "create disabled employees" do
@@ -20,7 +24,7 @@ describe ActiveDirectoryService, type: :service do
       employees = FactoryGirl.create_list(:employee, 1, :first_name => "Donny", :last_name => "Kerabatsos")
 
       allow(ldap).to receive(:search).and_return([]) # Mock search not finding conflicting existing sAMAccountName
-      allow(ldap).to receive(:get_operation_result)
+      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
 
       expect(ldap).to receive(:add).once.with(
         hash_including(
@@ -35,15 +39,17 @@ describe ActiveDirectoryService, type: :service do
       ads.create_disabled(employees)
       expect(employees[0].sAMAccountName).to eq("dkerabatsos")
       expect(employees[0].email).to eq("dkerabatsos@opentable.com")
+      expect(employees[0].ad_updated_at).to eq(DateTime.now)
     end
 
     it "should not call ldap.add when no suitable sAMAccountName is found" do
       employees = FactoryGirl.create_list(:employee, 1)
 
       allow(ldap).to receive(:search).and_return("entry", "entry", "entry") # Mock search finding conflicting sAMAccountNames
-      allow(ldap).to receive(:get_operation_result)
+      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(67)
 
       expect(ldap).to_not receive(:add)
+      expect(employees[0].ad_updated_at).to be_nil
 
       ads.create_disabled(employees)
     end
@@ -62,7 +68,7 @@ describe ActiveDirectoryService, type: :service do
     it "should return false when no available sAMAccountName is found" do
       employee = FactoryGirl.create(:employee)
 
-      allow(ldap).to receive(:search).and_return("entry") # Mock search not finding conflicting existing sAMAccountName
+      allow(ldap).to receive(:search).and_return("entry") # Mock search finding conflicting existing sAMAccountName
 
       expect(ads.assign_sAMAccountName(employee)).to eq(false)
       expect(employee.sAMAccountName).to eq(nil)
@@ -91,7 +97,7 @@ describe ActiveDirectoryService, type: :service do
       ldap_entry[:telephoneNumber] = employee.office_phone
       ldap_entry[:thumbnailPhoto] = employee.decode_img_code
 
-      allow(ldap).to receive(:get_operation_result)
+      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
     end
 
     it "should update changed attributes" do
@@ -112,6 +118,7 @@ describe ActiveDirectoryService, type: :service do
         :new_superior => "ou=People and Culture,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com"
       )
       ads.update([employee])
+      expect(employee.ad_updated_at).to eq(DateTime.now)
     end
 
     it "should update dn if country changes" do
@@ -126,6 +133,7 @@ describe ActiveDirectoryService, type: :service do
         :new_superior => "ou=HR,ou=EU,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com"
       )
       ads.update([employee])
+      expect(employee.ad_updated_at).to eq(DateTime.now)
     end
 
     it "should update dn if cost center changes" do
@@ -140,6 +148,7 @@ describe ActiveDirectoryService, type: :service do
         :new_superior => "ou=Customer Support,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com"
       )
       ads.update([employee])
+      expect(employee.ad_updated_at).to eq(DateTime.now)
     end
 
     it "should not update unchanged attributes" do
@@ -147,6 +156,7 @@ describe ActiveDirectoryService, type: :service do
 
       expect(ldap).to_not receive(:replace_attribute)
       ads.update([employee])
+      expect(employee.ad_updated_at).to be_nil
     end
 
     it "should update changed attributes with nil" do
@@ -187,15 +197,7 @@ describe ActiveDirectoryService, type: :service do
       expect(ldap).to receive(:delete_attribute).once.with(rem_to_reg_employee.dn, :st, nil)
       expect(ldap).to receive(:delete_attribute).once.with(rem_to_reg_employee.dn, :postalCode, nil)
       ads.update([rem_to_reg_employee])
-    end
-
-    it "should not delete prohibited attributes" do
-      allow(ldap).to receive(:search).and_return(ldap_entry)
-
-      employee.country = nil
-      employee.cost_center = nil
-
-      expect(ldap).to_not receive(:delete_attribute)
+      expect(rem_to_reg_employee.ad_updated_at).to eq(DateTime.now)
     end
   end
 end

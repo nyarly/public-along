@@ -23,7 +23,7 @@ class ActiveDirectoryService
           puts "WARNING: #{e.first_name} #{e.last_name} is a contingent worker and needs a contract_end_date. A disabled Active Directory user has been created, but will not be enabled until the contract_end_date is provided"
         end
         ldap.add(dn: e.dn, attributes: e.attrs)
-        puts ldap.get_operation_result
+        e.ad_updated_at = DateTime.now if ldap.get_operation_result.code == 0
       else
         puts "ERROR: could not find a suitable sAMAccountName for #{e.first_name} #{e.last_name}: Must create AD account manually"
       end
@@ -37,7 +37,6 @@ class ActiveDirectoryService
         puts "ERROR: #{e.first_name} #{e.last_name} is a contingent worker and needs a contract_end_date. Account not activated."
       else
         ldap.replace_attribute(e.dn, :userAccountControl, "512")
-        puts ldap.get_operation_result
       end
     end
   end
@@ -45,13 +44,13 @@ class ActiveDirectoryService
   def deactivate(employees)
     employees.each do |e|
       ldap.replace_attribute(e.dn, :userAccountControl, "514")
-      puts ldap.get_operation_result
     end
   end
 
   def update(employees)
     employees.each do |e|
       ldap_entry = find_entry("employeeID", e.employee_id).first
+      puts ldap_entry
       if ldap_entry
         attrs = updatable_attrs(e, ldap_entry)
         blank_attrs, populated_attrs = attrs.partition { |k,v| v.blank? }
@@ -79,11 +78,8 @@ class ActiveDirectoryService
 
   def delete_attrs(employee, ldap_entry, attrs)
     attrs.each do |k,v|
-      # Cannot delete cn, co or department
-      unless [:cn, :co, :department].include?(k)
-        ldap.delete_attribute(employee.dn, k, v)
-        puts ldap.get_operation_result
-      end
+      ldap.delete_attribute(employee.dn, k, v)
+      employee.ad_updated_at = DateTime.now if ldap.get_operation_result.code == 0
     end
   end
 
@@ -97,12 +93,13 @@ class ActiveDirectoryService
           :delete_attributes => true,
           :new_superior => employee.ou + BASE
         )
+        employee.ad_updated_at = DateTime.now if ldap.get_operation_result.code == 0
       end
 
       unless k == :cn
         ldap.replace_attribute(employee.dn, k, v)
+        employee.ad_updated_at = DateTime.now if ldap.get_operation_result.code == 0
       end
-      puts ldap.get_operation_result
     end
   end
 
