@@ -3,6 +3,10 @@ class Employee < ActiveRecord::Base
             presence: true
   validates :last_name,
             presence: true
+  validates :cost_center,
+            presence: true
+  validates :country,
+            presence: true
 
   attr_accessor :sAMAccountName
   attr_accessor :nearest_time_zone
@@ -43,8 +47,12 @@ class Employee < ActiveRecord::Base
 
   def generated_email
     #TODO Some contingent workers should get emails and others shouldn't
-    if sAMAccountName.present? && contingent_worker_type.blank?
-      sAMAccountName + "@opentable.com"
+    if email.present?
+      email
+    elsif sAMAccountName.present? && contingent_worker_type.blank?
+      gen_email = sAMAccountName + "@opentable.com"
+      update_attribute(:email, gen_email)
+      gen_email
     else
       nil
     end
@@ -56,7 +64,8 @@ class Employee < ActiveRecord::Base
     elsif contract_end_date.present?
       DateTimeHelper::FileTime.wtime(contract_end_date)
     else
-      nil
+      # In AD, this value indicates that the account never expires
+      "9223372036854775807"
     end
   end
 
@@ -70,8 +79,8 @@ class Employee < ActiveRecord::Base
     end
   end
 
-  def decode_img_code(base64_image_string)
-    Base64.decode64(base64_image_string) if base64_image_string
+  def decode_img_code
+    image_code ? Base64.decode64(image_code) : nil
   end
 
   def attrs
@@ -98,8 +107,8 @@ class Employee < ActiveRecord::Base
       l: home_city,
       st: home_state,
       postalCode: home_zip,
-      thumbnailPhoto: decode_img_code(image_code)
-    }.delete_if { |k,v| v.blank? } # AD does not accept nil or empty strings
+      thumbnailPhoto: decode_img_code
+    }
   end
 
   def nearest_time_zone

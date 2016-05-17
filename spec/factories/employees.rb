@@ -15,7 +15,7 @@ FactoryGirl.define do
     location_type         { "Headquarters" }
     location              { "OT San Francisco" }
     manager_id            { Faker::Number.number(10) }
-    cost_center           { "OT People & Culture" }
+    cost_center           { "OT People and Culture" }
     cost_center_id        { "WP8OT_San_Francisco000011" }
     personal_mobile_phone { Faker::PhoneNumber.phone_number }
     office_phone          { Faker::PhoneNumber.phone_number }

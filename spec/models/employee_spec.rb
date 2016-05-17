@@ -14,6 +14,8 @@ describe Employee, type: :model do
 
       expect(employee).to_not allow_value(nil).for(:first_name)
       expect(employee).to_not allow_value(nil).for(:last_name)
+      expect(employee).to_not allow_value(nil).for(:cost_center)
+      expect(employee).to_not allow_value(nil).for(:country)
     end
 
     it "should create a cn" do
@@ -29,7 +31,7 @@ describe Employee, type: :model do
     end
 
     it "should set the correct account expiry" do
-      expect(employee.generated_account_expires).to be_nil
+      expect(employee.generated_account_expires).to eq("9223372036854775807")
     end
 
     it "should set the correct address" do
@@ -47,9 +49,12 @@ describe Employee, type: :model do
           objectclass: ["top", "person", "organizationalPerson", "user"],
           givenName: "Bob",
           sn: "Barker",
+          sAMAccountName: employee.sAMAccountName,
+          mail: employee.email,
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
           co: employee.country,
+          accountExpires: employee.generated_account_expires,
           title: employee.business_title,
           description: employee.business_title,
           employeeType: employee.employee_type,
@@ -58,6 +63,10 @@ describe Employee, type: :model do
           employeeID: employee.employee_id,
           mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,
+          streetAddress: employee.generated_address,
+          l: employee.home_city,
+          st: employee.home_state,
+          postalCode: employee.home_zip,
           thumbnailPhoto: Base64.decode64(employee.image_code)
         }
       )
@@ -90,6 +99,7 @@ describe Employee, type: :model do
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
           co: employee.country,
+          accountExpires: employee.generated_account_expires,
           title: employee.business_title,
           description: employee.business_title,
           employeeType: employee.employee_type,
@@ -98,6 +108,10 @@ describe Employee, type: :model do
           employeeID: employee.employee_id,
           mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,
+          streetAddress: employee.generated_address,
+          l: employee.home_city,
+          st: employee.home_state,
+          postalCode: employee.home_zip,
           thumbnailPhoto: Base64.decode64(employee.image_code)
         }
       )
@@ -131,17 +145,25 @@ describe Employee, type: :model do
           objectclass: ["top", "person", "organizationalPerson", "user"],
           givenName: "Bob",
           sn: "Barker",
+          sAMAccountName: employee.sAMAccountName,
+          mail: employee.email,
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
           co: employee.country,
+          accountExpires: employee.generated_account_expires,
           accountExpires: employee.generated_account_expires,
           title: employee.business_title,
           description: employee.business_title,
           employeeType: employee.employee_type,
           physicalDeliveryOfficeName: employee.location,
           department: employee.cost_center,
+          employeeID: employee.employee_id,
           mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,
+          streetAddress: employee.generated_address,
+          l: employee.home_city,
+          st: employee.home_state,
+          postalCode: employee.home_zip,
           thumbnailPhoto: Base64.decode64(employee.image_code)
         }
       )
@@ -177,17 +199,25 @@ describe Employee, type: :model do
           objectclass: ["top", "person", "organizationalPerson", "user"],
           givenName: "Bob",
           sn: "Barker",
+          sAMAccountName: employee.sAMAccountName,
+          mail: employee.email,
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
           co: employee.country,
+          accountExpires: employee.generated_account_expires,
           accountExpires: employee.generated_account_expires,
           title: employee.business_title,
           description: employee.business_title,
           employeeType: employee.employee_type,
           physicalDeliveryOfficeName: employee.location,
           department: employee.cost_center,
+          employeeID: employee.employee_id,
           mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,
+          streetAddress: employee.generated_address,
+          l: employee.home_city,
+          st: employee.home_state,
+          postalCode: employee.home_zip,
           thumbnailPhoto: Base64.decode64(employee.image_code)
         }
       )
@@ -215,9 +245,12 @@ describe Employee, type: :model do
           objectclass: ["top", "person", "organizationalPerson", "user"],
           givenName: "Bob",
           sn: "Barker",
+          sAMAccountName: employee.sAMAccountName,
+          mail: employee.email,
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
           co: employee.country,
+          accountExpires: employee.generated_account_expires,
           title: employee.business_title,
           description: employee.business_title,
           employeeType: employee.employee_type,
@@ -258,9 +291,12 @@ describe Employee, type: :model do
           objectclass: ["top", "person", "organizationalPerson", "user"],
           givenName: "Bob",
           sn: "Barker",
+          sAMAccountName: employee.sAMAccountName,
+          mail: employee.email,
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
           co: employee.country,
+          accountExpires: employee.generated_account_expires,
           title: employee.business_title,
           description: employee.business_title,
           employeeType: employee.employee_type,
