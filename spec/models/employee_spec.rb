@@ -29,7 +29,7 @@ describe Employee, type: :model do
     end
 
     it "should set the correct account expiry" do
-      expect(employee.generated_account_expires).to be_nil
+      expect(employee.generated_account_expires).to eq("9223372036854775807")
     end
 
     it "should set the correct address" do
@@ -50,6 +50,7 @@ describe Employee, type: :model do
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
           co: employee.country,
+          accountExpires: employee.generated_account_expires,
           title: employee.business_title,
           description: employee.business_title,
           employeeType: employee.employee_type,
@@ -90,6 +91,7 @@ describe Employee, type: :model do
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
           co: employee.country,
+          accountExpires: employee.generated_account_expires,
           title: employee.business_title,
           description: employee.business_title,
           employeeType: employee.employee_type,
@@ -134,6 +136,7 @@ describe Employee, type: :model do
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
           co: employee.country,
+          accountExpires: employee.generated_account_expires,
           accountExpires: employee.generated_account_expires,
           title: employee.business_title,
           description: employee.business_title,
@@ -181,6 +184,7 @@ describe Employee, type: :model do
           workdayUsername: employee.workday_username,
           co: employee.country,
           accountExpires: employee.generated_account_expires,
+          accountExpires: employee.generated_account_expires,
           title: employee.business_title,
           description: employee.business_title,
           employeeType: employee.employee_type,
@@ -218,6 +222,7 @@ describe Employee, type: :model do
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
           co: employee.country,
+          accountExpires: employee.generated_account_expires,
           title: employee.business_title,
           description: employee.business_title,
           employeeType: employee.employee_type,
@@ -261,6 +266,7 @@ describe Employee, type: :model do
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
           co: employee.country,
+          accountExpires: employee.generated_account_expires,
           title: employee.business_title,
           description: employee.business_title,
           employeeType: employee.employee_type,

@@ -44,14 +44,65 @@ class ActiveDirectoryService
 
   def deactivate(employees)
     employees.each do |e|
-        puts "DEACTIVE"
-      #TODO create a general validation for contingent workers
-      if e.contingent_worker_type.present? && e.contract_end_date.blank?
-        puts "ERROR: #{e.first_name} #{e.last_name} is a contingent worker and needs a contract_end_date. Account not activated."
+      ldap.replace_attribute(e.dn, :userAccountControl, "514")
+      puts ldap.get_operation_result
+    end
+  end
+
+  def update(employees)
+    employees.each do |e|
+      ldap_entry = find_entry("employeeID", e.employee_id).first
+      if ldap_entry
+        attrs = updatable_attrs(e, ldap_entry)
+        blank_attrs, populated_attrs = attrs.partition { |k,v| v.blank? }
+
+        delete_attrs(e, ldap_entry, blank_attrs)
+        replace_attrs(e, ldap_entry, populated_attrs)
       else
-        ldap.replace_attribute(e.dn, :userAccountControl, "514")
+        puts "ERROR: #{e.first_name} #{e.last_name} not found in Active Directory"
+      end
+    end
+  end
+
+  def updatable_attrs(employee, ldap_entry)
+    # objectClass, sAMAccountName, mail, and unicodePwd should not be updated via Workday
+    attrs = employee.full_attrs
+    [:objectclass, :sAMAccountName, :mail, :unicodePwd].each { |k| attrs.delete(k) }
+    # Only update attrs that differ
+    attrs.each { |k,v|
+      if v == ldap_entry.try(k) || ldap_entry.try(k).include?(v)
+        attrs.delete(k)
+      end
+    }
+    attrs
+  end
+
+  def delete_attrs(employee, ldap_entry, attrs)
+    attrs.each do |k,v|
+      # Cannot delete cn, co or department
+      unless [:cn, :co, :department].include?(k)
+        ldap.delete_attribute(employee.dn, k, v)
         puts ldap.get_operation_result
       end
+    end
+  end
+
+  def replace_attrs(employee, ldap_entry, attrs)
+    attrs.each do |k,v|
+      # Changing cn, co or dept requires a dn renaming
+      if [:cn, :co, :department].include?(k)
+        ldap.rename(
+          :olddn => ldap_entry.dn,
+          :newrdn => "cn=#{employee.cn}",
+          :delete_attributes => true,
+          :new_superior => employee.ou + BASE
+        )
+      end
+
+      unless k == :cn
+        ldap.replace_attribute(employee.dn, k, v)
+      end
+      puts ldap.get_operation_result
     end
   end
 
@@ -72,7 +123,6 @@ class ActiveDirectoryService
       end
     end
 
-    puts employee.sAMAccountName
     employee.sAMAccountName.present?
   end
 
