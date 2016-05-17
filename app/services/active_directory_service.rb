@@ -64,8 +64,8 @@ class ActiveDirectoryService
   end
 
   def updatable_attrs(employee, ldap_entry)
-    # objectClass, sAMAccountName, mail, and unicodePwd should not be updated via Workday
     attrs = employee.full_attrs
+    # objectClass, sAMAccountName, mail, and unicodePwd should not be updated via Workday
     [:objectclass, :sAMAccountName, :mail, :unicodePwd].each { |k| attrs.delete(k) }
     # Only update attrs that differ
     attrs.each { |k,v|
