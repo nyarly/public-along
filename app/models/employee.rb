@@ -83,7 +83,7 @@ class Employee < ActiveRecord::Base
     image_code ? Base64.decode64(image_code) : nil
   end
 
-  def full_attrs
+  def attrs
     {
       cn: cn,
       objectclass: ["top", "person", "organizationalPerson", "user"],
@@ -109,10 +109,6 @@ class Employee < ActiveRecord::Base
       postalCode: home_zip,
       thumbnailPhoto: decode_img_code
     }
-  end
-
-  def attrs
-    full_attrs.delete_if { |k,v| v.blank? } # AD does not accept nil or empty strings
   end
 
   def nearest_time_zone

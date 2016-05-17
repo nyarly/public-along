@@ -32,7 +32,7 @@ describe ActiveDirectoryService, type: :service do
           attributes: employees[0].attrs.merge({
             :sAMAccountName => "dkerabatsos",
             :mail => "dkerabatsos@opentable.com"
-          })
+          }).delete_if { |k,v| v.blank? }
         )
       )
 

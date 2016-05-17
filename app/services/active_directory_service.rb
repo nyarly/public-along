@@ -22,7 +22,8 @@ class ActiveDirectoryService
         if e.contingent_worker_type.present? && e.contract_end_date.blank?
           puts "WARNING: #{e.first_name} #{e.last_name} is a contingent worker and needs a contract_end_date. A disabled Active Directory user has been created, but will not be enabled until the contract_end_date is provided"
         end
-        ldap.add(dn: e.dn, attributes: e.attrs)
+        attrs = e.attrs.delete_if { |k,v| v.blank? } # AD#add won't accept nil or empty strings
+        ldap.add(dn: e.dn, attributes: attrs)
         e.ad_updated_at = DateTime.now if ldap.get_operation_result.code == 0
       else
         puts "ERROR: could not find a suitable sAMAccountName for #{e.first_name} #{e.last_name}: Must create AD account manually"
@@ -64,7 +65,7 @@ class ActiveDirectoryService
   end
 
   def updatable_attrs(employee, ldap_entry)
-    attrs = employee.full_attrs
+    attrs = employee.attrs
     # objectClass, sAMAccountName, mail, and unicodePwd should not be updated via Workday
     [:objectclass, :sAMAccountName, :mail, :unicodePwd].each { |k| attrs.delete(k) }
     # Only update attrs that differ

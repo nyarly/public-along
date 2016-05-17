@@ -49,6 +49,8 @@ describe Employee, type: :model do
           objectclass: ["top", "person", "organizationalPerson", "user"],
           givenName: "Bob",
           sn: "Barker",
+          sAMAccountName: employee.sAMAccountName,
+          mail: employee.email,
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
           co: employee.country,
@@ -61,6 +63,10 @@ describe Employee, type: :model do
           employeeID: employee.employee_id,
           mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,
+          streetAddress: employee.generated_address,
+          l: employee.home_city,
+          st: employee.home_state,
+          postalCode: employee.home_zip,
           thumbnailPhoto: Base64.decode64(employee.image_code)
         }
       )
@@ -102,6 +108,10 @@ describe Employee, type: :model do
           employeeID: employee.employee_id,
           mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,
+          streetAddress: employee.generated_address,
+          l: employee.home_city,
+          st: employee.home_state,
+          postalCode: employee.home_zip,
           thumbnailPhoto: Base64.decode64(employee.image_code)
         }
       )
@@ -135,6 +145,8 @@ describe Employee, type: :model do
           objectclass: ["top", "person", "organizationalPerson", "user"],
           givenName: "Bob",
           sn: "Barker",
+          sAMAccountName: employee.sAMAccountName,
+          mail: employee.email,
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
           co: employee.country,
@@ -145,8 +157,13 @@ describe Employee, type: :model do
           employeeType: employee.employee_type,
           physicalDeliveryOfficeName: employee.location,
           department: employee.cost_center,
+          employeeID: employee.employee_id,
           mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,
+          streetAddress: employee.generated_address,
+          l: employee.home_city,
+          st: employee.home_state,
+          postalCode: employee.home_zip,
           thumbnailPhoto: Base64.decode64(employee.image_code)
         }
       )
@@ -182,6 +199,8 @@ describe Employee, type: :model do
           objectclass: ["top", "person", "organizationalPerson", "user"],
           givenName: "Bob",
           sn: "Barker",
+          sAMAccountName: employee.sAMAccountName,
+          mail: employee.email,
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
           co: employee.country,
@@ -192,8 +211,13 @@ describe Employee, type: :model do
           employeeType: employee.employee_type,
           physicalDeliveryOfficeName: employee.location,
           department: employee.cost_center,
+          employeeID: employee.employee_id,
           mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,
+          streetAddress: employee.generated_address,
+          l: employee.home_city,
+          st: employee.home_state,
+          postalCode: employee.home_zip,
           thumbnailPhoto: Base64.decode64(employee.image_code)
         }
       )
@@ -221,6 +245,8 @@ describe Employee, type: :model do
           objectclass: ["top", "person", "organizationalPerson", "user"],
           givenName: "Bob",
           sn: "Barker",
+          sAMAccountName: employee.sAMAccountName,
+          mail: employee.email,
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
           co: employee.country,
@@ -265,6 +291,8 @@ describe Employee, type: :model do
           objectclass: ["top", "person", "organizationalPerson", "user"],
           givenName: "Bob",
           sn: "Barker",
+          sAMAccountName: employee.sAMAccountName,
+          mail: employee.email,
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
           co: employee.country,
