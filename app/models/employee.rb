@@ -12,11 +12,11 @@ class Employee < ActiveRecord::Base
   attr_accessor :nearest_time_zone
 
   def self.activation_group
-    where('hire_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow)
+    where('hire_date BETWEEN ? AND ? OR leave_return_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow)
   end
 
   def self.deactivation_group
-    where('contract_end_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow)
+    where('contract_end_date BETWEEN ? AND ? OR leave_start_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow)
   end
 
   def cn

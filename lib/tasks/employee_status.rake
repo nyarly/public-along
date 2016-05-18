@@ -1,21 +1,29 @@
 namespace :employee do
   task :change_status do
-    new_hires = []
-    terminations = []
+    activations = []
+    deactivations = []
 
     Employee.activation_group.each do |e|
-      # Collect employees to activate if it is 3-4am on their hire date in their respective nearest time zone
-      new_hires << e if in_time_window?(e.hire_date, 3, e.nearest_time_zone)
+      # Collect employees to activate if it is 3-4am on their hire date or leave return date in their respective nearest time zone
+      if e.leave_return_date
+        activations << e if in_time_window?(e.leave_return_date, 3, e.nearest_time_zone)
+      else
+        activations << e if in_time_window?(e.hire_date, 3, e.nearest_time_zone)
+      end
     end
 
     Employee.deactivation_group.each do |e|
-      # Collect employees to deactivate if it is 9-10pm on their end date in their respective nearest time zone
-      terminations << e if in_time_window?(e.contract_end_date, 21, e.nearest_time_zone)
+      # Collect employees to deactivate if it is 9-10pm on their end date or day before leave start date in their respective nearest time zone
+      if e.leave_start_date
+        deactivations << e if in_time_window?(e.leave_start_date - 1.day, 21, e.nearest_time_zone)
+      else
+        deactivations << e if in_time_window?(e.contract_end_date, 21, e.nearest_time_zone)
+      end
     end
 
     ads = ActiveDirectoryService.new
-    ads.activate(new_hires)
-    ads.deactivate(terminations)
+    ads.activate(activations)
+    ads.deactivate(deactivations)
   end
 end
 
