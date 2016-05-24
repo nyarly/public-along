@@ -165,6 +165,7 @@ describe Employee, type: :model do
     let(:employee) { FactoryGirl.build(:employee, :contingent,
       first_name: "Bob",
       last_name: "Barker",
+      employee_type: "Vendor",
       contract_end_date: 1.month.from_now
     )}
 

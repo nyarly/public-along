@@ -49,7 +49,7 @@ class Employee < ActiveRecord::Base
     #TODO Some contingent workers should get emails and others shouldn't
     if email.present?
       email
-    elsif sAMAccountName.present? && contingent_worker_type.blank?
+    elsif sAMAccountName.present? && employee_type != "Vendor"
       gen_email = sAMAccountName + "@opentable.com"
       update_attribute(:email, gen_email)
       gen_email
