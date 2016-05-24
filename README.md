@@ -7,12 +7,10 @@ Takes file dumps from OT Workday and automates user creation/modification in OT 
 - From command line run (Assuming that you have an ubuntu vm set up for the db)
 `rake db create`
 `rake db migrate`
-`rails server` 
+`rails server`
 - In web browser, go to 'localhost:3000/users/sign_in'
 - Sign in using test creds u:t999 p:Password1
 - To sign out, go to 'localhost:3000/users/sign_out'
 
 ## TODO
 - Remove TempController and views when we have real views
-- create ldap.yml.example
-- user_spec.rb switch to new style expect syntax. (needs debugging)

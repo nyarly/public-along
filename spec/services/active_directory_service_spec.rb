@@ -36,7 +36,7 @@ describe ActiveDirectoryService, type: :service do
         )
       )
 
-      ads.create_disabled(employees)
+      ads.create_disabled_accounts(employees)
       expect(employees[0].sAMAccountName).to eq("dkerabatsos")
       expect(employees[0].email).to eq("dkerabatsos@opentable.com")
       expect(employees[0].ad_updated_at).to eq(DateTime.now)
@@ -51,7 +51,7 @@ describe ActiveDirectoryService, type: :service do
       expect(ldap).to_not receive(:add)
       expect(employees[0].ad_updated_at).to be_nil
 
-      ads.create_disabled(employees)
+      ads.create_disabled_accounts(employees)
     end
   end
 

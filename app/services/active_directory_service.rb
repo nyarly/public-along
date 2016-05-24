@@ -14,7 +14,7 @@ class ActiveDirectoryService
     end
   end
 
-  def create_disabled(employees)
+  def create_disabled_accounts(employees)
     employees.each do |e|
       if assign_sAMAccountName(e)
         puts "creating #{e.first_name} #{e.last_name}"
