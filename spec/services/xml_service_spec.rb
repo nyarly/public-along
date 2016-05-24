@@ -101,19 +101,19 @@ describe XmlService, type: :service do
       :first_name => "Jeffrey",
       :last_name => "Lebowski",
       :cost_center => "OT Business Optimization",
-      :image_code => nil
-      )
+      :image_code => nil)
+    }
+    let!(:terminated_employee) { FactoryGirl.create(:employee,
+      :employee_id => "109843")
     }
     let!(:returning_employee) { FactoryGirl.create(:employee,
-      :employee_id => "12100321"
-      )
+      :employee_id => "12100321")
     }
     let!(:previous_leave_emp) { FactoryGirl.create(:employee,
       :employee_id => "1234567",
       :hire_date => DateTime.new(2005, 2, 1),
       :leave_start_date => DateTime.new(2014, 5, 14),
-      :leave_return_date => DateTime.new(2014, 6, 14)
-      )
+      :leave_return_date => DateTime.new(2014, 6, 14))
     }
 
     it "should update an existing Employee for an existing worker" do
@@ -121,6 +121,12 @@ describe XmlService, type: :service do
 
       expect(employee.reload.business_title).to eq("Sr. Software Development Team Lead")
       expect(employee.reload.image_code).to eq(IMAGE)
+    end
+
+    it "should terminate an existing Employee for an existing worker" do
+      xml.parse_to_db
+
+      expect(terminated_employee.reload.termination_date).to eq(DateTime.new(2016,4,27))
     end
 
     it "should update leave_start_date for Employee going on leave" do
@@ -142,7 +148,6 @@ describe XmlService, type: :service do
 
       expect(previous_leave_emp.reload.leave_start_date).to eq(DateTime.new(2016,2,28))
       expect(previous_leave_emp.reload.leave_return_date).to eq(DateTime.new(2016,9,28))
-      puts previous_leave_emp.inspect
     end
   end
 

@@ -455,4 +455,106 @@
     </ws:Additional_Information>
     <ws:Photo/>
   </ws:Worker>
+  <ws:Worker>
+    <ws:Summary>
+      <ws:Employee_ID>109843</ws:Employee_ID>
+      <ws:Name>Kylie Kylie (Terminated)</ws:Name>
+    </ws:Summary>
+    <ws:Eligibility ws:PriorValue="">true</ws:Eligibility>
+    <ws:Personal>
+      <ws:Name_Data>
+        <ws:Name_Type ws:PriorValue="">Preferred</ws:Name_Type>
+        <ws:First_Name ws:PriorValue="">Kylie</ws:First_Name>
+        <ws:Last_Name ws:PriorValue="">Kylie</ws:Last_Name>
+        <ws:Formatted_Name ws:PriorValue="">Kylie Kylie</ws:Formatted_Name>
+        <ws:Reporting_Name ws:PriorValue="">Kylie, Kylie</ws:Reporting_Name>
+      </ws:Name_Data>
+      <ws:Address_Data>
+        <ws:Address_Type ws:PriorValue="">WORK</ws:Address_Type>
+        <ws:Address_Is_Public ws:PriorValue="">true</ws:Address_Is_Public>
+        <ws:Is_Primary ws:PriorValue="">true</ws:Is_Primary>
+        <ws:Address_Line_Data ws:Label="Address Line 1" ws:PriorValue="" ws:Type="ADDRESS_LINE_1">84 Hotham Street, Preston</ws:Address_Line_Data>
+        <ws:Municipality ws:PriorValue="">Melbourne</ws:Municipality>
+        <ws:Region ws:PriorValue="">Victoria</ws:Region>
+        <ws:Postal_Code ws:PriorValue="">3072</ws:Postal_Code>
+        <ws:Country ws:PriorValue="">AU</ws:Country>
+      </ws:Address_Data>
+      <ws:Tobacco_Use ws:PriorValue="">false</ws:Tobacco_Use>
+    </ws:Personal>
+    <ws:Status>
+      <ws:Staffing_Event ws:PriorValue="">TRM</ws:Staffing_Event>
+      <ws:Staffing_Event_Date ws:PriorValue="">2016-04-27</ws:Staffing_Event_Date>
+      <ws:Employee_Status ws:PriorValue="">Terminated</ws:Employee_Status>
+      <ws:Active ws:PriorValue="">false</ws:Active>
+      <ws:Active_Status_Date ws:PriorValue="">2016-04-28</ws:Active_Status_Date>
+      <ws:Hire_Date ws:PriorValue="">2016-04-07</ws:Hire_Date>
+      <ws:Original_Hire_Date ws:PriorValue="">2016-04-07</ws:Original_Hire_Date>
+      <ws:Hire_Reason ws:PriorValue="">Hire</ws:Hire_Reason>
+      <ws:Continuous_Service_Date ws:PriorValue="">2016-04-07</ws:Continuous_Service_Date>
+      <ws:First_Day_of_Work ws:PriorValue="">2016-04-07</ws:First_Day_of_Work>
+      <ws:Retired ws:PriorValue="">false</ws:Retired>
+      <ws:Seniority_Date ws:PriorValue="">2016-04-07</ws:Seniority_Date>
+      <ws:Terminated ws:PriorValue="">true</ws:Terminated>
+      <ws:Termination_Date ws:PriorValue="">2016-04-27</ws:Termination_Date>
+      <ws:Pay_Through_Date ws:PriorValue="">2016-04-27</ws:Pay_Through_Date>
+      <ws:Primary_Termination_Reason ws:PriorValue="">Terminate_Employee_Voluntary_Resignation</ws:Primary_Termination_Reason>
+      <ws:Primary_Termination_Category ws:PriorValue="">Terminate_Employee_Voluntary</ws:Primary_Termination_Category>
+      <ws:Termination_Involuntary ws:PriorValue="">false</ws:Termination_Involuntary>
+      <ws:Secondary_Termination_Reason ws:PriorValue="">Terminate_Employee_Voluntary_Retirement</ws:Secondary_Termination_Reason>
+      <ws:Not_Eligible_for_Hire ws:PriorValue="">false</ws:Not_Eligible_for_Hire>
+      <ws:Regrettable_Termination ws:PriorValue="">true</ws:Regrettable_Termination>
+      <ws:Termination_Last_Day_of_Work ws:PriorValue="">2016-04-27-07:00</ws:Termination_Last_Day_of_Work>
+      <ws:Not_Returning ws:PriorValue="">false</ws:Not_Returning>
+      <ws:Return_Unknown ws:PriorValue="">false</ws:Return_Unknown>
+      <ws:Has_International_Assignment ws:PriorValue="">false</ws:Has_International_Assignment>
+      <ws:Home_Country ws:PriorValue="">AU</ws:Home_Country>
+      <ws:Rehire ws:PriorValue="">false</ws:Rehire>
+    </ws:Status>
+    <ws:Position>
+      <ws:Operation>ADD</ws:Operation>
+      <ws:Position_ID ws:PriorValue="">80014094</ws:Position_ID>
+      <ws:Effective_Date ws:PriorValue="">2016-04-07</ws:Effective_Date>
+      <ws:Primary_Position ws:PriorValue="">true</ws:Primary_Position>
+      <ws:Position_Title ws:PriorValue="">OT Fraud Analyst</ws:Position_Title>
+      <ws:Business_Title ws:PriorValue="">OT Fraud Analyst</ws:Business_Title>
+      <ws:Worker_Type ws:PriorValue="">Regular</ws:Worker_Type>
+      <ws:Position_Time_Type ws:PriorValue="">Full_time</ws:Position_Time_Type>
+      <ws:Job_Exempt ws:PriorValue="">false</ws:Job_Exempt>
+      <ws:Scheduled_Weekly_Hours ws:PriorValue="">40</ws:Scheduled_Weekly_Hours>
+      <ws:Default_Weekly_Hours ws:PriorValue="">40</ws:Default_Weekly_Hours>
+      <ws:Full_Time_Equivalent_Percentage ws:PriorValue="">100</ws:Full_Time_Equivalent_Percentage>
+      <ws:Exclude_from_Headcount ws:PriorValue="">false</ws:Exclude_from_Headcount>
+      <ws:Pay_Rate_Type ws:PriorValue="">Hourly</ws:Pay_Rate_Type>
+      <ws:Organization_Data>
+        <ws:Operation>ADD</ws:Operation>
+        <ws:Organization ws:PriorValue="">P1_Legal_(OpenTable)</ws:Organization>
+        <ws:Organization_Type ws:PriorValue="">COST_CENTER</ws:Organization_Type>
+      </ws:Organization_Data>
+      <ws:Job_Profile ws:PriorValue="">50100324</ws:Job_Profile>
+      <ws:Job_Family ws:PriorValue="">OT_Legal</ws:Job_Family>
+      <ws:Business_Site ws:PriorValue="">ABC</ws:Business_Site>
+      <ws:Business_Site_Name ws:PriorValue="">OT Melbourne</ws:Business_Site_Name>
+      <ws:Business_Site_Address_Line_Data ws:Label="Address Line 1" ws:PriorValue="" ws:Type="ADDRESS_LINE_1">84 Hotham Street, Preston</ws:Business_Site_Address_Line_Data>
+      <ws:Business_Site_Municipality ws:PriorValue="">Melbourne</ws:Business_Site_Municipality>
+      <ws:Business_Site_Region ws:PriorValue="">Victoria</ws:Business_Site_Region>
+      <ws:Business_Site_Postal_Code ws:PriorValue="">3072</ws:Business_Site_Postal_Code>
+      <ws:Business_Site_Country ws:PriorValue="">AU</ws:Business_Site_Country>
+      <ws:Supervisor_ID ws:PriorValue="">12101034</ws:Supervisor_ID>
+      <ws:Supervisor_Name ws:PriorValue="">Connie Chen</ws:Supervisor_Name>
+    </ws:Position>
+    <ws:Identification_Data>
+      <ws:Operation>ADD</ws:Operation>
+      <ws:Identification ws:PriorValue="">Custom</ws:Identification>
+      <ws:ID ws:PriorValue="">32907</ws:ID>
+      <ws:ID_Type ws:PriorValue="">Office</ws:ID_Type>
+    </ws:Identification_Data>
+    <ws:Additional_Information>
+      <ws:WID ws:PriorValue="">0e9c2c75a544109c5cb2ef791d0317eb</ws:WID>
+      <ws:SAP_ID ws:PriorValue="">109843</ws:SAP_ID>
+      <ws:Username ws:PriorValue="">kkylie</ws:Username>
+      <ws:Cost_Center_Code ws:PriorValue="">OT_Melbourne000012</ws:Cost_Center_Code>
+      <ws:Office_ID ws:PriorValue="">32907</ws:Office_ID>
+    </ws:Additional_Information>
+    <ws:Photo/>
+  </ws:Worker>
 </ws:Worker_Sync>
