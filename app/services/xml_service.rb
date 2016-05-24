@@ -3,64 +3,95 @@ class XmlService
 
   def initialize(file)
     @doc = Nokogiri::XML(file)
+    @new_hires = []
+    @existing_employees = []
   end
 
   def parse_to_db
     @doc.xpath("//ws:Worker").each do |w|
-      attrs = {
-        :first_name => w.xpath("ws:Personal//ws:Name_Data//ws:First_Name").try(:text),
-        :last_name => w.xpath("ws:Personal//ws:Name_Data//ws:Last_Name").try(:text),
-        :workday_username => w.xpath("ws:Additional_Information//ws:Username").try(:text),
-        :employee_id => w.xpath("ws:Summary//ws:Employee_ID").try(:text),
-        :country => w.xpath("ws:Position//ws:Business_Site_Country").try(:text),
-        :hire_date => w.xpath("ws:Status//ws:Hire_Date").try(:text),
-        :contract_end_date => s_to_DateTime(w.xpath("ws:Additional_Information//ws:Contract_End_Date").try(:text)),
-        :termination_date => s_to_DateTime(w.xpath("ws:Status//ws:Termination_Date").try(:text)),
-        :job_family_id => w.xpath("ws:Additional_Information//ws:OT_Job_Family_ID").try(:text),
-        :job_family => w.xpath("ws:Additional_Information//ws:OT_Job_Family").try(:text),
-        :job_profile_id => w.xpath("ws:Additional_Information//ws:OT_Job_Profile_ID").try(:text),
-        :job_profile => w.xpath("ws:Additional_Information//ws:OT_Job_Profile").try(:text),
-        :business_title => w.xpath("ws:Position//ws:Position_Title").try(:text),
-        :employee_type => w.xpath("ws:Position//ws:Worker_Type").try(:text),
-        :contingent_worker_type => w.xpath("ws:Additional_Information//ws:Contingent_Worker_Type").try(:text),
-        :location_type => w.xpath("ws:Position//ws:Business_Site").try(:text),
-        :location => w.xpath("ws:Position//ws:Business_Site_Name").try(:text),
-        :manager_id => w.xpath("ws:Position//ws:Supervisor_ID").try(:text),
-        :cost_center_id => w.xpath("ws:Additional_Information//ws:Cost_Center_Code").try(:text),
-        :office_phone => w.xpath("ws:Additional_Information//ws:Primary_Work_Phone").try(:text),
-        :image_code => w.xpath("ws:Photo//ws:Image").try(:text),
-        :home_address_1 => nil,
-        :home_address_2 => nil,
-        :home_city => nil,
-        :home_state => nil,
-        :home_zip => nil,
-        :leave_start_date => nil,
-        :leave_return_date => nil
-      }
+      attrs = base_attrs(w).merge(leave_attrs(w)).merge(address_attrs(w))
 
       attrs[:cost_center] = COST_CENTERS[attrs[:cost_center_id][-6,6]] if attrs[:cost_center_id].present?
 
-      w.xpath("ws:Leave_of_Absence").each do |l|
-        if attrs[:leave_start_date] == nil || (attrs[:leave_start_date].present? && attrs[:leave_start_date] < s_to_DateTime(l.xpath("ws:Leave_Start_Date").text))
-          attrs[:leave_start_date] = s_to_DateTime(l.xpath("ws:Leave_Start_Date").try(:text))
-          attrs[:leave_return_date] = s_to_DateTime(l.xpath("ws:First_Day_of_Work").try(:text))
+      sort_employee(attrs)
+    end
+  end
+
+  def get_text(node, path)
+    node.xpath(path).try(:text)
+  end
+
+  def base_attrs(worker_node)
+    {
+      :first_name => get_text(worker_node, "ws:Personal//ws:Name_Data//ws:First_Name"),
+      :last_name => get_text(worker_node, "ws:Personal//ws:Name_Data//ws:Last_Name"),
+      :workday_username => get_text(worker_node, "ws:Additional_Information//ws:Username"),
+      :employee_id => get_text(worker_node, "ws:Summary//ws:Employee_ID"),
+      :country => get_text(worker_node, "ws:Position//ws:Business_Site_Country"),
+      :hire_date => get_text(worker_node, "ws:Status//ws:Hire_Date"),
+      :contract_end_date => s_to_DateTime(get_text(worker_node, "ws:Additional_Information//ws:Contract_End_Date")),
+      :termination_date => s_to_DateTime(get_text(worker_node, "ws:Status//ws:Termination_Date")),
+      :job_family_id => get_text(worker_node, "ws:Additional_Information//ws:OT_Job_Family_ID"),
+      :job_family => get_text(worker_node, "ws:Additional_Information//ws:OT_Job_Family"),
+      :job_profile_id => get_text(worker_node, "ws:Additional_Information//ws:OT_Job_Profile_ID"),
+      :job_profile => get_text(worker_node, "ws:Additional_Information//ws:OT_Job_Profile"),
+      :business_title => get_text(worker_node, "ws:Position//ws:Position_Title"),
+      :employee_type => get_text(worker_node, "ws:Position//ws:Worker_Type"),
+      :contingent_worker_type => get_text(worker_node, "ws:Additional_Information//ws:Contingent_Worker_Type"),
+      :location_type => get_text(worker_node, "ws:Position//ws:Business_Site"),
+      :location => get_text(worker_node, "ws:Position//ws:Business_Site_Name"),
+      :manager_id => get_text(worker_node, "ws:Position//ws:Supervisor_ID"),
+      :cost_center_id => get_text(worker_node, "ws:Additional_Information//ws:Cost_Center_Code"),
+      :office_phone => get_text(worker_node, "ws:Additional_Information//ws:Primary_Work_Phone"),
+      :image_code => get_text(worker_node, "ws:Photo//ws:Image")
+    }
+  end
+
+  def leave_attrs(worker_node)
+    attrs = {}
+    worker_node.xpath("ws:Leave_of_Absence").each do |l|
+      if attrs[:leave_start_date] == nil || (attrs[:leave_start_date].present? && attrs[:leave_start_date] < s_to_DateTime(get_text(l, "ws:Leave_Start_Date")))
+        attrs[:leave_start_date] = s_to_DateTime(get_text(l, "ws:Leave_Start_Date"))
+        attrs[:leave_return_date] = s_to_DateTime(get_text(l, "ws:First_Day_of_Work"))
+      end
+    end
+    attrs
+  end
+
+  def address_attrs(worker_node)
+    # Only save home address if the worker is remote
+    attrs = {}
+    if worker_node.xpath("ws:Position//ws:Business_Site").first.text == "Remote Location"
+      worker_node.xpath("ws:Personal//ws:Address_Data").each do |a|
+        if a.xpath("ws:Address_Type").first.text == "HOME"
+          attrs[:home_address_1] = get_text(a, "*[@ws:Label='Address Line 1']")
+          attrs[:home_address_2] = get_text(a, "*[@ws:Label='Address Line 2']")
+          attrs[:home_city] = get_text(a, "ws:Municipality")
+          attrs[:home_state] = get_text(a, "ws:Region")
+          attrs[:home_zip] = get_text(a, "ws:Postal_Code")
         end
       end
+    end
+    attrs
+  end
 
-      if w.xpath("ws:Position//ws:Business_Site").first.text == "Remote Location"
-        w.xpath("ws:Personal//ws:Address_Data").each do |a|
-          if a.xpath("ws:Address_Type").first.text == "HOME"
-            attrs[:home_address_1] = a.xpath("*[@ws:Label='Address Line 1']").try(:text)
-            attrs[:home_address_2] = a.xpath("*[@ws:Label='Address Line 2']").try(:text)
-            attrs[:home_city] = a.xpath("ws:Municipality").try(:text)
-            attrs[:home_state] = a.xpath("ws:Region").try(:text)
-            attrs[:home_zip] = a.xpath("ws:Postal_Code").try(:text)
-          end
-        end
+  def sort_employee(attrs)
+    e = Employee.where(:employee_id => attrs[:employee_id]).try(:first)
+
+    if e.present?
+      existing = Employee.update(e.id, attrs)
+      if existing.valid?
+        @existing_employees << existing
+      else
+        puts "ERROR: Update of #{existing.first_name} #{existing.last_name} in workday-integration DB failed. Manual update required."
       end
-
-      e = Employee.where(:employee_id => attrs[:employee_id]).try(:first)
-      e.present? ? Employee.update(e.id, attrs) : Employee.create(attrs)
+    else
+      new_emp = Employee.create(attrs)
+      if new_emp.valid?
+        @new_hires << new_emp
+      else
+        puts "ERROR: Create of #{existing.first_name} #{existing.last_name} in workday-integration DB failed. Manual create required."
+      end
     end
   end
 
