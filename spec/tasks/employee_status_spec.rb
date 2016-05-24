@@ -23,10 +23,12 @@ describe "employee:change_status" do
       Timecop.return
     end
 
-    it "should call ldap and update only GB new hires at 3am BST" do
+    it "should call ldap and update only GB new hires and returning leave workers at 3am BST" do
       new_hire_uk = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :country => 'GB')
+      returning_uk = FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.new(2016, 7, 29), :country => 'GB')
 
       new_hire_us = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :country => 'US')
+      returning_us = FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.new(2016, 7, 29), :country => 'US')
       termination = FactoryGirl.create(:employee, :contract_end_date => Date.new(2016, 7, 29), :country => 'GB')
 
       # 7/29/2016 at 3am BST/2am UTC
@@ -35,8 +37,14 @@ describe "employee:change_status" do
       expect(@ldap).to receive(:replace_attribute).once.with(
         new_hire_uk.dn, :userAccountControl, "512"
       )
+      expect(@ldap).to receive(:replace_attribute).once.with(
+        returning_uk.dn, :userAccountControl, "512"
+      )
       expect(@ldap).to_not receive(:replace_attribute).with(
         new_hire_us.dn, :userAccountControl, "512"
+      )
+      expect(@ldap).to_not receive(:replace_attribute).with(
+        returning_us.dn, :userAccountControl, "512"
       )
       expect(@ldap).to_not receive(:replace_attribute).with(
         termination.dn, :userAccountControl, "514"
@@ -46,9 +54,12 @@ describe "employee:change_status" do
       Rake::Task["employee:change_status"].invoke
     end
 
-    it "should call ldap and update only US new hires at 3am PST" do
+    it "should call ldap and update only US new hires and returning leave workers at 3am PST" do
       new_hire_us = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :country => 'US')
+      returning_us = FactoryGirl.create(:employee, :hire_date => 5.years.ago, :leave_return_date => Date.new(2016, 7, 29), :country => 'US')
+
       new_hire_uk = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :country => 'GB')
+      returning_uk = FactoryGirl.create(:employee, :hire_date => 5.years.ago, :leave_return_date => Date.new(2016, 7, 29), :country => 'GB')
       termination = FactoryGirl.create(:employee, :contract_end_date => Date.new(2016, 7, 29), :country => 'US')
 
       # 7/29/2016 at 3am PST/10am UTC
@@ -57,8 +68,14 @@ describe "employee:change_status" do
       expect(@ldap).to receive(:replace_attribute).once.with(
         new_hire_us.dn, :userAccountControl, "512"
       )
+      expect(@ldap).to receive(:replace_attribute).once.with(
+       returning_us.dn, :userAccountControl, "512"
+      )
       expect(@ldap).to_not receive(:replace_attribute).with(
         new_hire_uk.dn, :userAccountControl, "512"
+      )
+      expect(@ldap).to_not receive(:replace_attribute).with(
+        returning_uk.dn, :userAccountControl, "512"
       )
       expect(@ldap).to_not receive(:replace_attribute).with(
         termination.dn, :userAccountControl, "514"
@@ -68,8 +85,9 @@ describe "employee:change_status" do
       Rake::Task["employee:change_status"].invoke
     end
 
-    it "should call ldap and update only terminations at 9pm in IST" do
+    it "should call ldap and update only terminations or workers on leave at 9pm in IST" do
       termination = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :contract_end_date => Date.new(2016, 7, 29), :country => 'IN')
+      leave = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :leave_start_date => Date.new(2016, 7, 29), :country => 'IN')
       new_hire_in = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :country => 'IN')
       new_hire_us = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :country => 'US')
 

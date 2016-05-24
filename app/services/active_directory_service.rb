@@ -51,7 +51,6 @@ class ActiveDirectoryService
   def update(employees)
     employees.each do |e|
       ldap_entry = find_entry("employeeID", e.employee_id).first
-      puts ldap_entry
       if ldap_entry
         attrs = updatable_attrs(e, ldap_entry)
         blank_attrs, populated_attrs = attrs.partition { |k,v| v.blank? }

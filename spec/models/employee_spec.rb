@@ -18,6 +18,57 @@ describe Employee, type: :model do
       expect(employee).to_not allow_value(nil).for(:country)
     end
 
+    it "should scope the correct activation group" do
+      activation_group = [
+        FactoryGirl.create(:employee, :hire_date => Date.yesterday),
+        FactoryGirl.create(:employee, :hire_date => Date.today),
+        FactoryGirl.create(:employee, :hire_date => Date.tomorrow),
+        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.yesterday),
+        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.today),
+        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.tomorrow)
+      ]
+      non_activation_group = [
+        FactoryGirl.create(:employee, :hire_date => 1.week.ago),
+        FactoryGirl.create(:employee, :hire_date => 2.days.ago),
+        FactoryGirl.create(:employee, :hire_date => 2.days.from_now),
+        FactoryGirl.create(:employee, :hire_date => 1.week.from_now),
+        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 1.week.ago),
+        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 2.days.ago),
+        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 2.days.from_now),
+        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 1.week.from_now)
+      ]
+
+      expect(Employee.activation_group).to match_array(activation_group)
+      expect(Employee.activation_group).to_not include(non_activation_group)
+    end
+
+    it "should scope the correct deactivation group" do
+      deactivation_group = [
+        FactoryGirl.create(:employee, :contract_end_date => Date.yesterday),
+        FactoryGirl.create(:employee, :contract_end_date => Date.today),
+        FactoryGirl.create(:employee, :contract_end_date => Date.tomorrow),
+        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => Date.yesterday),
+        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => Date.today),
+        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => Date.tomorrow)
+      ]
+      non_deactivation_group = [
+        FactoryGirl.create(:employee, :contract_end_date => 1.week.ago),
+        FactoryGirl.create(:employee, :contract_end_date => 2.days.ago),
+        FactoryGirl.create(:employee, :contract_end_date => 2.days.from_now),
+        FactoryGirl.create(:employee, :contract_end_date => 1.week.from_now),
+        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => 1.week.ago),
+        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => 2.days.ago),
+        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => 2.days.from_now),
+        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => 1.week.from_now)
+      ]
+
+      expect(Employee.deactivation_group).to match_array(deactivation_group)
+      expect(Employee.deactivation_group).to_not include(non_deactivation_group)
+    end
+
+    it "should scope the correct deactivation group" do
+    end
+
     it "should create a cn" do
       expect(employee.cn).to eq("Bob Barker")
     end
