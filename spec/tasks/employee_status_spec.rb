@@ -86,9 +86,9 @@ describe "employee:change_status" do
     end
 
     it "should call ldap and update only terminations or workers on leave at 9pm in IST" do
-      termination = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :contract_end_date => Date.new(2016, 7, 29), :country => 'IN')
-      leave = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :leave_start_date => Date.new(2016, 7, 29), :country => 'IN')
-      new_hire_in = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :country => 'IN')
+      termination = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :contract_end_date => Date.new(2016, 7, 29), :cost_center => "OT General Engineering", :country => 'IN')
+      leave = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :leave_start_date => Date.new(2016, 7, 29), :cost_center => "OT Data Center Ops", :country => 'IN')
+      new_hire_in = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :cost_center => "OT Data Analytics", :country => 'IN')
       new_hire_us = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :country => 'US')
 
       # 7/29/2016 at 9pm IST/3:30pm UTC
