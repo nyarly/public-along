@@ -19,43 +19,51 @@ describe Employee, type: :model do
     end
 
     it "should scope the correct activation group" do
-      employee_1  = FactoryGirl.create(:employee, :hire_date => 1.week.ago)
-      employee_2  = FactoryGirl.create(:employee, :hire_date => 2.days.ago)
-      employee_3  = FactoryGirl.create(:employee, :hire_date => Date.yesterday)
-      employee_4  = FactoryGirl.create(:employee, :hire_date => Date.today)
-      employee_5  = FactoryGirl.create(:employee, :hire_date => Date.tomorrow)
-      employee_6  = FactoryGirl.create(:employee, :hire_date => 2.days.from_now)
-      employee_7  = FactoryGirl.create(:employee, :hire_date => 1.week.from_now)
-      employee_8  = FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 1.week.ago)
-      employee_9  = FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 2.days.ago)
-      employee_10 = FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.yesterday)
-      employee_11 = FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.today)
-      employee_12 = FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.tomorrow)
-      employee_13 = FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 2.days.from_now)
-      employee_14 = FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 1.week.from_now)
+      activation_group = [
+        FactoryGirl.create(:employee, :hire_date => Date.yesterday),
+        FactoryGirl.create(:employee, :hire_date => Date.today),
+        FactoryGirl.create(:employee, :hire_date => Date.tomorrow),
+        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.yesterday),
+        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.today),
+        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.tomorrow)
+      ]
+      non_activation_group = [
+        FactoryGirl.create(:employee, :hire_date => 1.week.ago),
+        FactoryGirl.create(:employee, :hire_date => 2.days.ago),
+        FactoryGirl.create(:employee, :hire_date => 2.days.from_now),
+        FactoryGirl.create(:employee, :hire_date => 1.week.from_now),
+        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 1.week.ago),
+        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 2.days.ago),
+        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 2.days.from_now),
+        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 1.week.from_now)
+      ]
 
-      expect(Employee.activation_group).to include(employee_3, employee_4, employee_5, employee_10, employee_11, employee_12)
-      expect(Employee.activation_group).to_not include(employee_1, employee_2, employee_6, employee_7, employee_8, employee_9, employee_13, employee_14)
+      expect(Employee.activation_group).to match_array(activation_group)
+      expect(Employee.activation_group).to_not include(non_activation_group)
     end
 
     it "should scope the correct deactivation group" do
-      employee_1  = FactoryGirl.create(:employee, :contract_end_date => 1.week.ago)
-      employee_2  = FactoryGirl.create(:employee, :contract_end_date => 2.days.ago)
-      employee_3  = FactoryGirl.create(:employee, :contract_end_date => Date.yesterday)
-      employee_4  = FactoryGirl.create(:employee, :contract_end_date => Date.today)
-      employee_5  = FactoryGirl.create(:employee, :contract_end_date => Date.tomorrow)
-      employee_6  = FactoryGirl.create(:employee, :contract_end_date => 2.days.from_now)
-      employee_7  = FactoryGirl.create(:employee, :contract_end_date => 1.week.from_now)
-      employee_8  = FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => 1.week.ago)
-      employee_9  = FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => 2.days.ago)
-      employee_10 = FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => Date.yesterday)
-      employee_11 = FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => Date.today)
-      employee_12 = FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => Date.tomorrow)
-      employee_13 = FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => 2.days.from_now)
-      employee_14 = FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => 1.week.from_now)
+      deactivation_group = [
+        FactoryGirl.create(:employee, :contract_end_date => Date.yesterday),
+        FactoryGirl.create(:employee, :contract_end_date => Date.today),
+        FactoryGirl.create(:employee, :contract_end_date => Date.tomorrow),
+        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => Date.yesterday),
+        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => Date.today),
+        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => Date.tomorrow)
+      ]
+      non_deactivation_group = [
+        FactoryGirl.create(:employee, :contract_end_date => 1.week.ago),
+        FactoryGirl.create(:employee, :contract_end_date => 2.days.ago),
+        FactoryGirl.create(:employee, :contract_end_date => 2.days.from_now),
+        FactoryGirl.create(:employee, :contract_end_date => 1.week.from_now),
+        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => 1.week.ago),
+        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => 2.days.ago),
+        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => 2.days.from_now),
+        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => 1.week.from_now)
+      ]
 
-      expect(Employee.deactivation_group).to include(employee_3, employee_4, employee_5, employee_10, employee_11, employee_12)
-      expect(Employee.deactivation_group).to_not include(employee_1, employee_2, employee_6, employee_7, employee_8, employee_9, employee_13, employee_14)
+      expect(Employee.deactivation_group).to match_array(deactivation_group)
+      expect(Employee.deactivation_group).to_not include(non_deactivation_group)
     end
 
     it "should scope the correct deactivation group" do
