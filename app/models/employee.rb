@@ -24,7 +24,7 @@ class Employee < ActiveRecord::Base
   end
 
   def dn
-    "cn=#{cn}," + ou + BASE
+    "cn=#{cn}," + ou + Rails.application.secrets.ad_ou_base
   end
 
   def ou
@@ -83,7 +83,7 @@ class Employee < ActiveRecord::Base
     image_code ? Base64.decode64(image_code) : nil
   end
 
-  def attrs
+  def ad_attrs
     {
       cn: cn,
       objectclass: ["top", "person", "organizationalPerson", "user"],

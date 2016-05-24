@@ -86,7 +86,7 @@ describe Employee, type: :model do
     end
 
     it "should create attr hash" do
-      expect(employee.attrs).to eq(
+      expect(employee.ad_attrs).to eq(
         {
           cn: "Bob Barker",
           objectclass: ["top", "person", "organizationalPerson", "user"],
@@ -131,7 +131,7 @@ describe Employee, type: :model do
     it "should create attr hash" do
       employee.sAMAccountName = "mrbobbarker"
 
-      expect(employee.attrs).to eq(
+      expect(employee.ad_attrs).to eq(
         {
           cn: "Bob Barker",
           objectclass: ["top", "person", "organizationalPerson", "user"],
@@ -183,7 +183,7 @@ describe Employee, type: :model do
     end
 
     it "should create attr hash" do
-      expect(employee.attrs).to eq(
+      expect(employee.ad_attrs).to eq(
         {
           cn: "Bob Barker",
           objectclass: ["top", "person", "organizationalPerson", "user"],
@@ -237,7 +237,7 @@ describe Employee, type: :model do
     end
 
     it "should create attr hash" do
-      expect(employee.attrs).to eq(
+      expect(employee.ad_attrs).to eq(
         {
           cn: "Bob Barker",
           objectclass: ["top", "person", "organizationalPerson", "user"],
@@ -283,7 +283,7 @@ describe Employee, type: :model do
     end
 
     it "should create attr hash" do
-      expect(employee.attrs).to eq(
+      expect(employee.ad_attrs).to eq(
         {
           cn: "Bob Barker",
           objectclass: ["top", "person", "organizationalPerson", "user"],
@@ -329,7 +329,7 @@ describe Employee, type: :model do
     end
 
     it "should create attr hash" do
-      expect(employee.attrs).to eq(
+      expect(employee.ad_attrs).to eq(
         {
           cn: "Bob Barker",
           objectclass: ["top", "person", "organizationalPerson", "user"],

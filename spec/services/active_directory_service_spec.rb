@@ -29,7 +29,7 @@ describe ActiveDirectoryService, type: :service do
       expect(ldap).to receive(:add).once.with(
         hash_including(
           :dn => employees[0].dn,
-          attributes: employees[0].attrs.merge({
+          attributes: employees[0].ad_attrs.merge({
             :sAMAccountName => "dkerabatsos",
             :mail => "dkerabatsos@opentable.com"
           }).delete_if { |k,v| v.blank? }
