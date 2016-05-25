@@ -50,6 +50,7 @@ def latest_xml_file
     hash[f] = f.gsub(/\D/,"").to_i
   end
   hash.each { |k,v| return File.new(k) if v == hash.values.max }
+  nil
 end
 
 def in_time_window?(date, hour, zone)

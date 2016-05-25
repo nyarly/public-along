@@ -18,9 +18,9 @@ class ActiveDirectoryService
     employees.each do |e|
       if assign_sAMAccountName(e)
         puts "creating #{e.first_name} #{e.last_name}"
-        #TODO create a general validation for contract workers
-        if e.employee_type != "Regular" && e.contract_end_date.blank?
-          puts "WARNING: #{e.first_name} #{e.last_name} is a contract worker and needs a contract_end_date. A disabled Active Directory user has been created, but will not be enabled until the contract_end_date is provided"
+        if e.contract_end_date_needed?
+          puts "WARNING: #{e.first_name} #{e.last_name} is a contract worker and needs a contract_end_date."
+          puts "-- A disabled Active Directory user has been created, but will not be enabled until a contract_end_date is provided"
         end
         attrs = e.ad_attrs.delete_if { |k,v| v.blank? } # AD#add won't accept nil or empty strings
         ldap.add(dn: e.dn, attributes: attrs)
@@ -33,9 +33,9 @@ class ActiveDirectoryService
 
   def activate(employees)
     employees.each do |e|
-      #TODO create a general validation for contract workers
-      if e.employee_type != "Regular" && e.contract_end_date.blank?
-        puts "ERROR: #{e.first_name} #{e.last_name} is a contract worker and needs a contract_end_date. Account not activated."
+      if e.contract_end_date_needed?
+        puts "ERROR: #{e.first_name} #{e.last_name} is a contract worker and needs a contract_end_date."
+        puts "-- Account not activated."
       else
         ldap.replace_attribute(e.dn, :userAccountControl, "512")
       end

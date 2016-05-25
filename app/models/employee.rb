@@ -19,6 +19,10 @@ class Employee < ActiveRecord::Base
     where('contract_end_date BETWEEN ? AND ? OR leave_start_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow)
   end
 
+  def contract_end_date_needed?
+    employee_type != "Regular" && contract_end_date.blank?
+  end
+
   def cn
     first_name + " " + last_name
   end
@@ -46,7 +50,6 @@ class Employee < ActiveRecord::Base
   end
 
   def generated_email
-    #TODO Some contingent workers should get emails and others shouldn't
     if email.present?
       email
     elsif sAMAccountName.present? && employee_type != "Vendor"
