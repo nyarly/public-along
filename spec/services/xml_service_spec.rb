@@ -31,7 +31,7 @@ describe XmlService, type: :service do
       expect(Employee.last.cost_center).to eq("OT Business Optimization")
       expect(Employee.last.cost_center_id).to eq("000044")
       expect(Employee.last.office_phone).to eq("(213) 555-4321")
-      expect(Employee.last.image_code).to eq("")
+      expect(Employee.last.image_code).to be_nil
       expect(Employee.last.home_address_1).to be_nil
       expect(Employee.last.home_address_2).to be_nil
       expect(Employee.last.home_city).to be_nil
@@ -65,7 +65,7 @@ describe XmlService, type: :service do
       expect(Employee.last.cost_center).to eq("OT General Product Management")
       expect(Employee.last.cost_center_id).to eq("WP8OT_London000060")
       expect(Employee.last.office_phone).to eq("(213) 555-9876")
-      expect(Employee.last.image_code).to eq("")
+      expect(Employee.last.image_code).to be_nil
       expect(Employee.last.home_address_1).to be_nil
       expect(Employee.last.home_address_2).to be_nil
       expect(Employee.last.home_city).to be_nil
@@ -85,7 +85,7 @@ describe XmlService, type: :service do
         xml.parse_to_db
       }.to change{Employee.count}.from(2).to(3)
       expect(Employee.last.home_address_1).to eq("123 East Side, #2310")
-      expect(Employee.last.home_address_2).to eq("")
+      expect(Employee.last.home_address_2).to be_nil
       expect(Employee.last.home_city).to eq("Chicago")
       expect(Employee.last.home_state).to eq("Illinois")
       expect(Employee.last.home_zip).to eq("60611")

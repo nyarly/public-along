@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'rake'
 
-describe "db:sample_data" do
+describe "db:sample_data", type: :tasks do
   before :all do
     Rake.application = Rake::Application.new
     Rake.application.rake_require "lib/tasks/sample_data", [Rails.root.to_s], ''

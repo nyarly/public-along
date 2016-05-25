@@ -1,5 +1,5 @@
 class XmlService
-  attr_accessor :doc
+  attr_accessor :doc, :new_hires, :existing_employees
 
   def initialize(file)
     @doc = Nokogiri::XML(file)
@@ -12,13 +12,13 @@ class XmlService
       attrs = base_attrs(w).merge(leave_attrs(w)).merge(address_attrs(w))
 
       attrs[:cost_center] = COST_CENTERS[attrs[:cost_center_id][-6,6]] if attrs[:cost_center_id].present?
-
       sort_employee(attrs)
     end
   end
 
   def get_text(node, path)
-    node.xpath(path).try(:text)
+    text = node.xpath(path).try(:text)
+    text.blank? ? nil : text
   end
 
   def base_attrs(worker_node)

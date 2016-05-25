@@ -69,7 +69,7 @@ class ActiveDirectoryService
     [:objectclass, :sAMAccountName, :mail, :unicodePwd].each { |k| attrs.delete(k) }
     # Only update attrs that differ
     attrs.each { |k,v|
-      if v == ldap_entry.try(k) || ldap_entry.try(k).include?(v)
+      if (ldap_entry.try(k).present? && ldap_entry.try(k).include?(v)) || (ldap_entry.try(k).blank? && v == nil)
         attrs.delete(k)
       end
     }
