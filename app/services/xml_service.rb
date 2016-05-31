@@ -1,10 +1,29 @@
 class XmlService
-  attr_accessor :doc, :new_hires, :existing_employees
+  attr_accessor :file, :doc, :new_hires, :existing_employees
 
-  def initialize(file)
-    @doc = Nokogiri::XML(file)
+  def initialize(file=latest_xml_file)
+    @file = file
+    @doc = set_doc
     @new_hires = []
     @existing_employees = []
+  end
+
+  def set_doc
+    Nokogiri::XML(@file) if @file.present?
+  end
+
+  def latest_xml_file
+    # Find all .xml files in lib/assets/ and use the file with the most recent date stamp
+    file = nil
+    filepath = nil
+    hash = Hash.new { |k,v| k[v] = [] }
+    Dir["lib/assets/*.xml"].each do |f|
+      hash[f] = f.gsub(/\D/,"").to_i
+    end
+    hash.each { |k,v| filepath = k if v == hash.values.max }
+    if XmlTransaction.where(:checksum => checksum(filepath)).empty?
+      file = File.new(filepath)
+    end
   end
 
   def parse_to_db
@@ -14,6 +33,18 @@ class XmlService
       attrs[:cost_center] = COST_CENTERS[attrs[:cost_center_id][-6,6]] if attrs[:cost_center_id].present?
       sort_employee(attrs)
     end
+  end
+
+  def parse_to_ad
+    parse_to_db
+
+    ads = ActiveDirectoryService.new
+    ads.create_disabled_accounts(new_hires)
+    ads.update(existing_employees)
+    trans = XmlTransaction.create(
+      :name => File.basename(file),
+      :checksum => checksum(file)
+    )
   end
 
   def get_text(node, path)
@@ -93,6 +124,10 @@ class XmlService
         puts "ERROR: Create of #{existing.first_name} #{existing.last_name} in workday-integration DB failed. Manual create required."
       end
     end
+  end
+
+  def checksum(file_or_path)
+    Digest::MD5.hexdigest(File.read(file_or_path))
   end
 
   def s_to_DateTime(date_string)

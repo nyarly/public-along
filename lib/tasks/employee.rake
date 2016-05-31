@@ -27,38 +27,13 @@ namespace :employee do
   end
 
   task :xml_to_ad => :environment do
-    file = latest_xml_file
+    xml = XmlService.new
 
-    if file.present?
-      xml = XmlService.new(file)
-      xml.parse_to_db
-      new_hires = xml.new_hires
-      existing_employees = xml.existing_employees
-
-      ads = ActiveDirectoryService.new
-      ads.create_disabled_accounts(new_hires)
-      ads.update(existing_employees)
-      trans = XmlTransaction.create(
-        :name => File.basename(file),
-        :checksum => checksum(file)
-      )
+    if xml.doc.present?
+      xml.parse_to_ad
     else
       puts "ERROR: No xml file to parse."
     end
-  end
-end
-
-def latest_xml_file
-  # Find all .xml files in lib/assets/ and use the file with the most recent date stamp
-  file = nil
-  filepath = nil
-  hash = Hash.new { |k,v| k[v] = [] }
-  Dir["lib/assets/*.xml"].each do |f|
-    hash[f] = f.gsub(/\D/,"").to_i
-  end
-  hash.each { |k,v| filepath = k if v == hash.values.max }
-  if XmlTransaction.where(:checksum => checksum(filepath)).empty?
-    file = File.new(filepath)
   end
 end
 
@@ -70,6 +45,4 @@ def in_time_window?(date, hour, zone)
   start_time <= DateTime.now.in_time_zone("UTC") && DateTime.now.in_time_zone("UTC") < end_time
 end
 
-def checksum(file_or_path)
-  Digest::MD5.hexdigest(File.read(file_or_path))
-end
+
