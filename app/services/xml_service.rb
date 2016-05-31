@@ -3,13 +3,13 @@ class XmlService
 
   def initialize(file=latest_xml_file)
     @file = file
-    @doc = set_doc
+    @doc = doc
     @new_hires = []
     @existing_employees = []
   end
 
-  def set_doc
-    Nokogiri::XML(@file) if @file.present?
+  def doc
+    @file.present? ? Nokogiri::XML(@file) : nil
   end
 
   def latest_xml_file
