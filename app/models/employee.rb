@@ -19,12 +19,16 @@ class Employee < ActiveRecord::Base
     where('contract_end_date BETWEEN ? AND ? OR leave_start_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow)
   end
 
+  def contract_end_date_needed?
+    employee_type != "Regular" && contract_end_date.blank?
+  end
+
   def cn
     first_name + " " + last_name
   end
 
   def dn
-    "cn=#{cn}," + ou + BASE
+    "cn=#{cn}," + ou + Rails.application.secrets.ad_ou_base
   end
 
   def ou
@@ -46,10 +50,9 @@ class Employee < ActiveRecord::Base
   end
 
   def generated_email
-    #TODO Some contingent workers should get emails and others shouldn't
     if email.present?
       email
-    elsif sAMAccountName.present? && contingent_worker_type.blank?
+    elsif sAMAccountName.present? && employee_type != "Vendor"
       gen_email = sAMAccountName + "@opentable.com"
       update_attribute(:email, gen_email)
       gen_email
@@ -83,7 +86,7 @@ class Employee < ActiveRecord::Base
     image_code ? Base64.decode64(image_code) : nil
   end
 
-  def attrs
+  def ad_attrs
     {
       cn: cn,
       objectclass: ["top", "person", "organizationalPerson", "user"],

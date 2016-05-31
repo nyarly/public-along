@@ -30,7 +30,7 @@ set :tmp_dir, "/home/workday/tmp"
 
 ## Linked Files & Directories (Default None):
 set :linked_files, %w{config/database.yml config/secrets.yml config/ldap.yml}
-# set :linked_dirs,  %w{bin log tmp/pids tmp/cache tmp/sockets vendor/bundle public/system}
+set :linked_dirs,  %w{lib/assets}
 
 namespace :puma do
   desc 'Create Directories for Puma Pids and Socket'
@@ -48,8 +48,8 @@ namespace :deploy do
   desc "Make sure local git is in sync with remote."
   task :check_revision do
     on roles(:app) do
-      unless `git rev-parse HEAD` == `git rev-parse origin/deploy_setup`
-        puts "WARNING: HEAD is not the same as origin/deploy_setup"
+      unless `git rev-parse HEAD` == `git rev-parse origin/#{fetch(:branch)}`
+        puts "WARNING: HEAD is not the same as origin/#{fetch(:branch)}"
         puts "Run `git push` to sync changes."
         exit
       end

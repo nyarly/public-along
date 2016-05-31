@@ -14,15 +14,15 @@ class ActiveDirectoryService
     end
   end
 
-  def create_disabled(employees)
+  def create_disabled_accounts(employees)
     employees.each do |e|
       if assign_sAMAccountName(e)
         puts "creating #{e.first_name} #{e.last_name}"
-        #TODO create a general validation for contingent workers
-        if e.contingent_worker_type.present? && e.contract_end_date.blank?
-          puts "WARNING: #{e.first_name} #{e.last_name} is a contingent worker and needs a contract_end_date. A disabled Active Directory user has been created, but will not be enabled until the contract_end_date is provided"
+        if e.contract_end_date_needed?
+          puts "WARNING: #{e.first_name} #{e.last_name} is a contract worker and needs a contract_end_date."
+          puts "-- A disabled Active Directory user has been created, but will not be enabled until a contract_end_date is provided"
         end
-        attrs = e.attrs.delete_if { |k,v| v.blank? } # AD#add won't accept nil or empty strings
+        attrs = e.ad_attrs.delete_if { |k,v| v.blank? } # AD#add won't accept nil or empty strings
         ldap.add(dn: e.dn, attributes: attrs)
         e.ad_updated_at = DateTime.now if ldap.get_operation_result.code == 0
       else
@@ -33,9 +33,9 @@ class ActiveDirectoryService
 
   def activate(employees)
     employees.each do |e|
-      #TODO create a general validation for contingent workers
-      if e.contingent_worker_type.present? && e.contract_end_date.blank?
-        puts "ERROR: #{e.first_name} #{e.last_name} is a contingent worker and needs a contract_end_date. Account not activated."
+      if e.contract_end_date_needed?
+        puts "ERROR: #{e.first_name} #{e.last_name} is a contract worker and needs a contract_end_date."
+        puts "-- Account not activated."
       else
         ldap.replace_attribute(e.dn, :userAccountControl, "512")
       end
@@ -64,12 +64,12 @@ class ActiveDirectoryService
   end
 
   def updatable_attrs(employee, ldap_entry)
-    attrs = employee.attrs
+    attrs = employee.ad_attrs
     # objectClass, sAMAccountName, mail, and unicodePwd should not be updated via Workday
     [:objectclass, :sAMAccountName, :mail, :unicodePwd].each { |k| attrs.delete(k) }
     # Only update attrs that differ
     attrs.each { |k,v|
-      if v == ldap_entry.try(k) || ldap_entry.try(k).include?(v)
+      if (ldap_entry.try(k).present? && ldap_entry.try(k).include?(v)) || (ldap_entry.try(k).blank? && v == nil)
         attrs.delete(k)
       end
     }
@@ -91,7 +91,7 @@ class ActiveDirectoryService
           :olddn => ldap_entry.dn,
           :newrdn => "cn=#{employee.cn}",
           :delete_attributes => true,
-          :new_superior => employee.ou + BASE
+          :new_superior => employee.ou + Rails.application.secrets.ad_ou_base
         )
         employee.ad_updated_at = DateTime.now if ldap.get_operation_result.code == 0
       end
@@ -125,7 +125,7 @@ class ActiveDirectoryService
 
   def find_entry(attr, value)
     ldap.search(
-      :base => BASE,
+      :base => Rails.application.secrets.ad_ou_base,
       :filter => Net::LDAP::Filter.eq(attr, value)
     ) do |entry|
       puts "DN #{entry.dn}"

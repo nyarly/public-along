@@ -29,14 +29,14 @@ describe ActiveDirectoryService, type: :service do
       expect(ldap).to receive(:add).once.with(
         hash_including(
           :dn => employees[0].dn,
-          attributes: employees[0].attrs.merge({
+          attributes: employees[0].ad_attrs.merge({
             :sAMAccountName => "dkerabatsos",
             :mail => "dkerabatsos@opentable.com"
           }).delete_if { |k,v| v.blank? }
         )
       )
 
-      ads.create_disabled(employees)
+      ads.create_disabled_accounts(employees)
       expect(employees[0].sAMAccountName).to eq("dkerabatsos")
       expect(employees[0].email).to eq("dkerabatsos@opentable.com")
       expect(employees[0].ad_updated_at).to eq(DateTime.now)
@@ -51,7 +51,7 @@ describe ActiveDirectoryService, type: :service do
       expect(ldap).to_not receive(:add)
       expect(employees[0].ad_updated_at).to be_nil
 
-      ads.create_disabled(employees)
+      ads.create_disabled_accounts(employees)
     end
   end
 

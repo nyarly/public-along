@@ -4,3 +4,8 @@
 every 1.hour do
   rake "employees:change_status"
 end
+
+# Every 10 minutes check if a new xml file has been dropped in lib/assets and parse to db & AD if found
+every 10.minutes do
+  rake "employees:xml_to_ad"
+end

@@ -1,5 +1,5 @@
 namespace :employee do
-  task :change_status do
+  task :change_status => :environment do
     activations = []
     deactivations = []
 
@@ -25,6 +25,16 @@ namespace :employee do
     ads.activate(activations)
     ads.deactivate(deactivations)
   end
+
+  task :xml_to_ad => :environment do
+    xml = XmlService.new
+
+    if xml.doc.present?
+      xml.parse_to_ad
+    else
+      puts "ERROR: No xml file to parse."
+    end
+  end
 end
 
 def in_time_window?(date, hour, zone)
@@ -34,3 +44,5 @@ def in_time_window?(date, hour, zone)
 
   start_time <= DateTime.now.in_time_zone("UTC") && DateTime.now.in_time_zone("UTC") < end_time
 end
+
+
