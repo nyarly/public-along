@@ -1,7 +1,5 @@
 require 'rails_helper'
-# TODO - switch to new style expect syntax.
-# Currently, switching this test to new style expect syntax seems to break it.
-# Need to debug.
+
 describe User, type: :model do
   let!(:user) { FactoryGirl.build(:user) }
   it "should have validations" do

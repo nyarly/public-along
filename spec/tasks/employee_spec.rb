@@ -234,10 +234,16 @@ describe "employee rake tasks", type: :tasks do
       Rake::Task["employee:xml_to_ad"].invoke
     end
 
+    it "should not run the same file twice" do
+      expect(File).to receive(:new).once.with("lib/assets/test_20160523_135008.xml")
+      Rake::Task["employee:xml_to_ad"].invoke
+      Rake::Task["employee:xml_to_ad"].invoke
+    end
+
     it "should create/update the correct amount of Employees in DB and AD" do
       allow(@ldap).to receive(:search).and_return([], [], [], [@ldap_entry_1], [@ldap_entry_2])
       allow(@ldap).to receive(:replace_attribute)
-      expect(@ldap).to receive(:add).exactly(1).times.with({
+      expect(@ldap).to receive(:add).once.with({
         :dn=>"cn=Jeffrey Lebowski,ou=Engineering,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com",
         :attributes=>{:cn=>"Jeffrey Lebowski",
           :objectclass=>["top", "person", "organizationalPerson", "user"],
@@ -256,7 +262,7 @@ describe "employee rake tasks", type: :tasks do
           :department=>"OT Business Optimization",
           :employeeID=>"12100401",
           :telephoneNumber=>"(213) 555-4321"}})
-      expect(@ldap).to receive(:add).exactly(1).times.with({
+      expect(@ldap).to receive(:add).once.with({
         :dn=>"cn=Walter Sobchak,ou=Product,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com",
         :attributes=>{:cn=>"Walter Sobchak",
           :objectclass=>["top",
@@ -277,7 +283,7 @@ describe "employee rake tasks", type: :tasks do
           :department=>"OT General Product Management",
           :employeeID=>"109640",
           :telephoneNumber=>"(213) 555-9876"}})
-      expect(@ldap).to receive(:add).exactly(1).times.with({
+      expect(@ldap).to receive(:add).once.with({
         :dn=>"cn=Maude Lebowski,ou=Sales,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com",
         :attributes=>{:cn=>"Maude Lebowski",
           :objectclass=>["top", "person", "organizationalPerson", "user"],
@@ -301,11 +307,15 @@ describe "employee rake tasks", type: :tasks do
           :st=>"Illinois",
           :postalCode=>"60611",
           :thumbnailPhoto=>Base64.decode64(IMAGE)}})
-      expect(@ldap).to receive(:replace_attribute).exactly(1).times.with("cn=The Big Lebowski,ou=Engineering,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com", :telephoneNumber, "(213) 555-4321")
-      expect(@ldap).to receive(:replace_attribute).exactly(1).times.with("cn=Kylie Kylie,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com", :accountExpires, "131061888000000000")
+      expect(@ldap).to receive(:replace_attribute).once.with("cn=The Big Lebowski,ou=Engineering,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com", :telephoneNumber, "(213) 555-4321")
+      expect(@ldap).to receive(:replace_attribute).once.with("cn=Kylie Kylie,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com", :accountExpires, "131061888000000000")
       expect{
-        Rake::Task["employee:xml_to_ad"].invoke
-      }.to change{ Employee.count }.from(2).to(5)
+        expect{
+          Rake::Task["employee:xml_to_ad"].invoke
+        }.to change{ Employee.count }.from(2).to(5)
+      }.to change{ XmlTransaction.count }.from(0).to(1)
+      expect(XmlTransaction.last.name).to eq("test_20160523_135008.xml")
+      expect(XmlTransaction.last.checksum).to eq(Digest::MD5.hexdigest(File.read("lib/assets/test_20160523_135008.xml")))
     end
   end
 end
