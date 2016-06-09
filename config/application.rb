@@ -32,5 +32,8 @@ module WorkdayIntegration
 
     # Do not swallow errors in after_commit/after_rollback callbacks.
     config.active_record.raise_in_transactional_callbacks = true
+
+    # For mailer previews
+    config.action_mailer.preview_path = "#{Rails.root}/lib/mailer_previews"
   end
 end

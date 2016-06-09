@@ -19,14 +19,13 @@ class ActiveDirectoryService
       if assign_sAMAccountName(e)
         puts "creating #{e.first_name} #{e.last_name}"
         if e.contract_end_date_needed?
-          puts "WARNING: #{e.first_name} #{e.last_name} is a contract worker and needs a contract_end_date."
-          puts "-- A disabled Active Directory user has been created, but will not be enabled until a contract_end_date is provided"
+          TechTableMailer.alert_email("WARNING: #{e.first_name} #{e.last_name} is a contract worker and needs a contract_end_date. A disabled Active Directory user has been created, but will not be enabled until a contract_end_date is provided").deliver_now
         end
         attrs = e.ad_attrs.delete_if { |k,v| v.blank? } # AD#add won't accept nil or empty strings
         ldap.add(dn: e.dn, attributes: attrs)
-        e.ad_updated_at = DateTime.now if ldap.get_operation_result.code == 0
+        ldap_success_check(e, "ERROR: Creation of disabled account for #{e.first_name} #{e.last_name} failed.")
       else
-        puts "ERROR: could not find a suitable sAMAccountName for #{e.first_name} #{e.last_name}: Must create AD account manually"
+        TechTableMailer.alert_email("ERROR: could not find a suitable sAMAccountName for #{e.first_name} #{e.last_name}: Must create AD account manually").deliver_now
       end
     end
   end
@@ -34,8 +33,7 @@ class ActiveDirectoryService
   def activate(employees)
     employees.each do |e|
       if e.contract_end_date_needed?
-        puts "ERROR: #{e.first_name} #{e.last_name} is a contract worker and needs a contract_end_date."
-        puts "-- Account not activated."
+        TechTableMailer.alert_email("ERROR: #{e.first_name} #{e.last_name} is a contract worker and needs a contract_end_date. Account not activated.").deliver_now
       else
         ldap.replace_attribute(e.dn, :userAccountControl, "512")
       end
@@ -58,7 +56,7 @@ class ActiveDirectoryService
         delete_attrs(e, ldap_entry, blank_attrs)
         replace_attrs(e, ldap_entry, populated_attrs)
       else
-        puts "ERROR: #{e.first_name} #{e.last_name} not found in Active Directory"
+        TechTableMailer.alert_email("ERROR: #{e.first_name} #{e.last_name} not found in Active Directory").deliver_now
       end
     end
   end
@@ -79,7 +77,7 @@ class ActiveDirectoryService
   def delete_attrs(employee, ldap_entry, attrs)
     attrs.each do |k,v|
       ldap.delete_attribute(employee.dn, k, v)
-      employee.ad_updated_at = DateTime.now if ldap.get_operation_result.code == 0
+      ldap_success_check(employee, "ERROR: Could not successfully update #{k}: #{v} for #{employee.first_name} #{employee.last_name}.")
     end
   end
 
@@ -93,12 +91,12 @@ class ActiveDirectoryService
           :delete_attributes => true,
           :new_superior => employee.ou + Rails.application.secrets.ad_ou_base
         )
-        employee.ad_updated_at = DateTime.now if ldap.get_operation_result.code == 0
+        ldap_success_check(employee, "ERROR: Could not successfully update #{k}: #{v} for #{employee.first_name} #{employee.last_name}.")
       end
 
       unless k == :cn
         ldap.replace_attribute(employee.dn, k, v)
-        employee.ad_updated_at = DateTime.now if ldap.get_operation_result.code == 0
+        ldap_success_check(employee, "ERROR: Could not successfully update #{k}: #{v} for #{employee.first_name} #{employee.last_name}.")
       end
     end
   end
@@ -130,6 +128,14 @@ class ActiveDirectoryService
     ) do |entry|
       puts "DN #{entry.dn}"
       entry
+    end
+  end
+
+  def ldap_success_check(employee, error_message)
+    if ldap.get_operation_result.code == 0
+      employee.ad_updated_at = DateTime.now
+    else
+      TechTableMailer.alert_email(error_message).deliver_now
     end
   end
 end

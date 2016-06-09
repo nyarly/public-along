@@ -20,9 +20,9 @@ describe ActiveDirectoryService, type: :service do
   end
 
   context "create disabled employees" do
-    it "should call ldap.add with correct info for regular employee" do
-      employees = FactoryGirl.create_list(:employee, 1, :first_name => "Donny", :last_name => "Kerabatsos")
+    let!(:employees) { FactoryGirl.create_list(:employee, 1, :first_name => "Donny", :last_name => "Kerabatsos") }
 
+    it "should call ldap.add with correct info for regular employee" do
       allow(ldap).to receive(:search).and_return([]) # Mock search not finding conflicting existing sAMAccountName
       allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
 
@@ -43,14 +43,22 @@ describe ActiveDirectoryService, type: :service do
     end
 
     it "should not call ldap.add when no suitable sAMAccountName is found" do
-      employees = FactoryGirl.create_list(:employee, 1)
-
       allow(ldap).to receive(:search).and_return("entry", "entry", "entry") # Mock search finding conflicting sAMAccountNames
       allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(67)
 
       expect(ldap).to_not receive(:add)
+      expect(TechTableMailer).to receive_message_chain(:alert_email, :deliver_now)
       expect(employees[0].ad_updated_at).to be_nil
 
+      ads.create_disabled_accounts(employees)
+    end
+
+    it "should send an alert email when account creation fails" do
+      allow(ldap).to receive(:add)
+      allow(ldap).to receive(:search).and_return([]) # Mock search not finding conflicting existing sAMAccountName
+      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(67) # Simulate AD LDAP error
+
+      expect(TechTableMailer).to receive_message_chain(:alert_email, :deliver_now)
       ads.create_disabled_accounts(employees)
     end
   end
@@ -159,6 +167,26 @@ describe ActiveDirectoryService, type: :service do
       expect(employee.ad_updated_at).to be_nil
     end
 
+    it "should send an alert email when account update fails" do
+      employee.office_phone = "323-999-5555"
+      allow(ldap).to receive(:search).and_return([ldap_entry])
+      allow(ldap).to receive(:replace_attribute)
+      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(67) # Simulate AD LDAP error
+
+      expect(TechTableMailer).to receive_message_chain(:alert_email, :deliver_now)
+      ads.update([employee])
+    end
+
+    it "should send an alert email when account update to delete attribute fails" do
+      employee.office_phone = nil
+      allow(ldap).to receive(:search).and_return([ldap_entry])
+      allow(ldap).to receive(:delete_attribute)
+      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(67) # Simulate AD LDAP error
+
+      expect(TechTableMailer).to receive_message_chain(:alert_email, :deliver_now)
+      ads.update([employee])
+    end
+
     it "should update changed attributes with nil" do
       rem_to_reg_employee = FactoryGirl.create(:employee, :remote)
 
@@ -199,5 +227,6 @@ describe ActiveDirectoryService, type: :service do
       ads.update([rem_to_reg_employee])
       expect(rem_to_reg_employee.ad_updated_at).to eq(DateTime.now)
     end
+
   end
 end
