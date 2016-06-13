@@ -42,15 +42,16 @@ describe ActiveDirectoryService, type: :service do
       expect(employees[0].ad_updated_at).to eq(DateTime.now)
     end
 
-    it "should not call ldap.add when no suitable sAMAccountName is found" do
-      allow(ldap).to receive(:search).and_return("entry", "entry", "entry") # Mock search finding conflicting sAMAccountNames
-      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(67)
+    it "should eventually call ldap.add with a generated numeric sAMAccountName" do
+      allow(ldap).to receive(:search).and_return("entry", "entry", "entry", []) # Mock search finding conflicting sAMAccountNames
+      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
 
-      expect(ldap).to_not receive(:add)
-      expect(TechTableMailer).to receive_message_chain(:alert_email, :deliver_now)
-      expect(employees[0].ad_updated_at).to be_nil
+      expect(ldap).to receive(:add)
 
       ads.create_disabled_accounts(employees)
+      expect(employees[0].sAMAccountName).to eq("dkerabatsos1")
+      expect(employees[0].email).to eq("dkerabatsos1@opentable.com")
+      expect(employees[0].ad_updated_at).to eq(DateTime.now)
     end
 
     it "should send an alert email when account creation fails" do
@@ -64,6 +65,15 @@ describe ActiveDirectoryService, type: :service do
   end
 
   context "assign sAMAccountName" do
+    it "should normalize special characters and spaces" do
+      employee = FactoryGirl.create(:employee, :first_name => "Mæby", :last_name => "Fünke Spløsh")
+
+      allow(ldap).to receive(:search).and_return([]) # Mock search not finding conflicting existing sAMAccountName
+
+      expect(ads.assign_sAMAccountName(employee)).to eq(true)
+      expect(employee.sAMAccountName).to eq("mfunkesplosh")
+    end
+
     it "should return true when available sAMAccountName is found" do
       employee = FactoryGirl.create(:employee, :first_name => "Walter", :last_name => "Sobchak")
 

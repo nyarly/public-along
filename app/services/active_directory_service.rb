@@ -1,3 +1,5 @@
+require "i18n"
+
 class ActiveDirectoryService
   attr_accessor :ldap
 
@@ -102,13 +104,13 @@ class ActiveDirectoryService
   end
 
   def assign_sAMAccountName(employee)
-    first = employee.first_name
-    last = employee.last_name
+    first = I18n.transliterate(employee.first_name).downcase.gsub(/[^a-z]/i, '')
+    last = I18n.transliterate(employee.last_name).downcase.gsub(/[^a-z]/i, '')
 
     sam_options = [
-      (first[0,1] + last).downcase,
-      (first + last[0,1]).downcase,
-      (first + last).downcase
+      (first[0,1] + last),
+      (first + last[0,1]),
+      (first + last)
     ]
 
     sam_options.each do |sam|
@@ -118,7 +120,22 @@ class ActiveDirectoryService
       end
     end
 
+    gen_numeric_sam(employee, first, last) if employee.sAMAccountName.blank?
+
     employee.sAMAccountName.present?
+  end
+
+  def gen_numeric_sam(employee, first, last)
+    n = 1
+    while n < 100 do
+      sam = first[0,1] + last + n.to_s
+      if find_entry("sAMAccountName", sam).blank?
+        employee.sAMAccountName = sam
+        break
+      else
+        n += 1
+      end
+    end
   end
 
   def find_entry(attr, value)
