@@ -91,6 +91,12 @@ describe XmlService, type: :service do
       expect(Employee.last.home_zip).to eq("60611")
       expect(Employee.last.ad_updated_at).to be_nil
     end
+
+    it "should send an email alert if attributes for employees are invalid" do
+      expect(TechTableMailer).to receive_message_chain(:alert_email, :deliver_now)
+
+      xml.parse_to_db
+    end
   end
 
   context "Existing Employee" do
@@ -114,6 +120,9 @@ describe XmlService, type: :service do
       :hire_date => DateTime.new(2005, 2, 1),
       :leave_start_date => DateTime.new(2014, 5, 14),
       :leave_return_date => DateTime.new(2014, 6, 14))
+    }
+    let!(:invalid_emp) { FactoryGirl.create(:employee,
+      :employee_id => "12155321")
     }
 
     it "should update an existing Employee for an existing worker" do
@@ -148,6 +157,12 @@ describe XmlService, type: :service do
 
       expect(previous_leave_emp.reload.leave_start_date).to eq(DateTime.new(2016,2,28))
       expect(previous_leave_emp.reload.leave_return_date).to eq(DateTime.new(2016,9,28))
+    end
+
+    it "should send an email alert if attributes for employees are invalid" do
+      expect(TechTableMailer).to receive_message_chain(:alert_email, :deliver_now)
+
+      xml.parse_to_db
     end
   end
 
