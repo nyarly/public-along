@@ -3,6 +3,10 @@ class User < ActiveRecord::Base
   # :confirmable, :lockable, :timeoutable and :omniauthable
   devise :ldap_authenticatable, :trackable
 
+  def role
+    @role    ||= Role.for(self)
+  end
+
   validates :first_name,
             presence: true
   validates :last_name,
