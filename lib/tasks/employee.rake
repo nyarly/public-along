@@ -1,4 +1,8 @@
+require 'csv'
+require 'pp'
+
 namespace :employee do
+  desc "change status of employees (activate/deactivate)"
   task :change_status => :environment do
     activations = []
     deactivations = []
@@ -26,6 +30,7 @@ namespace :employee do
     ads.deactivate(deactivations)
   end
 
+  desc "parse latest xml file to active directory"
   task :xml_to_ad => :environment do
     xml = XmlService.new
 
@@ -34,6 +39,28 @@ namespace :employee do
     else
       puts "ERROR: No xml file to parse."
     end
+  end
+
+  desc "one time employee sync from csv, i.e. rake csv_existing_employee_sync['/this/path']"
+  task :csv_existing_employee_sync, [:path] => :environment do |t, args|
+    employees = []
+    errors = []
+    # parse csv to employee db
+    csv_text = File.read(args.path)
+    csv = CSV.parse(csv_text, :headers => true)
+    # TODO validate if there is a csv to parse
+    csv.each do |row|
+      e = Employee.find_or_create_by(:email => row["email"])
+      e.update_attributes(row.to_hash)
+      if e.valid?
+        employees << e
+      else
+        errors << e.errors.messages # Should this hash be converted to a string OR do something more fancy with the error messages?
+      end
+    end
+
+    # TODO send errors to Tech Table
+    # TODO update ad with new fields / May want to limit?
   end
 end
 
