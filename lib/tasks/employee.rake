@@ -1,5 +1,4 @@
 require 'csv'
-require 'pp'
 
 namespace :employee do
   desc "change status of employees (activate/deactivate)"
@@ -41,22 +40,28 @@ namespace :employee do
     end
   end
 
-  desc "one time employee sync from csv, i.e. rake csv_existing_employee_sync['/this/path']"
-  task :csv_existing_employee_sync, [:path] => :environment do |t, args|
+  desc "employee sync from csv, i.e. rake csv_to_db_sync['/this/path']"
+  task :csv_to_db_sync, [:path] => :environment do |t, args|
     employees = []
     errors = []
-    # parse csv to employee db
-    csv_text = File.read(args.path)
+
+    if args.path
+      csv_text = File.read(args.path)
+    else
+      raise "You must provide a path to a .csv file"
+    end
+
     csv = CSV.parse(csv_text, :headers => true)
-    # TODO validate if there is a csv to parse
     csv.each do |row|
       e = Employee.find_or_create_by(:email => row["email"])
-      e.update_attributes(row.to_hash)
+      e.update_attributes(row.to_hash) if e.present?
       if e.valid?
         employees << e
       else
-        errors << e.errors.messages # Should this hash be converted to a string OR do something more fancy with the error messages?
+        errors << e.errors.messages
       end
+        puts :employees => employees
+        puts :errors => errors # Should this hash be converted to a string OR do something more fancy with the error messages?
     end
 
     # TODO send errors to Tech Table

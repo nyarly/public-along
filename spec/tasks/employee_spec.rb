@@ -318,4 +318,24 @@ describe "employee rake tasks", type: :tasks do
       expect(XmlTransaction.last.checksum).to eq(Digest::MD5.hexdigest(File.read("lib/assets/test_20160523_135008.xml")))
     end
   end
+
+  context "employee:csv_to_db_sync['some/path']" do
+    before :each do
+      Rake.application = Rake::Application.new
+      Rake.application.rake_require "lib/tasks/employee", [Rails.root.to_s], ''
+      Rake::Task.define_task :environment
+    end
+
+    it "should raise an exception if no path is provided" do
+      expect{
+        Rake::Task["employee:csv_to_db_sync"].invoke
+      }.to raise_error("You must provide a path to a .csv file")
+    end
+
+    it "should create new employees in db" do
+      expect{
+        Rake::Task["employee:csv_to_db_sync"].invoke(Rails.root.to_s+'/spec/fixtures/test_sync.csv')
+      }.to change{ Employee.count }.by(3)
+    end
+  end
 end
