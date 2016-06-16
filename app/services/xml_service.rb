@@ -114,14 +114,14 @@ class XmlService
       if existing.valid?
         @existing_employees << existing
       else
-        puts "ERROR: Update of #{existing.first_name} #{existing.last_name} in workday-integration DB failed. Manual update required."
+        TechTableMailer.alert_email("ERROR: Update of #{existing.first_name} #{existing.last_name} in workday-integration DB failed. Manual update required. Attributes: #{attrs}").deliver_now
       end
     else
       new_emp = Employee.create(attrs)
       if new_emp.valid?
         @new_hires << new_emp
       else
-        puts "ERROR: Create of #{existing.first_name} #{existing.last_name} in workday-integration DB failed. Manual create required."
+        TechTableMailer.alert_email("ERROR: Creation of #{new_emp.first_name} #{new_emp.last_name} in workday-integration DB failed. Manual create required. Attributes: #{attrs}").deliver_now
       end
     end
   end

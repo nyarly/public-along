@@ -36,7 +36,7 @@ namespace :employee do
     if xml.doc.present?
       xml.parse_to_ad
     else
-      puts "ERROR: No xml file to parse."
+      TechTableMailer.alert_email("ERROR: No xml file to parse. Check to see if Workday is sending xmls to the designated sFTP.").deliver_now
     end
   end
 
