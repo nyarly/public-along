@@ -97,6 +97,11 @@ describe "employee rake tasks", type: :tasks do
       expect(@ldap).to receive(:replace_attribute).once.with(
         termination.dn, :userAccountControl, "514"
       )
+      expect(@ldap).to receive(:rename).once.with({
+        :olddn=>termination.dn,
+        :newrdn=>"cn=#{termination.cn}",
+        :delete_attributes=>true,
+        :new_superior=>"ou=Disabled Users,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com"})
       expect(@ldap).to_not receive(:replace_attribute).with(
         new_hire_us.dn, :userAccountControl, "512"
       )
@@ -110,9 +115,6 @@ describe "employee rake tasks", type: :tasks do
   end
 
   context "employee:xml_to_ad" do
-    # let(:ldap_entry) { Net::LDAP::Entry.new(employee.dn) }
-    # let!(:employee_2) { FactoryGirl.create(:employee, :employee_id => "109843") }
-
     before :each do
       Rake.application = Rake::Application.new
       Rake.application.rake_require "lib/tasks/employee", [Rails.root.to_s], ''
