@@ -1,4 +1,5 @@
 namespace :employee do
+  desc "change status of employees (activate/deactivate)"
   task :change_status => :environment do
     activations = []
     deactivations = []
@@ -26,13 +27,14 @@ namespace :employee do
     ads.deactivate(deactivations)
   end
 
+  desc "parse latest xml file to active directory"
   task :xml_to_ad => :environment do
     xml = XmlService.new
 
     if xml.doc.present?
       xml.parse_to_ad
     else
-      TechTableMailer.alert_email("ERROR: No xml file to parse. Check to see if Workday is sending xmls to the designated sFTP.").deliver_now
+      TechTableMailer.alert_email("ERROR: No xml file to parse. Check to see if Workday is sending xml files to the designated sFTP.").deliver_now
     end
   end
 end

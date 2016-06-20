@@ -5,7 +5,6 @@ class ActiveDirectoryService
 
   def initialize
     @ldap ||= begin
-      puts "Starting new connection..."
       l = Net::LDAP.new
       l.host = Rails.application.secrets.ad_host
       l.port = 636
@@ -19,7 +18,6 @@ class ActiveDirectoryService
   def create_disabled_accounts(employees)
     employees.each do |e|
       if assign_sAMAccountName(e)
-        puts "creating #{e.first_name} #{e.last_name}"
         if e.contract_end_date_needed?
           TechTableMailer.alert_email("WARNING: #{e.first_name} #{e.last_name} is a contract worker and needs a contract_end_date. A disabled Active Directory user has been created, but will not be enabled until a contract_end_date is provided").deliver_now
         end
@@ -58,7 +56,7 @@ class ActiveDirectoryService
         delete_attrs(e, ldap_entry, blank_attrs)
         replace_attrs(e, ldap_entry, populated_attrs)
       else
-        TechTableMailer.alert_email("ERROR: #{e.first_name} #{e.last_name} not found in Active Directory").deliver_now
+        TechTableMailer.alert_email("ERROR: #{e.first_name} #{e.last_name} not found in Active Directory. Update failed.").deliver_now
       end
     end
   end
@@ -143,7 +141,6 @@ class ActiveDirectoryService
       :base => Rails.application.secrets.ad_ou_base,
       :filter => Net::LDAP::Filter.eq(attr, value)
     ) do |entry|
-      puts "DN #{entry.dn}"
       entry
     end
   end

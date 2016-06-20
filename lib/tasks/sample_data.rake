@@ -1,5 +1,6 @@
 namespace :db do
   namespace :sample_data do
+    desc "load sample data"
     task :load => :environment do
       2.times do
         create_basic_new_hire(DateTime.now)
