@@ -1,5 +1,3 @@
-require 'csv'
-
 namespace :employee do
   desc "change status of employees (activate/deactivate)"
   task :change_status => :environment do
@@ -36,36 +34,8 @@ namespace :employee do
     if xml.doc.present?
       xml.parse_to_ad
     else
-      TechTableMailer.alert_email("ERROR: No xml file to parse. Check to see if Workday is sending xmls to the designated sFTP.").deliver_now
+      TechTableMailer.alert_email("ERROR: No xml file to parse. Check to see if Workday is sending xml files to the designated sFTP.").deliver_now
     end
-  end
-
-  desc "employee sync from csv, i.e. rake csv_to_db_sync['/this/path']"
-  task :csv_to_db_sync, [:path] => :environment do |t, args|
-    employees = []
-    errors = []
-
-    if args.path
-      csv_text = File.read(args.path)
-    else
-      raise "You must provide a path to a .csv file"
-    end
-
-    csv = CSV.parse(csv_text, :headers => true)
-    csv.each do |row|
-      e = Employee.find_or_create_by(:email => row["email"])
-      e.update_attributes(row.to_hash) if e.present?
-      if e.valid?
-        employees << e
-      else
-        errors << e.errors.messages
-      end
-        puts :employees => employees
-        puts :errors => errors # Should this hash be converted to a string OR do something more fancy with the error messages?
-    end
-
-    # TODO send errors to Tech Table
-    # TODO update ad with new fields / May want to limit?
   end
 end
 

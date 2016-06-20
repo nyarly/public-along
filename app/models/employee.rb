@@ -7,6 +7,10 @@ class Employee < ActiveRecord::Base
             presence: true
   validates :country,
             presence: true
+  validates :email,
+            allow_nil: true,
+            uniqueness: true,
+            case_sensitive: false
 
   attr_accessor :sAMAccountName
   attr_accessor :nearest_time_zone
@@ -39,7 +43,7 @@ class Employee < ActiveRecord::Base
     if match.length == 1
       match.keys[0]
     else
-      puts "WARNING: could not find an exact ou match for #{first_name} #{last_name}; placed in default ou"
+      TechTableMailer.alert_email("WARNING: could not find an exact ou match for #{first_name} #{last_name}; placed in default ou. To remedy, assign appropriate department and country values in Workday.").deliver_now
       return ""
     end
   end

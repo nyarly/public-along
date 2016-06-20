@@ -16,6 +16,7 @@ describe Employee, type: :model do
       expect(employee).to_not allow_value(nil).for(:last_name)
       expect(employee).to_not allow_value(nil).for(:cost_center)
       expect(employee).to_not allow_value(nil).for(:country)
+      expect(employee).to     validate_uniqueness_of(:email)
     end
 
     it "should scope the correct activation group" do
