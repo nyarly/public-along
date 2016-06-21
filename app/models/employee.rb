@@ -28,7 +28,7 @@ class Employee < ActiveRecord::Base
   end
 
   def dn
-    "cn=#{cn}," + ou + Rails.application.secrets.ad_ou_base
+    "cn=#{cn}," + ou + SECRETS.ad_ou_base
   end
 
   def ou

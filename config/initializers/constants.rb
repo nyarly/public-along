@@ -1,3 +1,5 @@
+SECRETS = Rails.application.secrets
+
 OUS = {
   "ou=Accounting," => { :department => ["OT Finance", "OT Finance Operations"], :country => ["US", "CA", "MX", "AU"] },
   "ou=Finance,ou=EU," => { :department => ["OT Finance", "OT Finance Operations"], :country => ["GB", "DE"] },

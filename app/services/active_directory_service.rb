@@ -7,10 +7,10 @@ class ActiveDirectoryService
     @ldap ||= begin
       puts "Starting new connection..."
       l = Net::LDAP.new
-      l.host = Rails.application.secrets.ad_host
+      l.host = SECRETS.ad_host
       l.port = 636
       l.encryption(method: :simple_tls)
-      l.auth(Rails.application.secrets.ad_svc_user, Rails.application.secrets.ad_svc_user_passwd)
+      l.auth(SECRETS.ad_svc_user, SECRETS.ad_svc_user_passwd)
       l.bind
       l
     end
@@ -91,7 +91,7 @@ class ActiveDirectoryService
           :olddn => ldap_entry.dn,
           :newrdn => "cn=#{employee.cn}",
           :delete_attributes => true,
-          :new_superior => employee.ou + Rails.application.secrets.ad_ou_base
+          :new_superior => employee.ou + SECRETS.ad_ou_base
         )
         ldap_success_check(employee, "ERROR: Could not successfully update #{k}: #{v} for #{employee.first_name} #{employee.last_name}.")
       end
@@ -140,7 +140,7 @@ class ActiveDirectoryService
 
   def find_entry(attr, value)
     ldap.search(
-      :base => Rails.application.secrets.ad_ou_base,
+      :base => SECRETS.ad_ou_base,
       :filter => Net::LDAP::Filter.eq(attr, value)
     ) do |entry|
       puts "DN #{entry.dn}"
