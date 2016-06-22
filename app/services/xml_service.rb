@@ -40,11 +40,28 @@ class XmlService
 
     ads = ActiveDirectoryService.new
     ads.create_disabled_accounts(new_hires)
+    HttpService.post_emails(SECRETS.xml_post_url, emails_xml)
     ads.update(existing_employees)
     trans = XmlTransaction.create(
       :name => File.basename(file),
       :checksum => checksum(file)
     )
+  end
+
+  def emails_xml
+    builder = Nokogiri::XML::Builder.new do |xml|
+      xml.root {
+        @new_hires.each do |worker|
+          if worker.email
+            xml.individual {
+              xml.identifier worker.employee_id
+              xml.email worker.email
+            }
+          end
+        end
+      }
+    end
+    builder.to_xml
   end
 
   def get_text(node, path)

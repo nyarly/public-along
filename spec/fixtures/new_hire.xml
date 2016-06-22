@@ -8,7 +8,7 @@
     <ws:Current_Effective_Time>2016-05-17T00:00:00.000-07:00</ws:Current_Effective_Time>
     <ws:Full_File>false</ws:Full_File>
     <ws:Document_Retention_Policy>90</ws:Document_Retention_Policy>
-    <ws:Worker_Count>2</ws:Worker_Count>
+    <ws:Worker_Count>4</ws:Worker_Count>
   </ws:Header>
   <ws:Worker>
     <ws:Summary>
