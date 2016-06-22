@@ -166,4 +166,68 @@ describe XmlService, type: :service do
     end
   end
 
+  context "parse to Active Directory" do
+    let(:file) { File.open(Rails.root.to_s+'/spec/fixtures/new_hire.xml') }
+    let!(:emails_xml) { "<?xml version=\"1.0\"?>\n<root>\n  <individual>\n    <identifier>12100401</identifier>\n    <email>jlebowski@opentable.com</email>\n  </individual>\n  <individual>\n    <identifier>12101234</identifier>\n    <email>mlebowski@opentable.com</email>\n  </individual>\n</root>\n" }
+    let(:ldap) { double(Net::LDAP) }
+    let(:ads) { double(ActiveDirectoryService) }
+    let(:http) { double(Net::HTTP) }
+    let(:response) { double(Net::HTTPResponse) }
+
+    before :each do
+      allow(Net::HTTP).to receive(:new).and_return(http)
+      allow(http).to receive(:use_ssl=).with(true)
+      allow(http).to receive(:post).and_return(response)
+      allow(response).to receive(:body)
+    end
+
+    it "should call active directory to create accounts for all new hires" do
+      allow(ActiveDirectoryService).to receive(:new).and_return(ads)
+
+      expect(ads).to receive(:create_disabled_accounts)
+      expect(ads).to receive(:update).with([])
+      expect{
+        xml.parse_to_ad
+      }.to change{ Employee.count }.by(3)
+    end
+
+    it "should call http service with email xml" do
+      allow(Net::LDAP).to receive(:new).and_return(ldap)
+      allow(ldap).to receive(:host=)
+      allow(ldap).to receive(:port=)
+      allow(ldap).to receive(:encryption)
+      allow(ldap).to receive(:auth)
+      allow(ldap).to receive(:bind)
+      allow(ldap).to receive(:search).and_return([]) # Mock search not finding conflicting existing sAMAccountName
+      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
+      allow(ldap).to receive(:add)
+
+      expect(HttpService).to receive(:post_emails).with(SECRETS.xml_post_url, emails_xml)
+
+      xml.parse_to_ad
+    end
+
+    it "should call Active Directory to update existing employees" do
+      employee1 = FactoryGirl.create(:employee, :employee_id => "12100401")
+      employee2 = FactoryGirl.create(:employee, :employee_id => "12101234")
+
+      allow(ActiveDirectoryService).to receive(:new).and_return(ads)
+      allow(ads).to receive(:create_disabled_accounts)
+
+      expect(ads).to receive(:update).with([employee1, employee2])
+      expect{
+        xml.parse_to_ad
+      }.to change{ Employee.count }.by(1)
+    end
+
+    it "should create an XmlTransaction to record this file as already parsed" do
+      allow(ActiveDirectoryService).to receive(:new).and_return(ads)
+      allow(ads).to receive(:create_disabled_accounts)
+      allow(ads).to receive(:update)
+
+      expect(XmlTransaction).to receive(:create).with({:name=>"new_hire.xml", :checksum=>"b391376cd38195663620209aeca25a10"})
+
+      xml.parse_to_ad
+    end
+  end
 end
