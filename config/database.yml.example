@@ -4,20 +4,20 @@ default: &default
   adapter: postgresql
   encoding: unicode
   pool: 5
-  host: 172.16.5.2
+  host: 172.16.5.3
   username: <username> # Check with developer for pgsql creds
   password: <password> # Check with developer for pgsql creds
 
 development:
   <<: *default
-  database: workday_development
+  database: mezzo_development
 
 test:
   <<: *default
-  database: workday_test
+  database: mezzo_test
 #
 production:
   <<: *default
-  database: workday_production
-  username: workday
-  password: <%= ENV['WORKDAY_DATABASE_PASSWORD'] %>
+  database: mezzo_production
+  username: mezzo
+  password: <%= ENV['MEZZO_DATABASE_PASSWORD'] %>
