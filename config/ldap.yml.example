@@ -8,7 +8,7 @@ authorizations: &AUTHORIZATIONS
   # ## Requires config.ldap_check_group_membership in devise.rb be true
   # # Can have multiple values, must match all to be authorized
   required_groups:
-    - ["member", "CN=workday_integration_access,CN=Users,DC=ottest,DC=opentable,DC=com"]
+    - ["member", "CN=mezzo_access,CN=Users,DC=ottest,DC=opentable,DC=com"]
   #   # If only a group name is given, membership will be checked against "uniqueMember"
   #   - cn=admins,ou=groups,dc=test,dc=com
   #   - cn=users,ou=groups,dc=test,dc=com
@@ -17,7 +17,7 @@ authorizations: &AUTHORIZATIONS
   # ## Requires config.ldap_check_attributes in devise.rb to be true
   # ## Can have multiple attributes and values, must match all to be authorized
   # require_attribute:
-  #   memberOf: cn=workday_integration_access,cn=Users,dc=ottest,dc=opentable,dc=com
+  #   memberOf: cn=mezzo_access,cn=Users,dc=ottest,dc=opentable,dc=com
     # objectClass: inetOrgPerson
     # authorizationRole: postsAdmin
 

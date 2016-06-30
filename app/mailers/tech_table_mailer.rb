@@ -4,6 +4,6 @@ class TechTableMailer < ApplicationMailer
   def alert_email(message)
     @email = "techtable@opentable.com"
     @message = message
-    mail(to: @email, subject: "ALERT: Workday Integration Error")
+    mail(to: @email, subject: "ALERT: Mezzo Error")
   end
 end

@@ -1,4 +1,4 @@
-# workday-integration
+# mezzo
 Takes file dumps from OT Workday and automates user creation/modification in OT Active Directory.
 
 ## Getting started

@@ -1,6 +1,6 @@
-set :repo_url,        'git@github.com:opentable/workday-integration.git'
-set :application,     'workday_integration'
-set :user,            'workday'
+set :repo_url,        'git@github.com:opentable/mezzo.git'
+set :application,     'mezzo'
+set :user,            'mezzo'
 set :puma_threads,    [4, 16]
 set :puma_workers,    0
 
@@ -26,7 +26,7 @@ set :rbenv_custom_path , "/usr/local/rbenv"
 set :rbenv_prefix, "RBENV_ROOT=#{fetch(:rbenv_custom_path)} RBENV_VERSION=#{fetch(:rbenv_ruby)} #{fetch(:rbenv_custom_path)}/bin/rbenv exec"
 set :rbenv_map_bins, %w{rake gem bundle ruby rails}
 set :rbenv_roles, :all # default value
-set :tmp_dir, "/home/workday/tmp"
+set :tmp_dir, "/home/mezzo/tmp"
 
 ## Linked Files & Directories (Default None):
 set :linked_files, %w{config/database.yml config/secrets.yml config/ldap.yml}
