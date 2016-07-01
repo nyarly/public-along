@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   # root 'welcome#index'
   devise_scope :user do
     root to: "temp#home"
+    get '/sign-in' => "devise/sessions#new", :as => :login
     get '/users/sign_out' => 'devise/sessions#destroy' # TODO Shouldn't need this once there is a link to logout
   end
 
