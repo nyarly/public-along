@@ -13,4 +13,13 @@ class ApplicationController < ActionController::Base
     devise_parameter_sanitizer.for(:sign_in) { |u| u.permit(:ldap_user, :password) }
     # devise_parameter_sanitizer.for(:account_update) { |u| u.permit(:username, :email, :password, :password_confirmation, :current_password) }
   end
+
+  protected
+  def authenticate_user!
+    if user_signed_in?
+      super
+    else
+      redirect_to login_path, :notice => 'You are not logged in.'
+    end
+  end
 end

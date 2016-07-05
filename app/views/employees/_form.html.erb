@@ -1,0 +1,41 @@
+<%= form_for @employee, builder: LabellingFormBuilder do |f| %>
+  <%= f.text_field :first_name %>
+  <%= f.text_field :last_name %>
+  <%= f.text_field :employee_id, label: "Employee ID" %>
+  <%= f.select :country, Employee::COUNTRIES %>
+  <div class="date-select">
+    <%= f.date_select :hire_date, {:order => [:month, :day, :year], :include_blank => true, :default => nil} %>
+  </div>
+  <%= f.text_field :business_title %>
+  <%= f.select :employee_type, ["Regular", "Contract", "Intern"] %>
+  <%= f.select :location, LOCATIONS.keys %>
+  <%= f.select :cost_center, COST_CENTERS.map { |k,v| v }.sort %>
+  <%= f.text_field :office_phone %>
+  <%= f.text_field :personal_mobile_phone %>
+  <%= f.collection_select :manager_id, Employee.all.order(last_name: :asc), :employee_id, :cn, {label: "Manager"} %>
+  <h5>Contract Workers Only</h5>
+  <div class="section">
+    <div class="date-select">
+        <%= f.date_select :contract_end_date, {:order => [:month, :day, :year] , :include_blank => true, :default => nil} %>
+    </div>
+  </div>
+  <h5>Remote Workers Only</h5>
+  <div class="section">
+    <%= f.text_field :home_address_1 %>
+    <%= f.text_field :home_address_2 %>
+    <%= f.text_field :home_city %>
+    <%= f.text_field :home_state %>
+    <%= f.text_field :home_zip %>
+  </div>
+  <h5>Leave and Termination</h5>
+  <div class="section date-select danger">
+    <div class="date-select">
+    <%= f.date_select :leave_start_date, {:order => [:month, :day, :year], :include_blank => true, :default => nil} %>
+    </div>
+    <div class="date-select">
+    <%= f.date_select :leave_return_date, {:order => [:month, :day, :year], :include_blank => true, :default => nil} %>
+    </div>
+    <%= f.date_select :termination_date, {:order => [:month, :day, :year], :include_blank => true, :default => nil} %>
+  </div>
+  <%= f.submit "Submit", :class => "button" %>
+<% end %>

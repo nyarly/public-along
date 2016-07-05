@@ -82,8 +82,8 @@ class ActiveDirectoryService
 
   def delete_attrs(employee, ldap_entry, attrs)
     attrs.each do |k,v|
-      ldap.delete_attribute(employee.dn, k, v)
-      ldap_success_check(employee, "ERROR: Could not successfully update #{k}: #{v} for #{employee.first_name} #{employee.last_name}.")
+      ldap.delete_attribute(employee.dn, k)
+      ldap_success_check(employee, "ERROR: Could not successfully update #{k}: #{v} for #{employee.cn}.")
     end
   end
 
@@ -97,12 +97,12 @@ class ActiveDirectoryService
           :delete_attributes => true,
           :new_superior => employee.ou + SECRETS.ad_ou_base
         )
-        ldap_success_check(employee, "ERROR: Could not successfully update #{k}: #{v} for #{employee.first_name} #{employee.last_name}.")
+        ldap_success_check(employee, "ERROR: Could not successfully update #{k}: #{v} for #{employee.cn}.")
       end
 
       unless k == :cn
         ldap.replace_attribute(employee.dn, k, v)
-        ldap_success_check(employee, "ERROR: Could not successfully update #{k}: #{v} for #{employee.first_name} #{employee.last_name}.")
+        ldap_success_check(employee, "ERROR: Could not successfully update #{k}: #{v} for #{employee.cn}.")
       end
     end
   end
@@ -153,7 +153,7 @@ class ActiveDirectoryService
 
   def ldap_success_check(employee, error_message)
     if ldap.get_operation_result.code == 0
-      employee.ad_updated_at = DateTime.now
+      employee.update_attributes(:ad_updated_at => DateTime.now)
     else
       TechTableMailer.alert_email(error_message).deliver_now
     end

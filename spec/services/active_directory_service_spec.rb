@@ -230,10 +230,10 @@ describe ActiveDirectoryService, type: :service do
       rem_to_reg_employee.home_state = nil
       rem_to_reg_employee.home_zip = nil
 
-      expect(ldap).to receive(:delete_attribute).once.with(rem_to_reg_employee.dn, :streetAddress, nil)
-      expect(ldap).to receive(:delete_attribute).once.with(rem_to_reg_employee.dn, :l, nil)
-      expect(ldap).to receive(:delete_attribute).once.with(rem_to_reg_employee.dn, :st, nil)
-      expect(ldap).to receive(:delete_attribute).once.with(rem_to_reg_employee.dn, :postalCode, nil)
+      expect(ldap).to receive(:delete_attribute).once.with(rem_to_reg_employee.dn, :streetAddress)
+      expect(ldap).to receive(:delete_attribute).once.with(rem_to_reg_employee.dn, :l)
+      expect(ldap).to receive(:delete_attribute).once.with(rem_to_reg_employee.dn, :st)
+      expect(ldap).to receive(:delete_attribute).once.with(rem_to_reg_employee.dn, :postalCode)
       ads.update([rem_to_reg_employee])
       expect(rem_to_reg_employee.ad_updated_at).to eq(DateTime.now)
     end

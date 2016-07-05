@@ -36,6 +36,12 @@ FactoryGirl.define do
       home_state     { Faker::Address.state_abbr }
       home_zip       { Faker::Address.zip }
     end
+
+    trait :existing do
+      created_at    { 2.months.ago }
+      updated_at    { 1.month.ago }
+      ad_updated_at { 1.month.ago }
+    end
   end
 end
 

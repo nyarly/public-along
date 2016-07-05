@@ -37,6 +37,13 @@ namespace :employee do
       TechTableMailer.alert_email("ERROR: No xml file to parse. Check to see if Workday is sending xml files to the designated sFTP.").deliver_now
     end
   end
+
+  desc "update active directory against mezzo employee db"
+  task :update_ad => :environment do
+    ads = ActiveDirectoryService.new
+    ads.create_disabled_accounts(Employee.create_group)
+    ads.update(Employee.update_group)
+  end
 end
 
 def in_time_window?(date, hour, zone)

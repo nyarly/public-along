@@ -1,0 +1,35 @@
+<h1>Employee Index</h1>
+<table>
+  <tr>
+    <th>First Name</th>
+    <th>Last Name</th>
+    <th>Email</th>
+    <th>Cost Center</th>
+    <th>Location</th>
+    <th>Business Title</th>
+    <th>Hire Date</th>
+    <th>Contract End Date</th>
+    <th>Termination Date</th>
+    <th>Leave Start Date</th>
+    <th>Leave Return Date</th>
+    <th>AD Updated At</th>
+    <th>Actions</th>
+  </tr>
+  <% @employees.each do |e| %>
+    <tr>
+      <td><%= e.first_name %></td>
+      <td><%= e.last_name %></td>
+      <td><%= e.email %></td>
+      <td><%= e.cost_center %></td>
+      <td><%= e.location %></td>
+      <td><%= e.business_title %></td>
+      <td><%= e.hire_date %></td>
+      <td><%= e.contract_end_date %></td>
+      <td><%= e.termination_date %></td>
+      <td><%= e.leave_start_date %></td>
+      <td><%= e.leave_return_date %></td>
+      <td><%= e.ad_updated_at %></td>
+      <td><%= link_to "Edit", edit_employee_path(e) %></td>
+    </tr>
+  <% end %>
+</table>
