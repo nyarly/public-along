@@ -1,4 +1,6 @@
 class Employee < ActiveRecord::Base
+  COUNTRIES = ["AU", "CA", "DE", "GB", "IE", "IN", "JP", "MX", "US"]
+
   validates :first_name,
             presence: true
   validates :last_name,
@@ -6,7 +8,8 @@ class Employee < ActiveRecord::Base
   validates :cost_center,
             presence: true
   validates :country,
-            presence: true
+            presence: true,
+            inclusion: { in: COUNTRIES }
   validates :email,
             allow_nil: true,
             uniqueness: true,
@@ -14,6 +17,14 @@ class Employee < ActiveRecord::Base
 
   attr_accessor :sAMAccountName
   attr_accessor :nearest_time_zone
+
+  def self.create_group
+    where(:ad_updated_at => nil)
+  end
+
+  def self.update_group
+    where('ad_updated_at < updated_at')
+  end
 
   def self.activation_group
     where('hire_date BETWEEN ? AND ? OR leave_return_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow)

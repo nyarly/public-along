@@ -1,14 +1,15 @@
 Rails.application.routes.draw do
   devise_for :users
+  resources :employees, :except => [:show, :destroy]
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
   # You can have the root of your site routed with "root"
   # root 'welcome#index'
   devise_scope :user do
-    root to: "temp#home"
-    get '/sign-in' => "devise/sessions#new", :as => :login
-    get '/users/sign_out' => 'devise/sessions#destroy' # TODO Shouldn't need this once there is a link to logout
+    root to: "employees#index"
+    get '/login' => "devise/sessions#new", :as => :login
+    get '/logout' => "devise/sessions#destroy", :as => :logout
   end
 
   # You can have the root of your site routed with "root"

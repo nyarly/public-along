@@ -12,6 +12,41 @@
   </head>
 
   <body>
+    <div class="title-bar" data-responsive-toggle="example-menu" data-hide-for="medium">
+      <button class="menu-icon" type="button" data-toggle></button>
+      <div class="title-bar-title">Menu</div>
+    </div>
+
+    <div class="top-bar" id="example-menu">
+      <div class="top-bar-left">
+        <ul class="dropdown menu" data-dropdown-menu>
+          <li class="menu-text"><img id="nav-logo" alt="Rails" src="/assets/ot_logo.png" /> | Mezzo</li>
+          <li>
+            <%= link_to "Employees", employees_path %>
+            <ul class="menu vertical">
+              <li><%= link_to "Add New Employee", new_employee_path %></li>
+            </ul>
+          </li>
+          <!-- <li><a href="#">Two</a></li>
+          <li><a href="#">Three</a></li> -->
+        </ul>
+      </div>
+      <div class="top-bar-right">
+        <ul class="menu">
+          <% if user_signed_in? %>
+            <li>
+              <%= link_to "Logout", logout_path %>
+            </li>
+          <% else %>
+            <li>
+              <%= link_to "Login", login_path %>
+            </li>
+          <% end %>
+          <!-- <li><input type="search" placeholder="Search"></li>
+          <li><button type="button" class="button">Search</button></li> -->
+        </ul>
+      </div>
+    </div>
     <% if flash[:notice] %>
       <div class="primary callout" data-closable>
         <%= notice %>
