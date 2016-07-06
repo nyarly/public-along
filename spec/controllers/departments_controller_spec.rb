@@ -20,138 +20,154 @@ require 'rails_helper'
 
 RSpec.describe DepartmentsController, type: :controller do
 
-  # This should return the minimal set of attributes required to create a valid
-  # Department. As you add validations to Department, be sure to
-  # adjust the attributes here as well.
+  let!(:department) { FactoryGirl.create(:department) }
+  let!(:user) { FactoryGirl.create(:user, :role_name => "Admin") }
+
   let(:valid_attributes) {
-    skip("Add a hash of attributes valid for your model")
+    {
+      name: "Department name",
+      code: "123456"
+    }
   }
 
   let(:invalid_attributes) {
-    skip("Add a hash of attributes invalid for your model")
+    {
+      name: nil
+    }
   }
 
-  # This should return the minimal set of values that should be in the session
-  # in order to pass any filters (e.g. authentication) defined in
-  # DepartmentsController. Be sure to keep this updated too.
-  let(:valid_session) { {} }
+  before :each do
+    login_as user
+  end
 
   describe "GET #index" do
     it "assigns all departments as @departments" do
-      department = Department.create! valid_attributes
-      get :index, {}, valid_session
+      should_authorize(:index, Department)
+      get :index
       expect(assigns(:departments)).to eq([department])
     end
   end
 
   describe "GET #show" do
     it "assigns the requested department as @department" do
-      department = Department.create! valid_attributes
-      get :show, {:id => department.to_param}, valid_session
+      should_authorize(:show, department)
+      get :show, {:id => department.id}
       expect(assigns(:department)).to eq(department)
     end
   end
 
   describe "GET #new" do
     it "assigns a new department as @department" do
-      get :new, {}, valid_session
+      should_authorize(:new, Department)
+      get :new
       expect(assigns(:department)).to be_a_new(Department)
     end
   end
 
   describe "GET #edit" do
     it "assigns the requested department as @department" do
-      department = Department.create! valid_attributes
-      get :edit, {:id => department.to_param}, valid_session
+      should_authorize(:edit, department)
+      get :edit, {:id => department.id}
       expect(assigns(:department)).to eq(department)
     end
   end
 
   describe "POST #create" do
     context "with valid params" do
+      before :each do
+        should_authorize(:create, Department)
+      end
+
       it "creates a new Department" do
         expect {
-          post :create, {:department => valid_attributes}, valid_session
+          post :create, {:department => valid_attributes}
         }.to change(Department, :count).by(1)
       end
 
       it "assigns a newly created department as @department" do
-        post :create, {:department => valid_attributes}, valid_session
+        post :create, {:department => valid_attributes}
         expect(assigns(:department)).to be_a(Department)
         expect(assigns(:department)).to be_persisted
       end
 
       it "redirects to the created department" do
-        post :create, {:department => valid_attributes}, valid_session
-        expect(response).to redirect_to(Department.last)
+        post :create, {:department => valid_attributes}
+        expect(response).to redirect_to(Department.find_by(:code => "123456"))
       end
     end
 
     context "with invalid params" do
+      before :each do
+        should_authorize(:create, Department)
+      end
+
       it "assigns a newly created but unsaved department as @department" do
-        post :create, {:department => invalid_attributes}, valid_session
+        post :create, {:department => invalid_attributes}
         expect(assigns(:department)).to be_a_new(Department)
       end
 
       it "re-renders the 'new' template" do
-        post :create, {:department => invalid_attributes}, valid_session
+        post :create, {:department => invalid_attributes}
         expect(response).to render_template("new")
       end
     end
   end
 
   describe "PUT #update" do
+    before :each do
+      should_authorize(:update, department)
+    end
     context "with valid params" do
       let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
+        {
+          name: "New Name",
+          code: "123456"
+        }
       }
 
       it "updates the requested department" do
-        department = Department.create! valid_attributes
-        put :update, {:id => department.to_param, :department => new_attributes}, valid_session
+        put :update, {:id => department.id, :department => new_attributes}
         department.reload
-        skip("Add assertions for updated state")
+        expect(department.name).to eq("New Name")
       end
 
       it "assigns the requested department as @department" do
-        department = Department.create! valid_attributes
-        put :update, {:id => department.to_param, :department => valid_attributes}, valid_session
+        put :update, {:id => department.id, :department => valid_attributes}
         expect(assigns(:department)).to eq(department)
       end
 
       it "redirects to the department" do
-        department = Department.create! valid_attributes
-        put :update, {:id => department.to_param, :department => valid_attributes}, valid_session
+        put :update, {:id => department.id, :department => valid_attributes}
         expect(response).to redirect_to(department)
       end
     end
 
     context "with invalid params" do
       it "assigns the department as @department" do
-        department = Department.create! valid_attributes
-        put :update, {:id => department.to_param, :department => invalid_attributes}, valid_session
+        put :update, {:id => department.id, :department => invalid_attributes}
         expect(assigns(:department)).to eq(department)
       end
 
       it "re-renders the 'edit' template" do
-        department = Department.create! valid_attributes
-        put :update, {:id => department.to_param, :department => invalid_attributes}, valid_session
+        put :update, {:id => department.id, :department => invalid_attributes}
         expect(response).to render_template("edit")
       end
     end
   end
 
   describe "DELETE #destroy" do
+    before :each do
+      should_authorize(:destroy, department)
+    end
+
     it "destroys the requested department" do
-      department = Department.create! valid_attributes
       expect {
-        delete :destroy, {:id => department.to_param}, valid_session
+        delete :destroy, {:id => department.id}
       }.to change(Department, :count).by(-1)
     end
 
     it "redirects to the departments list" do
-      department = Department.create! valid_attributes
-      delete :destroy, {:id => department.to_param}, valid_session
+      delete :destroy, {:id => department.id}
       expect(response).to redirect_to(departments_url)
     end
   end

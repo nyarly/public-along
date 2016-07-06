@@ -1,8 +1,7 @@
 class EmployeesController < ApplicationController
   load_and_authorize_resource
 
-  before_filter :authenticate_user!
-  before_action :set_employee, only: [:show, :edit, :update, :destroy]
+  before_action :set_employee, only: [:show, :edit, :update]
 
   def index
     @employees = Employee.all

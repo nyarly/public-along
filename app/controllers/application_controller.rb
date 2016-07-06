@@ -15,11 +15,16 @@ class ApplicationController < ActionController::Base
   end
 
   protected
-  def authenticate_user!
-    if user_signed_in?
-      super
+
+  rescue_from CanCan::AccessDenied do |exception|
+    if !user_signed_in?
+      redirect_to login_path, :notice => "You are logged out."
     else
-      redirect_to login_path, :notice => 'You are not logged in.'
+      if request.env["HTTP_REFERER"].present?
+        redirect_to :back, :alert => "You do not have the correct access permissions."
+      else
+        redirect_to root_path, :alert => "You do not have the correct access permissions."
+      end
     end
   end
 end
