@@ -5,7 +5,7 @@ class Employee < ActiveRecord::Base
             presence: true
   validates :last_name,
             presence: true
-  validates :cost_center,
+  validates :department_id,
             presence: true
   validates :country,
             presence: true,
@@ -14,6 +14,8 @@ class Employee < ActiveRecord::Base
             allow_nil: true,
             uniqueness: true,
             case_sensitive: false
+
+  belongs_to :department
 
   attr_accessor :sAMAccountName
   attr_accessor :nearest_time_zone
@@ -48,7 +50,7 @@ class Employee < ActiveRecord::Base
 
   def ou
     match = OUS.select { |k,v|
-      v[:department].include?(cost_center) && v[:country].include?(country)
+      v[:department].include?(department.name) && v[:country].include?(country)
     }
 
     if match.length == 1
@@ -117,7 +119,7 @@ class Employee < ActiveRecord::Base
       description: business_title,
       employeeType: employee_type,
       physicalDeliveryOfficeName: location,
-      department: cost_center,
+      department: department.name,
       employeeID: employee_id,
       mobile: personal_mobile_phone,
       telephoneNumber: office_phone,

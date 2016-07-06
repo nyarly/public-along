@@ -11,10 +11,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160610201900) do
+ActiveRecord::Schema.define(version: 20160705234807) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "departments", force: :cascade do |t|
+    t.string   "name"
+    t.string   "code"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "employees", force: :cascade do |t|
     t.string   "email"
@@ -37,8 +44,6 @@ ActiveRecord::Schema.define(version: 20160610201900) do
     t.string   "location_type"
     t.string   "location"
     t.string   "manager_id"
-    t.string   "cost_center"
-    t.string   "cost_center_id"
     t.string   "personal_mobile_phone"
     t.string   "office_phone"
     t.string   "home_address_1"
@@ -52,6 +57,7 @@ ActiveRecord::Schema.define(version: 20160610201900) do
     t.datetime "ad_updated_at"
     t.datetime "leave_start_date"
     t.datetime "leave_return_date"
+    t.integer  "department_id"
   end
 
   create_table "users", force: :cascade do |t|

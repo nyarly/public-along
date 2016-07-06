@@ -4,7 +4,8 @@ class Role::Admin < Role::Basic
   def set_abilities(ability)
     super
 
-    # ability.can :manage, Department
+    ability.can :manage, Department
+    ability.can :manage, Employee
     # ability.can :manage, MachineBundle
     # ability.can :manage, OrgRole
     # ability.can :manage, OrgApp

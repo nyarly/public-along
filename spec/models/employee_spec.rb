@@ -1,11 +1,17 @@
 require 'rails_helper'
 
 describe Employee, type: :model do
+  let(:dept) { FactoryGirl.create(:department,
+    name: "OT Customer Support",
+    code: "000032"
+  )}
+
   context "with a regular employee" do
+
     let(:employee) { FactoryGirl.build(:employee,
       first_name: "Bob",
       last_name: "Barker",
-      cost_center: "OT Customer Support",
+      department_id: dept.id,
       country: "GB"
     )}
 
@@ -14,7 +20,7 @@ describe Employee, type: :model do
 
       expect(employee).to_not allow_value(nil).for(:first_name)
       expect(employee).to_not allow_value(nil).for(:last_name)
-      expect(employee).to_not allow_value(nil).for(:cost_center)
+      expect(employee).to_not allow_value(nil).for(:department_id)
       expect(employee).to_not allow_value(nil).for(:country)
       expect(employee).to_not allow_value("UK").for(:country)
       expect(employee).to     validate_uniqueness_of(:email)
@@ -22,7 +28,7 @@ describe Employee, type: :model do
     end
 
     it "should scope the create group" do
-      create_group = FactoryGirl.create_list(:employee, 10)
+      create_group = FactoryGirl.create_list(:employee, 10, :department_id => dept.id)
       existing_group = FactoryGirl.create_list(:employee, 10, :existing)
 
       expect(Employee.create_group).to match_array(create_group)
@@ -30,7 +36,7 @@ describe Employee, type: :model do
     end
 
     it "should scope the update group" do
-      create_group = FactoryGirl.create_list(:employee, 10)
+      create_group = FactoryGirl.create_list(:employee, 10, :department_id => dept.id)
       existing_group = FactoryGirl.create_list(:employee, 10, :existing)
       update1 = FactoryGirl.create(:employee,
         :updated_at => Time.now,
@@ -43,22 +49,22 @@ describe Employee, type: :model do
 
     it "should scope the correct activation group" do
       activation_group = [
-        FactoryGirl.create(:employee, :hire_date => Date.yesterday),
-        FactoryGirl.create(:employee, :hire_date => Date.today),
-        FactoryGirl.create(:employee, :hire_date => Date.tomorrow),
-        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.yesterday),
-        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.today),
-        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.tomorrow)
+        FactoryGirl.create(:employee, :hire_date => Date.yesterday, :department_id => dept.id),
+        FactoryGirl.create(:employee, :hire_date => Date.today, :department_id => dept.id),
+        FactoryGirl.create(:employee, :hire_date => Date.tomorrow, :department_id => dept.id),
+        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.yesterday, :department_id => dept.id),
+        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.today, :department_id => dept.id),
+        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.tomorrow, :department_id => dept.id)
       ]
       non_activation_group = [
-        FactoryGirl.create(:employee, :hire_date => 1.week.ago),
-        FactoryGirl.create(:employee, :hire_date => 2.days.ago),
-        FactoryGirl.create(:employee, :hire_date => 2.days.from_now),
-        FactoryGirl.create(:employee, :hire_date => 1.week.from_now),
-        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 1.week.ago),
-        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 2.days.ago),
-        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 2.days.from_now),
-        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 1.week.from_now)
+        FactoryGirl.create(:employee, :hire_date => 1.week.ago, :department_id => dept.id),
+        FactoryGirl.create(:employee, :hire_date => 2.days.ago, :department_id => dept.id),
+        FactoryGirl.create(:employee, :hire_date => 2.days.from_now, :department_id => dept.id),
+        FactoryGirl.create(:employee, :hire_date => 1.week.from_now, :department_id => dept.id),
+        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 1.week.ago, :department_id => dept.id),
+        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 2.days.ago, :department_id => dept.id),
+        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 2.days.from_now, :department_id => dept.id),
+        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 1.week.from_now, :department_id => dept.id)
       ]
 
       expect(Employee.activation_group).to match_array(activation_group)
@@ -67,22 +73,22 @@ describe Employee, type: :model do
 
     it "should scope the correct deactivation group" do
       deactivation_group = [
-        FactoryGirl.create(:employee, :contract_end_date => Date.yesterday),
-        FactoryGirl.create(:employee, :contract_end_date => Date.today),
-        FactoryGirl.create(:employee, :contract_end_date => Date.tomorrow),
-        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => Date.yesterday),
-        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => Date.today),
-        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => Date.tomorrow)
+        FactoryGirl.create(:employee, :contract_end_date => Date.yesterday, :department_id => dept.id),
+        FactoryGirl.create(:employee, :contract_end_date => Date.today, :department_id => dept.id),
+        FactoryGirl.create(:employee, :contract_end_date => Date.tomorrow, :department_id => dept.id),
+        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => Date.yesterday, :department_id => dept.id),
+        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => Date.today, :department_id => dept.id),
+        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => Date.tomorrow, :department_id => dept.id)
       ]
       non_deactivation_group = [
-        FactoryGirl.create(:employee, :contract_end_date => 1.week.ago),
-        FactoryGirl.create(:employee, :contract_end_date => 2.days.ago),
-        FactoryGirl.create(:employee, :contract_end_date => 2.days.from_now),
-        FactoryGirl.create(:employee, :contract_end_date => 1.week.from_now),
-        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => 1.week.ago),
-        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => 2.days.ago),
-        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => 2.days.from_now),
-        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => 1.week.from_now)
+        FactoryGirl.create(:employee, :contract_end_date => 1.week.ago, :department_id => dept.id),
+        FactoryGirl.create(:employee, :contract_end_date => 2.days.ago, :department_id => dept.id),
+        FactoryGirl.create(:employee, :contract_end_date => 2.days.from_now, :department_id => dept.id),
+        FactoryGirl.create(:employee, :contract_end_date => 1.week.from_now, :department_id => dept.id),
+        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => 1.week.ago, :department_id => dept.id),
+        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => 2.days.ago, :department_id => dept.id),
+        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => 2.days.from_now, :department_id => dept.id),
+        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => 1.week.from_now, :department_id => dept.id)
       ]
 
       expect(Employee.deactivation_group).to match_array(deactivation_group)
@@ -133,7 +139,7 @@ describe Employee, type: :model do
           description: employee.business_title,
           employeeType: employee.employee_type,
           physicalDeliveryOfficeName: employee.location,
-          department: employee.cost_center,
+          department: employee.department.name,
           employeeID: employee.employee_id,
           mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,
@@ -148,9 +154,11 @@ describe Employee, type: :model do
   end
 
   context "regular worker that has been assigned a sAMAccountName" do
+
     let(:employee) { FactoryGirl.build(:employee,
       first_name: "Bob",
-      last_name: "Barker"
+      last_name: "Barker",
+      department_id: dept.id
     )}
 
     it "should generate an email using the sAMAccountName" do
@@ -178,7 +186,7 @@ describe Employee, type: :model do
           description: employee.business_title,
           employeeType: employee.employee_type,
           physicalDeliveryOfficeName: employee.location,
-          department: employee.cost_center,
+          department: employee.department.name,
           employeeID: employee.employee_id,
           mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,
@@ -193,10 +201,12 @@ describe Employee, type: :model do
   end
 
   context "with a contingent worker" do
+
     let(:employee) { FactoryGirl.build(:employee, :contingent,
       first_name: "Bob",
       last_name: "Barker",
       employee_type: "Vendor",
+      department_id: dept.id,
       contract_end_date: 1.month.from_now
     )}
 
@@ -231,7 +241,7 @@ describe Employee, type: :model do
           description: employee.business_title,
           employeeType: employee.employee_type,
           physicalDeliveryOfficeName: employee.location,
-          department: employee.cost_center,
+          department: employee.department.name,
           employeeID: employee.employee_id,
           mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,
@@ -247,6 +257,7 @@ describe Employee, type: :model do
 
   context "with a terminated worker" do
     let(:employee) { FactoryGirl.build(:employee,
+      department_id: dept.id,
       termination_date: 2.days.from_now
     )}
 
@@ -259,6 +270,7 @@ describe Employee, type: :model do
     let(:employee) { FactoryGirl.build(:employee, :contingent,
       first_name: "Bob",
       last_name: "Barker",
+      department_id: dept.id,
       contract_end_date: 1.month.from_now,
       termination_date: 1.day.from_now
     )}
@@ -285,7 +297,7 @@ describe Employee, type: :model do
           description: employee.business_title,
           employeeType: employee.employee_type,
           physicalDeliveryOfficeName: employee.location,
-          department: employee.cost_center,
+          department: employee.department.name,
           employeeID: employee.employee_id,
           mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,
@@ -303,6 +315,7 @@ describe Employee, type: :model do
     let(:employee) { FactoryGirl.build(:employee, :remote,
       first_name: "Bob",
       last_name: "Barker",
+      department_id: dept.id,
       home_address_1: "123 Fake St.",
       home_city: "Beverly Hills",
       home_state: "CA",
@@ -330,7 +343,7 @@ describe Employee, type: :model do
           description: employee.business_title,
           employeeType: employee.employee_type,
           physicalDeliveryOfficeName: employee.location,
-          department: employee.cost_center,
+          department: employee.department.name,
           employeeID: employee.employee_id,
           mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,
@@ -348,6 +361,7 @@ describe Employee, type: :model do
     let(:employee) { FactoryGirl.build(:employee, :remote,
       first_name: "Bob",
       last_name: "Barker",
+      department_id: dept.id,
       home_address_1: "123 Fake St.",
       home_address_2: "Apt 3G",
       home_city: "Beverly Hills",
@@ -376,7 +390,7 @@ describe Employee, type: :model do
           description: employee.business_title,
           employeeType: employee.employee_type,
           physicalDeliveryOfficeName: employee.location,
-          department: employee.cost_center,
+          department: employee.department.name,
           employeeID: employee.employee_id,
           mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,

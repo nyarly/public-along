@@ -3,6 +3,7 @@ require 'rake'
 
 describe "db:sample_data", type: :tasks do
   before :all do
+    Department.create(:name => "Sample", :code => "12345")
     Rake.application = Rake::Application.new
     Rake.application.rake_require "lib/tasks/sample_data", [Rails.root.to_s], ''
     Rake::Task.define_task :environment

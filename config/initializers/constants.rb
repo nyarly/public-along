@@ -26,41 +26,6 @@ OUS = {
   "ou=Japan," => { :department => ["OT Finance", "OT Finance Operations", "OT Sales - General", "OT Sales Operations", "OT Inside Sales", "OT Restaurant Relations Management", "OT Field Operations", "OT General Marketing", "OT Consumer Marketing", "OT Restaurant Marketing", "OT Public Relations", "OT Product Marketing", "OT Customer Support"], :country => ["JP"] }
 }
 
-COST_CENTERS ={
-  "000010" =>  "OT Facilities",
-  "000011" =>  "OT People and Culture",
-  "000012" =>  "OT Legal",
-  "000013" =>  "OT Finance",
-  "000014" =>  "OT Risk Management and Fraud",
-  "000017" =>  "OT Talent Acquisition",
-  "000018" =>  "OT Executive",
-  "000019" =>  "OT Finance Operations",
-  "000020" =>  "OT Sales - General",
-  "000021" =>  "OT Sales Operations",
-  "000025" =>  "OT Inside Sales",
-  "000031" =>  "OT Field Operations",
-  "000032" =>  "OT Customer Support",
-  "000033" =>  "OT Restaurant Relations Management",
-  "000035" =>  "OT IT Technical Services and Helpdesk",
-  "000036" =>  "OT IT - Engineering",
-  "000040" =>  "OT General Engineering",
-  "000041" =>  "OT Consumer Engineering",
-  "000042" =>  "OT Restaurant Engineering",
-  "000043" =>  "OT Data Center Ops",
-  "000044" =>  "OT Business Optimization",
-  "000045" =>  "OT Data Analytics",
-  "000050" =>  "OT General Marketing",
-  "000051" =>  "OT Consumer Marketing",
-  "000052" =>  "OT Restaurant Marketing",
-  "000053" =>  "OT Public Relations",
-  "000054" =>  "OT Product Marketing",
-  "000060" =>  "OT General Product Management",
-  "000061" =>  "OT Restaurant Product Management",
-  "000062" =>  "OT Consumer Product Management",
-  "000063" =>  "OT Design",
-  "000070" =>  "OT Business Development"
-}
-
 LOCATIONS = {
   "OT San Francisco" => "Office",
   "OT Los Angeles" => "Office",

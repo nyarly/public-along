@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :departments
   devise_for :users
   resources :employees, :except => [:show, :destroy]
   # The priority is based upon order of creation: first created -> highest priority.

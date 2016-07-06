@@ -1,11 +1,3 @@
-# This file should contain all the record creation needed to seed the database with its default values.
-# The data can then be loaded with the rake db:seed (or created alongside the db with db:setup).
-#
-# Examples:
-#
-#   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
-#   Mayor.create(name: 'Emanuel', city: cities.first)
-
 depts = [
   {:name =>  "OT Facilities", :code => "000010"},
   {:name =>  "OT People and Culture", :code => "000011"},
@@ -41,6 +33,4 @@ depts = [
   {:name =>  "OT Business Development", :code => "000070"}
 ]
 
-ActiveRecord::Base.transaction do
-  depts.each { |attrs| Department.create(attrs) }
-end
+depts.each { |attrs| Department.create(attrs) }

@@ -30,6 +30,11 @@ namespace :sync do
       row_attrs = row.to_hash
       # Create the worker in the DB
       e = Employee.find_or_create_by(:email => row_attrs["email"])
+      # Convert Cost Center info to Department
+      row_attrs[:department_id] = Department.find_by(:name => row_attrs["cost_center"]).id
+      ["cost_center", "cost_center_id"].each do |k|
+        row_attrs.delete(k)
+      end
 
       # If location is not remote, don't save address to DB
       if offices.include?(row_attrs["location"])

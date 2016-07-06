@@ -3,6 +3,45 @@ require 'rails_helper'
 describe XmlService, type: :service do
   let(:xml) { XmlService.new(file) }
 
+  before :each do
+    depts = [
+      {:name =>  "OT Facilities", :code => "000010"},
+      {:name =>  "OT People and Culture", :code => "000011"},
+      {:name =>  "OT Legal", :code => "000012"},
+      {:name =>  "OT Finance", :code => "000013"},
+      {:name =>  "OT Risk Management and Fraud", :code => "000014"},
+      {:name =>  "OT Talent Acquisition", :code => "000017"},
+      {:name =>  "OT Executive", :code => "000018"},
+      {:name =>  "OT Finance Operations", :code => "000019"},
+      {:name =>  "OT Sales - General", :code => "000020"},
+      {:name =>  "OT Sales Operations", :code => "000021"},
+      {:name =>  "OT Inside Sales", :code => "000025"},
+      {:name =>  "OT Field Operations", :code => "000031"},
+      {:name =>  "OT Customer Support", :code => "000032"},
+      {:name =>  "OT Restaurant Relations Management", :code => "000033"},
+      {:name =>  "OT IT Technical Services and Helpdesk", :code => "000035"},
+      {:name =>  "OT IT - Engineering", :code => "000036"},
+      {:name =>  "OT General Engineering", :code => "000040"},
+      {:name =>  "OT Consumer Engineering", :code => "000041"},
+      {:name =>  "OT Restaurant Engineering", :code => "000042"},
+      {:name =>  "OT Data Center Ops", :code => "000043"},
+      {:name =>  "OT Business Optimization", :code => "000044"},
+      {:name =>  "OT Data Analytics", :code => "000045"},
+      {:name =>  "OT General Marketing", :code => "000050"},
+      {:name =>  "OT Consumer Marketing", :code => "000051"},
+      {:name =>  "OT Restaurant Marketing", :code => "000052"},
+      {:name =>  "OT Public Relations", :code => "000053"},
+      {:name =>  "OT Product Marketing", :code => "000054"},
+      {:name =>  "OT General Product Management", :code => "000060"},
+      {:name =>  "OT Restaurant Product Management", :code => "000061"},
+      {:name =>  "OT Consumer Product Management", :code => "000062"},
+      {:name =>  "OT Design", :code => "000063"},
+      {:name =>  "OT Business Development", :code => "000070"}
+    ]
+
+    depts.each { |attrs| Department.create(attrs) }
+  end
+
   context "New Hire" do
     let(:file) { File.open(Rails.root.to_s+'/spec/fixtures/new_hire.xml') }
 
@@ -28,8 +67,7 @@ describe XmlService, type: :service do
       expect(Employee.last.location_type).to eq("Office")
       expect(Employee.last.location).to eq("OT Los Angeles")
       expect(Employee.last.manager_id).to eq("12100123")
-      expect(Employee.last.cost_center).to eq("OT Business Optimization")
-      expect(Employee.last.cost_center_id).to eq("000044")
+      expect(Employee.last.department.name).to eq("OT Business Optimization")
       expect(Employee.last.office_phone).to eq("(213) 555-4321")
       expect(Employee.last.image_code).to be_nil
       expect(Employee.last.home_address_1).to be_nil
@@ -62,8 +100,7 @@ describe XmlService, type: :service do
       expect(Employee.last.location_type).to eq("Office")
       expect(Employee.last.location).to eq("OT London")
       expect(Employee.last.manager_id).to eq("12101502")
-      expect(Employee.last.cost_center).to eq("OT General Product Management")
-      expect(Employee.last.cost_center_id).to eq("WP8OT_London000060")
+      expect(Employee.last.department.name).to eq("OT General Product Management")
       expect(Employee.last.office_phone).to eq("(213) 555-9876")
       expect(Employee.last.image_code).to be_nil
       expect(Employee.last.home_address_1).to be_nil
@@ -106,7 +143,7 @@ describe XmlService, type: :service do
       :business_title => "Software Development Team Lead",
       :first_name => "Jeffrey",
       :last_name => "Lebowski",
-      :cost_center => "OT Business Optimization",
+      :department => Department.find_by(:name =>"OT Business Optimization"),
       :image_code => nil)
     }
     let!(:terminated_employee) { FactoryGirl.create(:employee,

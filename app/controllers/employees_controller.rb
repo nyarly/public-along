@@ -1,4 +1,6 @@
 class EmployeesController < ApplicationController
+  load_and_authorize_resource
+
   before_filter :authenticate_user!
   before_action :set_employee, only: [:show, :edit, :update, :destroy]
 
@@ -37,7 +39,6 @@ class EmployeesController < ApplicationController
   end
 
   def employee_params
-    params[:employee][:cost_center_id] = COST_CENTERS.key(params[:employee][:cost_center]) if params[:employee][:cost_center]
     params[:employee][:location_type] = LOCATIONS[params[:employee][:location]] if params[:employee][:location]
     params.require(:employee).permit(
       :email,
@@ -60,8 +61,7 @@ class EmployeesController < ApplicationController
       :location_type,
       :location,
       :manager_id,
-      :cost_center,
-      :cost_center_id,
+      :department_id,
       :personal_mobile_phone,
       :office_phone,
       :home_address_1,

@@ -9,7 +9,7 @@
   <%= f.text_field :business_title %>
   <%= f.select :employee_type, ["Regular", "Contract", "Intern"] %>
   <%= f.select :location, LOCATIONS.keys %>
-  <%= f.select :cost_center, COST_CENTERS.map { |k,v| v }.sort %>
+  <%= f.collection_select :department_id, Department.all, :id, :name %>
   <%= f.text_field :office_phone %>
   <%= f.text_field :personal_mobile_phone %>
   <%= f.collection_select :manager_id, Employee.all.order(last_name: :asc), :employee_id, :cn, {label: "Manager"} %>

@@ -2,6 +2,46 @@ require 'rails_helper'
 require 'rake'
 
 describe "employee rake tasks", type: :tasks do
+  before :each do
+    depts = [
+      {:name =>  "OT Facilities", :code => "000010"},
+      {:name =>  "OT People and Culture", :code => "000011"},
+      {:name =>  "OT Legal", :code => "000012"},
+      {:name =>  "OT Finance", :code => "000013"},
+      {:name =>  "OT Risk Management and Fraud", :code => "000014"},
+      {:name =>  "OT Talent Acquisition", :code => "000017"},
+      {:name =>  "OT Executive", :code => "000018"},
+      {:name =>  "OT Finance Operations", :code => "000019"},
+      {:name =>  "OT Sales - General", :code => "000020"},
+      {:name =>  "OT Sales Operations", :code => "000021"},
+      {:name =>  "OT Inside Sales", :code => "000025"},
+      {:name =>  "OT Field Operations", :code => "000031"},
+      {:name =>  "OT Customer Support", :code => "000032"},
+      {:name =>  "OT Restaurant Relations Management", :code => "000033"},
+      {:name =>  "OT IT Technical Services and Helpdesk", :code => "000035"},
+      {:name =>  "OT IT - Engineering", :code => "000036"},
+      {:name =>  "OT General Engineering", :code => "000040"},
+      {:name =>  "OT Consumer Engineering", :code => "000041"},
+      {:name =>  "OT Restaurant Engineering", :code => "000042"},
+      {:name =>  "OT Data Center Ops", :code => "000043"},
+      {:name =>  "OT Business Optimization", :code => "000044"},
+      {:name =>  "OT Data Analytics", :code => "000045"},
+      {:name =>  "OT General Marketing", :code => "000050"},
+      {:name =>  "OT Consumer Marketing", :code => "000051"},
+      {:name =>  "OT Restaurant Marketing", :code => "000052"},
+      {:name =>  "OT Public Relations", :code => "000053"},
+      {:name =>  "OT Product Marketing", :code => "000054"},
+      {:name =>  "OT General Product Management", :code => "000060"},
+      {:name =>  "OT Restaurant Product Management", :code => "000061"},
+      {:name =>  "OT Consumer Product Management", :code => "000062"},
+      {:name =>  "OT Design", :code => "000063"},
+      {:name =>  "OT Business Development", :code => "000070"}
+    ]
+
+    ActiveRecord::Base.transaction do
+      depts.each { |attrs| Department.create(attrs) }
+    end
+  end
 
   context "employee:change_status" do
     before :each do
@@ -86,9 +126,9 @@ describe "employee rake tasks", type: :tasks do
     end
 
     it "should call ldap and update only terminations or workers on leave at 9pm in IST" do
-      termination = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :contract_end_date => Date.new(2016, 7, 29), :cost_center => "OT General Engineering", :country => 'IN')
-      leave = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :leave_start_date => Date.new(2016, 7, 29), :cost_center => "OT Data Center Ops", :country => 'IN')
-      new_hire_in = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :cost_center => "OT Data Analytics", :country => 'IN')
+      termination = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :contract_end_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "OT General Engineering").id, :country => 'IN')
+      leave = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :leave_start_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "OT Data Center Ops").id, :country => 'IN')
+      new_hire_in = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "OT Data Analytics").id, :country => 'IN')
       new_hire_us = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :country => 'US')
 
       # 7/29/2016 at 9pm IST/3:30pm UTC
@@ -149,8 +189,7 @@ describe "employee rake tasks", type: :tasks do
       :location_type => "Office",
       :location => "OT Los Angeles",
       :manager_id => "12100123",
-      :cost_center_id => "000044",
-      :cost_center => "OT Business Optimization",
+      :department_id => Department.find_by(:name => "OT Business Optimization").id,
       :office_phone => nil,
       :image_code => nil)
 
@@ -173,8 +212,7 @@ describe "employee rake tasks", type: :tasks do
       :location_type => "Office",
       :location => "OT Melbourne",
       :manager_id => "12101034",
-      :cost_center_id => "OT_Melbourne000012",
-      :cost_center => "OT Legal",
+      :department_id => Department.find_by(:name => "OT Legal").id,
       :office_phone => "(213) 555-1234",
       :image_code => nil)
 

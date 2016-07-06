@@ -30,7 +30,7 @@ class XmlService
     @doc.xpath("//ws:Worker").each do |w|
       attrs = base_attrs(w).merge(leave_attrs(w)).merge(address_attrs(w))
 
-      attrs[:cost_center] = COST_CENTERS[attrs[:cost_center_id][-6,6]] if attrs[:cost_center_id].present?
+      attrs[:department_id] = get_dept_id(w)
       sort_employee(attrs)
     end
   end
@@ -69,6 +69,11 @@ class XmlService
     text.blank? ? nil : text
   end
 
+  def get_dept_id(worker_node)
+    cc_id = get_text(worker_node, "ws:Additional_Information//ws:Cost_Center_Code")
+    Department.find_by(:code => cc_id[-6,6]).try(:id) if cc_id.present?
+  end
+
   def base_attrs(worker_node)
     {
       :first_name => get_text(worker_node, "ws:Personal//ws:Name_Data//ws:First_Name"),
@@ -89,7 +94,6 @@ class XmlService
       :location_type => get_text(worker_node, "ws:Position//ws:Business_Site"),
       :location => get_text(worker_node, "ws:Position//ws:Business_Site_Name"),
       :manager_id => get_text(worker_node, "ws:Position//ws:Supervisor_ID"),
-      :cost_center_id => get_text(worker_node, "ws:Additional_Information//ws:Cost_Center_Code"),
       :office_phone => get_text(worker_node, "ws:Additional_Information//ws:Primary_Work_Phone"),
       :image_code => get_text(worker_node, "ws:Photo//ws:Image")
     }
