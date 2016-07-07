@@ -6,7 +6,8 @@ class Role::Admin < Role::Basic
 
     ability.can :manage, Department
     ability.can :manage, Employee
-    # ability.can :manage, MachineBundle
+    ability.can :manage, MachineBundle
+    ability.can :manage, Location
     # ability.can :manage, OrgRole
     # ability.can :manage, OrgApp
   end

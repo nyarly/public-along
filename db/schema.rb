@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160705234807) do
+ActiveRecord::Schema.define(version: 20160707213149) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -29,7 +29,6 @@ ActiveRecord::Schema.define(version: 20160705234807) do
     t.string   "last_name"
     t.string   "workday_username"
     t.string   "employee_id"
-    t.string   "country"
     t.datetime "hire_date"
     t.datetime "contract_end_date"
     t.datetime "termination_date"
@@ -41,8 +40,6 @@ ActiveRecord::Schema.define(version: 20160705234807) do
     t.string   "employee_type"
     t.string   "contingent_worker_id"
     t.string   "contingent_worker_type"
-    t.string   "location_type"
-    t.string   "location"
     t.string   "manager_id"
     t.string   "personal_mobile_phone"
     t.string   "office_phone"
@@ -58,6 +55,22 @@ ActiveRecord::Schema.define(version: 20160705234807) do
     t.datetime "leave_start_date"
     t.datetime "leave_return_date"
     t.integer  "department_id"
+    t.integer  "location_id"
+  end
+
+  create_table "locations", force: :cascade do |t|
+    t.string   "name"
+    t.string   "kind"
+    t.string   "country"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "machine_bundles", force: :cascade do |t|
+    t.string   "name"
+    t.text     "description"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
   end
 
   create_table "users", force: :cascade do |t|

@@ -1,18 +1,17 @@
-<%= form_for @employee, builder: LabellingFormBuilder do |f| %>
+<%= form_for @employee, builder: LabellingFormBuilder, :html => {:class => "form"}  do |f| %>
   <%= f.text_field :first_name %>
   <%= f.text_field :last_name %>
   <%= f.text_field :employee_id, label: "Employee ID" %>
-  <%= f.select :country, Employee::COUNTRIES %>
+  <%= f.select :employee_type, ["Regular", "Contract", "Intern"] %>
   <div class="date-select">
     <%= f.date_select :hire_date, {:order => [:month, :day, :year], :include_blank => true, :default => nil} %>
   </div>
-  <%= f.text_field :business_title %>
-  <%= f.select :employee_type, ["Regular", "Contract", "Intern"] %>
-  <%= f.select :location, LOCATIONS.keys %>
   <%= f.collection_select :department_id, Department.all, :id, :name %>
+  <%= f.collection_select :manager_id, Employee.all.order(last_name: :asc), :employee_id, :cn, {label: "Manager"} %>
+  <%= f.text_field :business_title %>
+  <%= f.collection_select :location_id, Location.all, :id, :name %>
   <%= f.text_field :office_phone %>
   <%= f.text_field :personal_mobile_phone %>
-  <%= f.collection_select :manager_id, Employee.all.order(last_name: :asc), :employee_id, :cn, {label: "Manager"} %>
   <h5>Contract Workers Only</h5>
   <div class="section">
     <div class="date-select">
@@ -37,5 +36,8 @@
     </div>
     <%= f.date_select :termination_date, {:order => [:month, :day, :year], :include_blank => true, :default => nil} %>
   </div>
-  <%= f.submit "Submit", :class => "button" %>
+  <div class="actions">
+    <%= link_to 'Back to List', employees_path, :class => "button secondary" %>
+    <%= f.submit "Submit", :class => "button"%>
+  </div>
 <% end %>

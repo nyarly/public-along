@@ -6,13 +6,15 @@ describe Employee, type: :model do
     code: "000032"
   )}
 
+  let!(:location) { FactoryGirl.create(:location, :name => "OT London", :kind => "Office", :country => "GB")}
+
   context "with a regular employee" do
 
     let(:employee) { FactoryGirl.build(:employee,
       first_name: "Bob",
       last_name: "Barker",
       department_id: dept.id,
-      country: "GB"
+      location_id: location.id
     )}
 
     it "should meet validations" do
@@ -21,10 +23,8 @@ describe Employee, type: :model do
       expect(employee).to_not allow_value(nil).for(:first_name)
       expect(employee).to_not allow_value(nil).for(:last_name)
       expect(employee).to_not allow_value(nil).for(:department_id)
-      expect(employee).to_not allow_value(nil).for(:country)
-      expect(employee).to_not allow_value("UK").for(:country)
+      expect(employee).to_not allow_value(nil).for(:location_id)
       expect(employee).to     validate_uniqueness_of(:email)
-      expect(employee).to     validate_inclusion_of(:country).in_array(Employee::COUNTRIES)
     end
 
     it "should scope the create group" do
@@ -49,22 +49,22 @@ describe Employee, type: :model do
 
     it "should scope the correct activation group" do
       activation_group = [
-        FactoryGirl.create(:employee, :hire_date => Date.yesterday, :department_id => dept.id),
-        FactoryGirl.create(:employee, :hire_date => Date.today, :department_id => dept.id),
-        FactoryGirl.create(:employee, :hire_date => Date.tomorrow, :department_id => dept.id),
-        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.yesterday, :department_id => dept.id),
-        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.today, :department_id => dept.id),
-        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.tomorrow, :department_id => dept.id)
+        FactoryGirl.create(:employee, :hire_date => Date.yesterday),
+        FactoryGirl.create(:employee, :hire_date => Date.today),
+        FactoryGirl.create(:employee, :hire_date => Date.tomorrow),
+        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.yesterday),
+        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.today),
+        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.tomorrow)
       ]
       non_activation_group = [
-        FactoryGirl.create(:employee, :hire_date => 1.week.ago, :department_id => dept.id),
-        FactoryGirl.create(:employee, :hire_date => 2.days.ago, :department_id => dept.id),
-        FactoryGirl.create(:employee, :hire_date => 2.days.from_now, :department_id => dept.id),
-        FactoryGirl.create(:employee, :hire_date => 1.week.from_now, :department_id => dept.id),
-        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 1.week.ago, :department_id => dept.id),
-        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 2.days.ago, :department_id => dept.id),
-        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 2.days.from_now, :department_id => dept.id),
-        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 1.week.from_now, :department_id => dept.id)
+        FactoryGirl.create(:employee, :hire_date => 1.week.ago),
+        FactoryGirl.create(:employee, :hire_date => 2.days.ago),
+        FactoryGirl.create(:employee, :hire_date => 2.days.from_now),
+        FactoryGirl.create(:employee, :hire_date => 1.week.from_now),
+        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 1.week.ago),
+        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 2.days.ago),
+        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 2.days.from_now),
+        FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 1.week.from_now)
       ]
 
       expect(Employee.activation_group).to match_array(activation_group)
@@ -73,22 +73,22 @@ describe Employee, type: :model do
 
     it "should scope the correct deactivation group" do
       deactivation_group = [
-        FactoryGirl.create(:employee, :contract_end_date => Date.yesterday, :department_id => dept.id),
-        FactoryGirl.create(:employee, :contract_end_date => Date.today, :department_id => dept.id),
-        FactoryGirl.create(:employee, :contract_end_date => Date.tomorrow, :department_id => dept.id),
-        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => Date.yesterday, :department_id => dept.id),
-        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => Date.today, :department_id => dept.id),
-        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => Date.tomorrow, :department_id => dept.id)
+        FactoryGirl.create(:employee, :contract_end_date => Date.yesterday),
+        FactoryGirl.create(:employee, :contract_end_date => Date.today),
+        FactoryGirl.create(:employee, :contract_end_date => Date.tomorrow),
+        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => Date.yesterday),
+        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => Date.today),
+        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => Date.tomorrow)
       ]
       non_deactivation_group = [
-        FactoryGirl.create(:employee, :contract_end_date => 1.week.ago, :department_id => dept.id),
-        FactoryGirl.create(:employee, :contract_end_date => 2.days.ago, :department_id => dept.id),
-        FactoryGirl.create(:employee, :contract_end_date => 2.days.from_now, :department_id => dept.id),
-        FactoryGirl.create(:employee, :contract_end_date => 1.week.from_now, :department_id => dept.id),
-        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => 1.week.ago, :department_id => dept.id),
-        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => 2.days.ago, :department_id => dept.id),
-        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => 2.days.from_now, :department_id => dept.id),
-        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => 1.week.from_now, :department_id => dept.id)
+        FactoryGirl.create(:employee, :contract_end_date => 1.week.ago),
+        FactoryGirl.create(:employee, :contract_end_date => 2.days.ago),
+        FactoryGirl.create(:employee, :contract_end_date => 2.days.from_now),
+        FactoryGirl.create(:employee, :contract_end_date => 1.week.from_now),
+        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => 1.week.ago),
+        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => 2.days.ago),
+        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => 2.days.from_now),
+        FactoryGirl.create(:employee, :contract_end_date => 1.year.from_now, :leave_start_date => 1.week.from_now)
       ]
 
       expect(Employee.deactivation_group).to match_array(deactivation_group)
@@ -133,12 +133,12 @@ describe Employee, type: :model do
           mail: employee.email,
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
-          co: employee.country,
+          co: employee.location.country,
           accountExpires: employee.generated_account_expires,
           title: employee.business_title,
           description: employee.business_title,
           employeeType: employee.employee_type,
-          physicalDeliveryOfficeName: employee.location,
+          physicalDeliveryOfficeName: employee.location.name,
           department: employee.department.name,
           employeeID: employee.employee_id,
           mobile: employee.personal_mobile_phone,
@@ -180,12 +180,12 @@ describe Employee, type: :model do
           mail: "mrbobbarker@opentable.com",
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
-          co: employee.country,
+          co: employee.location.country,
           accountExpires: employee.generated_account_expires,
           title: employee.business_title,
           description: employee.business_title,
           employeeType: employee.employee_type,
-          physicalDeliveryOfficeName: employee.location,
+          physicalDeliveryOfficeName: employee.location.name,
           department: employee.department.name,
           employeeID: employee.employee_id,
           mobile: employee.personal_mobile_phone,
@@ -234,13 +234,13 @@ describe Employee, type: :model do
           mail: employee.email,
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
-          co: employee.country,
+          co: employee.location.country,
           accountExpires: employee.generated_account_expires,
           accountExpires: employee.generated_account_expires,
           title: employee.business_title,
           description: employee.business_title,
           employeeType: employee.employee_type,
-          physicalDeliveryOfficeName: employee.location,
+          physicalDeliveryOfficeName: employee.location.name,
           department: employee.department.name,
           employeeID: employee.employee_id,
           mobile: employee.personal_mobile_phone,
@@ -290,13 +290,13 @@ describe Employee, type: :model do
           mail: employee.email,
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
-          co: employee.country,
+          co: employee.location.country,
           accountExpires: employee.generated_account_expires,
           accountExpires: employee.generated_account_expires,
           title: employee.business_title,
           description: employee.business_title,
           employeeType: employee.employee_type,
-          physicalDeliveryOfficeName: employee.location,
+          physicalDeliveryOfficeName: employee.location.name,
           department: employee.department.name,
           employeeID: employee.employee_id,
           mobile: employee.personal_mobile_phone,
@@ -319,6 +319,7 @@ describe Employee, type: :model do
       home_address_1: "123 Fake St.",
       home_city: "Beverly Hills",
       home_state: "CA",
+      home_state: "CA",
       home_zip: "90210"
     )}
 
@@ -337,12 +338,12 @@ describe Employee, type: :model do
           mail: employee.email,
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
-          co: employee.country,
+          co: employee.location.country,
           accountExpires: employee.generated_account_expires,
           title: employee.business_title,
           description: employee.business_title,
           employeeType: employee.employee_type,
-          physicalDeliveryOfficeName: employee.location,
+          physicalDeliveryOfficeName: employee.location.name,
           department: employee.department.name,
           employeeID: employee.employee_id,
           mobile: employee.personal_mobile_phone,
@@ -384,12 +385,12 @@ describe Employee, type: :model do
           mail: employee.email,
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
-          co: employee.country,
+          co: employee.location.country,
           accountExpires: employee.generated_account_expires,
           title: employee.business_title,
           description: employee.business_title,
           employeeType: employee.employee_type,
-          physicalDeliveryOfficeName: employee.location,
+          physicalDeliveryOfficeName: employee.location.name,
           department: employee.department.name,
           employeeID: employee.employee_id,
           mobile: employee.personal_mobile_phone,

@@ -1,0 +1,23 @@
+<h1>Listing Machine Bundles</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @machine_bundles.each do |machine_bundle| %>
+      <tr>
+        <td><%= machine_bundle.name %></td>
+        <td><%= machine_bundle.description %></td>
+        <td><%= link_to 'Show', machine_bundle %></td>
+        <td><%= link_to 'Edit', edit_machine_bundle_path(machine_bundle) %></td>
+        <td><%= link_to 'Destroy', machine_bundle, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

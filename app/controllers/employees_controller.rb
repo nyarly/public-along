@@ -38,14 +38,12 @@ class EmployeesController < ApplicationController
   end
 
   def employee_params
-    params[:employee][:location_type] = LOCATIONS[params[:employee][:location]] if params[:employee][:location]
     params.require(:employee).permit(
       :email,
       :first_name,
       :last_name,
       :workday_username,
       :employee_id,
-      :country,
       :hire_date,
       :contract_end_date,
       :termination_date,
@@ -57,8 +55,7 @@ class EmployeesController < ApplicationController
       :employee_type,
       :contingent_worker_id,
       :contingent_worker_type,
-      :location_type,
-      :location,
+      :location_id,
       :manager_id,
       :department_id,
       :personal_mobile_phone,

@@ -45,6 +45,54 @@ describe "initial sync rake task", type: :tasks do
 
       depts.each { |attrs| Department.create(attrs) }
 
+      locs = [
+        { :name => "OT San Francisco", :kind => "Office", :country => "US" },
+        { :name => "OT Los Angeles", :kind => "Office", :country => "US" },
+        { :name => "OT Denver", :kind => "Office", :country => "US" },
+        { :name => "OT Chattanooga", :kind => "Office", :country => "US" },
+        { :name => "OT Chicago", :kind => "Office", :country => "US" },
+        { :name => "OT New York", :kind => "Office", :country => "US" },
+        { :name => "OT Mexico City", :kind => "Office", :country => "MX" },
+        { :name => "OT London", :kind => "Office", :country => "GB" },
+        { :name => "OT Frankfurt", :kind => "Office", :country => "DE" },
+        { :name => "OT Mumbai", :kind => "Office", :country => "IN" },
+        { :name => "OT Tokyo", :kind => "Office", :country => "JP" },
+        { :name => "OT Melbourne", :kind => "Office", :country => "AU" },
+        { :name => "OT Arizona", :kind => "Remote Location", :country => "US" },
+        { :name => "OT Colorado", :kind => "Remote Location", :country => "US" },
+        { :name => "OT Illinois", :kind => "Remote Location", :country => "US" },
+        { :name => "OT Tennessee", :kind => "Remote Location", :country => "US" },
+        { :name => "OT Southern CA", :kind => "Remote Location", :country => "US" },
+        { :name => "OT Minnesota", :kind => "Remote Location", :country => "US" },
+        { :name => "OT Maine", :kind => "Remote Location", :country => "US" },
+        { :name => "OT Georgia", :kind => "Remote Location", :country => "US" },
+        { :name => "OT Canada", :kind => "Remote Location", :country => "CA" },
+        { :name => "OT Washington DC", :kind => "Remote Location", :country => "US" },
+        { :name => "OT Pennsylvania", :kind => "Remote Location", :country => "US" },
+        { :name => "OT Oregon", :kind => "Remote Location", :country => "US" },
+        { :name => "OT Wisconsin", :kind => "Remote Location", :country => "US" },
+        { :name => "OT Texas", :kind => "Remote Location", :country => "US" },
+        { :name => "OT Ohio", :kind => "Remote Location", :country => "US" },
+        { :name => "OT Massachusetts", :kind => "Remote Location", :country => "US" },
+        { :name => "OT Washington", :kind => "Remote Location", :country => "US" },
+        { :name => "OT Florida", :kind => "Remote Location", :country => "US" },
+        { :name => "OT Nevada", :kind => "Remote Location", :country => "US" },
+        { :name => "OT New Jersey", :kind => "Remote Location", :country => "US" },
+        { :name => "OT Hawaii", :kind => "Remote Location", :country => "US" },
+        { :name => "OT Vermont", :kind => "Remote Location", :country => "US" },
+        { :name => "OT Missouri", :kind => "Remote Location", :country => "US" },
+        { :name => "OT Louisiana", :kind => "Remote Location", :country => "US" },
+        { :name => "OT Michigan", :kind => "Remote Location", :country => "US" },
+        { :name => "OT Ireland", :kind => "Remote Location", :country => "IE" },
+        { :name => "OT North Carolina", :kind => "Remote Location", :country => "US" },
+        { :name => "OT Idaho", :kind => "Remote Location", :country => "US" },
+        { :name => "OT Maryland", :kind => "Remote Location", :country => "US" },
+        { :name => "OT Utah", :kind => "Remote Location", :country => "US" },
+        { :name => "OT Kentucky", :kind => "Remote Location", :country => "US" }
+      ]
+
+      locs.each { |attrs| Location.create(attrs) }
+
       @ldap_entry_1 = Net::LDAP::Entry.new("cn=Sir Mighty-Dinosaur,ou=UK Sales,ou=EU,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com")
       {
         cn: "Sir Mighty-Dinosaur",

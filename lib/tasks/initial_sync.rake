@@ -6,18 +6,6 @@ namespace :sync do
   task :csv, [:path] => :environment do |t, args|
     errors = {}
     ads = ActiveDirectoryService.new
-    offices = [ "OT San Francisco",
-                "OT Los Angeles",
-                "OT Denver",
-                "OT Chattanooga",
-                "OT Chicago",
-                "OT New York",
-                "OT Mexico City",
-                "OT London",
-                "OT Frankfurt",
-                "OT Mumbai",
-                "OT Tokyo",
-                "OT Melbourne"]
 
     if args.path
       csv_text = File.read(args.path)
@@ -35,14 +23,18 @@ namespace :sync do
       ["cost_center", "cost_center_id"].each do |k|
         row_attrs.delete(k)
       end
-
+      # Convert location name to Location
+      row_attrs[:location_id] = Location.find_by(:name => row_attrs["location"]).id
       # If location is not remote, don't save address to DB
-      if offices.include?(row_attrs["location"])
+      if Location.where(kind: "Office").map(&:name).include?(row_attrs["location"])
         ["home_address_1", "home_address_2", "home_city", "home_state", "home_zip"].each do |k|
           row_attrs.delete(k)
         end
       end
-
+      # Remove location keys
+      ["location", "location_type", "country"].each do |k|
+        row_attrs.delete(k)
+      end
 
       e.update_attributes(row_attrs)
 

@@ -1,5 +1,4 @@
 class Employee < ActiveRecord::Base
-  COUNTRIES = ["AU", "CA", "DE", "GB", "IE", "IN", "JP", "MX", "US"]
 
   validates :first_name,
             presence: true
@@ -7,15 +6,15 @@ class Employee < ActiveRecord::Base
             presence: true
   validates :department_id,
             presence: true
-  validates :country,
-            presence: true,
-            inclusion: { in: COUNTRIES }
+  validates :location_id,
+            presence: true
   validates :email,
             allow_nil: true,
             uniqueness: true,
             case_sensitive: false
 
   belongs_to :department
+  belongs_to :location
 
   attr_accessor :sAMAccountName
   attr_accessor :nearest_time_zone
@@ -50,7 +49,7 @@ class Employee < ActiveRecord::Base
 
   def ou
     match = OUS.select { |k,v|
-      v[:department].include?(department.name) && v[:country].include?(country)
+      v[:department].include?(department.name) && v[:country].include?(location.country)
     }
 
     if match.length == 1
@@ -113,12 +112,12 @@ class Employee < ActiveRecord::Base
       mail: generated_email,
       unicodePwd: encode_password,
       workdayUsername: workday_username,
-      co: country,
+      co: location.country,
       accountExpires: generated_account_expires,
       title: business_title,
       description: business_title,
       employeeType: employee_type,
-      physicalDeliveryOfficeName: location,
+      physicalDeliveryOfficeName: location.name,
       department: department.name,
       employeeID: employee_id,
       mobile: personal_mobile_phone,
@@ -133,6 +132,6 @@ class Employee < ActiveRecord::Base
 
   def nearest_time_zone
     # US has the broadest time zone spectrum, Pacific time is a sufficient middle ground to capture business hours between NYC and Hawaii
-    country == 'US' ? "America/Los_Angeles" : TZInfo::Country.get(country).zone_identifiers.first
+    location.country == 'US' ? "America/Los_Angeles" : TZInfo::Country.get(location.country).zone_identifiers.first
   end
 end

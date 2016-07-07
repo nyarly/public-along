@@ -43,6 +43,13 @@ describe "employee rake tasks", type: :tasks do
     end
   end
 
+  let!(:london) { FactoryGirl.create(:location, :name => "OT London", :kind => "Office", :country => "GB") }
+  let!(:sf) { FactoryGirl.create(:location, :name => "OT San Francisco", :kind => "Office", :country => "US") }
+  let!(:la) { FactoryGirl.create(:location, :name => "OT Los Angeles", :kind => "Office", :country => "US") }
+  let!(:illinois) { FactoryGirl.create(:location, :name => "OT Illinois", :kind => "Remote Location", :country => "US") }
+  let!(:mumbai) { FactoryGirl.create(:location, :name => "OT Mumbai", :kind => "Office", :country => "IN") }
+  let!(:melbourne) { FactoryGirl.create(:location, :name => "OT Melbourne", :kind => "Office", :country => "AU") }
+
   context "employee:change_status" do
     before :each do
       Rake.application = Rake::Application.new
@@ -64,12 +71,12 @@ describe "employee rake tasks", type: :tasks do
     end
 
     it "should call ldap and update only GB new hires and returning leave workers at 3am BST" do
-      new_hire_uk = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :country => 'GB')
-      returning_uk = FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.new(2016, 7, 29), :country => 'GB')
+      new_hire_uk = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :location_id => london.id)
+      returning_uk = FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.new(2016, 7, 29), :location_id => london.id)
 
-      new_hire_us = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :country => 'US')
-      returning_us = FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.new(2016, 7, 29), :country => 'US')
-      termination = FactoryGirl.create(:employee, :contract_end_date => Date.new(2016, 7, 29), :country => 'GB')
+      new_hire_us = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :location_id => sf.id)
+      returning_us = FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.new(2016, 7, 29), :location_id => sf.id)
+      termination = FactoryGirl.create(:employee, :contract_end_date => Date.new(2016, 7, 29), :location_id => london.id)
 
       # 7/29/2016 at 3am BST/2am UTC
       Timecop.freeze(Time.new(2016, 7, 29, 2, 0, 0, "+00:00"))
@@ -95,12 +102,12 @@ describe "employee rake tasks", type: :tasks do
     end
 
     it "should call ldap and update only US new hires and returning leave workers at 3am PST" do
-      new_hire_us = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :country => 'US')
-      returning_us = FactoryGirl.create(:employee, :hire_date => 5.years.ago, :leave_return_date => Date.new(2016, 7, 29), :country => 'US')
+      new_hire_us = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :location_id => sf.id)
+      returning_us = FactoryGirl.create(:employee, :hire_date => 5.years.ago, :leave_return_date => Date.new(2016, 7, 29), :location_id => sf.id)
 
-      new_hire_uk = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :country => 'GB')
-      returning_uk = FactoryGirl.create(:employee, :hire_date => 5.years.ago, :leave_return_date => Date.new(2016, 7, 29), :country => 'GB')
-      termination = FactoryGirl.create(:employee, :contract_end_date => Date.new(2016, 7, 29), :country => 'US')
+      new_hire_uk = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :location_id => london.id)
+      returning_uk = FactoryGirl.create(:employee, :hire_date => 5.years.ago, :leave_return_date => Date.new(2016, 7, 29), :location_id => london.id)
+      termination = FactoryGirl.create(:employee, :contract_end_date => Date.new(2016, 7, 29), :location_id => sf.id)
 
       # 7/29/2016 at 3am PST/10am UTC
       Timecop.freeze(Time.new(2016, 7, 29, 10, 0, 0, "+00:00"))
@@ -126,10 +133,10 @@ describe "employee rake tasks", type: :tasks do
     end
 
     it "should call ldap and update only terminations or workers on leave at 9pm in IST" do
-      termination = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :contract_end_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "OT General Engineering").id, :country => 'IN')
-      leave = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :leave_start_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "OT Data Center Ops").id, :country => 'IN')
-      new_hire_in = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "OT Data Analytics").id, :country => 'IN')
-      new_hire_us = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :country => 'US')
+      termination = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :contract_end_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "OT General Engineering").id, :location_id => mumbai.id)
+      leave = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :leave_start_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "OT Data Center Ops").id, :location_id => mumbai.id)
+      new_hire_in = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "OT Data Analytics").id, :location_id => mumbai.id)
+      new_hire_us = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :location_id => sf.id)
 
       # 7/29/2016 at 9pm IST/3:30pm UTC
       Timecop.freeze(Time.new(2016, 7, 29, 15, 30, 0, "+00:00"))
@@ -175,7 +182,6 @@ describe "employee rake tasks", type: :tasks do
       :last_name => "Lebowski",
       :workday_username => "biglebowski",
       :employee_id => "1234567",
-      :country => "US",
       :hire_date => DateTime.new(2005,2,1),
       :contract_end_date => nil,
       :termination_date => nil,
@@ -186,8 +192,7 @@ describe "employee rake tasks", type: :tasks do
       :business_title => "Rich Guy",
       :employee_type => "Regular",
       :contingent_worker_type => nil,
-      :location_type => "Office",
-      :location => "OT Los Angeles",
+      :location_id => la.id,
       :manager_id => "12100123",
       :department_id => Department.find_by(:name => "OT Business Optimization").id,
       :office_phone => nil,
@@ -198,7 +203,6 @@ describe "employee rake tasks", type: :tasks do
       :last_name => "Kylie",
       :workday_username => "kkylie",
       :employee_id => "109843",
-      :country => "AU",
       :hire_date => DateTime.new(2016,4,7),
       :contract_end_date => nil,
       :termination_date => nil,
@@ -209,8 +213,7 @@ describe "employee rake tasks", type: :tasks do
       :business_title => "OT Fraud Analyst",
       :employee_type => "Regular",
       :contingent_worker_type => nil,
-      :location_type => "Office",
-      :location => "OT Melbourne",
+      :location_id => melbourne.id,
       :manager_id => "12101034",
       :department_id => Department.find_by(:name => "OT Legal").id,
       :office_phone => "(213) 555-1234",
@@ -242,7 +245,7 @@ describe "employee rake tasks", type: :tasks do
         thumbnailPhoto: nil
       }.each { |k,v| @ldap_entry_1[k] = v }
 
-      @ldap_entry_2 = Net::LDAP::Entry.new("cn=The Big Lebowski,ou=Engineering,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com")
+      @ldap_entry_2 = Net::LDAP::Entry.new("cn=Kylie Kylie,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com")
       {
         cn: "Kylie Kylie",
         dn: "cn=Kylie Kylie,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com",
