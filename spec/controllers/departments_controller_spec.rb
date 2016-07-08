@@ -73,11 +73,11 @@ RSpec.describe DepartmentsController, type: :controller do
   end
 
   describe "POST #create" do
-    context "with valid params" do
-      before :each do
-        should_authorize(:create, Department)
-      end
+    before :each do
+      should_authorize(:create, Department)
+    end
 
+    context "with valid params" do
       it "creates a new Department" do
         expect {
           post :create, {:department => valid_attributes}
@@ -97,10 +97,6 @@ RSpec.describe DepartmentsController, type: :controller do
     end
 
     context "with invalid params" do
-      before :each do
-        should_authorize(:create, Department)
-      end
-
       it "assigns a newly created but unsaved department as @department" do
         post :create, {:department => invalid_attributes}
         expect(assigns(:department)).to be_a_new(Department)

@@ -3,9 +3,9 @@ require 'rails_helper'
 RSpec.describe "locations/edit", type: :view do
   before(:each) do
     @location = assign(:location, Location.create!(
-      :name => "MyString",
-      :kind => "MyString",
-      :country => "MyString"
+      :name => "OT This",
+      :kind => "Office",
+      :country => "US"
     ))
   end
 
@@ -16,9 +16,9 @@ RSpec.describe "locations/edit", type: :view do
 
       assert_select "input#location_name[name=?]", "location[name]"
 
-      assert_select "input#location_kind[name=?]", "location[kind]"
+      assert_select "select#location_kind[name=?]", "location[kind]"
 
-      assert_select "input#location_country[name=?]", "location[country]"
+      assert_select "select#location_country[name=?]", "location[country]"
     end
   end
 end

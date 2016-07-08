@@ -18,140 +18,154 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-RSpec.describe MachineBundlesController, :pending => "auth spec helpers", type: :controller do
+RSpec.describe MachineBundlesController, type: :controller do
 
-  # This should return the minimal set of attributes required to create a valid
-  # MachineBundle. As you add validations to MachineBundle, be sure to
-  # adjust the attributes here as well.
+  let!(:machine_bundle) { FactoryGirl.create(:machine_bundle) }
+  let!(:user) { FactoryGirl.create(:user, :role_name => "Admin") }
+
   let(:valid_attributes) {
-    skip("Add a hash of attributes valid for your model")
+    {
+      name: "Machine Bundle",
+      description: "description of Machine Bundle"
+    }
   }
 
   let(:invalid_attributes) {
-    skip("Add a hash of attributes invalid for your model")
+    {
+      name: nil,
+      description: "something"
+    }
   }
 
-  # This should return the minimal set of values that should be in the session
-  # in order to pass any filters (e.g. authentication) defined in
-  # MachineBundlesController. Be sure to keep this updated too.
-  let(:valid_session) { {} }
+  before :each do
+    login_as user
+  end
 
   describe "GET #index" do
     it "assigns all machine_bundles as @machine_bundles" do
-      machine_bundle = MachineBundle.create! valid_attributes
-      get :index, {}, valid_session
+      should_authorize(:index, MachineBundle)
+      get :index
       expect(assigns(:machine_bundles)).to eq([machine_bundle])
     end
   end
 
   describe "GET #show" do
     it "assigns the requested machine_bundle as @machine_bundle" do
-      machine_bundle = MachineBundle.create! valid_attributes
-      get :show, {:id => machine_bundle.to_param}, valid_session
+      should_authorize(:show, machine_bundle)
+      get :show, {:id => machine_bundle.id}
       expect(assigns(:machine_bundle)).to eq(machine_bundle)
     end
   end
 
   describe "GET #new" do
     it "assigns a new machine_bundle as @machine_bundle" do
-      get :new, {}, valid_session
+      should_authorize(:new, MachineBundle)
+      get :new
       expect(assigns(:machine_bundle)).to be_a_new(MachineBundle)
     end
   end
 
   describe "GET #edit" do
     it "assigns the requested machine_bundle as @machine_bundle" do
-      machine_bundle = MachineBundle.create! valid_attributes
-      get :edit, {:id => machine_bundle.to_param}, valid_session
+      should_authorize(:edit, machine_bundle)
+      get :edit, {:id => machine_bundle.id}
       expect(assigns(:machine_bundle)).to eq(machine_bundle)
     end
   end
 
   describe "POST #create" do
+    before :each do
+      should_authorize(:create, MachineBundle)
+    end
+
     context "with valid params" do
       it "creates a new MachineBundle" do
         expect {
-          post :create, {:machine_bundle => valid_attributes}, valid_session
+          post :create, {:machine_bundle => valid_attributes}
         }.to change(MachineBundle, :count).by(1)
       end
 
       it "assigns a newly created machine_bundle as @machine_bundle" do
-        post :create, {:machine_bundle => valid_attributes}, valid_session
+        post :create, {:machine_bundle => valid_attributes}
         expect(assigns(:machine_bundle)).to be_a(MachineBundle)
         expect(assigns(:machine_bundle)).to be_persisted
       end
 
       it "redirects to the created machine_bundle" do
-        post :create, {:machine_bundle => valid_attributes}, valid_session
-        expect(response).to redirect_to(MachineBundle.last)
+        post :create, {:machine_bundle => valid_attributes}
+        expect(response).to redirect_to(MachineBundle.find_by(:name => "Machine Bundle"))
       end
     end
 
     context "with invalid params" do
       it "assigns a newly created but unsaved machine_bundle as @machine_bundle" do
-        post :create, {:machine_bundle => invalid_attributes}, valid_session
+        post :create, {:machine_bundle => invalid_attributes}
         expect(assigns(:machine_bundle)).to be_a_new(MachineBundle)
       end
 
       it "re-renders the 'new' template" do
-        post :create, {:machine_bundle => invalid_attributes}, valid_session
+        post :create, {:machine_bundle => invalid_attributes}
         expect(response).to render_template("new")
       end
     end
   end
 
   describe "PUT #update" do
+    before :each do
+      should_authorize(:update, machine_bundle)
+    end
+
     context "with valid params" do
       let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
+        {
+          name: "Machine Bundle",
+          description: "new description of Machine Bundle"
+        }
       }
 
       it "updates the requested machine_bundle" do
-        machine_bundle = MachineBundle.create! valid_attributes
-        put :update, {:id => machine_bundle.to_param, :machine_bundle => new_attributes}, valid_session
+        put :update, {:id => machine_bundle.id, :machine_bundle => new_attributes}
         machine_bundle.reload
-        skip("Add assertions for updated state")
+        expect(machine_bundle.description).to eq("new description of Machine Bundle")
       end
 
       it "assigns the requested machine_bundle as @machine_bundle" do
-        machine_bundle = MachineBundle.create! valid_attributes
-        put :update, {:id => machine_bundle.to_param, :machine_bundle => valid_attributes}, valid_session
+        put :update, {:id => machine_bundle.id, :machine_bundle => valid_attributes}
         expect(assigns(:machine_bundle)).to eq(machine_bundle)
       end
 
       it "redirects to the machine_bundle" do
-        machine_bundle = MachineBundle.create! valid_attributes
-        put :update, {:id => machine_bundle.to_param, :machine_bundle => valid_attributes}, valid_session
+        put :update, {:id => machine_bundle.id, :machine_bundle => valid_attributes}
         expect(response).to redirect_to(machine_bundle)
       end
     end
 
     context "with invalid params" do
       it "assigns the machine_bundle as @machine_bundle" do
-        machine_bundle = MachineBundle.create! valid_attributes
-        put :update, {:id => machine_bundle.to_param, :machine_bundle => invalid_attributes}, valid_session
+        put :update, {:id => machine_bundle.id, :machine_bundle => invalid_attributes}
         expect(assigns(:machine_bundle)).to eq(machine_bundle)
       end
 
       it "re-renders the 'edit' template" do
-        machine_bundle = MachineBundle.create! valid_attributes
-        put :update, {:id => machine_bundle.to_param, :machine_bundle => invalid_attributes}, valid_session
+        put :update, {:id => machine_bundle.id, :machine_bundle => invalid_attributes}
         expect(response).to render_template("edit")
       end
     end
   end
 
   describe "DELETE #destroy" do
+    before :each do
+      should_authorize(:destroy, machine_bundle)
+    end
+
     it "destroys the requested machine_bundle" do
-      machine_bundle = MachineBundle.create! valid_attributes
       expect {
-        delete :destroy, {:id => machine_bundle.to_param}, valid_session
+        delete :destroy, {:id => machine_bundle.id}
       }.to change(MachineBundle, :count).by(-1)
     end
 
     it "redirects to the machine_bundles list" do
-      machine_bundle = MachineBundle.create! valid_attributes
-      delete :destroy, {:id => machine_bundle.to_param}, valid_session
+      delete :destroy, {:id => machine_bundle.id}
       expect(response).to redirect_to(machine_bundles_url)
     end
   end

@@ -17,11 +17,11 @@
   </div>
   <div class="field">
     <%= f.label "Type" %><br>
-    <%= f.text_field :kind %>
+    <%= f.select :kind, Location::KINDS %>
   </div>
   <div class="field">
     <%= f.label :country %><br>
-    <%= f.text_field :country %>
+    <%= f.select :country, Location::COUNTRIES %>
   </div>
   <div class="actions">
     <%= link_to 'Back to List', locations_path, :class => "button secondary" %>
