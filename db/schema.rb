@@ -11,16 +11,40 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160707213149) do
+ActiveRecord::Schema.define(version: 20160708214302) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "access_levels", force: :cascade do |t|
+    t.string   "name"
+    t.integer  "application_id"
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
+  end
+
+  create_table "applications", force: :cascade do |t|
+    t.string   "name"
+    t.text     "description"
+    t.string   "ad_security_group"
+    t.text     "dependency"
+    t.text     "instructions"
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+  end
 
   create_table "departments", force: :cascade do |t|
     t.string   "name"
     t.string   "code"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "dept_sec_profs", force: :cascade do |t|
+    t.integer  "department_id"
+    t.integer  "security_profile_id"
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
   end
 
   create_table "employees", force: :cascade do |t|
@@ -67,6 +91,20 @@ ActiveRecord::Schema.define(version: 20160707213149) do
   end
 
   create_table "machine_bundles", force: :cascade do |t|
+    t.string   "name"
+    t.text     "description"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+  end
+
+  create_table "sec_prof_access_levels", force: :cascade do |t|
+    t.integer  "security_profile_id"
+    t.integer  "access_level_id"
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
+  end
+
+  create_table "security_profiles", force: :cascade do |t|
     t.string   "name"
     t.text     "description"
     t.datetime "created_at",  null: false

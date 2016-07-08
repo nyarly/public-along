@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  resources :access_levels
+  resources :applications
+  resources :security_profiles
   resources :locations
   resources :machine_bundles
   resources :departments

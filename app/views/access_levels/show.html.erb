@@ -1,0 +1,19 @@
+<p>
+  <strong>Name:</strong>
+  <%= @access_level.name %>
+</p>
+
+<p>
+  <strong>Application:</strong>
+  <%= @access_level.application_id %>
+</p>
+
+<p>
+  <strong>Security Profiles:</strong>
+  <% @access_level.security_profiles.each do |sp| %>
+    <br><%= sp.name %>
+  <% end %>
+</p>
+
+<%= link_to 'Edit', edit_access_level_path(@access_level) %> |
+<%= link_to 'Back', access_levels_path %>

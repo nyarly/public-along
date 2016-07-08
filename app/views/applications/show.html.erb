@@ -1,0 +1,27 @@
+<p>
+  <strong>Name:</strong>
+  <%= @application.name %>
+</p>
+
+<p>
+  <strong>Description:</strong>
+  <%= @application.description %>
+</p>
+
+<p>
+  <strong>Ad security group:</strong>
+  <%= @application.ad_security_group %>
+</p>
+
+<p>
+  <strong>Dependency:</strong>
+  <%= @application.dependency %>
+</p>
+
+<p>
+  <strong>Instructions:</strong>
+  <%= @application.instructions %>
+</p>
+
+<%= link_to 'Edit', edit_application_path(@application) %> |
+<%= link_to 'Back', applications_path %>

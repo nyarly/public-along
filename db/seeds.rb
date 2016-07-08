@@ -93,5 +93,4 @@ locs = [
 
 ActiveRecord::Base.transaction do
   locs.each { |attrs| Location.create(attrs) }
-  puts :count => Location.count
 end
