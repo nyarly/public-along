@@ -1,7 +1,7 @@
 require 'class_registry'
 class Role
   include ClassRegistry
-  #def self.registrar; Role; end
+  def self.registrar; Role; end
 
   def self.for(user)
     registry[user.role_name].new.tap do |role|

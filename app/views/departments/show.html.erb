@@ -1,0 +1,19 @@
+<p>
+  <strong>Name:</strong>
+  <%= @department.name %>
+</p>
+
+<p>
+  <strong>Code:</strong>
+  <%= @department.code %>
+</p>
+
+<p>
+  <strong>Security Profiles:</strong>
+  <% @department.security_profiles.each do |sp| %>
+    <br><%= sp.name %>
+  <% end %>
+</p>
+
+<%= link_to 'Edit', edit_department_path(@department) %> |
+<%= link_to 'Back', departments_path %>

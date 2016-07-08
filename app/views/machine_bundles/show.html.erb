@@ -1,0 +1,12 @@
+<p>
+  <strong>Name:</strong>
+  <%= @machine_bundle.name %>
+</p>
+
+<p>
+  <strong>Description:</strong>
+  <%= @machine_bundle.description %>
+</p>
+
+<%= link_to 'Edit', edit_machine_bundle_path(@machine_bundle) %> |
+<%= link_to 'Back', machine_bundles_path %>

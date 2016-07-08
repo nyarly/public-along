@@ -13,31 +13,30 @@ describe XmlService, type: :service do
       expect{
         xml.parse_to_db
       }.to change{Employee.count}.from(2).to(3)
-      expect(Employee.last.first_name).to eq("Jeffrey")
-      expect(Employee.last.last_name).to eq("Lebowski")
-      expect(Employee.last.workday_username).to eq("jefflebowski")
-      expect(Employee.last.employee_id).to eq("12100401")
-      expect(Employee.last.country).to eq("US")
-      expect(Employee.last.hire_date).to eq(DateTime.new(2016,4,25))
-      expect(Employee.last.job_family).to eq("OT Internal Systems")
-      expect(Employee.last.job_family_id).to eq("OT_Internal_Systems")
-      expect(Employee.last.job_profile_id).to eq("50100486")
-      expect(Employee.last.job_profile).to eq("OT Internal Systems")
-      expect(Employee.last.business_title).to eq("Software Development Team Lead")
-      expect(Employee.last.employee_type).to eq("Regular")
-      expect(Employee.last.location_type).to eq("Office")
-      expect(Employee.last.location).to eq("OT Los Angeles")
-      expect(Employee.last.manager_id).to eq("12100123")
-      expect(Employee.last.cost_center).to eq("OT Business Optimization")
-      expect(Employee.last.cost_center_id).to eq("000044")
-      expect(Employee.last.office_phone).to eq("(213) 555-4321")
-      expect(Employee.last.image_code).to be_nil
-      expect(Employee.last.home_address_1).to be_nil
-      expect(Employee.last.home_address_2).to be_nil
-      expect(Employee.last.home_city).to be_nil
-      expect(Employee.last.home_state).to be_nil
-      expect(Employee.last.home_zip).to be_nil
-      expect(Employee.last.ad_updated_at).to be_nil
+      expect(Employee.find_by(:first_name => "Jeffrey").first_name).to eq("Jeffrey")
+      expect(Employee.find_by(:first_name => "Jeffrey").last_name).to eq("Lebowski")
+      expect(Employee.find_by(:first_name => "Jeffrey").workday_username).to eq("jefflebowski")
+      expect(Employee.find_by(:first_name => "Jeffrey").employee_id).to eq("12100401")
+      expect(Employee.find_by(:first_name => "Jeffrey").location.country).to eq("US")
+      expect(Employee.find_by(:first_name => "Jeffrey").hire_date).to eq(DateTime.new(2016,4,25))
+      expect(Employee.find_by(:first_name => "Jeffrey").job_family).to eq("OT Internal Systems")
+      expect(Employee.find_by(:first_name => "Jeffrey").job_family_id).to eq("OT_Internal_Systems")
+      expect(Employee.find_by(:first_name => "Jeffrey").job_profile_id).to eq("50100486")
+      expect(Employee.find_by(:first_name => "Jeffrey").job_profile).to eq("OT Internal Systems")
+      expect(Employee.find_by(:first_name => "Jeffrey").business_title).to eq("Software Development Team Lead")
+      expect(Employee.find_by(:first_name => "Jeffrey").employee_type).to eq("Regular")
+      expect(Employee.find_by(:first_name => "Jeffrey").location.kind).to eq("Office")
+      expect(Employee.find_by(:first_name => "Jeffrey").location.name).to eq("OT Los Angeles")
+      expect(Employee.find_by(:first_name => "Jeffrey").manager_id).to eq("12100123")
+      expect(Employee.find_by(:first_name => "Jeffrey").department.name).to eq("OT Business Optimization")
+      expect(Employee.find_by(:first_name => "Jeffrey").office_phone).to eq("(213) 555-4321")
+      expect(Employee.find_by(:first_name => "Jeffrey").image_code).to be_nil
+      expect(Employee.find_by(:first_name => "Jeffrey").home_address_1).to be_nil
+      expect(Employee.find_by(:first_name => "Jeffrey").home_address_2).to be_nil
+      expect(Employee.find_by(:first_name => "Jeffrey").home_city).to be_nil
+      expect(Employee.find_by(:first_name => "Jeffrey").home_state).to be_nil
+      expect(Employee.find_by(:first_name => "Jeffrey").home_zip).to be_nil
+      expect(Employee.find_by(:first_name => "Jeffrey").ad_updated_at).to be_nil
     end
 
     it "should have a contract end date for a contingent worker" do
@@ -47,34 +46,33 @@ describe XmlService, type: :service do
       expect{
         xml.parse_to_db
       }.to change{Employee.count}.from(2).to(3)
-      expect(Employee.last.first_name).to eq("Walter")
-      expect(Employee.last.last_name).to eq("Sobchak")
-      expect(Employee.last.workday_username).to eq("walters")
-      expect(Employee.last.employee_id).to eq("109640")
-      expect(Employee.last.country).to eq("GB")
-      expect(Employee.last.hire_date).to eq(DateTime.new(2014,5,2))
-      expect(Employee.last.job_family).to eq("OT Contingent Workers")
-      expect(Employee.last.job_family_id).to eq("OT_Contingent_Workers")
-      expect(Employee.last.job_profile_id).to eq("50100310")
-      expect(Employee.last.job_profile).to eq("OT Contingent Worker")
-      expect(Employee.last.business_title).to eq("OT Contingent Position - Product Management")
-      expect(Employee.last.employee_type).to eq("Vendor")
-      expect(Employee.last.location_type).to eq("Office")
-      expect(Employee.last.location).to eq("OT London")
-      expect(Employee.last.manager_id).to eq("12101502")
-      expect(Employee.last.cost_center).to eq("OT General Product Management")
-      expect(Employee.last.cost_center_id).to eq("WP8OT_London000060")
-      expect(Employee.last.office_phone).to eq("(213) 555-9876")
-      expect(Employee.last.image_code).to be_nil
-      expect(Employee.last.home_address_1).to be_nil
-      expect(Employee.last.home_address_2).to be_nil
-      expect(Employee.last.home_city).to be_nil
-      expect(Employee.last.home_state).to be_nil
-      expect(Employee.last.home_zip).to be_nil
-      expect(Employee.last.ad_updated_at).to be_nil
-      expect(Employee.last.contract_end_date).to eq(DateTime.new(2016,6,30))
-      expect(Employee.last.contingent_worker_type).to eq("Vendor")
-      expect(Employee.last.ad_updated_at).to be_nil
+      expect(Employee.find_by(:first_name => "Walter").first_name).to eq("Walter")
+      expect(Employee.find_by(:first_name => "Walter").last_name).to eq("Sobchak")
+      expect(Employee.find_by(:first_name => "Walter").workday_username).to eq("walters")
+      expect(Employee.find_by(:first_name => "Walter").employee_id).to eq("109640")
+      expect(Employee.find_by(:first_name => "Walter").location.country).to eq("GB")
+      expect(Employee.find_by(:first_name => "Walter").hire_date).to eq(DateTime.new(2014,5,2))
+      expect(Employee.find_by(:first_name => "Walter").job_family).to eq("OT Contingent Workers")
+      expect(Employee.find_by(:first_name => "Walter").job_family_id).to eq("OT_Contingent_Workers")
+      expect(Employee.find_by(:first_name => "Walter").job_profile_id).to eq("50100310")
+      expect(Employee.find_by(:first_name => "Walter").job_profile).to eq("OT Contingent Worker")
+      expect(Employee.find_by(:first_name => "Walter").business_title).to eq("OT Contingent Position - Product Management")
+      expect(Employee.find_by(:first_name => "Walter").employee_type).to eq("Vendor")
+      expect(Employee.find_by(:first_name => "Walter").location.kind).to eq("Office")
+      expect(Employee.find_by(:first_name => "Walter").location.name).to eq("OT London")
+      expect(Employee.find_by(:first_name => "Walter").manager_id).to eq("12101502")
+      expect(Employee.find_by(:first_name => "Walter").department.name).to eq("OT General Product Management")
+      expect(Employee.find_by(:first_name => "Walter").office_phone).to eq("(213) 555-9876")
+      expect(Employee.find_by(:first_name => "Walter").image_code).to be_nil
+      expect(Employee.find_by(:first_name => "Walter").home_address_1).to be_nil
+      expect(Employee.find_by(:first_name => "Walter").home_address_2).to be_nil
+      expect(Employee.find_by(:first_name => "Walter").home_city).to be_nil
+      expect(Employee.find_by(:first_name => "Walter").home_state).to be_nil
+      expect(Employee.find_by(:first_name => "Walter").home_zip).to be_nil
+      expect(Employee.find_by(:first_name => "Walter").ad_updated_at).to be_nil
+      expect(Employee.find_by(:first_name => "Walter").contract_end_date).to eq(DateTime.new(2016,6,30))
+      expect(Employee.find_by(:first_name => "Walter").contingent_worker_type).to eq("Vendor")
+      expect(Employee.find_by(:first_name => "Walter").ad_updated_at).to be_nil
     end
 
     it "should have a home address for a remote worker" do
@@ -84,12 +82,12 @@ describe XmlService, type: :service do
       expect{
         xml.parse_to_db
       }.to change{Employee.count}.from(2).to(3)
-      expect(Employee.last.home_address_1).to eq("123 East Side, #2310")
-      expect(Employee.last.home_address_2).to be_nil
-      expect(Employee.last.home_city).to eq("Chicago")
-      expect(Employee.last.home_state).to eq("Illinois")
-      expect(Employee.last.home_zip).to eq("60611")
-      expect(Employee.last.ad_updated_at).to be_nil
+      expect(Employee.find_by(:first_name => "Maude").home_address_1).to eq("123 East Side, #2310")
+      expect(Employee.find_by(:first_name => "Maude").home_address_2).to be_nil
+      expect(Employee.find_by(:first_name => "Maude").home_city).to eq("Chicago")
+      expect(Employee.find_by(:first_name => "Maude").home_state).to eq("Illinois")
+      expect(Employee.find_by(:first_name => "Maude").home_zip).to eq("60611")
+      expect(Employee.find_by(:first_name => "Maude").ad_updated_at).to be_nil
     end
 
     it "should send an email alert if attributes for employees are invalid" do
@@ -106,7 +104,7 @@ describe XmlService, type: :service do
       :business_title => "Software Development Team Lead",
       :first_name => "Jeffrey",
       :last_name => "Lebowski",
-      :cost_center => "OT Business Optimization",
+      :department => Department.find_by(:name =>"OT Business Optimization"),
       :image_code => nil)
     }
     let!(:terminated_employee) { FactoryGirl.create(:employee,

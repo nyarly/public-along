@@ -1,12 +1,17 @@
 require 'rails_helper'
 
 describe Employee, type: :model do
+  let(:dept) { Department.find_by(name: "OT Customer Support") }
+
+  let!(:location) { Location.find_by(:name => "OT London") }
+
   context "with a regular employee" do
+
     let(:employee) { FactoryGirl.build(:employee,
       first_name: "Bob",
       last_name: "Barker",
-      cost_center: "OT Customer Support",
-      country: "GB"
+      department_id: dept.id,
+      location_id: location.id
     )}
 
     it "should meet validations" do
@@ -14,15 +19,13 @@ describe Employee, type: :model do
 
       expect(employee).to_not allow_value(nil).for(:first_name)
       expect(employee).to_not allow_value(nil).for(:last_name)
-      expect(employee).to_not allow_value(nil).for(:cost_center)
-      expect(employee).to_not allow_value(nil).for(:country)
-      expect(employee).to_not allow_value("UK").for(:country)
+      expect(employee).to_not allow_value(nil).for(:department_id)
+      expect(employee).to_not allow_value(nil).for(:location_id)
       expect(employee).to     validate_uniqueness_of(:email)
-      expect(employee).to     validate_inclusion_of(:country).in_array(Employee::COUNTRIES)
     end
 
     it "should scope the create group" do
-      create_group = FactoryGirl.create_list(:employee, 10)
+      create_group = FactoryGirl.create_list(:employee, 10, :department_id => dept.id)
       existing_group = FactoryGirl.create_list(:employee, 10, :existing)
 
       expect(Employee.create_group).to match_array(create_group)
@@ -30,7 +33,7 @@ describe Employee, type: :model do
     end
 
     it "should scope the update group" do
-      create_group = FactoryGirl.create_list(:employee, 10)
+      create_group = FactoryGirl.create_list(:employee, 10, :department_id => dept.id)
       existing_group = FactoryGirl.create_list(:employee, 10, :existing)
       update1 = FactoryGirl.create(:employee,
         :updated_at => Time.now,
@@ -127,13 +130,13 @@ describe Employee, type: :model do
           mail: employee.email,
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
-          co: employee.country,
+          co: employee.location.country,
           accountExpires: employee.generated_account_expires,
           title: employee.business_title,
           description: employee.business_title,
           employeeType: employee.employee_type,
-          physicalDeliveryOfficeName: employee.location,
-          department: employee.cost_center,
+          physicalDeliveryOfficeName: employee.location.name,
+          department: employee.department.name,
           employeeID: employee.employee_id,
           mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,
@@ -148,9 +151,11 @@ describe Employee, type: :model do
   end
 
   context "regular worker that has been assigned a sAMAccountName" do
+
     let(:employee) { FactoryGirl.build(:employee,
       first_name: "Bob",
-      last_name: "Barker"
+      last_name: "Barker",
+      department_id: dept.id
     )}
 
     it "should generate an email using the sAMAccountName" do
@@ -172,13 +177,13 @@ describe Employee, type: :model do
           mail: "mrbobbarker@opentable.com",
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
-          co: employee.country,
+          co: employee.location.country,
           accountExpires: employee.generated_account_expires,
           title: employee.business_title,
           description: employee.business_title,
           employeeType: employee.employee_type,
-          physicalDeliveryOfficeName: employee.location,
-          department: employee.cost_center,
+          physicalDeliveryOfficeName: employee.location.name,
+          department: employee.department.name,
           employeeID: employee.employee_id,
           mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,
@@ -193,10 +198,12 @@ describe Employee, type: :model do
   end
 
   context "with a contingent worker" do
+
     let(:employee) { FactoryGirl.build(:employee, :contingent,
       first_name: "Bob",
       last_name: "Barker",
       employee_type: "Vendor",
+      department_id: dept.id,
       contract_end_date: 1.month.from_now
     )}
 
@@ -224,14 +231,14 @@ describe Employee, type: :model do
           mail: employee.email,
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
-          co: employee.country,
+          co: employee.location.country,
           accountExpires: employee.generated_account_expires,
           accountExpires: employee.generated_account_expires,
           title: employee.business_title,
           description: employee.business_title,
           employeeType: employee.employee_type,
-          physicalDeliveryOfficeName: employee.location,
-          department: employee.cost_center,
+          physicalDeliveryOfficeName: employee.location.name,
+          department: employee.department.name,
           employeeID: employee.employee_id,
           mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,
@@ -247,6 +254,7 @@ describe Employee, type: :model do
 
   context "with a terminated worker" do
     let(:employee) { FactoryGirl.build(:employee,
+      department_id: dept.id,
       termination_date: 2.days.from_now
     )}
 
@@ -259,6 +267,7 @@ describe Employee, type: :model do
     let(:employee) { FactoryGirl.build(:employee, :contingent,
       first_name: "Bob",
       last_name: "Barker",
+      department_id: dept.id,
       contract_end_date: 1.month.from_now,
       termination_date: 1.day.from_now
     )}
@@ -278,14 +287,14 @@ describe Employee, type: :model do
           mail: employee.email,
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
-          co: employee.country,
+          co: employee.location.country,
           accountExpires: employee.generated_account_expires,
           accountExpires: employee.generated_account_expires,
           title: employee.business_title,
           description: employee.business_title,
           employeeType: employee.employee_type,
-          physicalDeliveryOfficeName: employee.location,
-          department: employee.cost_center,
+          physicalDeliveryOfficeName: employee.location.name,
+          department: employee.department.name,
           employeeID: employee.employee_id,
           mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,
@@ -303,8 +312,10 @@ describe Employee, type: :model do
     let(:employee) { FactoryGirl.build(:employee, :remote,
       first_name: "Bob",
       last_name: "Barker",
+      department_id: dept.id,
       home_address_1: "123 Fake St.",
       home_city: "Beverly Hills",
+      home_state: "CA",
       home_state: "CA",
       home_zip: "90210"
     )}
@@ -324,13 +335,13 @@ describe Employee, type: :model do
           mail: employee.email,
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
-          co: employee.country,
+          co: employee.location.country,
           accountExpires: employee.generated_account_expires,
           title: employee.business_title,
           description: employee.business_title,
           employeeType: employee.employee_type,
-          physicalDeliveryOfficeName: employee.location,
-          department: employee.cost_center,
+          physicalDeliveryOfficeName: employee.location.name,
+          department: employee.department.name,
           employeeID: employee.employee_id,
           mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,
@@ -348,6 +359,7 @@ describe Employee, type: :model do
     let(:employee) { FactoryGirl.build(:employee, :remote,
       first_name: "Bob",
       last_name: "Barker",
+      department_id: dept.id,
       home_address_1: "123 Fake St.",
       home_address_2: "Apt 3G",
       home_city: "Beverly Hills",
@@ -370,13 +382,13 @@ describe Employee, type: :model do
           mail: employee.email,
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
-          co: employee.country,
+          co: employee.location.country,
           accountExpires: employee.generated_account_expires,
           title: employee.business_title,
           description: employee.business_title,
           employeeType: employee.employee_type,
-          physicalDeliveryOfficeName: employee.location,
-          department: employee.cost_center,
+          physicalDeliveryOfficeName: employee.location.name,
+          department: employee.department.name,
           employeeID: employee.employee_id,
           mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,

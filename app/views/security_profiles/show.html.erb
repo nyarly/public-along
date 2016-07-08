@@ -1,0 +1,26 @@
+<p>
+  <strong>Name:</strong>
+  <%= @security_profile.name %>
+</p>
+
+<p>
+  <strong>Description:</strong>
+  <%= @security_profile.description %>
+</p>
+
+<p>
+  <strong>Applications:</strong>
+  <% @security_profile.access_levels.each do |al| %>
+    <br><%= al.application.name %> <%= al.name %>
+  <% end %>
+</p>
+
+<p>
+  <strong>Departments:</strong>
+  <% @security_profile.departments.each do |dept| %>
+    <br><%= dept.name %>
+  <% end %>
+</p>
+
+<%= link_to 'Edit', edit_security_profile_path(@security_profile) %> |
+<%= link_to 'Back', security_profiles_path %>

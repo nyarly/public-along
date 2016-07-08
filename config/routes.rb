@@ -1,6 +1,12 @@
 Rails.application.routes.draw do
+  resources :access_levels
+  resources :applications
+  resources :security_profiles
+  resources :locations
+  resources :machine_bundles
+  resources :departments
   devise_for :users
-  resources :employees, :except => [:show, :destroy]
+  resources :employees, :except => [:destroy]
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

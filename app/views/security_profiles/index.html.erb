@@ -1,0 +1,27 @@
+<h1>Listing Security Profiles</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+      <th>Departments</th>
+      <th>Applications</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @security_profiles.each do |security_profile| %>
+      <tr>
+        <td><%= security_profile.name %></td>
+        <td><%= security_profile.description %></td>
+        <td><%= security_profile.departments.map(&:name) %></td>
+        <td><%= security_profile.access_levels.map { |al| "#{al.application.name} - #{al.name}"} %></td>
+        <td><%= link_to 'Show', security_profile %></td>
+        <td><%= link_to 'Edit', edit_security_profile_path(security_profile) %></td>
+        <td><%= link_to 'Destroy', security_profile, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

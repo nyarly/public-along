@@ -30,7 +30,8 @@ class XmlService
     @doc.xpath("//ws:Worker").each do |w|
       attrs = base_attrs(w).merge(leave_attrs(w)).merge(address_attrs(w))
 
-      attrs[:cost_center] = COST_CENTERS[attrs[:cost_center_id][-6,6]] if attrs[:cost_center_id].present?
+      attrs[:department_id] = get_dept_id(w)
+      attrs[:location_id] = get_loc_id(w)
       sort_employee(attrs)
     end
   end
@@ -69,13 +70,22 @@ class XmlService
     text.blank? ? nil : text
   end
 
+  def get_dept_id(worker_node)
+    cc_id = get_text(worker_node, "ws:Additional_Information//ws:Cost_Center_Code")
+    Department.find_by(:code => cc_id[-6,6]).try(:id) if cc_id.present?
+  end
+
+  def get_loc_id(worker_node)
+    name = get_text(worker_node, "ws:Position//ws:Business_Site_Name")
+    Location.find_by(:name => name).try(:id) if name.present?
+  end
+
   def base_attrs(worker_node)
     {
       :first_name => get_text(worker_node, "ws:Personal//ws:Name_Data//ws:First_Name"),
       :last_name => get_text(worker_node, "ws:Personal//ws:Name_Data//ws:Last_Name"),
       :workday_username => get_text(worker_node, "ws:Additional_Information//ws:Username"),
       :employee_id => get_text(worker_node, "ws:Summary//ws:Employee_ID"),
-      :country => get_text(worker_node, "ws:Position//ws:Business_Site_Country"),
       :hire_date => get_text(worker_node, "ws:Status//ws:Hire_Date"),
       :contract_end_date => s_to_DateTime(get_text(worker_node, "ws:Additional_Information//ws:Contract_End_Date")),
       :termination_date => s_to_DateTime(get_text(worker_node, "ws:Status//ws:Termination_Date")),
@@ -86,10 +96,7 @@ class XmlService
       :business_title => get_text(worker_node, "ws:Position//ws:Position_Title"),
       :employee_type => get_text(worker_node, "ws:Position//ws:Worker_Type"),
       :contingent_worker_type => get_text(worker_node, "ws:Additional_Information//ws:Contingent_Worker_Type"),
-      :location_type => get_text(worker_node, "ws:Position//ws:Business_Site"),
-      :location => get_text(worker_node, "ws:Position//ws:Business_Site_Name"),
       :manager_id => get_text(worker_node, "ws:Position//ws:Supervisor_ID"),
-      :cost_center_id => get_text(worker_node, "ws:Additional_Information//ws:Cost_Center_Code"),
       :office_phone => get_text(worker_node, "ws:Additional_Information//ws:Primary_Work_Phone"),
       :image_code => get_text(worker_node, "ws:Photo//ws:Image")
     }

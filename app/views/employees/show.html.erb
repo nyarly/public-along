@@ -1,0 +1,123 @@
+<p>
+  <strong>Active Directory Updated at:</strong>
+  <%= @employee.ad_updated_at %>
+</p>
+
+<p>
+  <strong>First Name:</strong>
+  <%= @employee.first_name %>
+</p>
+
+<p>
+  <strong>Last Name:</strong>
+  <%= @employee.last_name %>
+</p>
+
+<p>
+  <strong>Email:</strong>
+  <%= @employee.email %>
+</p>
+
+<p>
+  <strong>Employee ID:</strong>
+  <%= @employee.employee_id %>
+</p>
+
+<p>
+  <strong>Employee Type:</strong>
+  <%= @employee.employee_type %>
+</p>
+
+<p>
+  <strong>Hire Date:</strong>
+  <%= @employee.hire_date %>
+</p>
+
+<p>
+  <strong>Department:</strong>
+  <%= @employee.department.name %>
+</p>
+
+<p>
+  <strong>Manager:</strong>
+  <%= Employee.where(:employee_id => @employee.manager_id)[0].try(:cn) %>
+</p>
+
+<p>
+  <strong>Business Title:</strong>
+  <%= @employee.business_title %>
+</p>
+
+<p>
+  <strong>Location:</strong>
+  <%= @employee.location.name %>
+</p>
+
+<p>
+  <strong>Office Phone:</strong>
+  <%= @employee.office_phone %>
+</p>
+
+<p>
+  <strong>Personal Mobile Phone:</strong>
+  <%= @employee.personal_mobile_phone %>
+</p>
+
+<p>
+  <strong>Home Address 1:</strong>
+  <%= @employee.home_address_1 %>
+</p>
+
+<p>
+  <strong>Home Address 2:</strong>
+  <%= @employee.home_address_2 %>
+</p>
+
+<p>
+  <strong>Home City:</strong>
+  <%= @employee.home_city %>
+</p>
+
+<p>
+  <strong>Home State:</strong>
+  <%= @employee.home_state %>
+</p>
+
+<p>
+  <strong>Home Zip:</strong>
+  <%= @employee.home_zip %>
+</p>
+
+<p>
+  <strong>Leave Start Date:</strong>
+  <%= @employee.leave_start_date %>
+</p>
+
+<p>
+  <strong>Leave Return Date:</strong>
+  <%= @employee.leave_return_date %>
+</p>
+
+<p>
+  <strong>Contract End Date:</strong>
+  <%= @employee.contract_end_date %>
+</p>
+
+<p>
+  <strong>Termination Date:</strong>
+  <%= @employee.termination_date %>
+</p>
+
+<p>
+  <strong>Record Created at:</strong>
+  <%= @employee.created_at %>
+</p>
+
+<p>
+  <strong>Record Updated at:</strong>
+  <%= @employee.updated_at %>
+</p>
+
+
+<%= link_to 'Edit', edit_employee_path(@employee) %> |
+<%= link_to 'Back', employees_path %>

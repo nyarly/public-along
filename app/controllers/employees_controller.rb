@@ -1,6 +1,7 @@
 class EmployeesController < ApplicationController
-  before_filter :authenticate_user!
-  before_action :set_employee, only: [:show, :edit, :update, :destroy]
+  load_and_authorize_resource
+
+  before_action :set_employee, only: [:show, :edit, :update]
 
   def index
     @employees = Employee.all
@@ -37,15 +38,12 @@ class EmployeesController < ApplicationController
   end
 
   def employee_params
-    params[:employee][:cost_center_id] = COST_CENTERS.key(params[:employee][:cost_center]) if params[:employee][:cost_center]
-    params[:employee][:location_type] = LOCATIONS[params[:employee][:location]] if params[:employee][:location]
     params.require(:employee).permit(
       :email,
       :first_name,
       :last_name,
       :workday_username,
       :employee_id,
-      :country,
       :hire_date,
       :contract_end_date,
       :termination_date,
@@ -57,11 +55,9 @@ class EmployeesController < ApplicationController
       :employee_type,
       :contingent_worker_id,
       :contingent_worker_type,
-      :location_type,
-      :location,
+      :location_id,
       :manager_id,
-      :cost_center,
-      :cost_center_id,
+      :department_id,
       :personal_mobile_phone,
       :office_phone,
       :home_address_1,
