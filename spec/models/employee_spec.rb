@@ -1,12 +1,9 @@
 require 'rails_helper'
 
 describe Employee, type: :model do
-  let(:dept) { FactoryGirl.create(:department,
-    name: "OT Customer Support",
-    code: "000032"
-  )}
+  let(:dept) { Department.find_by(name: "OT Customer Support") }
 
-  let!(:location) { FactoryGirl.create(:location, :name => "OT London", :kind => "Office", :country => "GB")}
+  let!(:location) { Location.find_by(:name => "OT London") }
 
   context "with a regular employee" do
 

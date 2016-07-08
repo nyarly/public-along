@@ -62,7 +62,7 @@ locs = [
   { :name => "OT Colorado", :kind => "Remote Location", :country => "US" },
   { :name => "OT Illinois", :kind => "Remote Location", :country => "US" },
   { :name => "OT Tennessee", :kind => "Remote Location", :country => "US" },
-  { :name => "OT Southern CA", :kind => "Remote Location", :country => "US" },
+  { :name => "OT Southern California", :kind => "Remote Location", :country => "US" },
   { :name => "OT Minnesota", :kind => "Remote Location", :country => "US" },
   { :name => "OT Maine", :kind => "Remote Location", :country => "US" },
   { :name => "OT Georgia", :kind => "Remote Location", :country => "US" },

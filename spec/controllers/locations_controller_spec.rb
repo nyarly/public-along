@@ -25,9 +25,9 @@ RSpec.describe LocationsController, type: :controller do
 
   let(:valid_attributes) {
     {
-      name: "OT HQ",
-      kind: "Office",
-      country: "US"
+      name: "OT Valid Name",
+      kind: "Remote Location",
+      country: "AU"
     }
   }
 
@@ -47,7 +47,7 @@ RSpec.describe LocationsController, type: :controller do
     it "assigns all locations as @locations" do
       should_authorize(:index, Location)
       get :index
-      expect(assigns(:locations)).to eq([location])
+      expect(assigns(:locations)).to include(location)
     end
   end
 
@@ -95,7 +95,7 @@ RSpec.describe LocationsController, type: :controller do
 
       it "redirects to the created location" do
         post :create, {:location => valid_attributes}
-        expect(response).to redirect_to(Location.find_by(:name => "OT HQ"))
+        expect(response).to redirect_to(Location.find_by(:name => "OT Valid Name"))
       end
     end
     context "with invalid params" do
@@ -119,7 +119,7 @@ RSpec.describe LocationsController, type: :controller do
     context "with valid params" do
       let(:new_attributes) {
         {
-          name: "OT San Francisco",
+          name: "OT HQ2",
           kind: "Office",
           country: "US"
         }
@@ -128,7 +128,7 @@ RSpec.describe LocationsController, type: :controller do
       it "updates the requested location" do
         put :update, {:id => location.id, :location => new_attributes}
         location.reload
-        expect(location.name).to eq("OT San Francisco")
+        expect(location.name).to eq("OT HQ2")
       end
 
       it "assigns the requested location as @location" do

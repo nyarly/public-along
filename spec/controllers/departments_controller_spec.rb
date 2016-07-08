@@ -44,7 +44,7 @@ RSpec.describe DepartmentsController, type: :controller do
     it "assigns all departments as @departments" do
       should_authorize(:index, Department)
       get :index
-      expect(assigns(:departments)).to eq([department])
+      expect(assigns(:departments)).to include(department)
     end
   end
 
