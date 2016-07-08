@@ -19,6 +19,8 @@ class Employee < ActiveRecord::Base
   attr_accessor :sAMAccountName
   attr_accessor :nearest_time_zone
 
+  default_scope { order('last_name ASC') }
+
   def self.create_group
     where(:ad_updated_at => nil)
   end

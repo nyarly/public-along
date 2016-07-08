@@ -9,5 +9,5 @@ class Department < ActiveRecord::Base
 
   has_many :employees
 
-  default_scope { order('name DESC') }
+  default_scope { order('name ASC') }
 end
