@@ -3,3 +3,4 @@
 #
 # set :deploy_to, "/var/www/mezzo"
 # set :branch,    :production
+# set :stage,     :production

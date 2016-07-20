@@ -2,6 +2,7 @@ server '172.16.5.3', roles: [:web, :app, :db], primary: true
 
 set :deploy_to, "/var/www/mezzo"
 set :branch,    :master
+set :stage,     :production
 
 # server-based syntax
 # ======================
