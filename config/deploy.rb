@@ -19,6 +19,8 @@ set :puma_preload_app, true
 set :puma_worker_timeout, nil
 set :puma_init_active_record, true
 
+set :whenever_environment, defer { stage }
+
 set :rbenv_type, :user
 set :rbenv_ruby, '2.3.0'
 
