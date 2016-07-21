@@ -1,5 +1,4 @@
 # set :output, "/path/to/my/cron_log.log"
-set :environment, ENV['RAILS_ENV']
 
 # Every hour run rake tasks that activate/deactivate employees in Active Directory according to time zone
 every 1.hour do
