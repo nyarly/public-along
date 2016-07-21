@@ -7,7 +7,7 @@ set :puma_workers,    0
 set :pty,             true
 set :use_sudo,        false
 set :stage,           :production
-set :rails_env,       { fetch(:stage) }
+set :rails_env,       fetch(:stage)
 set :deploy_via,      :copy
 set :deploy_to,       "/var/www/#{fetch(:application)}"
 set :puma_bind,       "tcp://localhost:3000"
