@@ -9,6 +9,11 @@
 </p>
 
 <p>
+  <strong>Ad security group:</strong>
+  <%= @access_level.ad_security_group %>
+</p>
+
+<p>
   <strong>Security Profiles:</strong>
   <% @access_level.security_profiles.each do |sp| %>
     <br><%= sp.name %>

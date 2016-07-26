@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160708214302) do
+ActiveRecord::Schema.define(version: 20160726001734) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -19,18 +19,18 @@ ActiveRecord::Schema.define(version: 20160708214302) do
   create_table "access_levels", force: :cascade do |t|
     t.string   "name"
     t.integer  "application_id"
-    t.datetime "created_at",     null: false
-    t.datetime "updated_at",     null: false
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+    t.string   "ad_security_group"
   end
 
   create_table "applications", force: :cascade do |t|
     t.string   "name"
     t.text     "description"
-    t.string   "ad_security_group"
     t.text     "dependency"
     t.text     "instructions"
-    t.datetime "created_at",        null: false
-    t.datetime "updated_at",        null: false
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
   end
 
   create_table "departments", force: :cascade do |t|
@@ -43,6 +43,15 @@ ActiveRecord::Schema.define(version: 20160708214302) do
   create_table "dept_sec_profs", force: :cascade do |t|
     t.integer  "department_id"
     t.integer  "security_profile_id"
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
+  end
+
+  create_table "emp_sec_profiles", force: :cascade do |t|
+    t.integer  "transaction_id"
+    t.integer  "employee_id"
+    t.integer  "security_profile_id"
+    t.datetime "revoke_date"
     t.datetime "created_at",          null: false
     t.datetime "updated_at",          null: false
   end
@@ -109,6 +118,13 @@ ActiveRecord::Schema.define(version: 20160708214302) do
     t.text     "description"
     t.datetime "created_at",  null: false
     t.datetime "updated_at",  null: false
+  end
+
+  create_table "transactions", force: :cascade do |t|
+    t.string   "type"
+    t.integer  "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "users", force: :cascade do |t|

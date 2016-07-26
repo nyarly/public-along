@@ -20,6 +20,10 @@
     <%= f.collection_select :application_id, Application.all, :id, :name %>
   </div>
   <div class="field">
+    <%= f.label :ad_security_group %><br>
+    <%= f.text_field :ad_security_group %>
+  </div>
+  <div class="field">
     <%= f.label :security_profiles %><br>
     <%= f.select :security_profile_ids, SecurityProfile.all.collect {|x| [x.name, x.id]}, {}, :multiple => true %>
   </div>

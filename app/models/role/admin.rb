@@ -13,5 +13,7 @@ class Role::Admin < Role::Basic
     ability.can :manage, SecProfAccessLevel
     ability.can :manage, AccessLevel
     ability.can :manage, Application
+    ability.can :manage, Transaction
+    ability.can :manage, EmpSecProfile
   end
 end

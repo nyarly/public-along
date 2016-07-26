@@ -9,7 +9,10 @@ class Employee < ActiveRecord::Base
   validates :location_id,
             presence: true
   validates :email,
+            case_sensitive: false,
             allow_nil: true,
+            uniqueness: true
+  validates :employee_id,
             uniqueness: true,
             case_sensitive: false
 

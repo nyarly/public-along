@@ -35,7 +35,9 @@
         <td><%= e.leave_return_date %></td>
         <td><%= e.ad_updated_at %></td>
         <td><%= link_to "Show", employee_path(e) %></td>
-        <td><%= link_to "Edit", edit_employee_path(e) %></td>
+        <% if can? :update, Employee %>
+          <td><%= link_to "Edit", edit_employee_path(e) %></td>
+        <% end %>
       </tr>
     <% end %>
   </tbody>

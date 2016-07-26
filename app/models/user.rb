@@ -4,7 +4,7 @@ class User < ActiveRecord::Base
   devise :ldap_authenticatable, :trackable
 
   def role
-    @role    ||= Role.for(self)
+    @role ||= Role.for(self)
   end
 
   validates :first_name,
