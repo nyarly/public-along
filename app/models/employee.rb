@@ -139,4 +139,9 @@ class Employee < ActiveRecord::Base
     # US has the broadest time zone spectrum, Pacific time is a sufficient middle ground to capture business hours between NYC and Hawaii
     location.country == 'US' ? "America/Los_Angeles" : TZInfo::Country.get(location.country).zone_identifiers.first
   end
+
+  def email_manager
+    manager = Employee.find_by(employee_id: self.manager_id)
+    ManagerMailer.permissions(manager, self)
+  end
 end

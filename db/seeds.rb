@@ -94,3 +94,24 @@ locs = [
 ActiveRecord::Base.transaction do
   locs.each { |attrs| Location.create(attrs) }
 end
+
+mach_bundles = [
+  {:name => 'Engineer Basic Mac Bundle', :description => 'MacBook Pro 15", 27" Asus Monitor, Accessories' },
+  {:name => 'Engineer Basic PC Bundle', :description => 'T460 (engineering), 27" Asus Monitor, Accessories' },
+  {:name => 'Sales/Restaurant Relations - PC', :description => 'T460, 27" Asus Monitor, Accessories' },
+  {:name => 'Sales/Restaurant Relations - Mac', :description => '13" MacBook Air, Asus Monitor, Accessories' },
+  {:name => 'Sales/Restaurant Relations - Remote - PC', :description => 'T460, 27" Asus Monitor, Accessories, Verizon Jetpack' },
+  {:name => 'Sales/Restaurant Relations - Remote - Mac', :description => '13" MacBook Air, Asus Monitor, Accessories, Verizon Jetpack' },
+  {:name => 'Customer Support - PC', :description => 'T460, 27" Asus Monitor, Accessories' },
+  {:name => 'Designer - Mac Bundle', :description => '15" MacBook Pro, Thunderbolt Display, Accessories' },
+  {:name => 'Accounting - PC Bundle', :description => 'T460, 27" Asus Monitor, Accessories' },
+  {:name => 'People & Culture - PC Bundle', :description => 'T460, 27" Asus Monitor, Accessories' },
+  {:name => 'Marketing - PC Bundle', :description => 'T460, 27" Asus Monitor, Accessories' },
+  {:name => 'Marketing - Mac Bundle', :description => '13" MacBook Air, Asus Monitor, Accessories' },
+  {:name => 'Finance - PC Bundle', :description => 'T460, 27" Asus Monitor, Accessories' },
+  {:name => 'Legal - PC Bundle', :description => 'T460, 27" Asus Monitor, Accessories' },
+]
+
+ActiveRecord::Base.transaction do
+  mach_bundles.each { |attrs| MachineBundle.create(attrs) }
+end

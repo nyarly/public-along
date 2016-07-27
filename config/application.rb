@@ -34,6 +34,6 @@ module Mezzo
     config.active_record.raise_in_transactional_callbacks = true
 
     # For mailer previews
-    config.action_mailer.preview_path = "#{Rails.root}/lib/mailer_previews"
+    # config.action_mailer.preview_path = "#{Rails.root}/lib/mailer_previews"
   end
 end
