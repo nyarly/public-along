@@ -1,0 +1,14 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Kind:</strong>
+  <%= @emp_transaction.kind %>
+</p>
+
+<p>
+  <strong>User:</strong>
+  <%= @emp_transaction.user_id %>
+</p>
+
+<%= link_to 'Edit', edit_emp_transaction_path(@emp_transaction) %> |
+<%= link_to 'Back', emp_transactions_path %>

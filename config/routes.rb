@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :emp_transactions
   resources :access_levels
   resources :applications
   resources :security_profiles
