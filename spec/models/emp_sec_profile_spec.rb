@@ -8,5 +8,8 @@ RSpec.describe EmpSecProfile, type: :model do
 
     expect(emp_sec_profile).to_not allow_value(nil).for(:employee_id)
     expect(emp_sec_profile).to_not allow_value(nil).for(:security_profile_id)
+    expect(emp_sec_profile).to     validate_uniqueness_of(:security_profile_id)
+                                   .scoped_to(:employee_id)
+                                   .with_message("worker already has this security profile")
   end
 end

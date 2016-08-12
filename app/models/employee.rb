@@ -19,6 +19,8 @@ class Employee < ActiveRecord::Base
   belongs_to :department
   belongs_to :location
 
+  after_create :email_manager
+
   attr_accessor :sAMAccountName
   attr_accessor :nearest_time_zone
 
@@ -142,6 +144,6 @@ class Employee < ActiveRecord::Base
 
   def email_manager
     manager = Employee.find_by(employee_id: self.manager_id)
-    ManagerMailer.permissions(manager, self)
+    ManagerMailer.permissions(manager, self).deliver_now
   end
 end

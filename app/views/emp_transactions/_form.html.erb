@@ -1,8 +1,7 @@
-<% if params[:employee_id] %>
-  <% employee = Employee.find params[:employee_id] %>
-  <p><%= employee.cn %></p>
-  <p><%= employee.department.name %></p>
-  <p><%= employee.business_title %></p>
+<% if @employee %>
+  <p><%= @employee.cn %></p>
+  <p><%= @employee.department.name %></p>
+  <p><%= @employee.business_title %></p>
 
   <%= form_for(@emp_transaction) do |f| %>
     <% if @emp_transaction.errors.any? %>
@@ -19,17 +18,17 @@
 
     <div class="field">
       <%= f.label :kind %><br>
-      <%= f.text_field :kind, value: params[:kind] %>
+      <%= f.text_field :kind, value: @kind %>
     </div>
     <div class="field">
       <%= f.label :user_id %><br>
-      <%= f.number_field :user_id, value: params[:user_id] %>
+      <%= f.number_field :user_id, value: @manager.id %>
     </div>
     <div class="field">
       <%= f.label "Security Profiles" %><br>
       <% SecurityProfile.find_each do |sp| %>
         <%= f.fields_for :emp_sec_profiles do |esp_form| %>
-          <%= esp_form.hidden_field :employee_id, value: params[:employee_id] %>
+          <%= esp_form.hidden_field :employee_id, value: @employee.id %>
           <%= esp_form.hidden_field :security_profile_id, value: sp.id %>
           <%= esp_form.check_box :create %>
           <%= esp_form.label "#{sp.name}" %><br>

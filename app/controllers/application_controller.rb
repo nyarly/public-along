@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::Base
   before_action :configure_permitted_parameters, if: :devise_controller?
+  before_filter :store_current_location, :unless => :devise_controller?
 
   rescue_from DeviseLdapAuthenticatable::LdapException do |exception|
     render :text => exception, :status => 500
@@ -15,6 +16,14 @@ class ApplicationController < ActionController::Base
   end
 
   protected
+
+  def store_current_location
+    store_location_for(:user, request.url)
+  end
+
+  def after_sign_in_path_for(resource)
+    stored_location_for(resource) || root_path
+  end
 
   rescue_from CanCan::AccessDenied do |exception|
     if !user_signed_in?

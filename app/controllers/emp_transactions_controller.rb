@@ -17,6 +17,9 @@ class EmpTransactionsController < ApplicationController
   # GET /emp_transactions/new
   def new
     @emp_transaction = EmpTransaction.new
+    @employee = Employee.find params[:employee_id]
+    @manager = Employee.find params[:user_id]
+    @kind = params[:kind]
     @emp_transaction.emp_sec_profiles.build
   end
 
@@ -34,7 +37,7 @@ class EmpTransactionsController < ApplicationController
         format.html { redirect_to @emp_transaction, notice: 'Emp transaction was successfully created.' }
         format.json { render :show, status: :created, location: @emp_transaction }
       else
-        format.html { render :new }
+        format.html { redirect_to new_emp_transaction_path(manager_form_params) }
         format.json { render json: @emp_transaction.errors, status: :unprocessable_entity }
       end
     end
@@ -76,5 +79,11 @@ class EmpTransactionsController < ApplicationController
         :kind,
         :user_id,
         :emp_sec_profiles_attributes => [:id, :employee_id, :security_profile_id, :create])
+    end
+
+    def manager_form_params
+      new_params = emp_transaction_params
+      new_params[:employee_id] = emp_transaction_params["emp_sec_profiles_attributes"]["0"]["employee_id"]
+      new_params
     end
 end
