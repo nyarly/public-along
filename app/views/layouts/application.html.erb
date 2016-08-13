@@ -87,6 +87,9 @@
         <ul class="menu">
           <% if user_signed_in? %>
             <li>
+              <%= "Hi, #{current_user.first_name} #{current_user.last_name} |" %>
+            </li>
+            <li>
               <%= link_to "Logout", logout_path %>
             </li>
           <% else %>

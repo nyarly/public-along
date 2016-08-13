@@ -5,7 +5,6 @@ class Role::Manager < Role::Basic
     super
 
     ability.can :read, Employee
-    # ability.can :manage, PermissionRequest
-    # ability.can :manage, EquipmentRequest
+    ability.can :manage, EmpTransaction, :user_id => user.id
   end
 end

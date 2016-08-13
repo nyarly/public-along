@@ -1,7 +1,8 @@
 <h1><%= @manager.cn %></h1>
 <h1><%= @employee.cn %></h1>
 
-<%= link_to "Onboarding Form for #{@employee.cn}", new_emp_transaction_url({
-  :user_id => @manager.id,
+<strong style="color: red">Must complete the onboarding forms by <%= @employee.onboarding_due_date %></strong>
+<p><%= link_to "Onboarding Form for #{@employee.cn}", new_emp_transaction_url({
+  :user_emp_id => @manager.employee_id,
   :employee_id => @employee.id,
-  :kind => "Security Access"}) %>
+  :kind => "Security Access"}) %></p>

@@ -25,6 +25,7 @@ RSpec.describe EmployeesController, type: :controller do
 
   before :each do
     login_as user
+    allow(ManagerMailer).to receive_message_chain(:permissions, :deliver_now)
   end
 
   describe "GET #index" do

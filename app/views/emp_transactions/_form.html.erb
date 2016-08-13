@@ -2,6 +2,7 @@
   <p><%= @employee.cn %></p>
   <p><%= @employee.department.name %></p>
   <p><%= @employee.business_title %></p>
+  <p>Complete before: <%= @employee.onboarding_due_date %></p>
 
   <%= form_for(@emp_transaction) do |f| %>
     <% if @emp_transaction.errors.any? %>
@@ -32,9 +33,11 @@
           <%= esp_form.hidden_field :security_profile_id, value: sp.id %>
           <%= esp_form.check_box :create %>
           <%= esp_form.label "#{sp.name}" %><br>
-          <% sp.access_levels.find_each do |al| %>
-            <p><%= al.name %> <%= al.application.name %></p>
-          <% end %>
+          <ul>
+            <% sp.access_levels.find_each do |al| %>
+              <li><small><%= al.name %> <%= al.application.name %></small></li>
+            <% end %>
+          </ul>
         <% end %>
       <% end %>
     </div>

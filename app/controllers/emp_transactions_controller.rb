@@ -18,8 +18,12 @@ class EmpTransactionsController < ApplicationController
   def new
     @emp_transaction = EmpTransaction.new
     @employee = Employee.find params[:employee_id]
-    @manager = Employee.find params[:user_id]
     @kind = params[:kind]
+    if params[:user_emp_id]
+      @manager = User.find_by_employee_id params[:user_emp_id]
+    elsif params[:user_id]
+      @manager = User.find params[:user_id]
+    end
     @emp_transaction.emp_sec_profiles.build
   end
 

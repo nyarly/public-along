@@ -142,8 +142,16 @@ class Employee < ActiveRecord::Base
     location.country == 'US' ? "America/Los_Angeles" : TZInfo::Country.get(location.country).zone_identifiers.first
   end
 
+  def onboarding_due_date
+    if location.name == "OT San Francisco"
+      (hire_date - 5.days).strftime("%b %e, %Y")
+    else
+      (hire_date - 10.days).strftime("%b %e, %Y")
+    end
+  end
+
   def email_manager
     manager = Employee.find_by(employee_id: self.manager_id)
-    ManagerMailer.permissions(manager, self).deliver_now
+    ManagerMailer.permissions(manager, self).deliver_now if manager
   end
 end
