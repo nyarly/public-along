@@ -1,5 +1,5 @@
 class EmpTransaction < ActiveRecord::Base
-  KINDS = ["Security Access", "Equipment Request"]
+  KINDS = ["Security Access", "Equipment"]
 
   validates :user_id,
             presence: true

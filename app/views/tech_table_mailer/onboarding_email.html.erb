@@ -1,5 +1,3 @@
-<p id="notice"><%= notice %></p>
-
 <h1><%= @emp_transaction.kind %> Request</h1>
 
 <p>
@@ -33,15 +31,26 @@
 </p>
 
 <p>
+  <strong>Manager Email:</strong>
+  <%= @manager.email %>
+</p>
+
+<p>
   <strong>Security Profiles:</strong>
 </p>
-<div class="indent-1">
+<div style="margin-left: 2em">
   <% @emp_transaction.security_profiles.each do |sp| %>
     <div>
       <%= sp.name %><br>
       <ul>
         <% sp.access_levels.find_each do |al| %>
-          <li class="indent-1"><small><%= al.name %> <%= al.application.name %></small></li>
+          <li style="margin-left: 2em"><%= al.name %> <%= al.application.name %></li>
+            <% if(al.application.dependency.present? || al.application.instructions.present?) %>
+              <p style="margin-left: 2em; color: red"><%= al.application.dependency %></p>
+              <p style="margin-left: 2em; color: red"><%= al.application.instructions %></p>
+            <% else %>
+              <p style="margin-left: 2em; color: limegreen">No further action needed.</p>
+            <% end %>
         <% end %>
       </ul>
     </div>
@@ -50,5 +59,5 @@
 
 <p>
   <strong>Additional Instructions:</strong>
-  <%= @emp_transaction.notes %>
+  <span style="color:red"><%= @emp_transaction.notes %></span>
 </p>

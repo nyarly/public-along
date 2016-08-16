@@ -6,4 +6,12 @@ class TechTableMailer < ApplicationMailer
     @message = message
     mail(to: @email, subject: "ALERT: Mezzo Error")
   end
+
+  def onboarding_email(emp_transaction, employee)
+    @email = "techtable@opentable.com"
+    @emp_transaction = emp_transaction
+    @employee = employee
+    @manager = User.find(@emp_transaction.user_id)
+    mail(to: @email, subject: "ALERT: Onboarding Request")
+  end
 end

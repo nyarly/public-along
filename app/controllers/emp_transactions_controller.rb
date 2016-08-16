@@ -12,6 +12,10 @@ class EmpTransactionsController < ApplicationController
   # GET /emp_transactions/1
   # GET /emp_transactions/1.json
   def show
+    emp_id = @emp_transaction.emp_sec_profiles.first.employee_id
+    mgr_id = @emp_transaction.user_id
+    @employee = Employee.find(emp_id)
+    @manager = User.find(mgr_id)
   end
 
   # GET /emp_transactions/new
