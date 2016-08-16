@@ -41,6 +41,12 @@ describe "employee rake tasks", type: :tasks do
       # 7/29/2016 at 3am BST/2am UTC
       Timecop.freeze(Time.new(2016, 7, 29, 2, 0, 0, "+00:00"))
 
+      sec_prof = FactoryGirl.create(:security_profile)
+      emp_trans_1 = FactoryGirl.create(:emp_transaction)
+      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_1.id, employee_id: new_hire_uk.id, security_profile_id: sec_prof.id)
+      emp_trans_2 = FactoryGirl.create(:emp_transaction)
+      emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_2.id, employee_id: returning_uk.id, security_profile_id: sec_prof.id)
+
       expect(@ldap).to receive(:replace_attribute).once.with(
         new_hire_uk.dn, :userAccountControl, "512"
       )
@@ -71,6 +77,12 @@ describe "employee rake tasks", type: :tasks do
 
       # 7/29/2016 at 3am PST/10am UTC
       Timecop.freeze(Time.new(2016, 7, 29, 10, 0, 0, "+00:00"))
+
+      sec_prof = FactoryGirl.create(:security_profile)
+      emp_trans_1 = FactoryGirl.create(:emp_transaction)
+      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_1.id, employee_id: new_hire_us.id, security_profile_id: sec_prof.id)
+      emp_trans_2 = FactoryGirl.create(:emp_transaction)
+      emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_2.id, employee_id: returning_us.id, security_profile_id: sec_prof.id)
 
       expect(@ldap).to receive(:replace_attribute).once.with(
         new_hire_us.dn, :userAccountControl, "512"

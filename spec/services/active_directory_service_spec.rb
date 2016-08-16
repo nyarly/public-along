@@ -59,8 +59,42 @@ describe ActiveDirectoryService, type: :service do
       allow(ldap).to receive(:search).and_return([]) # Mock search not finding conflicting existing sAMAccountName
       allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(67) # Simulate AD LDAP error
 
-      # expect(TechTableMailer).to receive_message_chain(:alert_email, :deliver_now)
+      expect(TechTableMailer).to receive_message_chain(:alert_email, :deliver_now)
       ads.create_disabled_accounts(employees)
+    end
+  end
+
+  context "activate employees" do
+    let(:mailer) { double(TechTableMailer) }
+
+    it "should fail and send alert email if it is a contract worker and there is no contract end date set" do
+      invalid_contract_worker = FactoryGirl.create(:employee, employee_type: "Contract", contract_end_date: nil)
+      emp_trans = FactoryGirl.create(:emp_transaction)
+      sec_prof = FactoryGirl.create(:security_profile)
+      emp_sec_prof = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans.id, employee_id: invalid_contract_worker.id, security_profile_id: sec_prof.id)
+
+      expect(TechTableMailer).to receive(:alert_email).once.and_return(mailer)
+      expect(mailer).to receive(:deliver_now).once
+      ads.activate([invalid_contract_worker])
+    end
+
+    it "should activate for properly set contract worker" do
+      valid_contract_worker = FactoryGirl.create(:employee, employee_type: "Contract", contract_end_date: 3.months.from_now)
+      emp_trans = FactoryGirl.create(:emp_transaction)
+      sec_prof = FactoryGirl.create(:security_profile)
+      emp_sec_prof = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans.id, employee_id: valid_contract_worker.id, security_profile_id: sec_prof.id)
+
+      allow(ldap).to receive(:replace_attribute).once
+      expect(TechTableMailer).to_not receive(:alert_email).with("ERROR: #{valid_contract_worker.first_name} #{valid_contract_worker.last_name} is a contract worker and needs a contract_end_date. Account not activated.")
+      ads.activate([valid_contract_worker])
+    end
+
+    it "should fail if the manager has not completed the onboarding forms" do
+      invalid_worker = FactoryGirl.create(:employee, employee_type: "Regular")
+
+      expect(TechTableMailer).to receive(:alert_email).once.and_return(mailer)
+      expect(mailer).to receive(:deliver_now).once
+      ads.activate([invalid_worker])
     end
   end
 

@@ -34,6 +34,8 @@ class ActiveDirectoryService
     employees.each do |e|
       if e.contract_end_date_needed?
         TechTableMailer.alert_email("ERROR: #{e.first_name} #{e.last_name} is a contract worker and needs a contract_end_date. Account not activated.").deliver_now
+      elsif !e.onboarding_complete?
+        TechTableMailer.alert_email("ERROR: #{e.first_name} #{e.last_name} requires manager to complete onboarding forms. Account not activated.").deliver_now
       else
         ldap.replace_attribute(e.dn, :userAccountControl, "512")
       end
@@ -105,6 +107,11 @@ class ActiveDirectoryService
         ldap_success_check(employee, "ERROR: Could not successfully update #{k}: #{v} for #{employee.cn}.")
       end
     end
+  end
+
+  def add_to_sec_group(sec_dn, employee)
+    ldap.modify :dn => sec_dn, :operations => [[:add, :member, employee.dn]]
+    ldap_success_check(employee, "ERROR: Could not successfully add #{employee.cn} to #{sec_dn}.")
   end
 
   def assign_sAMAccountName(employee)

@@ -56,6 +56,7 @@ RSpec.describe EmpTransactionsController, type: :controller do
     it "assigns a new emp_transaction as @emp_transaction" do
       get :new, {}, valid_session
       expect(assigns(:emp_transaction)).to be_a_new(EmpTransaction)
+      expect(SecAccessService).to receive(:new).with(emp_transaction)
     end
   end
 

@@ -27,7 +27,7 @@
     </div>
     <div class="field">
       <%= f.label "Security Profiles" %><br>
-      <% SecurityProfile.find_each do |sp| %>
+      <% SecurityProfile.find_profiles_for(@employee.department.id).each do |sp| %>
         <%= f.fields_for :emp_sec_profiles do |esp_form| %>
           <%= esp_form.hidden_field :employee_id, value: @employee.id %>
           <%= esp_form.hidden_field :security_profile_id, value: sp.id %>

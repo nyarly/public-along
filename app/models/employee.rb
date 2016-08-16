@@ -18,6 +18,9 @@ class Employee < ActiveRecord::Base
 
   belongs_to :department
   belongs_to :location
+  has_many :emp_sec_profiles
+  has_many :security_profiles, through: :emp_sec_profiles
+  has_many :emp_transactions, through: :emp_sec_profiles
 
   after_create :email_manager
 
@@ -44,6 +47,10 @@ class Employee < ActiveRecord::Base
 
   def contract_end_date_needed?
     employee_type != "Regular" && contract_end_date.blank?
+  end
+
+  def onboarding_complete?
+    emp_transactions.count > 0
   end
 
   def cn

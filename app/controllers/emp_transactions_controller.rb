@@ -35,9 +35,10 @@ class EmpTransactionsController < ApplicationController
   # POST /emp_transactions.json
   def create
     @emp_transaction = EmpTransaction.new(emp_transaction_params)
+    @sas = SecAccessService.new(@emp_transaction)
 
     respond_to do |format|
-      if @emp_transaction.save
+      if @sas.apply_ad_permissions
         format.html { redirect_to @emp_transaction, notice: 'Emp transaction was successfully created.' }
         format.json { render :show, status: :created, location: @emp_transaction }
       else
