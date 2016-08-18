@@ -96,6 +96,8 @@ describe "initial sync rake task", type: :tasks do
       allow(@ldap).to receive(:bind)
       allow(@ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
       allow(@ldap).to receive(:search).and_return([@ldap_entry_1], [@ldap_entry_2], [@ldap_entry_3], [])
+
+      allow(ManagerMailer).to receive_message_chain(:permissions, :deliver_now)
     end
 
     it "should raise an exception if no path is provided" do

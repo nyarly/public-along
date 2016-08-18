@@ -71,6 +71,6 @@ class AccessLevelsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def access_level_params
-      params.require(:access_level).permit(:name, :application_id, security_profile_ids: [])
+      params.require(:access_level).permit(:name, :application_id, :ad_security_group, security_profile_ids: [])
     end
 end

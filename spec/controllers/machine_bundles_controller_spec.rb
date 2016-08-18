@@ -45,7 +45,7 @@ RSpec.describe MachineBundlesController, type: :controller do
     it "assigns all machine_bundles as @machine_bundles" do
       should_authorize(:index, MachineBundle)
       get :index
-      expect(assigns(:machine_bundles)).to eq([machine_bundle])
+      expect(assigns(:machine_bundles)).to include(machine_bundle)
     end
   end
 

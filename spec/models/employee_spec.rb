@@ -21,7 +21,9 @@ describe Employee, type: :model do
       expect(employee).to_not allow_value(nil).for(:last_name)
       expect(employee).to_not allow_value(nil).for(:department_id)
       expect(employee).to_not allow_value(nil).for(:location_id)
+      expect(employee).to     allow_value(nil).for(:email)
       expect(employee).to     validate_uniqueness_of(:email)
+      expect(employee).to     validate_uniqueness_of(:employee_id).case_insensitive
     end
 
     it "should scope the create group" do
@@ -92,7 +94,16 @@ describe Employee, type: :model do
       expect(Employee.deactivation_group).to_not include(non_deactivation_group)
     end
 
-    it "should scope the correct deactivation group" do
+    it "should check onboarding is complete" do
+      completed = FactoryGirl.create(:employee)
+      not_completed = FactoryGirl.create(:employee)
+
+      emp_trans = FactoryGirl.create(:emp_transaction)
+      sec_prof = FactoryGirl.create(:security_profile)
+      emp_sec_prof = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans.id, employee_id: completed.id, security_profile_id: sec_prof.id)
+
+      expect(completed.onboarding_complete?).to eq(true)
+      expect(not_completed.onboarding_complete?).to eq(false)
     end
 
     it "should create a cn" do

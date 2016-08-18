@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160708214302) do
+ActiveRecord::Schema.define(version: 20160816201525) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -19,18 +19,18 @@ ActiveRecord::Schema.define(version: 20160708214302) do
   create_table "access_levels", force: :cascade do |t|
     t.string   "name"
     t.integer  "application_id"
-    t.datetime "created_at",     null: false
-    t.datetime "updated_at",     null: false
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+    t.string   "ad_security_group"
   end
 
   create_table "applications", force: :cascade do |t|
     t.string   "name"
     t.text     "description"
-    t.string   "ad_security_group"
     t.text     "dependency"
     t.text     "instructions"
-    t.datetime "created_at",        null: false
-    t.datetime "updated_at",        null: false
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
   end
 
   create_table "departments", force: :cascade do |t|
@@ -45,6 +45,23 @@ ActiveRecord::Schema.define(version: 20160708214302) do
     t.integer  "security_profile_id"
     t.datetime "created_at",          null: false
     t.datetime "updated_at",          null: false
+  end
+
+  create_table "emp_sec_profiles", force: :cascade do |t|
+    t.integer  "employee_id"
+    t.integer  "security_profile_id"
+    t.datetime "revoke_date"
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
+    t.integer  "emp_transaction_id"
+  end
+
+  create_table "emp_transactions", force: :cascade do |t|
+    t.string   "kind"
+    t.integer  "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.text     "notes"
   end
 
   create_table "employees", force: :cascade do |t|
@@ -111,6 +128,13 @@ ActiveRecord::Schema.define(version: 20160708214302) do
     t.datetime "updated_at",  null: false
   end
 
+  create_table "transactions", force: :cascade do |t|
+    t.integer  "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string   "kind"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string   "first_name"
     t.string   "last_name"
@@ -128,6 +152,7 @@ ActiveRecord::Schema.define(version: 20160708214302) do
     t.datetime "created_at",                               null: false
     t.datetime "updated_at",                               null: false
     t.string   "role_name",              default: "Basic", null: false
+    t.string   "employee_id"
   end
 
   add_index "users", ["ldap_user"], name: "index_users_on_ldap_user", unique: true, using: :btree

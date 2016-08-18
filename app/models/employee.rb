@@ -9,12 +9,20 @@ class Employee < ActiveRecord::Base
   validates :location_id,
             presence: true
   validates :email,
+            case_sensitive: false,
             allow_nil: true,
+            uniqueness: true
+  validates :employee_id,
             uniqueness: true,
             case_sensitive: false
 
   belongs_to :department
   belongs_to :location
+  has_many :emp_sec_profiles
+  has_many :security_profiles, through: :emp_sec_profiles
+  has_many :emp_transactions, through: :emp_sec_profiles
+
+  after_create :email_manager
 
   attr_accessor :sAMAccountName
   attr_accessor :nearest_time_zone
@@ -39,6 +47,10 @@ class Employee < ActiveRecord::Base
 
   def contract_end_date_needed?
     employee_type != "Regular" && contract_end_date.blank?
+  end
+
+  def onboarding_complete?
+    emp_transactions.count > 0
   end
 
   def cn
@@ -135,5 +147,18 @@ class Employee < ActiveRecord::Base
   def nearest_time_zone
     # US has the broadest time zone spectrum, Pacific time is a sufficient middle ground to capture business hours between NYC and Hawaii
     location.country == 'US' ? "America/Los_Angeles" : TZInfo::Country.get(location.country).zone_identifiers.first
+  end
+
+  def onboarding_due_date
+    if location.country == "US"
+      (hire_date - 5.days).strftime("%b %e, %Y")
+    else
+      (hire_date - 10.days).strftime("%b %e, %Y")
+    end
+  end
+
+  def email_manager
+    manager = Employee.find_by(employee_id: self.manager_id)
+    ManagerMailer.permissions(manager, self).deliver_now if manager
   end
 end

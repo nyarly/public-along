@@ -21,48 +21,64 @@
       <div class="top-bar-left">
         <ul class="dropdown menu" data-dropdown-menu>
           <li class="menu-text"><img id="nav-logo" alt="Rails" src="/assets/ot_logo.png" /> | Mezzo</li>
-          <li>
-            <%= link_to "Employees", employees_path %>
-            <ul class="menu vertical">
-              <li><%= link_to "New Employee", new_employee_path %></li>
-            </ul>
-          </li>
-          <li>
-            <%= link_to "Departments", departments_path %>
-            <ul class="menu vertical">
-              <li><%= link_to "New Department", new_department_path %></li>
-            </ul>
-          </li>
-          <li>
-            <%= link_to "Locations", locations_path %>
-            <ul class="menu vertical">
-              <li><%= link_to "New Location", new_location_path %></li>
-            </ul>
-          </li>
-          <li>
-            <%= link_to "Machine Bundles", machine_bundles_path %>
-            <ul class="menu vertical">
-              <li><%= link_to "New Machine Bundle", new_machine_bundle_path %></li>
-            </ul>
-          </li>
-          <li>
-            <%= link_to "Security Profiles", security_profiles_path %>
-            <ul class="menu vertical">
-              <li><%= link_to "New Security Profile", new_security_profile_path %></li>
-            </ul>
-          </li>
-          <li>
-            <%= link_to "Access Levels", access_levels_path %>
-            <ul class="menu vertical">
-              <li><%= link_to "New Access Level", new_access_level_path %></li>
-            </ul>
-          </li>
-          <li>
-            <%= link_to "Applications", applications_path %>
-            <ul class="menu vertical">
-              <li><%= link_to "New Application", new_application_path %></li>
-            </ul>
-          </li>
+          <% if can? :read, Employee %>
+            <li>
+              <%= link_to "Employees", employees_path %>
+              <% if can? :create, Employee %>
+                <ul class="menu vertical">
+                  <li><%= link_to "New Employee", new_employee_path %></li>
+                </ul>
+              <% end %>
+            </li>
+          <% end %>
+          <% if can? :read, Department %>
+            <li>
+              <%= link_to "Departments", departments_path %>
+              <ul class="menu vertical">
+                <li><%= link_to "New Department", new_department_path %></li>
+              </ul>
+            </li>
+          <% end %>
+          <% if can? :read, Location %>
+            <li>
+              <%= link_to "Locations", locations_path %>
+              <ul class="menu vertical">
+                <li><%= link_to "New Location", new_location_path %></li>
+              </ul>
+            </li>
+          <% end %>
+          <% if can? :read, MachineBundle %>
+            <li>
+              <%= link_to "Machine Bundles", machine_bundles_path %>
+              <ul class="menu vertical">
+                <li><%= link_to "New Machine Bundle", new_machine_bundle_path %></li>
+              </ul>
+            </li>
+          <% end %>
+          <% if can? :read, SecurityProfile %>
+            <li>
+              <%= link_to "Security Profiles", security_profiles_path %>
+              <ul class="menu vertical">
+                <li><%= link_to "New Security Profile", new_security_profile_path %></li>
+              </ul>
+            </li>
+          <% end %>
+          <% if can? :read, AccessLevel %>
+            <li>
+              <%= link_to "Access Levels", access_levels_path %>
+              <ul class="menu vertical">
+                <li><%= link_to "New Access Level", new_access_level_path %></li>
+              </ul>
+            </li>
+          <% end %>
+          <% if can? :read, Application %>
+            <li>
+              <%= link_to "Applications", applications_path %>
+              <ul class="menu vertical">
+                <li><%= link_to "New Application", new_application_path %></li>
+              </ul>
+            </li>
+          <% end %>
           <!-- <li><a href="#">Two</a></li>
           <li><a href="#">Three</a></li> -->
         </ul>
@@ -70,6 +86,9 @@
       <div class="top-bar-right">
         <ul class="menu">
           <% if user_signed_in? %>
+            <li>
+              <%= "Hi, #{current_user.first_name} #{current_user.last_name} |" %>
+            </li>
             <li>
               <%= link_to "Logout", logout_path %>
             </li>

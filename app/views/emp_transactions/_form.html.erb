@@ -1,0 +1,58 @@
+<% if @employee %>
+  <%= form_for(@emp_transaction, :html => {:class => "form"}) do |f| %>
+    <% if @emp_transaction.errors.any? %>
+      <div id="error_explanation">
+        <h2><%= pluralize(@emp_transaction.errors.count, "error") %> prohibited this emp_transaction from being saved:</h2>
+
+        <ul>
+        <% @emp_transaction.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="section danger text-center">
+      This form must be submitted before <strong><%= @employee.onboarding_due_date %></strong>
+    </div>
+
+    <div class="section">
+      <p>Please select the Security Profiles you would like applied to:</p>
+      <p class="indent-1"><strong>Name:</strong> <%= @employee.cn %></p>
+      <p class="indent-1"><strong>Title:</strong> <%= @employee.business_title %></p>
+      <p class="indent-1"><strong>Department:</strong> <%= @employee.department.name %></p>
+      <p class="indent-1"><strong>Location:</strong> <%= @employee.location.name %></p>
+      <p class="indent-1"><strong>Manager:</strong> <%= @manager.first_name %> <%= @manager.last_name %></p>
+      <p class="indent-1"><strong>Start Date: </strong> <%= @employee.hire_date.strftime("%b %e, %Y")%></p>
+    </div>
+
+    <div class="row">
+      <%= f.hidden_field :kind, value: @kind %>
+      <%= f.hidden_field :user_id, value: @manager.id %>
+      <% SecurityProfile.find_profiles_for(@employee.department.id).each do |sp| %>
+        <%= f.fields_for :emp_sec_profiles do |esp_form, index| %>
+          <%= esp_form.hidden_field :employee_id, value: @employee.id %>
+          <%= esp_form.hidden_field :security_profile_id, value: sp.id %>
+          <div class="column large-4 medium-6 small-12">
+            <%= esp_form.check_box :create %>
+            <%= esp_form.label "#{sp.name}" %><br>
+            <ul>
+              <% sp.access_levels.find_each do |al| %>
+                <li class="indent-1"><small><%= al.name %> <%= al.application.name %></small></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+
+    <div class="row">
+      <%= f.label "Additional Instructions" %>
+      <%= f.text_area :notes %>
+    </div>
+    <div class="actions">
+      <%= f.submit "Submit", :class => "button"%>
+    </div>
+  <% end %>
+<% end %>
+

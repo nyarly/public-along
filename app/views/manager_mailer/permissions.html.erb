@@ -1,0 +1,37 @@
+<p>You have a new hire to onboard.</p>
+
+<p style="margin-left: 2em">
+  <strong>Name:</strong>
+  <%= @employee.cn %>
+</p>
+
+<p style="margin-left: 2em">
+  <strong>Title:</strong>
+  <%= @employee.business_title %>
+</p>
+
+<p style="margin-left: 2em">
+  <strong>Department:</strong>
+  <%= @employee.department.name %>
+ </p>
+
+<p style="margin-left: 2em">
+  <strong>Location:</strong>
+  <%= @employee.location.name %>
+</p>
+
+<p>
+  <strong style="color: red; text-decoration: underline">
+    You must complete the onboarding forms by <%= @employee.onboarding_due_date %>.
+  </strong>
+</p>
+
+<p>
+  <strong style="color: red">Submissions after the due date risk the new hire not having access rights or equipment on their first day.</strong>
+</p>
+
+<p>Please follow the link below to complete onboarding form:</p>
+<p style="margin-left: 2em"><%= link_to "Onboarding Form for #{@employee.cn}", new_emp_transaction_url({
+  :user_emp_id => @manager.employee_id,
+  :employee_id => @employee.id,
+  :kind => "Security Access"}) %></p>
