@@ -150,7 +150,7 @@ class Employee < ActiveRecord::Base
   end
 
   def onboarding_due_date
-    if location.name == "OT San Francisco"
+    if location.country == "US"
       (hire_date - 5.days).strftime("%b %e, %Y")
     else
       (hire_date - 10.days).strftime("%b %e, %Y")

@@ -5,7 +5,7 @@ FactoryGirl.define do
     sequence(:email)       { |n| "#{n}#{Faker::Internet.email}" }
     sequence(:ldap_user)   { |n| "#{Faker::Internet.user_name}#{n}" }
     role_name              { "Basic" }
-    sequence(:employee_id) { "23712ghjk" }
+    sequence(:employee_id) { |n| "23712ghjk#{n}" }
   end
 
   trait :admin do
