@@ -87,7 +87,7 @@ class EmpTransactionsController < ApplicationController
       params.require(:emp_transaction).permit(
         :kind,
         :user_id,
-        :emp_sec_profiles_attributes => [:id, :employee_id, :security_profile_id, :create])
+        :emp_sec_profiles_attributes => [:id, :employee_id, :security_profile_id, :notes, :create])
     end
 
     def manager_form_params
