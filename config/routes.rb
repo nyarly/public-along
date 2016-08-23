@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  resources :emp_transactions
+  resources :emp_transactions, :except => [:edit, :update, :destroy]
   resources :access_levels
   resources :applications
   resources :security_profiles

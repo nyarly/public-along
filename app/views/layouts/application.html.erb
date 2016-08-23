@@ -23,10 +23,10 @@
           <li class="menu-text"><img id="nav-logo" alt="Rails" src="/assets/ot_logo.png" /> | Mezzo</li>
           <% if can? :read, Employee %>
             <li>
-              <%= link_to "Employees", employees_path %>
+              <%= link_to "Workers", employees_path %>
               <% if can? :create, Employee %>
                 <ul class="menu vertical">
-                  <li><%= link_to "New Employee", new_employee_path %></li>
+                  <li><%= link_to "New Worker", new_employee_path %></li>
                 </ul>
               <% end %>
             </li>
