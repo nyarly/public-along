@@ -58,6 +58,20 @@
 </div>
 
 <p>
+  <strong>Machine Bundle:</strong>
+</p>
+<div style="margin-left: 2em">
+  <% @emp_transaction.machine_bundles.each do |mb| %>
+    <div>
+      <%= mb.name %><br>
+      <ul>
+        <li style="margin-left: 2em"><small><%= mb.description %></small></li>
+      </ul>
+    </div>
+  <% end %>
+</div>
+
+<p>
   <strong>Additional Instructions:</strong>
   <span style="color:red"><%= @emp_transaction.notes %></span>
 </p>

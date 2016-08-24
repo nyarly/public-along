@@ -11,10 +11,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160816201525) do
+ActiveRecord::Schema.define(version: 20160823182401) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+  enable_extension "hstore"
 
   create_table "access_levels", force: :cascade do |t|
     t.string   "name"
@@ -45,6 +46,15 @@ ActiveRecord::Schema.define(version: 20160816201525) do
     t.integer  "security_profile_id"
     t.datetime "created_at",          null: false
     t.datetime "updated_at",          null: false
+  end
+
+  create_table "emp_mach_bundles", force: :cascade do |t|
+    t.integer  "employee_id"
+    t.integer  "machine_bundle_id"
+    t.integer  "emp_transaction_id"
+    t.hstore   "details"
+    t.datetime "created_at",         null: false
+    t.datetime "updated_at",         null: false
   end
 
   create_table "emp_sec_profiles", force: :cascade do |t|

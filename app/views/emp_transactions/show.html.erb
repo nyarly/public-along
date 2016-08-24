@@ -49,6 +49,20 @@
 </div>
 
 <p>
+  <strong>Machine Bundle:</strong>
+</p>
+<div class="indent-1">
+  <% @emp_transaction.machine_bundles.each do |mb| %>
+    <div>
+      <%= mb.name %><br>
+      <ul>
+        <li class="indent-1"><small><%= mb.description %></small></li>
+      </ul>
+    </div>
+  <% end %>
+</div>
+
+<p>
   <strong>Additional Instructions:</strong>
   <%= @emp_transaction.notes %>
 </p>

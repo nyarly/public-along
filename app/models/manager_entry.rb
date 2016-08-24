@@ -11,7 +11,7 @@ class ManagerEntry
   attribute :employee_id, Integer
   attribute :user_id, Integer
   attribute :security_profile_ids, Array[Integer]
-  attribute :machine_bundles, Array[MachineBundle]
+  attribute :machine_bundle_id, Integer
   attribute :notes, String
 
   # attr_writer emp_transaction
@@ -28,15 +28,20 @@ class ManagerEntry
   end
 
   def build_security_profiles
-    puts "up here"
     security_profile_ids.each do |sp_id|
-      puts "here"
-      puts @emp_transaction.inspect
       @emp_transaction.emp_sec_profiles.build(security_profile_id: sp_id, employee_id: employee_id)
-      puts :emp_sec_profiles => @emp_transaction.emp_sec_profiles.last.inspect
       # sp = SecurityProfile.find sp_id
       # @@emp_transaction.security_profiles << sp
     end
+    puts "**************"
+    puts eid: employee_id
+    puts mbid: machine_bundle_id
+    machine_bundle = MachineBundle.find(machine_bundle_id)
+    @emp_transaction.emp_mach_bundles.build(
+      machine_bundle_id: machine_bundle_id,
+      employee_id: employee_id,
+      details: {machine_bundle.name.to_sym => machine_bundle.description}
+    )
     # puts @@emp_transaction.emp_sec_profiles.all
   end
 

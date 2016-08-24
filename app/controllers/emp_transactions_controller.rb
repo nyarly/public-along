@@ -1,5 +1,6 @@
 class EmpTransactionsController < ApplicationController
-  load_and_authorize_resource
+  # load_and_authorize_resource
+  # skip_authorize_resource :only => :new
 
   before_action :set_emp_transaction, only: [:show]
 
@@ -29,6 +30,9 @@ class EmpTransactionsController < ApplicationController
     end
 
     @manager_entry = ManagerEntry.new
+    @emp_transaction = @manager_entry.emp_transaction
+
+    authorize! :new, @manager_entry.emp_transaction
     # @manager_entry.kind = @kind
     # @manager_entry.user_id = @manager_user.id
     # @emp_transaction = @manager_entry.emp_transaction
@@ -54,6 +58,7 @@ class EmpTransactionsController < ApplicationController
     # puts emp_transaction_params
     # @emp_transaction = EmpTransaction.new(emp_transaction_params)
     # @sas = SecAccessService.new(@emp_transaction)
+    authorize! :create, @manager_entry.emp_transaction
 
 
     respond_to do |format|
@@ -82,6 +87,7 @@ class EmpTransactionsController < ApplicationController
         :notes
       ).tap do |allowed|
         allowed[:security_profile_ids] = params[:security_profile_ids]
+        allowed[:machine_bundle_id] = params[:machine_bundle_id]
       end
       # params.require(:emp_transaction).permit(
       #   :kind,
