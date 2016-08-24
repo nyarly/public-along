@@ -49,6 +49,10 @@ class Employee < ActiveRecord::Base
     employee_type != "Regular" && contract_end_date.blank?
   end
 
+  def self.direct_reports_of(manager_emp_id)
+    where('manager_id = ?', manager_emp_id)
+  end
+
   def onboarding_complete?
     emp_transactions.count > 0
   end
@@ -150,10 +154,11 @@ class Employee < ActiveRecord::Base
   end
 
   def onboarding_due_date
+    # plus 9.hours to account for the beginning of the business day
     if location.country == "US"
-      (hire_date - 5.days).strftime("%b %e, %Y")
+      5.business_days.before(hire_date + 9.hours).strftime("%b %e, %Y")
     else
-      (hire_date - 10.days).strftime("%b %e, %Y")
+      10.business_days.before(hire_date + 9.hours).strftime("%b %e, %Y")
     end
   end
 

@@ -3,7 +3,6 @@ class EmpMachBundle < ActiveRecord::Base
             presence: true
   validates :machine_bundle_id,
             presence: true
-  attr_accessor :create
 
   belongs_to :emp_transaction
   belongs_to :employee

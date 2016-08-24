@@ -30,6 +30,12 @@
       <%= f.hidden_field :kind, value: @kind %>
       <%= f.hidden_field :employee_id, value: @employee.id %>
       <%= f.hidden_field :user_id, value: @manager_user.id %>
+      <% if @kind == "Onboarding" %>
+        <h4>Buddy</h4>
+        <p class="help-text">Select a buddy for the worker's first day.</p>
+        <%= f.collection_select :buddy_id, Employee.direct_reports_of(@manager_user.employee_id), :id, :cn, {prompt: "Select from list"}, required: true %>
+        <hr>
+      <% end %>
       <% if @kind == "Security Access" || @kind == "Onboarding" %>
         <h4>Security Access</h4>
         <p class="help-text">Select only the appropriate security access profiles to apply to the worker.</p>
@@ -51,7 +57,7 @@
         <p class="help-text">Select a machine bundle for the worker.</p>
         <% MachineBundle.all.each do |mb| %>
             <div class="column large-6 medium-12">
-              <%= radio_button_tag 'machine_bundle_id', mb.id %>
+              <%= radio_button_tag 'machine_bundle_id', mb.id, false, required: true %>
               <%= f.label "#{mb.name}" %><br>
               <ul>
                   <li class="indent-1"><small><%= mb.description %></small></li>

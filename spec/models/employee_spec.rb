@@ -106,6 +106,21 @@ describe Employee, type: :model do
       expect(not_completed.onboarding_complete?).to eq(false)
     end
 
+    it "should calculate an onboarding due date according to location" do
+      emp_1 = FactoryGirl.create(:employee,
+        hire_date: Date.new(2016, 7, 25, 2),
+        location: Location.find_by_name("OT San Francisco")
+      )
+
+      emp_2 = FactoryGirl.create(:employee,
+        hire_date: Date.new(2016, 7, 25, 2),
+        location: Location.find_by_name("OT London")
+      )
+      puts emp_1.hire_date
+      expect(emp_1.onboarding_due_date).to eq("Jul 18, 2016")
+      expect(emp_2.onboarding_due_date).to eq("Jul 11, 2016")
+    end
+
     it "should create a cn" do
       expect(employee.cn).to eq("Bob Barker")
     end
