@@ -1,77 +1,89 @@
-<h1><%= @emp_transaction.kind %> Request</h1>
+<div style="font-family: helvetica;">
+  <h1><%= @emp_transaction.kind %> Request</h1>
 
-<p>
-  <strong>Submission Date:</strong>
-  <%= @emp_transaction.created_at.strftime("%b %e, %Y") %>
-</p>
+  <p>
+    <strong>Submission Date:</strong>
+    <%= @emp_transaction.created_at.strftime("%b %e, %Y") %>
+  </p>
 
-<p>
-  <strong>Name:</strong>
-  <%= @employee.cn %>
-</p>
+  <p>
+    <strong>Name:</strong>
+    <%= @employee.cn %>
+  </p>
 
-<p>
-  <strong>Title:</strong>
-  <%= @employee.business_title %>
-</p>
+  <p>
+    <strong>Title:</strong>
+    <%= @employee.business_title %>
+  </p>
 
-<p>
-  <strong>Department:</strong>
-  <%= @employee.department.name %>
- </p>
+  <p>
+    <strong>Department:</strong>
+    <%= @employee.department.name %>
+   </p>
 
-<p>
-  <strong>Location:</strong>
-  <%= @employee.location.name %>
- </p>
+  <p>
+    <strong>Location:</strong>
+    <%= @employee.location.name %>
+   </p>
 
-<p>
-  <strong>Manager:</strong>
-  <%= @manager.first_name %> <%= @manager.last_name %>
-</p>
+  <p>
+    <strong>Manager:</strong>
+    <%= @manager.first_name %> <%= @manager.last_name %>
+  </p>
 
-<p>
-  <strong>Manager Email:</strong>
-  <%= @manager.email %>
-</p>
+  <p>
+    <strong>Manager Email:</strong>
+    <%= @manager.email %>
+  </p>
 
-<p>
-  <strong>Security Profiles:</strong>
-</p>
-<div style="margin-left: 2em">
-  <% @emp_transaction.security_profiles.each do |sp| %>
-    <div>
-      <%= sp.name %><br>
+  <p>
+    <strong>Contingent Worker:</strong>
+    <div style="margin-left: 2em">
       <ul>
-        <% sp.access_levels.find_each do |al| %>
-          <li style="margin-left: 2em"><%= al.name %> <%= al.application.name %></li>
-            <% if(al.application.dependency.present? || al.application.instructions.present?) %>
-              <p style="margin-left: 2em; color: red"><%= al.application.dependency %></p>
-              <p style="margin-left: 2em; color: red"><%= al.application.instructions %></p>
-            <% else %>
-              <p style="margin-left: 2em; color: limegreen">No further action needed.</p>
-            <% end %>
-        <% end %>
+        <li style="color: <%= @emp_transaction.cw_email ? 'red' : 'limegreen' %>"><p>Create OpenTable Email: <%= @emp_transaction.cw_email %></p></li>
+        <li style="color: <%= @emp_transaction.cw_google_membership ? 'red' : 'limegreen' %>"><p>Create Google Group Membership: <%= @emp_transaction.cw_google_membership %></p></li>
       </ul>
     </div>
-  <% end %>
-</div>
+  </p>
 
-<p>
-  <strong>Machine Bundle:</strong>
-</p>
-<div style="margin-left: 2em">
-  <% @emp_transaction.machine_bundles.each do |mb| %>
-    <div>
-      <%= mb.name %><br>
-      <ul>
-        <li style="margin-left: 2em"><%= mb.description %></li>
-      </ul>
-    </div>
-  <% end %>
-</div>
+  <p>
+    <strong>Security Profiles:</strong>
+  </p>
+  <div style="margin-left: 2em">
+    <% @emp_transaction.security_profiles.each do |sp| %>
+      <div>
+        <%= sp.name %><br>
+        <ul>
+          <% sp.access_levels.find_each do |al| %>
+            <li style="margin-left: 2em"><%= al.name %> <%= al.application.name %></li>
+              <% if(al.application.dependency.present? || al.application.instructions.present?) %>
+                <p style="margin-left: 2em; color: red"><%= al.application.dependency %></p>
+                <p style="margin-left: 2em; color: red"><%= al.application.instructions %></p>
+              <% else %>
+                <p style="margin-left: 2em; color: limegreen">No further action needed.</p>
+              <% end %>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+  </div>
 
-<p>
-  <strong>Additional Instructions:</strong>
-  <span style="color:red"><%= @emp_transaction.notes %></span>
-</p>
+  <p>
+    <strong>Machine Bundle:</strong>
+  </p>
+  <div style="margin-left: 2em">
+    <% @emp_transaction.machine_bundles.each do |mb| %>
+      <div>
+        <%= mb.name %><br>
+        <ul>
+          <li style="margin-left: 2em"><%= mb.description %></li>
+        </ul>
+      </div>
+    <% end %>
+  </div>
+
+  <p>
+    <strong>Additional Instructions:</strong>
+    <span style="color:red"><%= @emp_transaction.notes %></span>
+  </p>
+</div>

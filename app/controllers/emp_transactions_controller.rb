@@ -71,6 +71,8 @@ class EmpTransactionsController < ApplicationController
         :user_id,
         :employee_id,
         :buddy_id,
+        :cw_email,
+        :cw_google_membership,
         :notes
       ).tap do |allowed|
         allowed[:security_profile_ids] = params[:security_profile_ids]
