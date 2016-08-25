@@ -1,5 +1,3 @@
-<p id="notice"><%= notice %></p>
-
 <h1><%= @emp_transaction.kind %> Request</h1>
 
 <p>
@@ -33,6 +31,11 @@
 </p>
 
 <p>
+  <strong>Buddy:</strong>
+  <%= @buddy.first_name %> <%= @buddy.last_name %>
+</p>
+
+<p>
   <strong>Security Profiles:</strong>
 </p>
 <div class="indent-1">
@@ -43,6 +46,20 @@
         <% sp.access_levels.find_each do |al| %>
           <li class="indent-1"><small><%= al.name %> <%= al.application.name %></small></li>
         <% end %>
+      </ul>
+    </div>
+  <% end %>
+</div>
+
+<p>
+  <strong>Machine Bundle:</strong>
+</p>
+<div class="indent-1">
+  <% @emp_transaction.machine_bundles.each do |mb| %>
+    <div>
+      <%= mb.name %><br>
+      <ul>
+        <li class="indent-1"><small><%= mb.description %></small></li>
       </ul>
     </div>
   <% end %>

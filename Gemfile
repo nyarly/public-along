@@ -37,7 +37,14 @@ gem 'tzinfo'
 # Use cancancan for role management
 gem 'cancancan'
 
+# Use foundation-rails for front-end framework
 gem 'foundation-rails'
+
+# Use virtus for Form Models
+gem 'virtus'
+
+# Use business_time for business day calculations
+gem 'business_time'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

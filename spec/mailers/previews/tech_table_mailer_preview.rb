@@ -6,7 +6,7 @@ class TechTableMailerPreview < ActionMailer::Preview
 
   def onboarding_email
     emp_trans = EmpTransaction.last
-    emp = Employee.find(emp_trans.emp_sec_profiles.first.employee_id)
+    emp = Employee.find(emp_trans.emp_mach_bundles.first.employee_id)
     TechTableMailer.onboarding_email(emp_trans, emp)
   end
 end

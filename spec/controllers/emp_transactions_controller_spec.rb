@@ -20,22 +20,25 @@ require 'rails_helper'
 
 RSpec.describe EmpTransactionsController, type: :controller do
 
-  let!(:emp_transaction) { FactoryGirl.create(:emp_transaction) }
+  let!(:emp_transaction) { FactoryGirl.create(:emp_transaction, user: user, buddy_id: buddy.id) }
+  let!(:emp_mach_bundle) { FactoryGirl.create(:emp_mach_bundle, emp_transaction: emp_transaction, employee: employee) }
+  let!(:machine_bundle) { FactoryGirl.create(:machine_bundle) }
   let!(:employee) { FactoryGirl.create(:employee) }
+  let!(:buddy) { FactoryGirl.create(:employee) }
   let!(:user) { FactoryGirl.create(:user, :role_name => "Admin", employee_id: "12345") }
 
   let(:valid_attributes) {
     {
-      user_id: user.id,
       kind: "Security Access",
       employee_id: employee.id,
-      user_emp_id: "12345"
+      user_id: user.id,
+      machine_bundle_id: machine_bundle.id
     }
   }
 
   let(:invalid_attributes) {
     {
-      user_id: user.id,
+      user_id: "12345",
       kind: "Something else"
     }
   }
@@ -65,117 +68,45 @@ RSpec.describe EmpTransactionsController, type: :controller do
       get :new, { employee_id: employee.id, kind: "Security Access", user_emp_id: "12345"}
       expect(assigns(:emp_transaction)).to be_a_new(EmpTransaction)
       expect(assigns(:employee)).to eq(employee)
-      expect(assigns(:manager)).to eq(user)
+      expect(assigns(:manager_user)).to eq(user)
       expect(assigns(:kind)).to eq("Security Access")
     end
   end
 
-  describe "GET #edit" do
-    it "assigns the requested emp_transaction as @emp_transaction" do
-      get :edit, {:id => emp_transaction.id}
-      expect(assigns(:emp_transaction)).to eq(emp_transaction)
-    end
-  end
-
-  xdescribe "POST #create" do
-    # TODO Need to revisit this when working on equipement request ticket
+  describe "POST #create" do
     before :each do
       should_authorize(:create, EmpTransaction)
     end
 
     context "with valid params" do
-      let(:sas) { double(SecAccessService) }
       it "creates a new EmpTransaction" do
-        allow(SecAccessService).to receive(:new).and_return(sas)
-        allow(sas).to receive(:apply_ad_permissions).and_return(true)
         expect {
-          post :create, {:emp_transaction => valid_attributes}
+          post :create, {:manager_entry => valid_attributes}
         }.to change(EmpTransaction, :count).by(1)
       end
 
       it "assigns a newly created emp_transaction as @emp_transaction" do
-        post :create, {:emp_transaction => valid_attributes}
+        post :create, {:manager_entry => valid_attributes}
         expect(assigns(:emp_transaction)).to be_a(EmpTransaction)
         expect(assigns(:emp_transaction)).to be_persisted
       end
 
       it "redirects to the created emp_transaction" do
-        post :create, {:emp_transaction => valid_attributes}
+        post :create, {:manager_entry => valid_attributes}
         expect(response).to redirect_to(EmpTransaction.last)
       end
     end
 
     context "with invalid params" do
       it "assigns a newly created but unsaved emp_transaction as @emp_transaction" do
-        post :create, {:emp_transaction => invalid_attributes}
+        post :create, {:manager_entry => invalid_attributes}
         expect(assigns(:emp_transaction)).to be_a_new(EmpTransaction)
       end
 
       it "re-renders the 'new' template" do
-        post :create, {:emp_transaction => invalid_attributes}
-        expect(response).to redirect_to(new_emp_transaction_path)
+        post :create, {:manager_entry => invalid_attributes}
+        expect(response).to redirect_to("http://test.host/emp_transactions/new?kind=Something+else&user_id=12345")
       end
     end
   end
-
-  describe "PUT #update" do
-    before :each do
-      should_authorize(:update, emp_transaction)
-    end
-
-    context "with valid params" do
-      let(:new_attributes) {
-        {
-          user: user,
-          kind: "Equipment"
-        }
-      }
-
-      it "updates the requested emp_transaction" do
-        put :update, {:id => emp_transaction.id, :emp_transaction => new_attributes}
-        emp_transaction.reload
-        expect(emp_transaction.kind).to eq("Equipment")
-      end
-
-      it "assigns the requested emp_transaction as @emp_transaction" do
-        put :update, {:id => emp_transaction.id, :emp_transaction => valid_attributes}
-        expect(assigns(:emp_transaction)).to eq(emp_transaction)
-      end
-
-      it "redirects to the emp_transaction" do
-        put :update, {:id => emp_transaction.id, :emp_transaction => valid_attributes}
-        expect(response).to redirect_to(emp_transaction)
-      end
-    end
-
-    context "with invalid params" do
-      it "assigns the emp_transaction as @emp_transaction" do
-        put :update, {:id => emp_transaction.id, :emp_transaction => invalid_attributes}
-        expect(assigns(:emp_transaction)).to eq(emp_transaction)
-      end
-
-      it "re-renders the 'edit' template" do
-        put :update, {:id => emp_transaction.id, :emp_transaction => invalid_attributes}
-        expect(response).to render_template("edit")
-      end
-    end
-  end
-
-  describe "DELETE #destroy" do
-    before :each do
-      should_authorize(:destroy, emp_transaction)
-    end
-
-    it "destroys the requested emp_transaction" do
-      expect {
-        delete :destroy, {:id => emp_transaction.id}
-      }.to change(EmpTransaction, :count).by(-1)
-    end
-
-    it "redirects to the emp_transactions list" do
-      delete :destroy, {:id => emp_transaction.id}
-      expect(response).to redirect_to(emp_transactions_url)
-    end
-  end
-
 end
