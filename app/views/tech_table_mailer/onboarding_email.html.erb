@@ -36,6 +36,16 @@
 </p>
 
 <p>
+  <strong>Contingent Worker:</strong>
+  <div style="margin-left: 2em">
+    <ul>
+      <li style="color: <%= @emp_transaction.cw_email ? 'red' : 'limegreen' %>">Create OpenTable Email: <%= @emp_transaction.cw_email %></li>
+      <li style="color: <%= @emp_transaction.cw_google_membership ? 'red' : 'limegreen' %>">Create Google Group Membership: <%= @emp_transaction.cw_google_membership %></li>
+    </ul>
+  </div>
+</p>
+
+<p>
   <strong>Security Profiles:</strong>
 </p>
 <div style="margin-left: 2em">

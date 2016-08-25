@@ -11,6 +11,8 @@ class ManagerEntry
   attribute :employee_id, Integer
   attribute :user_id, Integer
   attribute :buddy_id, Integer
+  attribute :cw_email, Boolean
+  attribute :cw_google_membership, Boolean
   attribute :security_profile_ids, Array[Integer]
   attribute :machine_bundle_id, Integer
   attribute :notes, String
@@ -24,6 +26,8 @@ class ManagerEntry
       kind: kind,
       user_id: user_id,
       buddy_id: buddy_id,
+      cw_email: cw_email,
+      cw_google_membership: cw_google_membership,
       notes: notes
     )
   end

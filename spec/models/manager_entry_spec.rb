@@ -6,6 +6,8 @@ RSpec.describe ManagerEntry do
       kind: "Onboarding",
       user_id: 12,
       buddy_id: 123,
+      cw_email: 1,
+      cw_google_membership: 0,
       notes: "These notes",
       employee_id: employee.id,
       security_profile_ids: [sp_1.id, sp_2.id, sp_3.id],
@@ -24,6 +26,8 @@ RSpec.describe ManagerEntry do
     expect(manager_entry.emp_transaction.kind).to eq("Onboarding")
     expect(manager_entry.emp_transaction.user_id).to eq(12)
     expect(manager_entry.emp_transaction.buddy_id).to eq(123)
+    expect(manager_entry.emp_transaction.cw_email).to eq(true)
+    expect(manager_entry.emp_transaction.cw_google_membership).to eq(false)
     expect(manager_entry.emp_transaction.notes).to eq("These notes")
   end
 
