@@ -164,6 +164,6 @@ class Employee < ActiveRecord::Base
 
   def email_manager
     manager = Employee.find_by(employee_id: self.manager_id)
-    ManagerMailer.permissions(manager, self).deliver_now if manager
+    ManagerMailer.permissions(manager, self, "Onboarding").deliver_now if manager
   end
 end

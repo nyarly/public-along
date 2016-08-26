@@ -1,5 +1,5 @@
 <div style="font-family: helvetica;">
-  <p>You have a new hire to onboard.</p>
+  <p>You have <% @kind %> forms to fill for:</p>
 
   <p style="margin-left: 2em">
     <strong>Name:</strong>
@@ -21,19 +21,21 @@
     <%= @employee.location.name %>
   </p>
 
-  <p>
-    <strong style="color: red; text-decoration: underline">
-      You must complete the onboarding forms by <%= @employee.onboarding_due_date %>.
-    </strong>
-  </p>
+  <% if @kind == "Onboarding" %>
+    <p>
+      <strong style="color: red; text-decoration: underline">
+        You must complete the onboarding forms by <%= @employee.onboarding_due_date %>.
+      </strong>
+    </p>
 
-  <p>
-    <strong style="color: red">Submissions after the due date risk the new hire not having access rights or equipment on their first day.</strong>
-  </p>
+    <p>
+      <strong style="color: red">Submissions after the due date risk the new hire not having access rights or equipment on their first day.</strong>
+    </p>
+  <% end %>
 
-  <p>Please follow the link below to complete onboarding form:</p>
-  <p style="margin-left: 2em"><%= link_to "Onboarding Form for #{@employee.cn}", new_emp_transaction_url({
+  <p>Please follow the link below to complete the <%= @kind.downcase %> form:</p>
+  <p style="margin-left: 2em"><%= link_to "#{@kind} Form for #{@employee.cn}", new_emp_transaction_url({
     :user_emp_id => @manager.employee_id,
     :employee_id => @employee.id,
-    :kind => "Onboarding"}) %></p>
+    :kind => @kind}) %></p>
 </div>
