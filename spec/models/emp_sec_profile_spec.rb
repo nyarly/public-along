@@ -1,15 +1,64 @@
 require 'rails_helper'
 
 RSpec.describe EmpSecProfile, type: :model do
-  let(:emp_sec_profile) { FactoryGirl.build(:emp_sec_profile) }
+  let(:emp_sec_profile) { FactoryGirl.build(:emp_sec_profile, security_profile_id: security_profile.id, employee_id: employee.id) }
+  let(:security_profile) { FactoryGirl.create(:security_profile) }
+  let(:employee) { FactoryGirl.create(:employee, id: 23) }
 
   it "should meet validations" do
     expect(emp_sec_profile).to be_valid
 
     expect(emp_sec_profile).to_not allow_value(nil).for(:employee_id)
     expect(emp_sec_profile).to_not allow_value(nil).for(:security_profile_id)
-    expect(emp_sec_profile).to     validate_uniqueness_of(:security_profile_id)
-                                   .scoped_to(:employee_id)
-                                   .with_message("worker already has this security profile")
+  end
+
+  context "should allow dup sec profile if older esps have a revoke date" do
+    let!(:esp_1) { FactoryGirl.create(:emp_sec_profile, revoke_date: nil, security_profile_id: sec_profile.id, employee_id: emp.id) }
+    let!(:esp_2) { FactoryGirl.build(:emp_sec_profile, revoke_date: nil, security_profile_id: sec_profile.id, employee_id: emp.id) }
+    let!(:esp_3) { FactoryGirl.build(:emp_sec_profile, revoke_date: nil, security_profile_id: sec_profile.id, employee_id: emp.id) }
+    let(:sec_profile) { FactoryGirl.create(:security_profile) }
+    let(:emp) { FactoryGirl.create(:employee, id: 23) }
+
+    it "should reject a dup esp if the older one does not have a revoke date" do
+      expect(esp_1).to be_valid
+      expect(esp_2).to_not be_valid
+    end
+
+    it "should allow a dup esp if the older one has a revoke date" do
+      esp_1.revoke_date = Date.today
+      esp_1.save!
+      esp_1.reload
+
+      expect(esp_1).to be_valid
+      expect(esp_2).to be_valid
+    end
+
+    it "should reject a dup esp with multiple records with any nil revoke dates" do
+      esp_1.revoke_date = Date.today
+      esp_1.save!
+      esp_1.reload
+      expect(esp_1).to be_valid
+
+      esp_2.revoke_date = nil
+      esp_2.save!
+      esp_2.reload
+      expect(esp_2).to be_valid
+
+      expect(esp_3).to_not be_valid
+    end
+
+    it "should allow a dup esp with multiple records with revoke dates" do
+      esp_1.revoke_date = Date.today
+      esp_1.save!
+      esp_1.reload
+
+      esp_2.revoke_date = Date.today
+      esp_2.save!
+      esp_2.reload
+
+      expect(esp_1).to be_valid
+      expect(esp_2).to be_valid
+      expect(esp_3).to be_valid
+    end
   end
 end
