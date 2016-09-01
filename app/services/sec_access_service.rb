@@ -30,8 +30,8 @@ class SecAccessService
   end
 
   def add_employee_to_groups
+    ads = ActiveDirectoryService.new
     @ad_sec_groups.each do |asg|
-      ads = ActiveDirectoryService.new
       ads.add_to_sec_group(asg, @employee) unless asg.blank?
     end
   end

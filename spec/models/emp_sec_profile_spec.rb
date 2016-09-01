@@ -22,6 +22,7 @@ RSpec.describe EmpSecProfile, type: :model do
     it "should reject a dup esp if the older one does not have a revoke date" do
       expect(esp_1).to be_valid
       expect(esp_2).to_not be_valid
+      expect(esp_2.errors.messages).to eq({:security_profile_id=>["can't have duplicate security profiles for one employee"]})
     end
 
     it "should allow a dup esp if the older one has a revoke date" do
@@ -45,6 +46,7 @@ RSpec.describe EmpSecProfile, type: :model do
       expect(esp_2).to be_valid
 
       expect(esp_3).to_not be_valid
+      expect(esp_3.errors.messages).to eq({:security_profile_id=>["can't have duplicate security profiles for one employee"]})
     end
 
     it "should allow a dup esp with multiple records with revoke dates" do

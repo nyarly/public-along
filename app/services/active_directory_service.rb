@@ -159,8 +159,11 @@ class ActiveDirectoryService
   end
 
   def ldap_success_check(employee, error_message)
+    puts ldap_error: ldap.get_operation_result
     if ldap.get_operation_result.code == 0
       employee.update_attributes(:ad_updated_at => DateTime.now)
+    elsif ldap.get_operation_result.code == 68
+      true
     else
       TechTableMailer.alert_email(error_message).deliver_now
     end
