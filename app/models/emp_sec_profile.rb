@@ -8,13 +8,13 @@ class EmpSecProfile < ActiveRecord::Base
   belongs_to :emp_transaction
   belongs_to :employee
   belongs_to :security_profile
-  # belongs_to :revoking_transaction, class_name: "EmpTransaction", inverse_of: :revoked_emp_sec_profile
+  belongs_to :revoking_transaction, class_name: "EmpTransaction", inverse_of: :revoked_emp_sec_profiles
 
   def cannot_have_dup_active_security_profiles
     unless employee_id.blank? || security_profile_id.blank?
       emp = Employee.find_by_id(employee_id)
       if emp != nil
-        active_emp_sec_profiles = emp.emp_sec_profiles.where("security_profile_id = ? AND revoke_date IS NULL", security_profile_id)
+        active_emp_sec_profiles = emp.emp_sec_profiles.where("security_profile_id = ? AND revoking_transaction_id IS NULL", security_profile_id)
 
         if self.persisted?
           active_emp_sec_profiles = active_emp_sec_profiles.where("id != ?", id)

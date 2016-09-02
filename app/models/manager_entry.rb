@@ -41,8 +41,8 @@ class ManagerEntry
     revoke_profile_ids = old_profile_ids - new_profile_ids
 
     revoke_profile_ids.each do |sp_id|
-      esp = EmpSecProfile.where("employee_id = ? AND security_profile_id = ? AND revoke_date IS NULL", employee_id, sp_id).first
-      esp.update_attributes(revoke_date: Date.today)
+      esp = EmpSecProfile.where("employee_id = ? AND security_profile_id = ? AND revoking_transaction_id IS NULL", employee_id, sp_id).first
+      emp_transaction.revoked_emp_sec_profiles << esp
     end unless revoke_profile_ids.blank?
 
     add_profile_ids.each do |sp_id|
@@ -65,14 +65,16 @@ class ManagerEntry
     ActiveRecord::Base.transaction do
       build_security_profiles unless employee_id.blank?
       build_machine_bundles
-      @emp_transaction.save
+      @emp_transaction.save!
+
+      emp_transaction.revoked_emp_sec_profiles.update_all(revoking_transaction_id: @emp_transaction.id)
     end
 
+    rescue ActiveRecord::RecordInvalid => invalid
+
     if @emp_transaction.errors.blank?
-      unless security_profile_ids.blank?
-        sas = SecAccessService.new(@emp_transaction)
-        sas.apply_ad_permissions
-      end
+      sas = SecAccessService.new(@emp_transaction)
+      sas.apply_ad_permissions
     else
       @errors = @emp_transaction.errors
     end

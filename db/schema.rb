@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160825205552) do
+ActiveRecord::Schema.define(version: 20160902210944) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -60,10 +60,10 @@ ActiveRecord::Schema.define(version: 20160825205552) do
   create_table "emp_sec_profiles", force: :cascade do |t|
     t.integer  "employee_id"
     t.integer  "security_profile_id"
-    t.datetime "revoke_date"
-    t.datetime "created_at",          null: false
-    t.datetime "updated_at",          null: false
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
     t.integer  "emp_transaction_id"
+    t.integer  "revoking_transaction_id"
   end
 
   create_table "emp_transactions", force: :cascade do |t|

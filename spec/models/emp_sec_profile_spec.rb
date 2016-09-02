@@ -13,9 +13,9 @@ RSpec.describe EmpSecProfile, type: :model do
   end
 
   context "should allow dup sec profile if older esps have a revoke date" do
-    let!(:esp_1) { FactoryGirl.create(:emp_sec_profile, revoke_date: nil, security_profile_id: sec_profile.id, employee_id: emp.id) }
-    let!(:esp_2) { FactoryGirl.build(:emp_sec_profile, revoke_date: nil, security_profile_id: sec_profile.id, employee_id: emp.id) }
-    let!(:esp_3) { FactoryGirl.build(:emp_sec_profile, revoke_date: nil, security_profile_id: sec_profile.id, employee_id: emp.id) }
+    let!(:esp_1) { FactoryGirl.create(:emp_sec_profile, revoking_transaction_id: nil, security_profile_id: sec_profile.id, employee_id: emp.id) }
+    let!(:esp_2) { FactoryGirl.build(:emp_sec_profile, revoking_transaction_id: nil, security_profile_id: sec_profile.id, employee_id: emp.id) }
+    let!(:esp_3) { FactoryGirl.build(:emp_sec_profile, revoking_transaction_id: nil, security_profile_id: sec_profile.id, employee_id: emp.id) }
     let(:sec_profile) { FactoryGirl.create(:security_profile) }
     let(:emp) { FactoryGirl.create(:employee, id: 23) }
 
@@ -26,7 +26,7 @@ RSpec.describe EmpSecProfile, type: :model do
     end
 
     it "should allow a dup esp if the older one has a revoke date" do
-      esp_1.revoke_date = Date.today
+      esp_1.revoking_transaction_id = 1
       esp_1.save!
       esp_1.reload
 
@@ -35,12 +35,12 @@ RSpec.describe EmpSecProfile, type: :model do
     end
 
     it "should reject a dup esp with multiple records with any nil revoke dates" do
-      esp_1.revoke_date = Date.today
+      esp_1.revoking_transaction_id = 1
       esp_1.save!
       esp_1.reload
       expect(esp_1).to be_valid
 
-      esp_2.revoke_date = nil
+      esp_2.revoking_transaction_id = nil
       esp_2.save!
       esp_2.reload
       expect(esp_2).to be_valid
@@ -50,11 +50,11 @@ RSpec.describe EmpSecProfile, type: :model do
     end
 
     it "should allow a dup esp with multiple records with revoke dates" do
-      esp_1.revoke_date = Date.today
+      esp_1.revoking_transaction_id = 1
       esp_1.save!
       esp_1.reload
 
-      esp_2.revoke_date = Date.today
+      esp_2.revoking_transaction_id = 1
       esp_2.save!
       esp_2.reload
 

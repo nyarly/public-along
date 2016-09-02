@@ -1,4 +1,4 @@
-<h1><%= @emp_transaction.kind %> Request</h1>
+<h1><%= @emp_transaction.kind %> Transaction</h1>
 
 <p>
   <strong>Submission Date:</strong>
@@ -7,7 +7,7 @@
 
 <p>
   <strong>Name:</strong>
-  <%= @employee.cn %>
+  <%= link_to @employee.cn, employee_path(@employee) %>
 </p>
 
 <p>
@@ -49,7 +49,7 @@
 
 <% if @emp_transaction.kind == "Onboarding" || @emp_transaction.kind == "Security Access" %>
   <p>
-    <strong>Security Profiles:</strong>
+    <strong>Applied Security Profiles:</strong>
   </p>
   <div class="indent-1">
     <% @emp_transaction.security_profiles.each do |sp| %>
@@ -63,6 +63,24 @@
       </div>
     <% end %>
   </div>
+
+  <% if @emp_transaction.revoked_security_profiles.count > 0 %>
+    <p>
+      <strong>Revoked Security Profiles:</strong>
+    </p>
+    <div class="indent-1">
+      <% @emp_transaction.revoked_security_profiles.each do |sp| %>
+        <div>
+          <%= sp.name %><br>
+          <ul>
+            <% sp.access_levels.find_each do |al| %>
+              <li class="indent-1"><small><%= al.name %> <%= al.application.name %></small></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+    </div>
+    <% end %>
 <% end %>
 
 <% if @emp_transaction.kind == "Onboarding" || @emp_transaction.kind == "Equipment" %>

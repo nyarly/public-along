@@ -3,6 +3,6 @@ FactoryGirl.define do
     emp_transaction_id 1
     association :employee, factory: :employee
     security_profile_id 1
-    revoke_date nil
+    revoking_transaction_id nil
   end
 end

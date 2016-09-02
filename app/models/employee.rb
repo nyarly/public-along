@@ -58,7 +58,7 @@ class Employee < ActiveRecord::Base
   end
 
   def active_security_profiles
-    self.security_profiles.references(:emp_sec_profiles).where(emp_sec_profiles: {revoke_date: nil})
+    self.security_profiles.references(:emp_sec_profiles).where(emp_sec_profiles: {revoking_transaction_id: nil})
   end
 
   def cn

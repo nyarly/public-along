@@ -58,7 +58,7 @@ RSpec.describe ManagerEntry do
 
       manager_entry.save
 
-      expect(manager_entry.errors.messages).to eq({:"emp_sec_profiles.employee_id"=>["can't be blank"], :emp_mach_bundles=>["is invalid"]})
+      expect(manager_entry.errors.messages).to eq({:emp_mach_bundles=>["is invalid"]})
     end
   end
 
@@ -80,26 +80,20 @@ RSpec.describe ManagerEntry do
     let(:sp_3) { FactoryGirl.create(:security_profile) }
     let(:sp_4) { FactoryGirl.create(:security_profile) }
 
-    it "should succeed" do
-    end
-
     it "should add and revoke specified security profiles" do
-      esp_1 = FactoryGirl.create(:emp_sec_profile, employee_id: employee.id, security_profile_id: sp_1.id, revoke_date: nil)
-      esp_2 = FactoryGirl.create(:emp_sec_profile, employee_id: employee.id, security_profile_id: sp_2.id, revoke_date: nil)
-      esp_3 = FactoryGirl.create(:emp_sec_profile, employee_id: employee.id, security_profile_id: sp_3.id, revoke_date: nil)
+      esp_1 = FactoryGirl.create(:emp_sec_profile, employee_id: employee.id, security_profile_id: sp_1.id, revoking_transaction_id: nil)
+      esp_2 = FactoryGirl.create(:emp_sec_profile, employee_id: employee.id, security_profile_id: sp_2.id, revoking_transaction_id: nil)
+      esp_3 = FactoryGirl.create(:emp_sec_profile, employee_id: employee.id, security_profile_id: sp_3.id, revoking_transaction_id: nil)
 
       manager_entry.save
 
       expect(employee.reload.security_profiles.map(&:id)).to eq([sp_1.id, sp_2.id, sp_3.id, sp_4.id])
-      expect(esp_1.reload.revoke_date).to eq(nil)
-      expect(esp_2.reload.revoke_date).to eq(Date.today)
-      expect(esp_3.reload.revoke_date).to eq(nil)
-    end
-
-    it "should not include buddy or machine bundles" do
+      expect(esp_1.reload.revoking_transaction_id).to be_nil
+      expect(esp_2.reload.revoking_transaction_id).to_not be_nil
+      expect(esp_3.reload.revoking_transaction_id).to be_nil
     end
    end
 
-  context "Re-hire" do
+  context "Re-hire", :pending => "need tests for re-hire situation" do
   end
 end
