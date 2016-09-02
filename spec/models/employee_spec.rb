@@ -95,12 +95,16 @@ describe Employee, type: :model do
     end
 
     it "should check onboarding is complete" do
-      completed = FactoryGirl.create(:employee)
-      not_completed = FactoryGirl.create(:employee)
-
-      emp_trans = FactoryGirl.create(:emp_transaction)
       sec_prof = FactoryGirl.create(:security_profile)
-      emp_sec_prof = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans.id, employee_id: completed.id, security_profile_id: sec_prof.id)
+
+      completed = FactoryGirl.create(:employee)
+      emp_trans_1 = FactoryGirl.create(:emp_transaction, kind: "Onboarding")
+      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_1.id, employee_id: completed.id, security_profile_id: sec_prof.id)
+
+      not_completed = FactoryGirl.create(:employee)
+      emp_trans_2 = FactoryGirl.create(:emp_transaction, kind: "Security Access")
+      emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_2.id, employee_id: not_completed.id, security_profile_id: sec_prof.id)
+
 
       expect(completed.onboarding_complete?).to eq(true)
       expect(not_completed.onboarding_complete?).to eq(false)

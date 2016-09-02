@@ -54,7 +54,11 @@ class Employee < ActiveRecord::Base
   end
 
   def onboarding_complete?
-    emp_transactions.count > 0
+    self.emp_transactions.where(kind: "Onboarding").count > 0
+  end
+
+  def active_security_profiles
+    self.security_profiles.references(:emp_sec_profiles).where(emp_sec_profiles: {revoke_date: nil})
   end
 
   def cn

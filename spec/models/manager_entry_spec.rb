@@ -69,7 +69,7 @@ RSpec.describe ManagerEntry do
         user_id: 12,
         buddy_id: 123,
         employee_id: employee.id,
-        security_profile_ids: [sp_2.id, sp_3.id, sp_4.id]
+        security_profile_ids: [sp_1.id, sp_3.id, sp_4.id]
       }
     end
 
@@ -91,8 +91,8 @@ RSpec.describe ManagerEntry do
       manager_entry.save
 
       expect(employee.reload.security_profiles.map(&:id)).to eq([sp_1.id, sp_2.id, sp_3.id, sp_4.id])
-      expect(esp_1.reload.revoke_date).to eq(Date.today)
-      expect(esp_2.reload.revoke_date).to eq(nil)
+      expect(esp_1.reload.revoke_date).to eq(nil)
+      expect(esp_2.reload.revoke_date).to eq(Date.today)
       expect(esp_3.reload.revoke_date).to eq(nil)
     end
 

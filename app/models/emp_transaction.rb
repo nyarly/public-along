@@ -12,6 +12,7 @@ class EmpTransaction < ActiveRecord::Base
   has_many :security_profiles, through: :emp_sec_profiles
   has_many :emp_mach_bundles
   has_many :machine_bundles, through: :emp_mach_bundles
+  # has_many :revoked_emp_sec_profiles, inverse_of: :revoking_transaction
 
   accepts_nested_attributes_for :emp_sec_profiles, :reject_if => proc { |attributes|
     attributes['create'].to_s == "0" || attributes['employee_id'].blank?

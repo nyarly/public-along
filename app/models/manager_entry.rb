@@ -34,15 +34,12 @@ class ManagerEntry
 
   def build_security_profiles
     employee = Employee.find(employee_id)
-    old_profile_ids = employee.security_profiles.map(&:id)
+    old_profile_ids = employee.active_security_profiles.map(&:id)
     new_profile_ids = security_profile_ids
 
     add_profile_ids = new_profile_ids - old_profile_ids
     revoke_profile_ids = old_profile_ids - new_profile_ids
-    # wrap in a transaction, drop the old profiles and and the new ones
-    # profiles to remove from user should have "revoked_at attr" updated with datetime and AD perms removed with a success code
-    # add just creates new emp_sec_profiles
-    #
+
     revoke_profile_ids.each do |sp_id|
       esp = EmpSecProfile.where("employee_id = ? AND security_profile_id = ? AND revoke_date IS NULL", employee_id, sp_id).first
       esp.update_attributes(revoke_date: Date.today)

@@ -8,6 +8,7 @@ class EmpSecProfile < ActiveRecord::Base
   belongs_to :emp_transaction
   belongs_to :employee
   belongs_to :security_profile
+  # belongs_to :revoking_transaction, class_name: "EmpTransaction", inverse_of: :revoked_emp_sec_profile
 
   def cannot_have_dup_active_security_profiles
     unless employee_id.blank? || security_profile_id.blank?

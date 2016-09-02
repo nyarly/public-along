@@ -30,52 +30,60 @@
   <%= @manager.first_name %> <%= @manager.last_name %>
 </p>
 
-<p>
-  <strong>Buddy:</strong>
-  <%= @buddy.first_name %> <%= @buddy.last_name %>
-</p>
+<% if @emp_transaction.kind == "Onboarding" %>
+  <p>
+    <strong>Buddy:</strong>
+    <%= @buddy.first_name %> <%= @buddy.last_name %>
+  </p>
 
-<p>
-  <strong>Contingent Worker:</strong>
+  <p>
+    <strong>Contingent Worker:</strong>
+    <div class="indent-1">
+      <ul>
+        <li>Create OpenTable Email: <%= @emp_transaction.cw_email %></li>
+        <li>Create Google Group Membership: <%= @emp_transaction.cw_google_membership %></li>
+      </ul>
+    </div>
+  </p>
+<% end %>
+
+<% if @emp_transaction.kind == "Onboarding" || @emp_transaction.kind == "Security Access" %>
+  <p>
+    <strong>Security Profiles:</strong>
+  </p>
   <div class="indent-1">
-    <ul>
-      <li>Create OpenTable Email: <%= @emp_transaction.cw_email %></li>
-      <li>Create Google Group Membership: <%= @emp_transaction.cw_google_membership %></li>
-    </ul>
+    <% @emp_transaction.security_profiles.each do |sp| %>
+      <div>
+        <%= sp.name %><br>
+        <ul>
+          <% sp.access_levels.find_each do |al| %>
+            <li class="indent-1"><small><%= al.name %> <%= al.application.name %></small></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
   </div>
-</p>
+<% end %>
 
-<p>
-  <strong>Security Profiles:</strong>
-</p>
-<div class="indent-1">
-  <% @emp_transaction.security_profiles.each do |sp| %>
-    <div>
-      <%= sp.name %><br>
-      <ul>
-        <% sp.access_levels.find_each do |al| %>
-          <li class="indent-1"><small><%= al.name %> <%= al.application.name %></small></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
-</div>
+<% if @emp_transaction.kind == "Onboarding" || @emp_transaction.kind == "Equipment" %>
+  <p>
+    <strong>Machine Bundle:</strong>
+  </p>
+  <div class="indent-1">
+    <% @emp_transaction.machine_bundles.each do |mb| %>
+      <div>
+        <%= mb.name %><br>
+        <ul>
+          <li class="indent-1"><small><%= mb.description %></small></li>
+        </ul>
+      </div>
+    <% end %>
+  </div>
+<% end %>
 
-<p>
-  <strong>Machine Bundle:</strong>
-</p>
-<div class="indent-1">
-  <% @emp_transaction.machine_bundles.each do |mb| %>
-    <div>
-      <%= mb.name %><br>
-      <ul>
-        <li class="indent-1"><small><%= mb.description %></small></li>
-      </ul>
-    </div>
-  <% end %>
-</div>
-
-<p>
-  <strong>Additional Instructions:</strong>
-  <%= @emp_transaction.notes %>
-</p>
+<% unless @emp_transaction.notes.blank? %>
+  <p>
+    <strong>Additional Instructions:</strong>
+    <%= @emp_transaction.notes %>
+  </p>
+<% end %>

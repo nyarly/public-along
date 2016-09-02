@@ -15,12 +15,16 @@ class EmpTransactionsController < ApplicationController
   def show
     authorize! :show, EmpTransaction
 
-    emp_id = @emp_transaction.emp_mach_bundles.first.employee_id
+    if @emp_transaction.kind == "Onboarding" || @emp_transaction.kind == "Equipment"
+      emp_id = @emp_transaction.emp_mach_bundles.first.employee_id
+    elsif @emp_transaction.kind == "Security Access"
+      emp_id = @emp_transaction.emp_sec_profiles.first.employee_id
+    end
     mgr_id = @emp_transaction.user_id
     buddy_id = @emp_transaction.buddy_id
     @employee = Employee.find(emp_id)
     @manager = User.find(mgr_id)
-    @buddy = Employee.find(buddy_id)
+    @buddy = Employee.find(buddy_id) if buddy_id
   end
 
   # GET /emp_transactions/new

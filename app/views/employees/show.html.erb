@@ -122,7 +122,7 @@
   <strong>Security Profiles:</strong>
 </p>
 <div class="indent-1">
-  <% @employee.security_profiles.each do |sp| %>
+  <% @employee.active_security_profiles.each do |sp| %>
     <div>
       <%= sp.name %><br>
       <ul>
