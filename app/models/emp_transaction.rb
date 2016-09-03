@@ -15,7 +15,7 @@ class EmpTransaction < ActiveRecord::Base
   has_many :revoked_emp_sec_profiles, class_name: "EmpSecProfile", inverse_of: :revoking_transaction, :foreign_key => "revoking_transaction_id"
   has_many :revoked_security_profiles, through: :revoked_emp_sec_profiles, source: :security_profile
 
-  accepts_nested_attributes_for :emp_sec_profiles, :reject_if => proc { |attributes|
-    attributes['create'].to_s == "0" || attributes['employee_id'].blank?
-  }
+  # accepts_nested_attributes_for :emp_sec_profiles, :reject_if => proc { |attributes|
+  #   attributes['create'].to_s == "0" || attributes['employee_id'].blank?
+  # }
 end

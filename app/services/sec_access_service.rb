@@ -5,16 +5,14 @@ class SecAccessService
     @emp_transaction = emp_transaction
     @add_sec_groups = []
     @revoke_sec_groups = []
-    set_employee
   end
 
   def apply_ad_permissions
-    if @emp_transaction.save
-      collect_groups
-      add_or_remove_employee_from_groups
+    collect_groups
+    set_employee
+    add_or_remove_employee_from_groups
 
-      TechTableMailer.onboarding_email(@emp_transaction, @employee).deliver_now
-    end
+    TechTableMailer.onboarding_email(@emp_transaction, @employee).deliver_now
   end
 
   def set_employee

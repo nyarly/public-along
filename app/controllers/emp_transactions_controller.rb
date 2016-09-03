@@ -18,7 +18,8 @@ class EmpTransactionsController < ApplicationController
     if @emp_transaction.kind == "Onboarding" || @emp_transaction.kind == "Equipment"
       emp_id = @emp_transaction.emp_mach_bundles.first.employee_id
     elsif @emp_transaction.kind == "Security Access"
-      emp_id = @emp_transaction.emp_sec_profiles.first.employee_id
+      emp_id = @emp_transaction.emp_sec_profiles.first.employee_id unless @emp_transaction.emp_sec_profiles.blank?
+      emp_id = @emp_transaction.revoked_emp_sec_profiles.first.employee_id if emp_id.blank?
     end
     mgr_id = @emp_transaction.user_id
     buddy_id = @emp_transaction.buddy_id
