@@ -65,20 +65,23 @@ class ManagerEntry
     ActiveRecord::Base.transaction do
       build_security_profiles unless employee_id.blank?
       build_machine_bundles
-      emp_transaction.save
+      emp_transaction.save!
 
-      emp_transaction.revoked_emp_sec_profiles.update_all(revoking_transaction_id: @emp_transaction.id)
-    end
-
-    if emp_transaction.errors.blank?
       if emp_transaction.emp_sec_profiles.count > 0 || emp_transaction.revoked_emp_sec_profiles.count > 0
         sas = SecAccessService.new(emp_transaction)
         sas.apply_ad_permissions
       end
-    else
-      @errors = emp_transaction.errors
+
+      if emp_transaction.revoked_emp_sec_profiles.count > 0
+        emp_transaction.revoked_emp_sec_profiles.update_all(revoking_transaction_id: @emp_transaction.id)
+      end
+
+      emp_transaction.errors.blank?
     end
-    errors.blank?
+
+    rescue ActiveRecord::RecordInvalid => e
+      @errors = emp_transaction.errors
+      errors.blank?
   end
 
 end
