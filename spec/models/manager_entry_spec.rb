@@ -8,7 +8,7 @@ RSpec.describe ManagerEntry do
     allow(sas).to receive(:apply_ad_permissions)
   end
 
-  context "New Hire" do
+  context "New Hire/Re-hire" do
     let(:params) do
       {
         kind: "Onboarding",
@@ -93,7 +93,4 @@ RSpec.describe ManagerEntry do
       expect(esp_3.reload.revoking_transaction_id).to be_nil
     end
    end
-
-  context "Re-hire", :pending => "need tests for re-hire situation" do
-  end
 end

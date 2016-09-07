@@ -110,6 +110,17 @@ describe Employee, type: :model do
       expect(not_completed.onboarding_complete?).to eq(false)
     end
 
+    it "should find active/revoked security profiles" do
+      emp = FactoryGirl.create(:employee)
+      sec_prof_1 = FactoryGirl.create(:security_profile)
+      sec_prof_2 = FactoryGirl.create(:security_profile)
+      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile, employee_id: emp.id, security_profile_id: sec_prof_1.id, revoking_transaction_id: 1)
+      emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile, employee_id: emp.id, security_profile_id: sec_prof_2.id, revoking_transaction_id: nil)
+
+      expect(emp.active_security_profiles).to include(sec_prof_2)
+      expect(emp.revoked_security_profiles).to include(sec_prof_1)
+    end
+
     it "should calculate an onboarding due date according to location" do
       emp_1 = FactoryGirl.create(:employee,
         hire_date: Date.new(2016, 7, 25, 2),

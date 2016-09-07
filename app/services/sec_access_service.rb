@@ -12,7 +12,7 @@ class SecAccessService
     set_employee
     add_or_remove_employee_from_groups
 
-    TechTableMailer.onboarding_email(@emp_transaction, @employee).deliver_now
+    TechTableMailer.permissions(@emp_transaction, @employee).deliver_now
   end
 
   def set_employee
@@ -22,7 +22,7 @@ class SecAccessService
       emp_id = @emp_transaction.revoked_emp_sec_profiles.first.employee_id
     end
 
-    @employee = Employee.find(emp_id)
+    @employee = Employee.find(emp_id) if emp_id
   end
 
   def collect_groups

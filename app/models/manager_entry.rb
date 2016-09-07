@@ -70,9 +70,6 @@ class ManagerEntry
       emp_transaction.revoked_emp_sec_profiles.update_all(revoking_transaction_id: @emp_transaction.id)
     end
 
-    # this rescue is blocking the rest of the following code from executing
-    # rescue ActiveRecord::RecordInvalid => invalid
-
     if emp_transaction.errors.blank?
       if emp_transaction.emp_sec_profiles.count > 0 || emp_transaction.revoked_emp_sec_profiles.count > 0
         sas = SecAccessService.new(emp_transaction)

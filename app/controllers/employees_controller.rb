@@ -7,6 +7,9 @@ class EmployeesController < ApplicationController
     @employees = Employee.all
   end
 
+  def show
+  end
+
   def new
     @employee = Employee.new
   end
@@ -17,6 +20,8 @@ class EmployeesController < ApplicationController
   def create
     @employee = Employee.new(employee_params)
     if @employee.save
+      manager = Employee.find_by(employee_id: @employee.manager_id)
+      ManagerMailer.permissions(manager, @employee, "Onboarding").deliver_now if manager
       redirect_to employees_path
     else
       render 'new'
@@ -24,7 +29,21 @@ class EmployeesController < ApplicationController
   end
 
   def update
+    @employee.assign_attributes(employee_params)
+
+    manager = Employee.find_by(employee_id: @employee.manager_id)
+    if manager.present?
+      # Re-hire
+      if @employee.hire_date_changed? && @employee.termination_date_changed?
+        mailer = ManagerMailer.permissions(manager, @employee, "Onboarding")
+      # Job Change requiring security access changes
+      elsif @employee.manager_id_changed? || @employee.business_title_changed?
+        mailer = ManagerMailer.permissions(manager, @employee, "Security Access")
+      end
+    end
+
     if @employee.update(employee_params)
+      mailer.deliver_now if mailer.present?
       redirect_to employees_path, notice: "#{@employee.cn} was successfully updated."
     else
       render :edit

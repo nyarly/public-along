@@ -7,10 +7,10 @@ class TechTableMailer < ApplicationMailer
     mail(subject: "ALERT: Mezzo Error")
   end
 
-  def onboarding_email(emp_transaction, employee)
+  def permissions(emp_transaction, employee)
     @emp_transaction = emp_transaction
     @employee = employee
     @manager = User.find(@emp_transaction.user_id)
-    mail(subject: "ALERT: Onboarding Request")
+    mail(subject: "IMMEDIATE ACTION REQUIRED: #{emp_transaction.kind} request for #{employee.first_name} #{employee.last_name}")
   end
 end
