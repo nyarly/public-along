@@ -114,6 +114,11 @@ class ActiveDirectoryService
     ldap_success_check(employee, "ERROR: Could not successfully add #{employee.cn} to #{sec_dn}.")
   end
 
+  def remove_from_sec_group(sec_dn, employee)
+    ldap.modify :dn => sec_dn, :operations => [[:delete, :member, employee.dn]]
+    ldap_success_check(employee, "ERROR: Could not successfully delete #{employee.cn} from #{sec_dn}.")
+  end
+
   def assign_sAMAccountName(employee)
     first = I18n.transliterate(employee.first_name).downcase.gsub(/[^a-z]/i, '')
     last = I18n.transliterate(employee.last_name).downcase.gsub(/[^a-z]/i, '')
@@ -161,6 +166,8 @@ class ActiveDirectoryService
   def ldap_success_check(employee, error_message)
     if ldap.get_operation_result.code == 0
       employee.update_attributes(:ad_updated_at => DateTime.now)
+    elsif ldap.get_operation_result.code == 68 # 68 code is returned if the attr already exists in AD. Just return true in this case
+      true
     else
       TechTableMailer.alert_email(error_message).deliver_now
     end

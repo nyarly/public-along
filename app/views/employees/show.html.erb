@@ -118,6 +118,22 @@
   <%= @employee.updated_at %>
 </p>
 
+<p>
+  <strong>Active Security Profiles:</strong>
+</p>
+<div class="indent-1">
+  <% @employee.active_security_profiles.each do |sp| %>
+    <div>
+      <%= sp.name %><br>
+      <ul>
+        <% sp.access_levels.find_each do |al| %>
+          <li class="indent-1"><small><%= al.name %> <%= al.application.name %></small></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+</div>
+
 
 <%= link_to 'Edit', edit_employee_path(@employee) %> |
 <%= link_to 'Back', employees_path %>

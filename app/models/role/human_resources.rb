@@ -11,6 +11,7 @@ class Role::HumanResources < Role::Basic
     ability.can :manage, Location
     # Move to Manager Abilities
     ability.can :new, EmpTransaction
+    ability.can :show, EmpTransaction, :user_id => user.id
     ability.can :create, EmpTransaction, :user_id => user.id
     ability.can :create, ManagerEntry, :user_id => user.id
   end

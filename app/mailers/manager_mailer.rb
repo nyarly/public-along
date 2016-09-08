@@ -1,7 +1,8 @@
 class ManagerMailer < ApplicationMailer
-  def permissions(manager, employee)
+  def permissions(manager, employee, kind)
     @manager = manager
     @employee = employee
-    mail(to: @manager.email, subject: "IMMEDIATE ACTION REQUIRED: Onboarding forms for new hire - #{employee.first_name} #{employee.last_name}")
+    @kind = kind
+    mail(to: @manager.email, subject: "IMMEDIATE ACTION REQUIRED: #{kind} forms for #{employee.first_name} #{employee.last_name}")
   end
 end

@@ -69,7 +69,7 @@ describe ActiveDirectoryService, type: :service do
 
     it "should fail and send alert email if it is a contract worker and there is no contract end date set" do
       invalid_contract_worker = FactoryGirl.create(:employee, employee_type: "Contract", contract_end_date: nil)
-      emp_trans = FactoryGirl.create(:emp_transaction)
+      emp_trans = FactoryGirl.create(:emp_transaction, kind: "Onboarding")
       sec_prof = FactoryGirl.create(:security_profile)
       emp_sec_prof = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans.id, employee_id: invalid_contract_worker.id, security_profile_id: sec_prof.id)
 
@@ -80,7 +80,7 @@ describe ActiveDirectoryService, type: :service do
 
     it "should activate for properly set contract worker" do
       valid_contract_worker = FactoryGirl.create(:employee, employee_type: "Contract", contract_end_date: 3.months.from_now)
-      emp_trans = FactoryGirl.create(:emp_transaction)
+      emp_trans = FactoryGirl.create(:emp_transaction, kind: "Onboarding")
       sec_prof = FactoryGirl.create(:security_profile)
       emp_sec_prof = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans.id, employee_id: valid_contract_worker.id, security_profile_id: sec_prof.id)
 

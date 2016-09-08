@@ -22,8 +22,6 @@ class Employee < ActiveRecord::Base
   has_many :security_profiles, through: :emp_sec_profiles
   has_many :emp_transactions, through: :emp_sec_profiles
 
-  after_create :email_manager
-
   attr_accessor :sAMAccountName
   attr_accessor :nearest_time_zone
 
@@ -54,7 +52,15 @@ class Employee < ActiveRecord::Base
   end
 
   def onboarding_complete?
-    emp_transactions.count > 0
+    self.emp_transactions.where(kind: "Onboarding").count > 0
+  end
+
+  def active_security_profiles
+    self.security_profiles.references(:emp_sec_profiles).where(emp_sec_profiles: {revoking_transaction_id: nil})
+  end
+
+  def revoked_security_profiles
+    self.security_profiles.references(:emp_sec_profiles).where("emp_sec_profiles.revoking_transaction_id IS NOT NULL")
   end
 
   def cn
@@ -160,10 +166,5 @@ class Employee < ActiveRecord::Base
     else
       10.business_days.before(hire_date + 9.hours).strftime("%b %e, %Y")
     end
-  end
-
-  def email_manager
-    manager = Employee.find_by(employee_id: self.manager_id)
-    ManagerMailer.permissions(manager, self).deliver_now if manager
   end
 end

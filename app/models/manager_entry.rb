@@ -33,9 +33,21 @@ class ManagerEntry
   end
 
   def build_security_profiles
-    security_profile_ids.each do |sp_id|
+    employee = Employee.find(employee_id)
+    old_profile_ids = employee.active_security_profiles.map(&:id)
+    new_profile_ids = security_profile_ids
+
+    add_profile_ids = new_profile_ids - old_profile_ids
+    revoke_profile_ids = old_profile_ids - new_profile_ids
+
+    revoke_profile_ids.each do |sp_id|
+      esp = EmpSecProfile.where("employee_id = ? AND security_profile_id = ? AND revoking_transaction_id IS NULL", employee_id, sp_id).first
+      emp_transaction.revoked_emp_sec_profiles << esp
+    end unless revoke_profile_ids.blank?
+
+    add_profile_ids.each do |sp_id|
       emp_transaction.emp_sec_profiles.build(security_profile_id: sp_id, employee_id: employee_id)
-    end unless security_profile_ids.blank?
+    end unless add_profile_ids.blank?
   end
 
   def build_machine_bundles
@@ -50,18 +62,26 @@ class ManagerEntry
   end
 
   def save
-    build_security_profiles
-    build_machine_bundles
-    @emp_transaction.save
-    if @emp_transaction.errors.blank?
-      unless security_profile_ids.blank?
-        sas = SecAccessService.new(@emp_transaction)
+    ActiveRecord::Base.transaction do
+      build_security_profiles unless employee_id.blank?
+      build_machine_bundles
+      emp_transaction.save!
+
+      if emp_transaction.emp_sec_profiles.count > 0 || emp_transaction.revoked_emp_sec_profiles.count > 0
+        sas = SecAccessService.new(emp_transaction)
         sas.apply_ad_permissions
       end
-    else
-      @errors = @emp_transaction.errors
+
+      if emp_transaction.revoked_emp_sec_profiles.count > 0
+        emp_transaction.revoked_emp_sec_profiles.update_all(revoking_transaction_id: @emp_transaction.id)
+      end
+
+      emp_transaction.errors.blank?
     end
-    errors.blank?
+
+    rescue ActiveRecord::RecordInvalid => e
+      @errors = emp_transaction.errors
+      errors.blank?
   end
 
 end

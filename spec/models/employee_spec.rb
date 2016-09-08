@@ -95,15 +95,30 @@ describe Employee, type: :model do
     end
 
     it "should check onboarding is complete" do
-      completed = FactoryGirl.create(:employee)
-      not_completed = FactoryGirl.create(:employee)
-
-      emp_trans = FactoryGirl.create(:emp_transaction)
       sec_prof = FactoryGirl.create(:security_profile)
-      emp_sec_prof = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans.id, employee_id: completed.id, security_profile_id: sec_prof.id)
+
+      completed = FactoryGirl.create(:employee)
+      emp_trans_1 = FactoryGirl.create(:emp_transaction, kind: "Onboarding")
+      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_1.id, employee_id: completed.id, security_profile_id: sec_prof.id)
+
+      not_completed = FactoryGirl.create(:employee)
+      emp_trans_2 = FactoryGirl.create(:emp_transaction, kind: "Security Access")
+      emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_2.id, employee_id: not_completed.id, security_profile_id: sec_prof.id)
+
 
       expect(completed.onboarding_complete?).to eq(true)
       expect(not_completed.onboarding_complete?).to eq(false)
+    end
+
+    it "should find active/revoked security profiles" do
+      emp = FactoryGirl.create(:employee)
+      sec_prof_1 = FactoryGirl.create(:security_profile)
+      sec_prof_2 = FactoryGirl.create(:security_profile)
+      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile, employee_id: emp.id, security_profile_id: sec_prof_1.id, revoking_transaction_id: 1)
+      emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile, employee_id: emp.id, security_profile_id: sec_prof_2.id, revoking_transaction_id: nil)
+
+      expect(emp.active_security_profiles).to include(sec_prof_2)
+      expect(emp.revoked_security_profiles).to include(sec_prof_1)
     end
 
     it "should calculate an onboarding due date according to location" do
