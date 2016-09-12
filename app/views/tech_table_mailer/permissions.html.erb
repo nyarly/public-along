@@ -11,6 +11,11 @@
     <%= @employee.cn %>
   </p>
 
+   <p>
+    <strong>EmployeeID:</strong>
+    <%= @employee.employee_id %>
+  </p>
+
   <p>
     <strong>Title:</strong>
     <%= @employee.business_title %>
@@ -41,8 +46,8 @@
       <strong>Contingent Worker:</strong>
       <div style="margin-left: 2em">
         <ul>
-          <li style="color: <%= @emp_transaction.cw_email ? 'red' : 'limegreen' %>"><p>Create OpenTable Email: <%= @emp_transaction.cw_email %></p></li>
-          <li style="color: <%= @emp_transaction.cw_google_membership ? 'red' : 'limegreen' %>"><p>Create Google Group Membership: <%= @emp_transaction.cw_google_membership %></p></li>
+          <li style="color: <%= @emp_transaction.onboarding_infos.first.cw_email ? 'red' : 'limegreen' %>"><p>Create OpenTable Email: <%= @emp_transaction.onboarding_infos.first.cw_email %></p></li>
+          <li style="color: <%= @emp_transaction.onboarding_infos.first.cw_google_membership ? 'red' : 'limegreen' %>"><p>Create Google Group Membership: <%= @emp_transaction.onboarding_infos.first.cw_google_membership %></p></li>
         </ul>
       </div>
     </p>
@@ -111,6 +116,27 @@
         </div>
       <% end %>
     </div>
+  <% end %>
+
+  <% if @emp_transaction.kind == "Offboarding" %>
+    <p>
+      <strong>Archive Data:</strong>
+      <span style="color: <%= @emp_transaction.offboarding_infos.first.archive_data ? 'red' : 'limegreen' %>"><%= @emp_transaction.offboarding_infos.first.archive_data %></span>
+    </p>
+    <p>
+      <strong>Forward Email To:</strong>
+      <span style="color: red"><%= Employee.find(@emp_transaction.offboarding_infos.first.forward_email_id).cn %></span>
+    </p>
+    <p>
+      <strong>Reassign Salesforce Cases To:</strong>
+      <span style="color: red"><%= Employee.find(@emp_transaction.offboarding_infos.first.reassign_salesforce_id).cn %></span>
+    </p>
+    <% unless @emp_transaction.offboarding_infos.first.transfer_google_docs_id.blank? %>
+      <p>
+        <strong>Transfer Google Docs To:</strong>
+        <span style="color: red"><%= Employee.find(@emp_transaction.offboarding_infos.first.transfer_google_docs_id).cn %></span>
+      </p>
+    <% end %>
   <% end %>
 
   <p>

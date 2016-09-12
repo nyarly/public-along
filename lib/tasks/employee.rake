@@ -15,12 +15,22 @@ namespace :employee do
 
     Employee.deactivation_group.each do |e|
       # Collect employees to deactivate if it is 9-10pm on their end date or day before leave start date in their respective nearest time zone
-      if e.leave_start_date
-        deactivations << e if in_time_window?(e.leave_start_date - 1.day, 21, e.nearest_time_zone)
-      else
-        deactivations << e if in_time_window?(e.contract_end_date, 21, e.nearest_time_zone)
+      if e.leave_start_date && in_time_window?(e.leave_start_date - 1.day, 21, e.nearest_time_zone)
+        deactivations << e
+      elsif e.contract_end_date && in_time_window?(e.contract_end_date, 21, e.nearest_time_zone)
+        deactivations << e
+      elsif e.termination_date && in_time_window?(e.termination_date, 21, e.nearest_time_zone)
+        deactivations << e
+      end
+
+      # Send manager offboarding email when it is 3-4am on their termination date in their respective nearest time zone
+      if e.termination_date && in_time_window?(e.termination_date, 3, e.nearest_time_zone)
+        manager = Employee.find_by(employee_id: e.manager_id)
+        ManagerMailer.permissions(manager, e, "Offboarding").deliver_now if manager
       end
     end
+
+
 
     ads = ActiveDirectoryService.new
     ads.activate(activations)

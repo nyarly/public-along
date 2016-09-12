@@ -33,10 +33,16 @@ RSpec.describe ManagerEntry do
     it "should create an emp_transaction with the right attrs" do
       expect(manager_entry.emp_transaction.kind).to eq("Onboarding")
       expect(manager_entry.emp_transaction.user_id).to eq(12)
-      expect(manager_entry.emp_transaction.buddy_id).to eq(123)
-      expect(manager_entry.emp_transaction.cw_email).to eq(true)
-      expect(manager_entry.emp_transaction.cw_google_membership).to eq(false)
       expect(manager_entry.emp_transaction.notes).to eq("These notes")
+    end
+
+    it "should create onboarding info" do
+      manager_entry.save
+
+      expect(manager_entry.emp_transaction.onboarding_infos.count).to eq(1)
+      expect(manager_entry.emp_transaction.onboarding_infos.first.buddy_id).to eq(123)
+      expect(manager_entry.emp_transaction.onboarding_infos.first.cw_email).to eq(true)
+      expect(manager_entry.emp_transaction.onboarding_infos.first.cw_google_membership).to eq(false)
     end
 
     it "should create security profiles" do
@@ -58,7 +64,7 @@ RSpec.describe ManagerEntry do
 
       manager_entry.save
 
-      expect(manager_entry.errors.messages).to eq({:emp_mach_bundles=>["is invalid"]})
+      expect(manager_entry.errors.messages).to eq({:base => ["Employee can not be blank. Please revisit email link to refresh page."]})
     end
   end
 
@@ -91,6 +97,38 @@ RSpec.describe ManagerEntry do
       expect(esp_1.reload.revoking_transaction_id).to be_nil
       expect(esp_2.reload.revoking_transaction_id).to_not be_nil
       expect(esp_3.reload.revoking_transaction_id).to be_nil
+    end
+   end
+
+   context "Offboarding" do
+    let(:params) do
+      {
+        kind: "Offboarding",
+        user_id: 12,
+        employee_id: employee.id,
+        archive_data: true,
+        replacement_hired: false,
+        forward_email_id: 456,
+        reassign_salesforce_id: 234,
+        transfer_google_docs_id: 122,
+        notes: "stuff"
+      }
+    end
+
+    let(:manager_entry) { ManagerEntry.new(params) }
+    let!(:employee) { FactoryGirl.create(:employee) }
+
+    it "should create offboarding info" do
+      manager_entry.save
+
+      expect(manager_entry.emp_transaction.offboarding_infos.count).to eq(1)
+      expect(manager_entry.emp_transaction.offboarding_infos.first.archive_data).to eq(true)
+      expect(manager_entry.emp_transaction.offboarding_infos.first.replacement_hired).to eq(false)
+      expect(manager_entry.emp_transaction.offboarding_infos.first.forward_email_id).to eq(456)
+      expect(manager_entry.emp_transaction.offboarding_infos.first.reassign_salesforce_id).to eq(234)
+      expect(manager_entry.emp_transaction.offboarding_infos.first.transfer_google_docs_id).to eq(122)
+      expect(manager_entry.emp_transaction.notes).to eq("stuff")
+
     end
    end
 end

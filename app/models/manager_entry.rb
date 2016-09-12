@@ -13,6 +13,11 @@ class ManagerEntry
   attribute :buddy_id, Integer
   attribute :cw_email, Boolean
   attribute :cw_google_membership, Boolean
+  attribute :archive_data, Boolean
+  attribute :replacement_hired, Boolean
+  attribute :forward_email_id, Integer
+  attribute :reassign_salesforce_id, Integer
+  attribute :transfer_google_docs_id, Integer
   attribute :security_profile_ids, Array[Integer]
   attribute :machine_bundle_id, Integer
   attribute :notes, String
@@ -25,9 +30,6 @@ class ManagerEntry
     @emp_transaction ||= EmpTransaction.new(
       kind: kind,
       user_id: user_id,
-      buddy_id: buddy_id,
-      cw_email: cw_email,
-      cw_google_membership: cw_google_membership,
       notes: notes
     )
   end
@@ -51,20 +53,52 @@ class ManagerEntry
   end
 
   def build_machine_bundles
-    unless machine_bundle_id.blank?
-      machine_bundle = MachineBundle.find(machine_bundle_id)
-      emp_transaction.emp_mach_bundles.build(
-        machine_bundle_id: machine_bundle_id,
-        employee_id: employee_id,
-        details: {machine_bundle.name.to_sym => machine_bundle.description}
-      )
-    end
+    machine_bundle = MachineBundle.find(machine_bundle_id)
+    emp_transaction.emp_mach_bundles.build(
+      machine_bundle_id: machine_bundle_id,
+      employee_id: employee_id,
+      details: {machine_bundle.name.to_sym => machine_bundle.description}
+    )
+  end
+
+  def build_onboarding
+    emp_transaction.onboarding_infos.build(
+      employee_id: employee_id,
+      buddy_id: buddy_id,
+      cw_email: cw_email,
+      cw_google_membership: cw_google_membership
+    )
+  end
+
+  def build_offboarding
+    emp_transaction.offboarding_infos.build(
+      employee_id: employee_id,
+      archive_data: archive_data,
+      replacement_hired: replacement_hired,
+      forward_email_id: forward_email_id,
+      reassign_salesforce_id: reassign_salesforce_id,
+      transfer_google_docs_id: transfer_google_docs_id
+    )
   end
 
   def save
     ActiveRecord::Base.transaction do
-      build_security_profiles unless employee_id.blank?
-      build_machine_bundles
+      if !employee_id.blank?
+        if kind == "Onboarding"
+          build_onboarding
+          build_security_profiles
+          build_machine_bundles
+        elsif kind == "Security Access"
+          build_security_profiles
+        end
+      else
+        emp_transaction.errors.add(:base, :employee_blank, message: "Employee can not be blank. Please revisit email link to refresh page.")
+        raise ActiveRecord::RecordInvalid.new(emp_transaction)
+      end
+
+      build_machine_bundles if kind == "Equipment"
+      build_offboarding if kind == "Offboarding"
+
       emp_transaction.save!
 
       if emp_transaction.emp_sec_profiles.count > 0 || emp_transaction.revoked_emp_sec_profiles.count > 0

@@ -40,8 +40,8 @@
     <strong>Contingent Worker:</strong>
     <div class="indent-1">
       <ul>
-        <li>Create OpenTable Email: <%= @emp_transaction.cw_email %></li>
-        <li>Create Google Group Membership: <%= @emp_transaction.cw_google_membership %></li>
+        <li>Create OpenTable Email: <%= @emp_transaction.onboarding_infos.first.cw_email %></li>
+        <li>Create Google Group Membership: <%= @emp_transaction.onboarding_infos.first.cw_google_membership %></li>
       </ul>
     </div>
   </p>
@@ -97,6 +97,33 @@
       </div>
     <% end %>
   </div>
+<% end %>
+
+<% if @emp_transaction.kind == "Offboarding" %>
+  <p>
+    <strong>Archive Data:</strong>
+    <%= @emp_transaction.offboarding_infos.first.archive_data %>
+  </p>
+
+  <p>
+    <strong>Replacement Hired:</strong>
+    <%= @emp_transaction.offboarding_infos.first.replacement_hired %>
+  </p>
+
+  <p>
+    <strong>Forward Email To:</strong>
+    <%= Employee.find(@emp_transaction.offboarding_infos.first.forward_email_id).cn %>
+  </p>
+
+  <p>
+    <strong>Reassign SalesForce Cases To:</strong>
+    <%= Employee.find(@emp_transaction.offboarding_infos.first.reassign_salesforce_id).cn %>
+  </p>
+
+  <p>
+    <strong>Transfer GoogleDocs To:</strong>
+    <%= Employee.find(@emp_transaction.offboarding_infos.first.transfer_google_docs_id).cn %>
+  </p>
 <% end %>
 
 <% unless @emp_transaction.notes.blank? %>

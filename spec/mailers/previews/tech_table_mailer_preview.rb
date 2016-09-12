@@ -5,13 +5,19 @@ class TechTableMailerPreview < ActionMailer::Preview
   end
 
   def onboarding_permissions
-    emp_trans = EmpTransaction.where(kind: "Onboarding").first
-    emp = Employee.find(emp_trans.emp_mach_bundles.first.employee_id)
+    emp_trans = EmpTransaction.where(kind: "Onboarding").last
+    emp = Employee.find(emp_trans.onboarding_infos.first.employee_id)
+    TechTableMailer.permissions(emp_trans, emp)
+  end
+
+  def offboarding_permissions
+    emp_trans = EmpTransaction.where(kind: "Offboarding").last
+    emp = Employee.find(emp_trans.offboarding_infos.first.employee_id)
     TechTableMailer.permissions(emp_trans, emp)
   end
 
   def security_access_permissions
-    emp_trans = EmpTransaction.where(kind: "Security Access").first
+    emp_trans = EmpTransaction.where(kind: "Security Access").last
     if emp_trans.emp_sec_profiles.count > 0
       emp_id = emp_trans.emp_sec_profiles.first.employee_id
     elsif emp_trans.revoked_emp_sec_profiles.count > 0
@@ -22,7 +28,7 @@ class TechTableMailerPreview < ActionMailer::Preview
   end
 
   def equipment_permissions
-    emp_trans = EmpTransaction.where(kind: "Equipment").first
+    emp_trans = EmpTransaction.where(kind: "Equipment").last
     emp = Employee.find(emp_trans.emp_mach_bundles.first.employee_id)
     TechTableMailer.permissions(emp_trans, emp)
   end
