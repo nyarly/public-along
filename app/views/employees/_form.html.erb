@@ -2,7 +2,7 @@
   <%= f.text_field :first_name, label: "Preferred First Name" %>
   <%= f.text_field :last_name, label: "Preferred Last Name" %>
   <%= f.text_field :employee_id, label: "Worker ID - From ADP" %>
-  <%= f.select :employee_type, ["Regular", "Contract", "Intern"], {label: "Worker Type"} %>
+  <%= f.select :employee_type, Employee::TYPES, {label: "Worker Type"} %>
   <div class="date-select">
     <%= f.date_select :hire_date, {:order => [:month, :day, :year], :include_blank => true, :default => nil} %>
   </div>

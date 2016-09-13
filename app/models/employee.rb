@@ -1,4 +1,5 @@
 class Employee < ActiveRecord::Base
+  TYPES = ["Regular", "Temporary", "Contingent", "Agency", "Contract"]
 
   validates :first_name,
             presence: true
@@ -21,6 +22,7 @@ class Employee < ActiveRecord::Base
   has_many :emp_sec_profiles
   has_many :security_profiles, through: :emp_sec_profiles
   has_many :emp_transactions, through: :emp_sec_profiles
+  has_many :offboarding_infos
 
   attr_accessor :sAMAccountName
   attr_accessor :nearest_time_zone
@@ -40,7 +42,7 @@ class Employee < ActiveRecord::Base
   end
 
   def self.deactivation_group
-    where('contract_end_date BETWEEN ? AND ? OR leave_start_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow)
+    where('contract_end_date BETWEEN ? AND ? OR leave_start_date BETWEEN ? AND ? OR termination_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow)
   end
 
   def contract_end_date_needed?

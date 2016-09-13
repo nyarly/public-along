@@ -10,6 +10,8 @@ describe "employee rake tasks", type: :tasks do
   let!(:melbourne) { Location.find_by(:name => "OT Melbourne") }
   let!(:illinois) { Location.find_by(:name => "OT Illinois") }
 
+  let(:mailer) { double(ManagerMailer) }
+
   context "employee:change_status" do
     before :each do
       Rake.application = Rake::Application.new
@@ -105,7 +107,8 @@ describe "employee rake tasks", type: :tasks do
     end
 
     it "should call ldap and update only terminations or workers on leave at 9pm in IST" do
-      termination = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :contract_end_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "OT General Engineering").id, :location_id => mumbai.id)
+      contract_end = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :contract_end_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "OT General Engineering").id, :location_id => mumbai.id)
+      termination = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :termination_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "OT General Engineering").id, :location_id => mumbai.id)
       leave = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :leave_start_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "OT Data Center Ops").id, :location_id => mumbai.id)
       new_hire_in = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "OT Data Analytics").id, :location_id => mumbai.id)
       new_hire_us = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :location_id => sf.id)
@@ -113,6 +116,14 @@ describe "employee rake tasks", type: :tasks do
       # 7/29/2016 at 9pm IST/3:30pm UTC
       Timecop.freeze(Time.new(2016, 7, 29, 15, 30, 0, "+00:00"))
 
+      expect(@ldap).to receive(:replace_attribute).once.with(
+        contract_end.dn, :userAccountControl, "514"
+      )
+      expect(@ldap).to receive(:rename).once.with({
+        :olddn=>contract_end.dn,
+        :newrdn=>"cn=#{contract_end.cn}",
+        :delete_attributes=>true,
+        :new_superior=>"ou=Disabled Users,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com"})
       expect(@ldap).to receive(:replace_attribute).once.with(
         termination.dn, :userAccountControl, "514"
       )
@@ -129,6 +140,20 @@ describe "employee rake tasks", type: :tasks do
       )
 
       allow(@ldap).to receive(:get_operation_result)
+      Rake::Task["employee:change_status"].invoke
+    end
+
+    it "should send offboarding email to manager at 3am on termination date in US" do
+      termination = FactoryGirl.create(:employee, :manager_id => "12345", :hire_date => Date.new(2014, 5, 3), :termination_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "OT General Engineering").id, :location_id => sf.id)
+      termination_uk = FactoryGirl.create(:employee, :manager_id => "12345", :hire_date => Date.new(2014, 5, 3), :termination_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "OT General Engineering").id, :location_id => london.id)
+      manager = FactoryGirl.create(:employee, :employee_id => "12345")
+
+      # 7/29/2016 at 3am PST/10am UTC
+      Timecop.freeze(Time.new(2016, 7, 29, 10, 0, 0, "+00:00"))
+
+      expect(ManagerMailer).to receive(:permissions).with(manager, termination, "Offboarding").and_return(mailer)
+      expect(ManagerMailer).to_not receive(:permissions).with(manager, termination_uk, "Offboarding")
+      expect(mailer).to receive(:deliver_now)
       Rake::Task["employee:change_status"].invoke
     end
   end
