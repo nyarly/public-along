@@ -54,6 +54,12 @@ class ActiveDirectoryService
     end
   end
 
+  def terminate(employees)
+    employees.each do |e|
+      # remove from all groups
+    end
+  end
+
   def update(employees)
     employees.each do |e|
       ldap_entry = find_entry("employeeID", e.employee_id).first

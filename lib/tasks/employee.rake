@@ -3,6 +3,7 @@ namespace :employee do
   task :change_status => :environment do
     activations = []
     deactivations = []
+    terminations = []
 
     Employee.activation_group.each do |e|
       # Collect employees to activate if it is 3-4am on their hire date or leave return date in their respective nearest time zone
@@ -20,7 +21,7 @@ namespace :employee do
       elsif e.contract_end_date && in_time_window?(e.contract_end_date, 21, e.nearest_time_zone)
         deactivations << e
       elsif e.termination_date && in_time_window?(e.termination_date, 21, e.nearest_time_zone)
-        deactivations << e
+        terminations << e
       end
 
       # Send manager offboarding email when it is 3-4am on their termination date in their respective nearest time zone
@@ -35,6 +36,7 @@ namespace :employee do
     ads = ActiveDirectoryService.new
     ads.activate(activations)
     ads.deactivate(deactivations)
+    ads.terminate(terminations)
   end
 
   desc "parse latest xml file to active directory"

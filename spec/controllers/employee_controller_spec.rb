@@ -6,6 +6,7 @@ RSpec.describe EmployeesController, type: :controller do
   let!(:manager) { FactoryGirl.create(:employee) }
   let!(:user) { FactoryGirl.create(:user, :role_name => "Admin", employee_id: manager.employee_id) }
   let!(:mailer) { double(ManagerMailer) }
+  let!(:ads) { double(ActiveDirectoryService) }
 
   let(:valid_attributes) {
     {
@@ -84,6 +85,14 @@ RSpec.describe EmployeesController, type: :controller do
         expect(assigns(:employee)).to be_persisted
       end
 
+      it "sends a new employee to AD" do
+        allow(ManagerMailer).to receive_message_chain(:permissions, :deliver_now)
+
+        expect(ActiveDirectoryService).to receive(:new).and_return(ads)
+        expect(ads).to receive(:create_disabled_accounts)
+        post :create, {:employee => valid_attributes}
+      end
+
       it "sends an email to the manager" do
         expect(ManagerMailer).to receive_message_chain(:permissions, :deliver_now)
 
@@ -105,7 +114,7 @@ RSpec.describe EmployeesController, type: :controller do
       end
 
       it "should not send an email to the manager" do
-        allow(ManagerMailer).to receive(:permissions)
+        expect(ManagerMailer).to_not receive(:permissions)
 
         post :create, {:employee => invalid_attributes}
       end
@@ -141,6 +150,13 @@ RSpec.describe EmployeesController, type: :controller do
       it "assigns the requested employee as @employee" do
         put :update, {:id => employee.id, :employee => valid_attributes}
         expect(assigns(:employee)).to eq(employee)
+      end
+
+      it "sends a updated employee to AD" do
+        expect(ActiveDirectoryService).to receive(:new).and_return(ads)
+        expect(ads).to receive(:update)
+
+        put :update, {:id => employee.id, :employee => new_attributes}
       end
 
       it "redirects to the employee" do

@@ -22,6 +22,10 @@ class EmployeesController < ApplicationController
     if @employee.save
       manager = Employee.find_by(employee_id: @employee.manager_id)
       ManagerMailer.permissions(manager, @employee, "Onboarding").deliver_now if manager
+
+      ads = ActiveDirectoryService.new
+      ads.create_disabled_accounts([@employee])
+
       redirect_to employees_path
     else
       render 'new'
@@ -32,6 +36,8 @@ class EmployeesController < ApplicationController
     @employee.assign_attributes(employee_params)
 
     manager = Employee.find_by(employee_id: @employee.manager_id)
+    mailer = nil
+
     if manager.present?
       # Re-hire
       if @employee.hire_date_changed? && @employee.termination_date_changed?
@@ -44,6 +50,10 @@ class EmployeesController < ApplicationController
 
     if @employee.update(employee_params)
       mailer.deliver_now if mailer.present?
+
+      ads = ActiveDirectoryService.new
+      ads.update([@employee])
+
       redirect_to employees_path, notice: "#{@employee.cn} was successfully updated."
     else
       render :edit
