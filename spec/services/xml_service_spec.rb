@@ -5,6 +5,7 @@ describe XmlService, type: :service do
 
   context "New Hire" do
     let(:file) { File.open(Rails.root.to_s+'/spec/fixtures/new_hire.xml') }
+    let(:mailer) { double(ManagerMailer) }
 
     it "should create a new Employee from xml with correct info for a new hire" do
       existing_employee_1 = FactoryGirl.create(:employee, :employee_id => "109640")
@@ -37,6 +38,15 @@ describe XmlService, type: :service do
       expect(Employee.find_by(:first_name => "Jeffrey").home_state).to be_nil
       expect(Employee.find_by(:first_name => "Jeffrey").home_zip).to be_nil
       expect(Employee.find_by(:first_name => "Jeffrey").ad_updated_at).to be_nil
+    end
+
+    it "should send the manager an Onboarding Email" do
+      manager = FactoryGirl.create(:employee, :employee_id => "12100123")
+
+      expect(ManagerMailer).to receive(:permissions).once.and_return(mailer)
+      expect(mailer).to receive(:deliver_now)
+
+      xml.parse_to_db
     end
 
     it "should have a contract end date for a contingent worker" do
@@ -115,6 +125,7 @@ describe XmlService, type: :service do
     }
     let!(:previous_leave_emp) { FactoryGirl.create(:employee,
       :employee_id => "1234567",
+      :business_title => "Rich Guy",
       :hire_date => DateTime.new(2005, 2, 1),
       :leave_start_date => DateTime.new(2014, 5, 14),
       :leave_return_date => DateTime.new(2014, 6, 14))
@@ -128,6 +139,25 @@ describe XmlService, type: :service do
 
       expect(employee.reload.business_title).to eq("Sr. Software Development Team Lead")
       expect(employee.reload.image_code).to eq(IMAGE)
+    end
+
+    it "should send a Security Access Mailer for a business_title change" do
+      manager = FactoryGirl.create(:employee, :employee_id => "12100123")
+      expect(ManagerMailer).to receive(:permissions).with(manager, employee, "Security Access")
+
+      xml.parse_to_db
+    end
+
+    it "should send an Onboarding email for a rehire" do
+      employee.hire_date = employee.hire_date - 5.years
+      employee.termination_date = employee.hire_date - 3.years
+      employee.save!
+
+      manager = FactoryGirl.create(:employee, :employee_id => "12100123")
+
+      expect(ManagerMailer).to receive(:permissions).with(manager, employee, "Onboarding")
+
+      xml.parse_to_db
     end
 
     it "should terminate an existing Employee for an existing worker" do

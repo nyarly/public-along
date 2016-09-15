@@ -258,8 +258,8 @@
       <ws:Business_Site_Region ws:PriorValue="">California</ws:Business_Site_Region>
       <ws:Business_Site_Postal_Code ws:PriorValue="">90028</ws:Business_Site_Postal_Code>
       <ws:Business_Site_Country ws:PriorValue="">US</ws:Business_Site_Country>
-      <ws:Supervisor_ID ws:PriorValue="">12100123</ws:Supervisor_ID>
-      <ws:Supervisor_Name ws:PriorValue="">The Big Lebowski</ws:Supervisor_Name>
+      <ws:Supervisor_ID ws:PriorValue="">12101034</ws:Supervisor_ID>
+      <ws:Supervisor_Name ws:PriorValue="">Connie Chen</ws:Supervisor_Name>
     </ws:Position>
     <ws:Leave_of_Absence>
       <ws:Operation>ADD</ws:Operation>
@@ -401,8 +401,8 @@
       <ws:Business_Site_Region ws:PriorValue="">California</ws:Business_Site_Region>
       <ws:Business_Site_Postal_Code ws:PriorValue="">90028</ws:Business_Site_Postal_Code>
       <ws:Business_Site_Country ws:PriorValue="">US</ws:Business_Site_Country>
-      <ws:Supervisor_ID ws:PriorValue="">12100123</ws:Supervisor_ID>
-      <ws:Supervisor_Name ws:PriorValue="">Brandt</ws:Supervisor_Name>
+      <ws:Supervisor_ID ws:PriorValue="">12101034</ws:Supervisor_ID>
+      <ws:Supervisor_Name ws:PriorValue="">Connie Chen</ws:Supervisor_Name>
     </ws:Position>
     <ws:Leave_of_Absence>
       <ws:Operation>ADD</ws:Operation>
