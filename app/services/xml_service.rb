@@ -134,41 +134,32 @@ class XmlService
     e = Employee.where(:employee_id => attrs[:employee_id]).try(:first)
 
     if e.present?
-      e.assign_attributes(attrs)
-      # manager = Employee.find_by(employee_id: e.manager_id)
-      # mailer = nil
-      if e.changed? && e.valid?
-        EmployeeWorker.perform_async(:update, e)
-        e.save
-        @existing_employees << e
-
-        # if manager.present?
-        #   # Re-hire
-        #   if e.hire_date_changed? && e.termination_date_changed?
-        #     mailer = ManagerMailer.permissions(manager, e, "Onboarding")
-        #   # Job Change requiring security access changes
-        #   elsif e.manager_id_changed? || e.business_title_changed?
-        #     mailer = ManagerMailer.permissions(manager, e, "Security Access")
-        #   end
-        # end
-
-
-        # mailer.deliver_now if mailer.present?
-      else
-        TechTableMailer.alert_email("ERROR: Update of #{e.first_name} #{e.last_name} in Mezzo DB failed. Manual update required. Attributes: #{attrs}").deliver_now
-      end
+      update_emp(e, attrs)
     else
-      new_emp = Employee.new(attrs)
-      # manager = Employee.find_by(employee_id: new_emp.manager_id)
-      # mailer = nil
+      create_emp(attrs)
+    end
+  end
 
-      if new_emp.save
-        EmployeeWorker.perform_async(:create, e)
-        @new_hires << new_emp
-        # ManagerMailer.permissions(manager, new_emp, "Onboarding").deliver_now if manager
-      else
-        TechTableMailer.alert_email("ERROR: Creation of #{new_emp.first_name} #{new_emp.last_name} in Mezzo DB failed. Manual create required. Attributes: #{attrs}").deliver_now
-      end
+  def update_emp(emp, attrs)
+    emp.assign_attributes(attrs)
+
+    if emp.changed? && emp.valid?
+      EmployeeWorker.perform_async(:update, emp)
+      emp.save
+      @existing_employees << emp
+    else
+      TechTableMailer.alert_email("ERROR: Update of #{emp.first_name} #{emp.last_name} in Mezzo DB failed. Manual update required. Attributes: #{attrs}").deliver_now
+    end
+  end
+
+  def create_emp(attrs)
+    new_emp = Employee.new(attrs)
+
+    if new_emp.save
+      EmployeeWorker.perform_async(:create, new_emp)
+      @new_hires << new_emp
+    else
+      TechTableMailer.alert_email("ERROR: Creation of #{new_emp.first_name} #{new_emp.last_name} in Mezzo DB failed. Manual create required. Attributes: #{attrs}").deliver_now
     end
   end
 
