@@ -19,9 +19,9 @@ class EmployeesController < ApplicationController
 
   def create
     @employee = Employee.new(employee_params)
+
     if @employee.save
-      manager = Employee.find_by(employee_id: @employee.manager_id)
-      ManagerMailer.permissions(manager, @employee, "Onboarding").deliver_now if manager
+      EmployeeWorker.perform_async(:create, @employee)
 
       ads = ActiveDirectoryService.new
       ads.create_disabled_accounts([@employee])
@@ -35,22 +35,11 @@ class EmployeesController < ApplicationController
   def update
     @employee.assign_attributes(employee_params)
 
-    manager = Employee.find_by(employee_id: @employee.manager_id)
-    mailer = nil
-
-    if manager.present?
-      # Re-hire
-      if @employee.hire_date_changed? && @employee.termination_date_changed?
-        mailer = ManagerMailer.permissions(manager, @employee, "Onboarding")
-      # Job Change requiring security access changes
-      elsif @employee.manager_id_changed? || @employee.business_title_changed?
-        mailer = ManagerMailer.permissions(manager, @employee, "Security Access")
-      end
+    if @employee.changed? && @employee.valid?
+      EmployeeWorker.perform_async(:update, @employee)
     end
 
     if @employee.update(employee_params)
-      mailer.deliver_now if mailer.present?
-
       ads = ActiveDirectoryService.new
       ads.update([@employee])
 
