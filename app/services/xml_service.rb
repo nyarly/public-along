@@ -135,36 +135,37 @@ class XmlService
 
     if e.present?
       e.assign_attributes(attrs)
-      manager = Employee.find_by(employee_id: e.manager_id)
-      mailer = nil
-
-      if e.valid?
+      # manager = Employee.find_by(employee_id: e.manager_id)
+      # mailer = nil
+      if e.changed? && e.valid?
+        EmployeeWorker.perform_async(:update, e)
+        e.save
         @existing_employees << e
 
-        if manager.present?
-          # Re-hire
-          if e.hire_date_changed? && e.termination_date_changed?
-            mailer = ManagerMailer.permissions(manager, e, "Onboarding")
-          # Job Change requiring security access changes
-          elsif e.manager_id_changed? || e.business_title_changed?
-            mailer = ManagerMailer.permissions(manager, e, "Security Access")
-          end
-        end
+        # if manager.present?
+        #   # Re-hire
+        #   if e.hire_date_changed? && e.termination_date_changed?
+        #     mailer = ManagerMailer.permissions(manager, e, "Onboarding")
+        #   # Job Change requiring security access changes
+        #   elsif e.manager_id_changed? || e.business_title_changed?
+        #     mailer = ManagerMailer.permissions(manager, e, "Security Access")
+        #   end
+        # end
 
-        e.save
 
-        mailer.deliver_now if mailer.present?
+        # mailer.deliver_now if mailer.present?
       else
         TechTableMailer.alert_email("ERROR: Update of #{e.first_name} #{e.last_name} in Mezzo DB failed. Manual update required. Attributes: #{attrs}").deliver_now
       end
     else
       new_emp = Employee.new(attrs)
-      manager = Employee.find_by(employee_id: new_emp.manager_id)
-      mailer = nil
+      # manager = Employee.find_by(employee_id: new_emp.manager_id)
+      # mailer = nil
 
       if new_emp.save
+        EmployeeWorker.perform_async(:create, e)
         @new_hires << new_emp
-        ManagerMailer.permissions(manager, new_emp, "Onboarding").deliver_now if manager
+        # ManagerMailer.permissions(manager, new_emp, "Onboarding").deliver_now if manager
       else
         TechTableMailer.alert_email("ERROR: Creation of #{new_emp.first_name} #{new_emp.last_name} in Mezzo DB failed. Manual create required. Attributes: #{attrs}").deliver_now
       end

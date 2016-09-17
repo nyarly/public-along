@@ -40,11 +40,8 @@ describe XmlService, type: :service do
       expect(Employee.find_by(:first_name => "Jeffrey").ad_updated_at).to be_nil
     end
 
-    it "should send the manager an Onboarding Email" do
-      manager = FactoryGirl.create(:employee, :employee_id => "12100123")
-
-      expect(ManagerMailer).to receive(:permissions).once.and_return(mailer)
-      expect(mailer).to receive(:deliver_now)
+    it "should call EmployeeWorker" do
+      expect(EmployeeWorker).to receive(:perform_async).exactly(3).times
 
       xml.parse_to_db
     end
@@ -143,7 +140,7 @@ describe XmlService, type: :service do
 
     it "should send a Security Access Mailer for a business_title change" do
       manager = FactoryGirl.create(:employee, :employee_id => "12100123")
-      expect(ManagerMailer).to receive(:permissions).with(manager, employee, "Security Access")
+      expect(EmployeeWorker).to receive(:perform_async).with(:update, employee)
 
       xml.parse_to_db
     end
@@ -155,7 +152,7 @@ describe XmlService, type: :service do
 
       manager = FactoryGirl.create(:employee, :employee_id => "12100123")
 
-      expect(ManagerMailer).to receive(:permissions).with(manager, employee, "Onboarding")
+      expect(EmployeeWorker).to receive(:perform_async).with(:update, employee)
 
       xml.parse_to_db
     end

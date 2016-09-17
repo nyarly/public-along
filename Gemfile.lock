@@ -202,6 +202,10 @@ GEM
     redis (3.3.1)
     responders (2.1.2)
       railties (>= 4.2.0, < 5.1)
+    rspec (3.4.0)
+      rspec-core (~> 3.4.0)
+      rspec-expectations (~> 3.4.0)
+      rspec-mocks (~> 3.4.0)
     rspec-core (3.4.4)
       rspec-support (~> 3.4.0)
     rspec-expectations (3.4.0)
@@ -218,6 +222,9 @@ GEM
       rspec-expectations (~> 3.4.0)
       rspec-mocks (~> 3.4.0)
       rspec-support (~> 3.4.0)
+    rspec-sidekiq (2.2.0)
+      rspec (~> 3.0, >= 3.0.0)
+      sidekiq (>= 2.4.0)
     rspec-support (3.4.1)
     rubyzip (1.2.0)
     sass (3.4.22)
@@ -318,6 +325,7 @@ DEPENDENCIES
   puma
   rails (= 4.2.6)
   rspec-rails
+  rspec-sidekiq
   sass-rails (~> 5.0)
   sdoc (~> 0.4.0)
   selenium-webdriver

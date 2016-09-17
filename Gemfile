@@ -79,5 +79,6 @@ group :test do
   gem 'simplecov', require: false
   gem 'shoulda-matchers'
   gem 'timecop'
+  gem 'rspec-sidekiq'
 end
 

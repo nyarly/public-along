@@ -21,13 +21,19 @@ namespace :employee do
       elsif e.contract_end_date && in_time_window?(e.contract_end_date, 21, e.nearest_time_zone)
         deactivations << e
       elsif e.termination_date && in_time_window?(e.termination_date, 21, e.nearest_time_zone)
-        terminations << e
+        deactivations << e
       end
 
       # Send manager offboarding email when it is 3-4am on their termination date in their respective nearest time zone
       if e.termination_date && in_time_window?(e.termination_date, 3, e.nearest_time_zone)
         manager = Employee.find_by(employee_id: e.manager_id)
         ManagerMailer.permissions(manager, e, "Offboarding").deliver_now if manager
+      end
+    end
+
+    Employee.termination_group.each do |e|
+      if in_time_window(e.termination_date + 30.days, 3, e.nearest_time_zone)
+        terminations << e
       end
     end
 
