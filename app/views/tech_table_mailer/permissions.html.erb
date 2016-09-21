@@ -137,6 +137,27 @@
         <span style="color: red"><%= Employee.find(@emp_transaction.offboarding_infos.first.transfer_google_docs_id).cn %></span>
       </p>
     <% end %>
+    <p>
+      <strong>Active Security Profiles To Terminate:</strong>
+    </p>
+    <div style="margin-left: 2em">
+        <% @employee.active_security_profiles.each do |sp| %>
+          <div>
+            <%= sp.name %><br>
+            <ul>
+              <% sp.access_levels.find_each do |al| %>
+                <li style="margin-left: 2em"><%= al.name %> <%= al.application.name %></li>
+                  <% if(al.application.dependency.present? || al.application.instructions.present?) %>
+                    <p style="margin-left: 2em; color: red"><%= al.application.dependency %></p>
+                    <p style="margin-left: 2em; color: red"><%= al.application.instructions %></p>
+                  <% else %>
+                    <p style="margin-left: 2em; color: limegreen">Worker will automatically be removed from the related Active Directory group in 30 days. No further action needed.</p>
+                  <% end %>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+      </div>
   <% end %>
 
   <p>

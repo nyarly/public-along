@@ -156,6 +156,38 @@ describe "employee rake tasks", type: :tasks do
       expect(mailer).to receive(:deliver_now)
       Rake::Task["employee:change_status"].invoke
     end
+
+    it "should remove worker from all security groups at 3am, 30 days after termination" do
+      termination = FactoryGirl.create(:employee, :manager_id => "12345", :hire_date => Date.new(2014, 5, 3), :termination_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "OT General Engineering").id, :location_id => sf.id)
+      recent_termination = FactoryGirl.create(:employee, :manager_id => "12345", :hire_date => Date.new(2014, 5, 3), :termination_date => Date.new(2016, 8, 20), :department_id => Department.find_by(:name => "OT General Engineering").id, :location_id => sf.id)
+      manager = FactoryGirl.create(:employee, :employee_id => "12345")
+
+      app_1 = FactoryGirl.create(:application)
+      app_2 = FactoryGirl.create(:application)
+      sec_prof = FactoryGirl.create(:security_profile)
+      access_level_1 = FactoryGirl.create(:access_level, application_id: app_1.id, ad_security_group: "sec_dn_1")
+      sec_prof_access_level_2 = FactoryGirl.create(:sec_prof_access_level, access_level_id: access_level_1.id, security_profile_id: sec_prof.id)
+      access_level_2 = FactoryGirl.create(:access_level, application_id: app_2.id, ad_security_group: "sec_dn_2")
+      sec_prof_access_level_2 = FactoryGirl.create(:sec_prof_access_level, access_level_id: access_level_2.id, security_profile_id: sec_prof.id)
+
+      # Add security profile for termination worker
+      emp_trans_1 = FactoryGirl.create(:emp_transaction, kind: "Onboarding")
+      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_1.id, employee_id: termination.id, security_profile_id: sec_prof.id)
+
+      # Add security profile for recent_termination worker
+      emp_trans_2 = FactoryGirl.create(:emp_transaction, kind: "Onboarding")
+      emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_2.id, employee_id: recent_termination.id, security_profile_id: sec_prof.id)
+
+      # 8/28/2016 at 3am PST/10am UTC
+      Timecop.freeze(Time.new(2016, 8, 28, 10, 0, 0, "+00:00"))
+      allow(@ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
+
+      expect(@ldap).to receive(:modify).once.ordered.with({:dn => "sec_dn_1", :operations => [[:delete, :member, termination.dn]]})
+      expect(@ldap).to receive(:modify).once.ordered.with({:dn => "sec_dn_2", :operations => [[:delete, :member, termination.dn]]})
+      expect(@ldap).to_not receive(:modify).with({:dn => "sec_dn_1", :operations => [[:delete, :member, recent_termination.dn]]})
+      expect(@ldap).to_not receive(:modify).with({:dn => "sec_dn_2", :operations => [[:delete, :member, recent_termination.dn]]})
+      Rake::Task["employee:change_status"].invoke
+    end
   end
 
   context "employee:xml_to_ad" do

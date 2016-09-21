@@ -144,7 +144,12 @@ class XmlService
     emp.assign_attributes(attrs)
 
     if emp.changed? && emp.valid?
-      EmployeeWorker.perform_async(:update, emp)
+      if emp.hire_date_changed? && emp.termination_date_changed?
+        EmployeeWorker.perform_async("onboard", emp.id)
+      elsif emp.manager_id_changed? || emp.business_title_changed?
+        EmployeeWorker.perform_async("job_change", emp.id)
+      end
+
       emp.save
       @existing_employees << emp
     else
@@ -156,7 +161,7 @@ class XmlService
     new_emp = Employee.new(attrs)
 
     if new_emp.save
-      EmployeeWorker.perform_async(:create, new_emp)
+      EmployeeWorker.perform_async("onboard", new_emp.id)
       @new_hires << new_emp
     else
       TechTableMailer.alert_email("ERROR: Creation of #{new_emp.first_name} #{new_emp.last_name} in Mezzo DB failed. Manual create required. Attributes: #{attrs}").deliver_now

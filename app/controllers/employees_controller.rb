@@ -21,7 +21,7 @@ class EmployeesController < ApplicationController
     @employee = Employee.new(employee_params)
 
     if @employee.save
-      EmployeeWorker.perform_async(:create, @employee)
+      EmployeeWorker.perform_async("onboard", @employee.id)
 
       ads = ActiveDirectoryService.new
       ads.create_disabled_accounts([@employee])
@@ -36,7 +36,11 @@ class EmployeesController < ApplicationController
     @employee.assign_attributes(employee_params)
 
     if @employee.changed? && @employee.valid?
-      EmployeeWorker.perform_async(:update, @employee)
+      if @employee.hire_date_changed? && @employee.termination_date_changed?
+        EmployeeWorker.perform_async("onboard", @employee.id)
+      elsif @employee.manager_id_changed? || @employee.business_title_changed?
+        EmployeeWorker.perform_async("job_change", @employee.id)
+      end
     end
 
     if @employee.update(employee_params)

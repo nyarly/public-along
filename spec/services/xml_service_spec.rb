@@ -115,14 +115,22 @@ describe XmlService, type: :service do
       :image_code => nil)
     }
     let!(:terminated_employee) { FactoryGirl.create(:employee,
-      :employee_id => "109843")
+      :employee_id => "109843",
+      :hire_date => DateTime.new(2016, 4, 7),
+      :termination_date => nil,
+      :business_title => "OT Fraud Analyst",
+      :manager_id => "12101034")
     }
     let!(:returning_employee) { FactoryGirl.create(:employee,
-      :employee_id => "12100321")
+      :employee_id => "12100321",
+      :hire_date => DateTime.new(2005, 2, 1),
+      :business_title => "Sr. Software Development Team Lead",
+      :manager_id => "12101034")
     }
     let!(:previous_leave_emp) { FactoryGirl.create(:employee,
       :employee_id => "1234567",
       :business_title => "Rich Guy",
+      :manager_id => "12101034",
       :hire_date => DateTime.new(2005, 2, 1),
       :leave_start_date => DateTime.new(2014, 5, 14),
       :leave_return_date => DateTime.new(2014, 6, 14))
@@ -140,7 +148,7 @@ describe XmlService, type: :service do
 
     it "should send a Security Access Mailer for a business_title change" do
       manager = FactoryGirl.create(:employee, :employee_id => "12100123")
-      expect(EmployeeWorker).to receive(:perform_async).with(:update, employee)
+      expect(EmployeeWorker).to receive(:perform_async).with("job_change", employee.id)
 
       xml.parse_to_db
     end
@@ -152,7 +160,7 @@ describe XmlService, type: :service do
 
       manager = FactoryGirl.create(:employee, :employee_id => "12100123")
 
-      expect(EmployeeWorker).to receive(:perform_async).with(:update, employee)
+      expect(EmployeeWorker).to receive(:perform_async).with("onboard", employee.id)
 
       xml.parse_to_db
     end

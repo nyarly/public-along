@@ -45,8 +45,8 @@ class Employee < ActiveRecord::Base
     where('contract_end_date BETWEEN ? AND ? OR leave_start_date BETWEEN ? AND ? OR termination_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow)
   end
 
-  def self.termination_group
-    where('termination_date BETWEEN ? AND ?', 30.days.ago, 31.days.ago)
+  def self.full_termination_group
+    where('termination_date BETWEEN ? AND ?', 31.days.ago, 30.days.ago)
   end
 
   def contract_end_date_needed?

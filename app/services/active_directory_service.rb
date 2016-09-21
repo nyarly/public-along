@@ -56,7 +56,11 @@ class ActiveDirectoryService
 
   def terminate(employees)
     employees.each do |e|
-      # remove from all groups
+      e.security_profiles.each do |sp|
+        sp.access_levels.each do |al|
+          remove_from_sec_group(al.ad_security_group, e)
+        end
+      end
     end
   end
 
