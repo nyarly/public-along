@@ -54,6 +54,16 @@ class ActiveDirectoryService
     end
   end
 
+  def terminate(employees)
+    employees.each do |e|
+      e.security_profiles.each do |sp|
+        sp.access_levels.each do |al|
+          remove_from_sec_group(al.ad_security_group, e)
+        end
+      end
+    end
+  end
+
   def update(employees)
     employees.each do |e|
       ldap_entry = find_entry("employeeID", e.employee_id).first

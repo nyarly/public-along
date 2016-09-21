@@ -1,3 +1,5 @@
+require 'sidekiq/web'
+
 Rails.application.routes.draw do
   resources :emp_transactions, :except => [:edit, :update, :destroy]
   resources :access_levels
@@ -21,6 +23,9 @@ Rails.application.routes.draw do
     get  '/logout' => "users/sessions#destroy", :as => :logout
   end
 
+  authenticate :user, lambda { |u| u.role_name == "Admin" } do
+    mount Sidekiq::Web => '/sidekiq'
+  end
   # You can have the root of your site routed with "root"
   # root 'welcome#index'
 

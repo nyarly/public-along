@@ -3,6 +3,7 @@ namespace :employee do
   task :change_status => :environment do
     activations = []
     deactivations = []
+    full_terminations = []
 
     Employee.activation_group.each do |e|
       # Collect employees to activate if it is 3-4am on their hire date or leave return date in their respective nearest time zone
@@ -30,11 +31,16 @@ namespace :employee do
       end
     end
 
-
+    Employee.full_termination_group.each do |e|
+      if in_time_window?(e.termination_date + 30.days, 3, e.nearest_time_zone)
+        full_terminations << e
+      end
+    end
 
     ads = ActiveDirectoryService.new
     ads.activate(activations)
     ads.deactivate(deactivations)
+    ads.terminate(full_terminations)
   end
 
   desc "parse latest xml file to active directory"

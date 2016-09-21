@@ -134,19 +134,37 @@ class XmlService
     e = Employee.where(:employee_id => attrs[:employee_id]).try(:first)
 
     if e.present?
-      existing = Employee.update(e.id, attrs)
-      if existing.valid?
-        @existing_employees << existing
-      else
-        TechTableMailer.alert_email("ERROR: Update of #{existing.first_name} #{existing.last_name} in Mezzo DB failed. Manual update required. Attributes: #{attrs}").deliver_now
-      end
+      update_emp(e, attrs)
     else
-      new_emp = Employee.create(attrs)
-      if new_emp.valid?
-        @new_hires << new_emp
-      else
-        TechTableMailer.alert_email("ERROR: Creation of #{new_emp.first_name} #{new_emp.last_name} in Mezzo DB failed. Manual create required. Attributes: #{attrs}").deliver_now
+      create_emp(attrs)
+    end
+  end
+
+  def update_emp(emp, attrs)
+    emp.assign_attributes(attrs)
+
+    if emp.changed? && emp.valid?
+      if emp.hire_date_changed? && emp.termination_date_changed?
+        EmployeeWorker.perform_async("onboard", emp.id)
+      elsif emp.manager_id_changed? || emp.business_title_changed?
+        EmployeeWorker.perform_async("job_change", emp.id)
       end
+
+      emp.save
+      @existing_employees << emp
+    else
+      TechTableMailer.alert_email("ERROR: Update of #{emp.first_name} #{emp.last_name} in Mezzo DB failed. Manual update required. Attributes: #{attrs}").deliver_now
+    end
+  end
+
+  def create_emp(attrs)
+    new_emp = Employee.new(attrs)
+
+    if new_emp.save
+      EmployeeWorker.perform_async("onboard", new_emp.id)
+      @new_hires << new_emp
+    else
+      TechTableMailer.alert_email("ERROR: Creation of #{new_emp.first_name} #{new_emp.last_name} in Mezzo DB failed. Manual create required. Attributes: #{attrs}").deliver_now
     end
   end
 

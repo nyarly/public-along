@@ -19,9 +19,13 @@ class EmployeesController < ApplicationController
 
   def create
     @employee = Employee.new(employee_params)
+
     if @employee.save
-      manager = Employee.find_by(employee_id: @employee.manager_id)
-      ManagerMailer.permissions(manager, @employee, "Onboarding").deliver_now if manager
+      EmployeeWorker.perform_async("onboard", @employee.id)
+
+      ads = ActiveDirectoryService.new
+      ads.create_disabled_accounts([@employee])
+
       redirect_to employees_path
     else
       render 'new'
@@ -31,19 +35,18 @@ class EmployeesController < ApplicationController
   def update
     @employee.assign_attributes(employee_params)
 
-    manager = Employee.find_by(employee_id: @employee.manager_id)
-    if manager.present?
-      # Re-hire
+    if @employee.changed? && @employee.valid?
       if @employee.hire_date_changed? && @employee.termination_date_changed?
-        mailer = ManagerMailer.permissions(manager, @employee, "Onboarding")
-      # Job Change requiring security access changes
+        EmployeeWorker.perform_async("onboard", @employee.id)
       elsif @employee.manager_id_changed? || @employee.business_title_changed?
-        mailer = ManagerMailer.permissions(manager, @employee, "Security Access")
+        EmployeeWorker.perform_async("job_change", @employee.id)
       end
     end
 
     if @employee.update(employee_params)
-      mailer.deliver_now if mailer.present?
+      ads = ActiveDirectoryService.new
+      ads.update([@employee])
+
       redirect_to employees_path, notice: "#{@employee.cn} was successfully updated."
     else
       render :edit

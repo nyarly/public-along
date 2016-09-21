@@ -6,6 +6,7 @@ RSpec.describe EmployeesController, type: :controller do
   let!(:manager) { FactoryGirl.create(:employee) }
   let!(:user) { FactoryGirl.create(:user, :role_name => "Admin", employee_id: manager.employee_id) }
   let!(:mailer) { double(ManagerMailer) }
+  let!(:ads) { double(ActiveDirectoryService) }
 
   let(:valid_attributes) {
     {
@@ -84,8 +85,16 @@ RSpec.describe EmployeesController, type: :controller do
         expect(assigns(:employee)).to be_persisted
       end
 
-      it "sends an email to the manager" do
-        expect(ManagerMailer).to receive_message_chain(:permissions, :deliver_now)
+      it "sends a new employee to AD" do
+        allow(ManagerMailer).to receive_message_chain(:permissions, :deliver_now)
+
+        expect(ActiveDirectoryService).to receive(:new).and_return(ads)
+        expect(ads).to receive(:create_disabled_accounts)
+        post :create, {:employee => valid_attributes}
+      end
+
+      it "calls the EmployeeWorker" do
+        expect(EmployeeWorker).to receive(:perform_async).once
 
         post :create, {:employee => valid_attributes}
       end
@@ -105,7 +114,7 @@ RSpec.describe EmployeesController, type: :controller do
       end
 
       it "should not send an email to the manager" do
-        allow(ManagerMailer).to receive(:permissions)
+        expect(ManagerMailer).to_not receive(:permissions)
 
         post :create, {:employee => invalid_attributes}
       end
@@ -127,6 +136,7 @@ RSpec.describe EmployeesController, type: :controller do
         {
           first_name: "Bobby",
           last_name: "Barker",
+          business_title: "New Title",
           department_id: 1,
           location_id: 1
         }
@@ -143,60 +153,34 @@ RSpec.describe EmployeesController, type: :controller do
         expect(assigns(:employee)).to eq(employee)
       end
 
+      it "sends a updated employee to AD" do
+        expect(ActiveDirectoryService).to receive(:new).and_return(ads)
+        expect(ads).to receive(:update)
+
+        put :update, {:id => employee.id, :employee => new_attributes}
+      end
+
+      it "calls EmployeeWorker with correct values" do
+        expect(EmployeeWorker).to receive(:perform_async).with("job_change", employee.id)
+
+        put :update, {:id => employee.id, :employee => new_attributes}
+      end
+
       it "redirects to the employee" do
         put :update, {:id => employee.id, :employee => valid_attributes}
         expect(response).to redirect_to(employees_url)
       end
     end
 
-    context "business title change" do
+    context "no change to attributes" do
       let(:new_attributes) {
         {
-          business_title: "different business title"
+          first_name: employee.first_name
         }
       }
 
-      it "sends a security access email to manager" do
-        expect(ManagerMailer).to receive(:permissions).with(manager, employee, "Security Access").and_return(mailer)
-        expect(mailer).to receive(:deliver_now)
-
-        put :update, {:id => employee.id, :employee => new_attributes}
-      end
-    end
-
-    context "manager id change" do
-      let!(:new_manager) { FactoryGirl.create(:employee) }
-
-      let(:new_attributes) {
-        {
-          manager_id: new_manager.employee_id
-        }
-      }
-
-      it "sends a security access email to new manager" do
-        expect(ManagerMailer).to receive(:permissions).with(new_manager, employee, "Security Access").and_return(mailer)
-        expect(mailer).to receive(:deliver_now)
-
-        put :update, {:id => employee.id, :employee => new_attributes}
-      end
-    end
-
-    context "rehire" do
-      let(:new_attributes) {
-        {
-          hire_date: 2.weeks.from_now,
-          termination_date: nil
-        }
-      }
-
-      it "sends an onboarding email to manager" do
-        employee.update_attributes(
-          hire_date: 2.years.ago,
-          termination_date: 1.year.ago
-        )
-
-        expect(ManagerMailer).to receive(:permissions).with(manager, employee, "Onboarding").and_return(mailer)
-        expect(mailer).to receive(:deliver_now)
+      it "should not call EmployeeWorker" do
+        expect(EmployeeWorker).to_not receive(:perform_async)
 
         put :update, {:id => employee.id, :employee => new_attributes}
       end
@@ -206,6 +190,12 @@ RSpec.describe EmployeesController, type: :controller do
       it "assigns the employee as @employee" do
         put :update, {:id => employee.id, :employee => invalid_attributes}
         expect(assigns(:employee)).to eq(employee)
+      end
+
+      it "should not call EmployeeWorker" do
+        expect(EmployeeWorker).to_not receive(:perform_async)
+
+        put :update, {:id => employee.id, :employee => invalid_attributes}
       end
 
       it "re-renders the 'edit' template" do
