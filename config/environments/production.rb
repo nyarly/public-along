@@ -78,5 +78,5 @@ Rails.application.configure do
   config.active_record.dump_schema_after_migration = false
 
   # TODO set this up properly for mailers (currently just for devise) in production
-  config.action_mailer.default_url_options = { host: 'otcorp.opentable.com', port: 3000 }
+  config.action_mailer.default_url_options = { host: 'mezzo.otenv.com' }
 end

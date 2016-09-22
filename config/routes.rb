@@ -24,6 +24,7 @@ Rails.application.routes.draw do
   end
 
   authenticate :user, lambda { |u| u.role_name == "Admin" } do
+    Sidekiq::Web.set :session_secret, Rails.application.secrets[:secret_key_base]
     mount Sidekiq::Web => '/sidekiq'
   end
   # You can have the root of your site routed with "root"
