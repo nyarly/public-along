@@ -43,6 +43,16 @@ namespace :employee do
     ads.terminate(full_terminations)
   end
 
+  desc "send onboarding summary reports"
+  task :onboarding_reports do
+    SummaryReportMailer.report("Onboard").deliver_now
+  end
+
+  desc "send offboarding summary reports"
+  task :offboarding_reports do
+    SummaryReportMailer.report("Offboard").deliver_now
+  end
+
   desc "parse latest xml file to active directory"
   task :xml_to_ad => :environment do
     xml = XmlService.new

@@ -57,6 +57,32 @@ class Employee < ActiveRecord::Base
     where('manager_id = ?', manager_emp_id)
   end
 
+  def self.onboarding_report_group
+    where('hire_date >= ?', Date.today)
+  end
+
+  def self.offboarding_report_group
+    offboard_group + late_offboard_group + incomplete_offboard_group
+  end
+
+  def self.offboard_group
+    joins(:emp_transactions)
+    .where('emp_transactions.kind = ? AND employees.termination_date BETWEEN ? AND ?', "Offboarding", Date.today - 1.week, Date.today)
+  end
+
+  def self.late_offboard_group
+    joins(:emp_transactions)
+    .where('emp_transactions.kind = ? AND emp_transactions.created_at >= ? AND employees.termination_date < ?', "Offboarding", Date.today - 2.days, Date.today - 1.week)
+  end
+
+  def self.incomplete_offboard_group
+    where.not(:id => EmpSecProfile
+      .joins(:emp_transaction)
+      .where('emp_transactions.kind = ?', "Offboarding")
+      .select(:employee_id).uniq)
+    .where('termination_date IS NOT NULL')
+  end
+
   def onboarding_complete?
     self.emp_transactions.where(kind: "Onboarding").count > 0
   end

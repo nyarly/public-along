@@ -30,23 +30,21 @@
   <%= @manager.first_name %> <%= @manager.last_name %>
 </p>
 
-<% if @emp_transaction.kind == "Onboarding" %>
+<% if @emp_transaction.kind == "Onboarding" && @employee.employee_type == "Contingent" %>
   <p>
     <strong>Buddy:</strong>
     <%= @buddy.first_name %> <%= @buddy.last_name %>
   </p>
 
-  <% if @employee.employee_type == "Contingent"  %>
-    <p>
-      <strong>Contingent Worker:</strong>
-      <div class="indent-1">
-        <ul>
-          <li>Create OpenTable Email: <%= @emp_transaction.onboarding_infos.first.cw_email %></li>
-          <li>Create Google Group Membership: <%= @emp_transaction.onboarding_infos.first.cw_google_membership %></li>
-        </ul>
-      </div>
-    </p>
-  <% end %>
+  <p>
+    <strong>Contingent Worker:</strong>
+    <div class="indent-1">
+      <ul>
+        <li>Create OpenTable Email: <%= @emp_transaction.onboarding_infos.first.cw_email %></li>
+        <li>Create Google Group Membership: <%= @emp_transaction.onboarding_infos.first.cw_google_membership %></li>
+      </ul>
+    </div>
+  </p>
 <% end %>
 
 <% if @emp_transaction.kind == "Onboarding" || @emp_transaction.kind == "Security Access" %>
