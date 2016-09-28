@@ -12,7 +12,7 @@ RSpec.describe TechTableMailer, type: :mailer do
       expect(email.from).to eq(["no-reply@opentable.com"])
       expect(email.to).to eq(["techtable@opentable.com"])
       expect(email.subject).to eq("ALERT: Mezzo Error")
-      expect(email.body.to_s).to include("This message that gets passed in")
+      expect(email.parts.first.body.raw_source).to include("This message that gets passed in")
     end
   end
 end

@@ -148,7 +148,7 @@ describe "initial sync rake task", type: :tasks do
       expect(@ldap).to_not receive(:replace_attribute).with("cn=Non Existent,ou=Legal,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com")
       expect(TechTableMailer).to receive_message_chain(:alert_email, :deliver_now)
       Rake::Task["sync:csv"].invoke(Rails.root.to_s+'/spec/fixtures/test_sync.csv')
-      expect(ActionMailer::Base.deliveries.last.body).to include("User not found in Active Directory. Update failed.")
+      expect(ActionMailer::Base.deliveries.last.parts.first.body.raw_source).to include("User not found in Active Directory. Update failed.")
     end
 
     it "should not save home addresses in DB or AD unless it's a remote location" do

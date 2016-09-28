@@ -1,0 +1,23 @@
+You have <% @kind %> forms to fill for:
+=======================================
+
+Name: <%= @employee.cn %>
+
+Title: <%= @employee.business_title %>
+
+Department: <%= @employee.department.name %>
+
+Location: <%= @employee.location.name %>
+
+=======================================
+<% if @kind == "Onboarding" %>
+  You must complete the onboarding forms by <%= @employee.onboarding_due_date %>.
+  Submissions after the due date risk the new hire not having access rights or equipment on their first day.
+<% end %>
+
+Please follow the link below to complete the <%= @kind.downcase %> form:
+
+<%= new_emp_transaction_url({
+    :user_emp_id => @manager.employee_id,
+    :employee_id => @employee.id,
+    :kind => @kind}) %>

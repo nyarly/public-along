@@ -1,0 +1,98 @@
+<%= @emp_transaction.kind %> Request
+====================================
+
+Submission Date: <%= @emp_transaction.created_at.strftime("%b %e, %Y") %>
+
+Name: <%= @employee.cn %>
+
+EmployeeID: <%= @employee.employee_id %>
+
+Title: <%= @employee.business_title %>
+
+Department: <%= @employee.department.name %>
+
+Location: <%= @employee.location.name %>
+
+Manager: <%= @manager.first_name %> <%= @manager.last_name %>
+
+Manager Email: <%= @manager.email %>
+
+<% if @emp_transaction.kind == "Onboarding" %>
+Contingent Worker:
+------------------
+Create OpenTable Email: <%= @emp_transaction.onboarding_infos.first.cw_email %>Create Google Group Membership: <%= @emp_transaction.onboarding_infos.first.cw_google_membership %>
+
+<% end %>
+<% if @emp_transaction.kind == "Onboarding" || @emp_transaction.kind == "Security Access" %>
+  <% if @emp_transaction.security_profiles.count > 0 %>
+
+Apply Security Profiles:
+------------------------
+<% @emp_transaction.security_profiles.each do |sp| %>
+<%= sp.name %>
+<% sp.access_levels.find_each do |al| %>
+  - <%= al.name %> <%= al.application.name %>
+    <% if(al.application.dependency.present? || al.application.instructions.present?) %>
+      - <%= al.application.dependency %>
+      - <%= al.application.instructions %>
+    <% else %>
+      No further action needed.
+    <% end %>
+  <% end %>
+<% end %>
+  <% end %>
+  <% if @emp_transaction.revoked_security_profiles.count > 0 %>
+
+Revoke Security Profiles:
+-------------------------
+<% @emp_transaction.revoked_security_profiles.each do |sp| %>
+<%= sp.name %>
+<% sp.access_levels.find_each do |al| %>
+  - <%= al.name %> <%= al.application.name %>
+    <% if(al.application.dependency.present? || al.application.instructions.present?) %>
+      - <%= al.application.dependency %>
+      - <%= al.application.instructions %>
+    <% else %>
+      No further action needed.
+    <% end %>
+  <% end %>
+<% end %>
+<% end %>
+<% end %>
+<% if @emp_transaction.kind == "Onboarding" || @emp_transaction.kind == "Equipment" %>
+Machine Bundle:
+---------------
+<% @emp_transaction.machine_bundles.each do |mb| %>
+    <%= mb.name %>
+      - <%= mb.description %>
+<% end %>
+<% end %>
+<% if @emp_transaction.kind == "Offboarding" %>
+Archive Data: <%= @emp_transaction.offboarding_infos.first.archive_data %>
+
+Forward Email To:  <%= Employee.find(@emp_transaction.offboarding_infos.first.forward_email_id).cn %>
+
+Reassign Salesforce Cases To:  <%= Employee.find(@emp_transaction.offboarding_infos.first.reassign_salesforce_id).cn %>
+
+<% unless @emp_transaction.offboarding_infos.first.transfer_google_docs_id.blank? %>
+    Transfer Google Docs To:    <%= Employee.find(@emp_transaction.offboarding_infos.first.transfer_google_docs_id).cn %>
+
+<% end %>
+Active Security Profiles To Terminate:
+--------------------------------------
+<% @employee.active_security_profiles.each do |sp| %>
+  <%= sp.name %>
+  <% sp.access_levels.find_each do |al| %>
+    - <%= al.name %> <%= al.application.name %>
+    <% if(al.application.dependency.present? || al.application.instructions.present?) %>
+      - <%= al.application.dependency %>
+      - <%= al.application.instructions %>
+    <% else %>
+      Worker will automatically be removed from the related Active Directory group in 30 days. No further action needed.
+    <% end %>
+  <% end %>
+<% end %>
+<% end %>
+
+
+Additional Instructions: <%= @emp_transaction.notes %>
