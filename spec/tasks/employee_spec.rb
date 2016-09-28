@@ -200,7 +200,7 @@ describe "employee rake tasks", type: :tasks do
     end
 
     it "should send offboarding report" do
-       expect(SummaryReportMailer).to receive(:report).with("Offboard").and_return(mailer)
+      expect(SummaryReportMailer).to receive(:report).with("Offboard").and_return(mailer)
       expect(mailer).to receive(:deliver_now)
       Rake::Task["employee:offboarding_reports"].invoke
     end
