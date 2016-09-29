@@ -1,0 +1,21 @@
+<div class="section danger text-center">
+  This form must be submitted before worker's termination date: <strong><%= @employee.termination_date.strftime("%b %e, %Y") %></strong>
+</div>
+
+<p>Archive Data *</p>
+<%= f.radio_button :archive_data, true, value: true, required: true%>
+<%= f.label :archive_data, "Yes" %>
+<%= f.radio_button :archive_data, false, value:false %>
+<%= f.label :archive_data, "No" %>
+<p>Has a Replacement Been Hired *</p>
+<%= f.radio_button :replacement_hired, true, value: true, required: true %>
+<%= f.label :replacement_hired, "Yes" %>
+<%= f.radio_button :replacement_hired, false, value:false %>
+<%= f.label :replacement_hired, "No" %>
+<p>Forward Email to: *</p>
+<%= f.collection_select :forward_email_id, Employee.all - [@employee], :id, :cn, {prompt: "Select from List"}, required:true %>
+<p>Reassign Salesforce cases to: *</p>
+<%= f.collection_select :reassign_salesforce_id, Employee.all - [@employee], :id, :cn, {prompt: "Select from List"}, required:true %>
+<p>Transfer Google Docs to:</p>
+<%= f.collection_select :transfer_google_docs_id, Employee.all - [@employee], :id, :cn, {prompt: "Select from List"} %>
+<hr>
