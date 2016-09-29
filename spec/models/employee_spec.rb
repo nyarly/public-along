@@ -94,6 +94,63 @@ describe Employee, type: :model do
       expect(Employee.deactivation_group).to_not include(non_deactivation_group)
     end
 
+    it "should scope the onboarding group" do
+      onboarding_group = [
+        FactoryGirl.create(:employee, :hire_date => Date.today),
+        FactoryGirl.create(:employee, :hire_date => Date.today + 1.day),
+        FactoryGirl.create(:employee, :hire_date => Date.today + 1.week),
+        FactoryGirl.create(:employee, :hire_date => Date.today + 2.weeks)
+      ]
+      non_onboarding_group = [
+        FactoryGirl.create(:employee, :hire_date => Date.today - 1.day),
+        FactoryGirl.create(:employee, :hire_date => Date.today - 1.week),
+        FactoryGirl.create(:employee, :hire_date => Date.today - 2.weeks)
+      ]
+
+      expect(Employee.onboarding_report_group).to match_array(onboarding_group)
+      expect(Employee.onboarding_report_group).to_not include(non_onboarding_group)
+    end
+
+    it "should scope the offboarding groups" do
+      offboarding_group = [
+        FactoryGirl.create(:employee, :termination_date => Date.today),
+        FactoryGirl.create(:employee, :termination_date => Date.today - 1.day),
+        FactoryGirl.create(:employee, :termination_date => Date.today - 1.week)
+      ]
+      non_offboarding_group = [
+        FactoryGirl.create(:employee, :termination_date => Date.today + 1.day),
+        FactoryGirl.create(:employee, :termination_date => Date.today + 5.days),
+        FactoryGirl.create(:employee, :termination_date => Date.today + 1.week)
+      ]
+
+      sec_prof = FactoryGirl.create(:security_profile)
+
+      offboarding_group.each do |emp|
+        emp_trans = FactoryGirl.create(:emp_transaction, :kind => "Offboarding")
+        emp_sec_prof = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans.id, employee_id: emp.id, security_profile_id: sec_prof.id)
+      end
+
+      non_offboarding_group.each do |emp|
+        emp_trans = FactoryGirl.create(:emp_transaction, :kind => "Offboarding")
+        emp_sec_prof = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans.id, employee_id: emp.id, security_profile_id: sec_prof.id)
+      end
+
+      incomplete_offboarder = FactoryGirl.create(:employee, :first_name => "INCOMPLETE @#$%^&*%$#$%^", :termination_date => 2.weeks.ago)
+      late_offboarder = FactoryGirl.create(:employee, :first_name => "LATE @#$%^&*%$#$%^", :termination_date => 2.weeks.ago)
+
+      emp_trans_0 = FactoryGirl.create(:emp_transaction, :kind => "Onboarding")
+      emp_sec_prof_0 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_0.id, employee_id: incomplete_offboarder.id, security_profile_id: sec_prof.id)
+
+      emp_trans_1 = FactoryGirl.create(:emp_transaction, :kind => "Offboarding", :created_at => 1.day.ago)
+      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_1.id, employee_id: late_offboarder.id, security_profile_id: sec_prof.id)
+
+      expect(Employee.offboard_group).to match_array(offboarding_group)
+      expect(Employee.offboarding_report_group).to_not include(non_offboarding_group)
+      expect(Employee.late_offboard_group).to include(late_offboarder)
+      expect(Employee.incomplete_offboard_group).to include(incomplete_offboarder)
+      expect(Employee.offboarding_report_group).to match_array(offboarding_group + [late_offboarder, incomplete_offboarder])
+    end
+
     it "should check onboarding is complete" do
       sec_prof = FactoryGirl.create(:security_profile)
 
@@ -131,7 +188,7 @@ describe Employee, type: :model do
         hire_date: Date.new(2016, 7, 25, 2),
         location: Location.find_by_name("OT London")
       )
-      puts emp_1.hire_date
+
       expect(emp_1.onboarding_due_date).to eq("Jul 18, 2016")
       expect(emp_2.onboarding_due_date).to eq("Jul 11, 2016")
     end

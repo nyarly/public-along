@@ -190,6 +190,22 @@ describe "employee rake tasks", type: :tasks do
     end
   end
 
+  context "On/off board reports" do
+    let(:mailer) { double(SummaryReportMailer) }
+
+    it "should send onboarding report" do
+      expect(SummaryReportMailer).to receive(:onboard_report).and_return(mailer)
+      expect(mailer).to receive(:deliver_now)
+      Rake::Task["employee:onboard_report"].invoke
+    end
+
+    it "should send offboarding report" do
+      expect(SummaryReportMailer).to receive(:offboard_report).and_return(mailer)
+      expect(mailer).to receive(:deliver_now)
+      Rake::Task["employee:offboard_report"].invoke
+    end
+  end
+
   context "employee:xml_to_ad" do
     before :each do
       Rake.application = Rake::Application.new

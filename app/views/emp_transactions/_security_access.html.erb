@@ -1,0 +1,14 @@
+<h4>Security Access</h4>
+  <p class="help-text">Select only the appropriate security access profiles to apply to the worker.</p>
+  <% SecurityProfile.find_profiles_for(@employee.department.id).each do |sp| %>
+      <div class="column large-4 medium-6 small-12">
+        <%= check_box_tag 'security_profile_ids[]', sp.id, @employee.active_security_profiles.include?(sp) %>
+        <%= f.label 'security_profile_ids[]', "#{sp.name}" %><br>
+        <ul>
+          <% sp.access_levels.find_each do |al| %>
+            <li class="indent-1"><small><%= al.name %> <%= al.application.name %></small></li>
+          <% end %>
+        </ul>
+      </div>
+  <% end %>
+  <hr>

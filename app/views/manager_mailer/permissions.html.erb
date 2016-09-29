@@ -33,6 +33,14 @@
     </p>
   <% end %>
 
+  <% if @kind == "Offboarding" %>
+    <p>
+      <strong style="color: red; text-decoration: underline">
+        You must complete the offboarding forms by <%= @employee.termination_date.strftime("%b %e, %Y") %>.
+      </strong>
+    </p>
+  <% end %>
+
   <p>Please follow the link below to complete the <%= @kind.downcase %> form:</p>
   <p style="margin-left: 2em"><%= link_to "#{@kind} Form for #{@employee.cn}", new_emp_transaction_url({
     :user_emp_id => @manager.employee_id,
