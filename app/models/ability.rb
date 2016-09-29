@@ -3,7 +3,9 @@ class Ability
 
   def initialize(user)
     if user.present?
-      user.role.set_abilities(self)
+      user.roles.each do |role|
+        role.set_abilities(self)
+      end
 
       # add common abilies to logged_in users
     else

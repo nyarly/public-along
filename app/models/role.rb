@@ -3,10 +3,16 @@ class Role
   include ClassRegistry
   def self.registrar; Role; end
 
-  def self.for(user)
-    registry[user.role_name].new.tap do |role|
-      role.user = user
+  def self.list(user)
+    list = []
+    user.role_name.each do |role_name|
+      registry[role_name].new.tap do |role|
+        role.user = user
+      end
+      list << registry[role_name]
     end
+    puts list
+    list
   end
 
   def self.users
