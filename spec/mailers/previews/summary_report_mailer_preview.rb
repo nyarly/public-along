@@ -1,9 +1,9 @@
 class SummaryReportMailerPreview < ActionMailer::Preview
   def onboard
-    SummaryReportMailer.report("Onboard")
+    SummaryReportMailer.onboard_report
   end
 
   def offboard
-    SummaryReportMailer.report("Offboard")
+    SummaryReportMailer.offboard_report
   end
 end

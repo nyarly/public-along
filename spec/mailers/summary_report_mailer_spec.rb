@@ -4,7 +4,7 @@ RSpec.describe SummaryReportMailer, type: :mailer do
   let(:helper) { double(SummaryReportHelper) }
 
   context "Onboarding" do
-    let(:email) { SummaryReportMailer.report("Onboard").deliver_now }
+    let(:email) { SummaryReportMailer.onboard_report.deliver_now }
 
     it "should have the correct content and queue to send" do
       expect(SummaryReportHelper::Csv).to receive(:new).and_return(helper)
@@ -19,7 +19,7 @@ RSpec.describe SummaryReportMailer, type: :mailer do
   end
 
   context "Offboarding" do
-    let(:email) { SummaryReportMailer.report("Offboard").deliver_now }
+    let(:email) { SummaryReportMailer.offboard_report.deliver_now }
 
     it "should have the correct content and queue to send" do
       expect(SummaryReportHelper::Csv).to receive(:new).and_return(helper)

@@ -194,15 +194,15 @@ describe "employee rake tasks", type: :tasks do
     let(:mailer) { double(SummaryReportMailer) }
 
     it "should send onboarding report" do
-      expect(SummaryReportMailer).to receive(:report).with("Onboard").and_return(mailer)
+      expect(SummaryReportMailer).to receive(:onboard_report).and_return(mailer)
       expect(mailer).to receive(:deliver_now)
-      Rake::Task["employee:onboarding_reports"].invoke
+      Rake::Task["employee:onboard_report"].invoke
     end
 
     it "should send offboarding report" do
-      expect(SummaryReportMailer).to receive(:report).with("Offboard").and_return(mailer)
+      expect(SummaryReportMailer).to receive(:offboard_report).and_return(mailer)
       expect(mailer).to receive(:deliver_now)
-      Rake::Task["employee:offboarding_reports"].invoke
+      Rake::Task["employee:offboard_report"].invoke
     end
   end
 

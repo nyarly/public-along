@@ -11,8 +11,14 @@ Location: <%= @employee.location.name %>
 
 =======================================
 <% if @kind == "Onboarding" %>
-  You must complete the onboarding forms by <%= @employee.onboarding_due_date %>.
-  Submissions after the due date risk the new hire not having access rights or equipment on their first day.
+You must complete the onboarding forms by <%= @employee.onboarding_due_date %>.
+------------------------------------------------------
+Submissions after the due date risk the new hire not having access rights or equipment on their first day.
+<% end %>
+
+<% if @kind == "Offboarding" %>
+You must complete the onboarding forms by <%= @employee.termination_date.strftime("%b %e, %Y") %>.
+------------------------------------------------------
 <% end %>
 
 Please follow the link below to complete the <%= @kind.downcase %> form:

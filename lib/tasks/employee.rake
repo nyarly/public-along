@@ -44,13 +44,13 @@ namespace :employee do
   end
 
   desc "send onboarding summary reports"
-  task :onboarding_reports do
-    SummaryReportMailer.report("Onboard").deliver_now
+  task :onboard_report do
+    SummaryReportMailer.onboard_report.deliver_now
   end
 
   desc "send offboarding summary reports"
-  task :offboarding_reports do
-    SummaryReportMailer.report("Offboard").deliver_now
+  task :offboard_report do
+    SummaryReportMailer.offboard_report.deliver_now
   end
 
   desc "parse latest xml file to active directory"

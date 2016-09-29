@@ -1,13 +1,17 @@
 class SummaryReportMailer < ApplicationMailer
   default from: 'no-reply@opentable.com'
 
-  def report(kind)
-    @kind = kind
+  def onboard_report
     csv = SummaryReportHelper::Csv.new
 
-    if ["Onboard", "Offboard"].include?(@kind)
-      attachments.inline["#{@kind.downcase}ing_summary_#{DateTime.now.strftime('%Y%m%d')}.csv"] = csv.send("#{@kind.downcase}ing_data")
-      mail(to: "#{@kind.downcase}approved@opentable.com", subject: "#{@kind} Summary Report")
-    end
+    attachments.inline["onboarding_summary_#{DateTime.now.strftime('%Y%m%d')}.csv"] = csv.onboarding_data
+    mail(to: "onboardapproved@opentable.com", subject: "Onboard Summary Report")
+  end
+
+  def offboard_report
+    csv = SummaryReportHelper::Csv.new
+
+    attachments.inline["offboarding_summary_#{DateTime.now.strftime('%Y%m%d')}.csv"] = csv.offboarding_data
+    mail(to: "offboardapproved@opentable.com", subject: "Offboard Summary Report")
   end
 end

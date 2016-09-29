@@ -13,8 +13,16 @@
     <% end %>
 
     <div class="section danger text-center">
-      This form must be submitted before <strong><%= @employee.onboarding_due_date %></strong>
+      This form must be submitted before
+      <strong>
+        <% if @kind == "Onboarding" %>
+          <%= @employee.onboarding_due_date %>
+        <% elsif @kind == "Offboarding" %>
+          <%= @employee.termination_date.strftime("%b %e, %Y") %>
+        <% end %>
+      </strong>
     </div>
+
 
     <div class="section">
       <p class="indent-1"><strong>Name:</strong> <%= @employee.cn %></p>
