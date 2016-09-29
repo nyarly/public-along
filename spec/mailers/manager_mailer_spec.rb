@@ -14,7 +14,7 @@ RSpec.describe ManagerMailer, type: :mailer do
       expect(email.from).to eq(["no-reply@opentable.com"])
       expect(email.to).to eq(["manager@opentable.com"])
       expect(email.subject).to eq("IMMEDIATE ACTION REQUIRED: Security Access forms for #{employee.first_name} #{employee.last_name}")
-      expect(email.body.to_s).to include("Please follow the link below to complete the security access form")
+      expect(email.parts.first.body.raw_source).to include("Please follow the link below to complete the security access form")
     end
   end
 
@@ -31,7 +31,7 @@ RSpec.describe ManagerMailer, type: :mailer do
       expect(email.from).to eq(["no-reply@opentable.com"])
       expect(email.to).to eq(["manager@opentable.com"])
       expect(email.subject).to eq("IMMEDIATE ACTION REQUIRED: Equipment forms for #{employee.first_name} #{employee.last_name}")
-      expect(email.body.to_s).to include("Please follow the link below to complete the equipment form")
+      expect(email.parts.first.body.raw_source).to include("Please follow the link below to complete the equipment form")
     end
   end
 
@@ -48,8 +48,8 @@ RSpec.describe ManagerMailer, type: :mailer do
       expect(email.from).to eq(["no-reply@opentable.com"])
       expect(email.to).to eq(["manager@opentable.com"])
       expect(email.subject).to eq("IMMEDIATE ACTION REQUIRED: Onboarding forms for #{employee.first_name} #{employee.last_name}")
-      expect(email.body.to_s).to include("Please follow the link below to complete the onboarding form")
-      expect(email.body.to_s).to include("You must complete the onboarding forms by #{employee.onboarding_due_date}")
+      expect(email.parts.first.body.raw_source).to include("Please follow the link below to complete the onboarding form")
+      expect(email.parts.first.body.raw_source).to include("You must complete the onboarding forms by #{employee.onboarding_due_date}")
     end
   end
 end

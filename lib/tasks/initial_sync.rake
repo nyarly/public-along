@@ -2,7 +2,7 @@ require 'csv'
 require 'pp'
 
 namespace :sync do
-  desc "initial employee infro sync from csv, i.e. rake csv['/this/path']"
+  desc "initial employee info sync from csv, i.e. rake csv['/this/path']"
   task :csv, [:path] => :environment do |t, args|
     errors = {}
     ads = ActiveDirectoryService.new

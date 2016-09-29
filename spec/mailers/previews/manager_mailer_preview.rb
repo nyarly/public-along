@@ -6,7 +6,7 @@ class ManagerMailerPreview < ActionMailer::Preview
   end
 
   def offboarding_permissions
-    employee = Employee.unscoped.order('created_at ASC').last
+    employee = Employee.where('termination_date IS NOT NULL').last
     manager = Employee.find_by(employee_id: employee.manager_id) if employee && employee.manager_id
     ManagerMailer.permissions(manager, employee, "Offboarding")
   end
