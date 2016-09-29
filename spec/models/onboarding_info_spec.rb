@@ -7,6 +7,5 @@ RSpec.describe OnboardingInfo, type: :model do
     expect(onboarding_info).to be_valid
 
     expect(onboarding_info).to_not allow_value(nil).for(:employee_id)
-    expect(onboarding_info).to_not allow_value(nil).for(:buddy_id)
   end
 end
