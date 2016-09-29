@@ -21,7 +21,7 @@ require 'rails_helper'
 RSpec.describe ApplicationsController, type: :controller do
 
   let!(:application) { FactoryGirl.create(:application) }
-  let!(:user) { FactoryGirl.create(:user, :role_name => "Admin") }
+  let!(:user) { FactoryGirl.create(:user, :role_names => ["Admin"]) }
 
   let(:valid_attributes) {
     {

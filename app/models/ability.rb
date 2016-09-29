@@ -7,7 +7,7 @@ class Ability
         role.set_abilities(self)
       end
 
-      # add common abilies to logged_in users
+      # add common abilities to logged_in users
     else
       # add common abilities to public users here
     end

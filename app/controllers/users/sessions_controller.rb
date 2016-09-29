@@ -1,7 +1,7 @@
 class Users::SessionsController < Devise::SessionsController
   def create
     super do |user|
-      user.update_attributes(role_name: roles(user))
+      user.update_attributes(role_names: roles(user))
     end
   end
 
@@ -20,9 +20,6 @@ class Users::SessionsController < Devise::SessionsController
     end
     if memberships(user).include?("CN=mezzo_access_helpdesk,OU=OT,DC=ottest,DC=opentable,DC=com")
       roles << "Helpdesk"
-    end
-    if roles.blank?
-      roles << "Basic"
     end
     roles
   end

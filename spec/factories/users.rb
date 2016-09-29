@@ -4,23 +4,23 @@ FactoryGirl.define do
     last_name              { Faker::Name.last_name }
     sequence(:email)       { |n| "#{n}#{Faker::Internet.email}" }
     sequence(:ldap_user)   { |n| "#{Faker::Internet.user_name}#{n}" }
-    role_name              { "Basic" }
+    role_names              { ["Manager"] }
     sequence(:employee_id) { |n| "23712ghjk#{n}" }
   end
 
   trait :admin do
-    role_name { "Admin" }
+    role_names { ["Admin"] }
   end
 
   trait :helpdesk do
-    role_name { "Helpdesk" }
+    role_names { ["Helpdesk"] }
   end
 
   trait :human_resources do
-    role_name { "HumanResources" }
+    role_names { ["HumanResources"] }
   end
 
   trait :manager do
-    role_name { "Manager" }
+    role_names { ["Manager"] }
   end
 end

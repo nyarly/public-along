@@ -23,7 +23,7 @@ Rails.application.routes.draw do
     get  '/logout' => "users/sessions#destroy", :as => :logout
   end
 
-  authenticate :user, lambda { |u| u.role_name == "Admin" } do
+  authenticate :user, lambda { |u| u.role_names.include?("Admin") } do
     mount Sidekiq::Web => '/sidekiq'
   end
   # You can have the root of your site routed with "root"

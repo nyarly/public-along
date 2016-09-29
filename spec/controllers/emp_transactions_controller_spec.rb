@@ -25,7 +25,7 @@ RSpec.describe EmpTransactionsController, type: :controller do
   let!(:machine_bundle) { FactoryGirl.create(:machine_bundle) }
   let!(:employee) { FactoryGirl.create(:employee) }
   let!(:buddy) { FactoryGirl.create(:employee) }
-  let!(:user) { FactoryGirl.create(:user, :role_name => "Admin", employee_id: "12345") }
+  let!(:user) { FactoryGirl.create(:user, :role_names => ["Admin"], employee_id: "12345") }
 
   let(:valid_attributes) {
     {

@@ -4,7 +4,7 @@ RSpec.describe EmployeesController, type: :controller do
 
   let!(:employee) { FactoryGirl.create(:employee, manager_id: manager.employee_id) }
   let!(:manager) { FactoryGirl.create(:employee) }
-  let!(:user) { FactoryGirl.create(:user, :role_name => "Admin", employee_id: manager.employee_id) }
+  let!(:user) { FactoryGirl.create(:user, :role_names => ["Admin"], employee_id: manager.employee_id) }
   let!(:mailer) { double(ManagerMailer) }
   let!(:ads) { double(ActiveDirectoryService) }
 
@@ -33,6 +33,7 @@ RSpec.describe EmployeesController, type: :controller do
 
   describe "GET #index" do
     it "assigns all employees as @employees" do
+      allow(controller).to receive(:current_user).and_return(user)
       should_authorize(:index, Employee)
       get :index
       expect(assigns(:employees)).to include(employee)

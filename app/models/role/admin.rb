@@ -1,9 +1,7 @@
-class Role::Admin < Role::Basic
+class Role::Admin < Role
   Role.register 'Admin', self
 
   def set_abilities(ability)
-    super
-
     ability.can :manage, Employee
     ability.can :manage, MachineBundle
     ability.can :manage, Location

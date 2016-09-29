@@ -4,7 +4,11 @@ class EmployeesController < ApplicationController
   before_action :set_employee, only: [:show, :edit, :update]
 
   def index
-    @employees = Employee.all
+    if current_user.role_names.count == 1 && current_user.role_names.include?("Manager")
+      @employees = Employee.direct_reports_of(current_user.employee_id)
+    else
+      @employees = Employee.all
+    end
   end
 
   def show
