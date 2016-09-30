@@ -1,4 +1,4 @@
-<h1><%= @emp_transaction.kind %> Transaction</h1>
+<h1><%= @emp_transaction.kind %> Request Details</h1>
 
 <p>
   <strong>Submission Date:</strong>
@@ -49,22 +49,24 @@
   </p>
 <% end %>
 
-<% if @emp_transaction.kind == "Onboarding" || @emp_transaction.kind == "Security Access" %>
-  <p>
-    <strong>Applied Security Profiles:</strong>
-  </p>
-  <div class="indent-1">
-    <% @emp_transaction.security_profiles.each do |sp| %>
-      <div>
-        <%= sp.name %><br>
-        <ul>
-          <% sp.access_levels.find_each do |al| %>
-            <li class="indent-1"><small><%= al.name %> <%= al.application.name %></small></li>
-          <% end %>
-        </ul>
-      </div>
-    <% end %>
-  </div>
+<% if (@emp_transaction.kind == "Onboarding" || @emp_transaction.kind == "Security Access") %>
+  <% if @emp_transaction.security_profiles.count > 0 %>
+    <p>
+      <strong>Applied Security Profiles:</strong>
+    </p>
+    <div class="indent-1">
+      <% @emp_transaction.security_profiles.each do |sp| %>
+        <div>
+          <%= sp.name %><br>
+          <ul>
+            <% sp.access_levels.find_each do |al| %>
+              <li class="indent-1"><small><%= al.name %> <%= al.application.name %></small></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
 
   <% if @emp_transaction.revoked_security_profiles.count > 0 %>
     <p>
@@ -82,7 +84,23 @@
         </div>
       <% end %>
     </div>
+  <% end %>
+
+  <p>
+    <strong>Active Security Profiles:</strong>
+  </p>
+  <div class="indent-1">
+    <% @employee.active_security_profiles.each do |sp| %>
+      <div>
+        <%= sp.name %><br>
+        <ul>
+          <% sp.access_levels.find_each do |al| %>
+            <li class="indent-1"><small><%= al.name %> <%= al.application.name %></small></li>
+          <% end %>
+        </ul>
+      </div>
     <% end %>
+  </div>
 <% end %>
 
 <% if @emp_transaction.kind == "Onboarding" || @emp_transaction.kind == "Equipment" %>

@@ -95,6 +95,10 @@ class Employee < ActiveRecord::Base
     self.security_profiles.references(:emp_sec_profiles).where("emp_sec_profiles.revoking_transaction_id IS NOT NULL")
   end
 
+  def self.search(search)
+    where("lower(first_name) LIKE ? OR lower(last_name) LIKE ? ", "%#{search.downcase}%", "%#{search.downcase}%")
+  end
+
   def cn
     first_name + " " + last_name
   end

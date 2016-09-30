@@ -9,6 +9,12 @@ class EmployeesController < ApplicationController
     else
       @employees = Employee.all
     end
+
+    if params[:search]
+      @employees = Employee.search(params[:search]).order("last_name ASC")
+    else
+      @employees = Employee.all
+    end
   end
 
   def show

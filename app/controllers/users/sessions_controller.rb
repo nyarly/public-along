@@ -7,19 +7,19 @@ class Users::SessionsController < Devise::SessionsController
 
   protected
 
+  DN_MAPPING = {
+    "Admin" => "CN=mezzo_access_admin,OU=OT,DC=ottest,DC=opentable,DC=com",
+    "HumanResources" => "CN=mezzo_access_hr,OU=OT,DC=ottest,DC=opentable,DC=com",
+    "Manager" => "CN=mezzo_access_manager,OU=OT,DC=ottest,DC=opentable,DC=com",
+    "Helpdesk" => "CN=mezzo_access_helpdesk,OU=OT,DC=ottest,DC=opentable,DC=com"
+  }
+
   def roles(user)
     roles = []
-    if memberships(user).include?("CN=mezzo_access_admin,OU=OT,DC=ottest,DC=opentable,DC=com")
-      roles << "Admin"
-    end
-    if memberships(user).include?("CN=mezzo_access_hr,OU=OT,DC=ottest,DC=opentable,DC=com")
-      roles << "HumanResources"
-    end
-    if memberships(user).include?("CN=mezzo_access_manager,OU=OT,DC=ottest,DC=opentable,DC=com")
-      roles << "Manager"
-    end
-    if memberships(user).include?("CN=mezzo_access_helpdesk,OU=OT,DC=ottest,DC=opentable,DC=com")
-      roles << "Helpdesk"
+    DN_MAPPING.each do |k, v|
+      if memberships(user).include?(v)
+        roles << k
+      end
     end
     roles
   end
