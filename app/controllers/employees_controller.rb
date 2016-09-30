@@ -46,10 +46,13 @@ class EmployeesController < ApplicationController
     @employee.assign_attributes(employee_params)
 
     if @employee.changed? && @employee.valid?
-      if @employee.hire_date_changed? && @employee.termination_date_changed?
-        EmployeeWorker.perform_async("onboard", @employee.id)
+      if @employee.termination_date_changed?
+        EmployeeWorker.perform_at(5.business_days.before(termination_date), "Offboarding", @employee_id) if termination_date > 5.business_days.before(Time.now)
+        EmployeeWorker.perform_async("Offboarding", @employee_id) if termination_date < 5.business_days.before(Time.now)
+      elsif @employee.hire_date_changed? && @employee.termination_date_changed?
+        EmployeeWorker.perform_async("Onboarding", @employee.id)
       elsif @employee.manager_id_changed? || @employee.business_title_changed?
-        EmployeeWorker.perform_async("job_change", @employee.id)
+        EmployeeWorker.perform_async("Security Access", @employee.id)
       end
     end
 
