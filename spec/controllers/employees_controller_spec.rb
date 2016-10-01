@@ -2,9 +2,10 @@ require 'rails_helper'
 
 RSpec.describe EmployeesController, type: :controller do
 
-  let!(:employee) { FactoryGirl.create(:employee, manager_id: manager.employee_id) }
-  let!(:manager) { FactoryGirl.create(:employee) }
-  let!(:user) { FactoryGirl.create(:user, :role_names => ["Admin"], employee_id: manager.employee_id) }
+  let!(:employee) { FactoryGirl.create(:employee, first_name: "Alex", last_name: "Trebek", manager_id: manager.employee_id) }
+  let!(:manager) { FactoryGirl.create(:employee, first_name: "Pat", last_name: "Sajak") }
+  let!(:user) { FactoryGirl.create(:user, :role_names => ["Admin"], employee_id: employee.employee_id) }
+  let!(:mgr_user) { FactoryGirl.create(:user, :role_names => ["Manager"], employee_id: manager.employee_id) }
   let!(:mailer) { double(ManagerMailer) }
   let!(:ads) { double(ActiveDirectoryService) }
 
@@ -34,6 +35,21 @@ RSpec.describe EmployeesController, type: :controller do
   describe "GET #index" do
     it "assigns all employees as @employees" do
       allow(controller).to receive(:current_user).and_return(user)
+      should_authorize(:index, Employee)
+      get :index
+      expect(assigns(:employees)).to include(employee)
+    end
+
+    it "finds the correct employees with search params" do
+      allow(controller).to receive(:current_user).and_return(user)
+      should_authorize(:index, Employee)
+      get :index, { search: "pa" }
+      expect(assigns(:employees)).to include(manager)
+      expect(assigns(:employees)).to_not include(employee)
+    end
+
+    it "only shows direct reports for managers" do
+      allow(controller).to receive(:current_user).and_return(mgr_user)
       should_authorize(:index, Employee)
       get :index
       expect(assigns(:employees)).to include(employee)
