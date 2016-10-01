@@ -178,7 +178,7 @@ RSpec.describe EmployeesController, type: :controller do
       end
 
       it "calls EmployeeWorker with correct values" do
-        expect(EmployeeWorker).to receive(:perform_async).with("job_change", employee.id)
+        expect(EmployeeWorker).to receive(:perform_async).with("Security Access", employee.id)
 
         put :update, {:id => employee.id, :employee => new_attributes}
       end
