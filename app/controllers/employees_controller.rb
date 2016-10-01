@@ -6,11 +6,7 @@ class EmployeesController < ApplicationController
   def index
     if current_user.role_names.count == 1 && current_user.role_names.include?("Manager")
       @employees = Employee.direct_reports_of(current_user.employee_id)
-    else
-      @employees = Employee.all
-    end
-
-    if params[:search]
+    elsif params[:search]
       @employees = Employee.search(params[:search]).order("last_name ASC")
     else
       @employees = Employee.all
