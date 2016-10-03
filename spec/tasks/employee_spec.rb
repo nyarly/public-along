@@ -143,20 +143,6 @@ describe "employee rake tasks", type: :tasks do
       Rake::Task["employee:change_status"].invoke
     end
 
-    it "should send offboarding email to manager at 3am on termination date in US" do
-      termination = FactoryGirl.create(:employee, :manager_id => "12345", :hire_date => Date.new(2014, 5, 3), :termination_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "OT General Engineering").id, :location_id => sf.id)
-      termination_uk = FactoryGirl.create(:employee, :manager_id => "12345", :hire_date => Date.new(2014, 5, 3), :termination_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "OT General Engineering").id, :location_id => london.id)
-      manager = FactoryGirl.create(:employee, :employee_id => "12345")
-
-      # 7/29/2016 at 3am PST/10am UTC
-      Timecop.freeze(Time.new(2016, 7, 29, 10, 0, 0, "+00:00"))
-
-      expect(ManagerMailer).to receive(:permissions).with(manager, termination, "Offboarding").and_return(mailer)
-      expect(ManagerMailer).to_not receive(:permissions).with(manager, termination_uk, "Offboarding")
-      expect(mailer).to receive(:deliver_now)
-      Rake::Task["employee:change_status"].invoke
-    end
-
     it "should remove worker from all security groups at 3am, 30 days after termination" do
       termination = FactoryGirl.create(:employee, :manager_id => "12345", :hire_date => Date.new(2014, 5, 3), :termination_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "OT General Engineering").id, :location_id => sf.id)
       recent_termination = FactoryGirl.create(:employee, :manager_id => "12345", :hire_date => Date.new(2014, 5, 3), :termination_date => Date.new(2016, 8, 20), :department_id => Department.find_by(:name => "OT General Engineering").id, :location_id => sf.id)
