@@ -3,12 +3,12 @@ require 'rake'
 
 describe "employee rake tasks", type: :tasks do
 
-  let!(:london) { Location.find_by(:name => "OT London") }
-  let!(:sf) { Location.find_by(:name => "OT San Francisco") }
-  let!(:la) { Location.find_by(:name => "OT Los Angeles") }
-  let!(:mumbai) { Location.find_by(:name => "OT Mumbai") }
-  let!(:melbourne) { Location.find_by(:name => "OT Melbourne") }
-  let!(:illinois) { Location.find_by(:name => "OT Illinois") }
+  let!(:london) { Location.find_by(:name => "London") }
+  let!(:sf) { Location.find_by(:name => "San Francisco") }
+  let!(:la) { Location.find_by(:name => "Los Angeles") }
+  let!(:mumbai) { Location.find_by(:name => "Mumbai") }
+  let!(:melbourne) { Location.find_by(:name => "Melbourne") }
+  let!(:illinois) { Location.find_by(:name => "Illinois") }
 
   let(:mailer) { double(ManagerMailer) }
 
@@ -107,10 +107,10 @@ describe "employee rake tasks", type: :tasks do
     end
 
     it "should call ldap and update only terminations or workers on leave at 9pm in IST" do
-      contract_end = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :contract_end_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "OT General Engineering").id, :location_id => mumbai.id)
-      termination = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :termination_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "OT General Engineering").id, :location_id => mumbai.id)
-      leave = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :leave_start_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "OT Data Center Ops").id, :location_id => mumbai.id)
-      new_hire_in = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "OT Data Analytics").id, :location_id => mumbai.id)
+      contract_end = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :contract_end_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "Technology/CTO Admin").id, :location_id => mumbai.id)
+      termination = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :termination_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "Technology/CTO Admin").id, :location_id => mumbai.id)
+      leave = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :leave_start_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "Infrastructure Engineering").id, :location_id => mumbai.id)
+      new_hire_in = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "Data Analytics & Experimentation").id, :location_id => mumbai.id)
       new_hire_us = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :location_id => sf.id)
 
       # 7/29/2016 at 9pm IST/3:30pm UTC
@@ -144,8 +144,8 @@ describe "employee rake tasks", type: :tasks do
     end
 
     it "should remove worker from all security groups at 3am, 30 days after termination" do
-      termination = FactoryGirl.create(:employee, :manager_id => "12345", :hire_date => Date.new(2014, 5, 3), :termination_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "OT General Engineering").id, :location_id => sf.id)
-      recent_termination = FactoryGirl.create(:employee, :manager_id => "12345", :hire_date => Date.new(2014, 5, 3), :termination_date => Date.new(2016, 8, 20), :department_id => Department.find_by(:name => "OT General Engineering").id, :location_id => sf.id)
+      termination = FactoryGirl.create(:employee, :manager_id => "12345", :hire_date => Date.new(2014, 5, 3), :termination_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "Technology/CTO Admin").id, :location_id => sf.id)
+      recent_termination = FactoryGirl.create(:employee, :manager_id => "12345", :hire_date => Date.new(2014, 5, 3), :termination_date => Date.new(2016, 8, 20), :department_id => Department.find_by(:name => "Technology/CTO Admin").id, :location_id => sf.id)
       manager = FactoryGirl.create(:employee, :employee_id => "12345")
 
       app_1 = FactoryGirl.create(:application)
@@ -217,15 +217,15 @@ describe "employee rake tasks", type: :tasks do
       :contract_end_date => nil,
       :termination_date => nil,
       :job_family_id => "OT_Internal_Systems",
-      :job_family => "OT Internal Systems",
+      :job_family => "Internal Systems",
       :job_profile_id => "50100486",
-      :job_profile => "OT Internal Systems",
+      :job_profile => "Internal Systems",
       :business_title => "Rich Guy",
       :employee_type => "Regular",
       :contingent_worker_type => nil,
       :location_id => la.id,
       :manager_id => "12100123",
-      :department_id => Department.find_by(:name => "OT Business Optimization").id,
+      :department_id => Department.find_by(:name => "BizOpti/Internal Systems Engineering").id,
       :office_phone => nil,
       :image_code => nil)
 
@@ -238,15 +238,15 @@ describe "employee rake tasks", type: :tasks do
       :contract_end_date => nil,
       :termination_date => nil,
       :job_family_id => "OT_Legal",
-      :job_family => "OT Legal",
+      :job_family => "Legal",
       :job_profile_id => "50100324",
-      :job_profile => "OT Legal",
-      :business_title => "OT Fraud Analyst",
+      :job_profile => "Legal",
+      :business_title => "Fraud Analyst",
       :employee_type => "Regular",
       :contingent_worker_type => nil,
       :location_id => melbourne.id,
       :manager_id => "12101034",
-      :department_id => Department.find_by(:name => "OT Legal").id,
+      :department_id => Department.find_by(:name => "Legal").id,
       :office_phone => "(213) 555-1234",
       :image_code => nil)
 
@@ -264,8 +264,8 @@ describe "employee rake tasks", type: :tasks do
         title: "Rich Guy",
         description: "Rich Guy",
         employeeType: "Regular",
-        physicalDeliveryOfficeName: "OT Los Angeles",
-        department: "OT Business Optimization",
+        physicalDeliveryOfficeName: "Los Angeles",
+        department: "BizOpti/Internal Systems Engineering",
         employeeID: "1234567",
         mobile: nil,
         telephoneNumber: nil,
@@ -287,11 +287,11 @@ describe "employee rake tasks", type: :tasks do
         workdayUsername: "kkylie",
         co: "AU",
         accountExpires: "9223372036854775807",
-        title: "OT Fraud Analyst",
-        description: "OT Fraud Analyst",
+        title: "Fraud Analyst",
+        description: "Fraud Analyst",
         employeeType: "Regular",
-        physicalDeliveryOfficeName: "OT Melbourne",
-        department: "OT Legal",
+        physicalDeliveryOfficeName: "Melbourne",
+        department: "Legal",
         employeeID: "109843",
         mobile: nil,
         telephoneNumber: "(213) 555-1234",
@@ -332,8 +332,8 @@ describe "employee rake tasks", type: :tasks do
           :title=>"Software Development Team Lead",
           :description=>"Software Development Team Lead",
           :employeeType=>"Regular",
-          :physicalDeliveryOfficeName=>"OT Los Angeles",
-          :department=>"OT Business Optimization",
+          :physicalDeliveryOfficeName=>"Los Angeles",
+          :department=>"BizOpti/Internal Systems Engineering",
           :employeeID=>"12100401",
           :telephoneNumber=>"(213) 555-4321"}})
       expect(@ldap).to receive(:add).once.with({
@@ -350,11 +350,11 @@ describe "employee rake tasks", type: :tasks do
           :workdayUsername=>"walters",
           :co=>"GB",
           :accountExpires=>"131117184000000000",
-          :title=>"OT Contingent Position - Product Management",
-          :description=>"OT Contingent Position - Product Management",
+          :title=>"Contingent Position - Product Management",
+          :description=>"Contingent Position - Product Management",
           :employeeType=>"Vendor",
-          :physicalDeliveryOfficeName=>"OT London",
-          :department=>"OT General Product Management",
+          :physicalDeliveryOfficeName=>"London",
+          :department=>"Consumer Product Management",
           :employeeID=>"109640",
           :telephoneNumber=>"(213) 555-9876"}})
       expect(@ldap).to receive(:add).once.with({
@@ -369,11 +369,11 @@ describe "employee rake tasks", type: :tasks do
           :workdayUsername=>"12101234",
           :co=>"US",
           :accountExpires=>"9223372036854775807",
-          :title=>"OT Account Executive",
-          :description=>"OT Account Executive",
+          :title=>"Account Executive",
+          :description=>"Account Executive",
           :employeeType=>"Regular",
-          :physicalDeliveryOfficeName=>"OT Illinois",
-          :department=>"OT Sales - General",
+          :physicalDeliveryOfficeName=>"Illinois",
+          :department=>"Sales",
           :employeeID=>"12101234",
           :telephoneNumber=>"(213) 555-4321",
           :streetAddress=>"123 East Side, #2310",
