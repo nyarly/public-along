@@ -4,7 +4,13 @@ class EmployeesController < ApplicationController
   before_action :set_employee, only: [:show, :edit, :update]
 
   def index
-    @employees = Employee.all
+    if current_user.role_names.count == 1 && current_user.role_names.include?("Manager")
+      @employees = Employee.direct_reports_of(current_user.employee_id)
+    elsif params[:search]
+      @employees = Employee.search(params[:search]).order("last_name ASC")
+    else
+      @employees = Employee.all
+    end
   end
 
   def show
@@ -37,9 +43,12 @@ class EmployeesController < ApplicationController
 
     if @employee.changed? && @employee.valid?
       if @employee.hire_date_changed? && @employee.termination_date_changed?
-        EmployeeWorker.perform_async("onboard", @employee.id)
+        EmployeeWorker.perform_async("Onboarding", @employee.id)
+      elsif @employee.termination_date_changed?
+        EmployeeWorker.perform_at(5.business_days.before(@employee.termination_date), "Offboarding", @employee.id) if Time.now < 5.business_days.before(@employee.termination_date)
+        EmployeeWorker.perform_async("Offboarding", @employee.id) if Time.now > 5.business_days.before(@employee.termination_date)
       elsif @employee.manager_id_changed? || @employee.business_title_changed?
-        EmployeeWorker.perform_async("job_change", @employee.id)
+        EmployeeWorker.perform_async("Security Access", @employee.id)
       end
     end
 

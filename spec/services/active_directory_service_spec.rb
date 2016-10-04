@@ -129,7 +129,7 @@ describe ActiveDirectoryService, type: :service do
 
   context "update attributes" do
     let(:ldap_entry) { Net::LDAP::Entry.new(employee.dn) }
-    let(:employee) { FactoryGirl.create(:employee, :first_name => "Jeffrey", :last_name => "Lebowski", :department_id => Department.find_by(:name => "OT People and Culture").id , :location_id => Location.find_by(:name => "OT San Francisco").id)}
+    let(:employee) { FactoryGirl.create(:employee, :first_name => "Jeffrey", :last_name => "Lebowski", :department_id => Department.find_by(:name => "People and Culture").id , :location_id => Location.find_by(:name => "San Francisco").id)}
 
     before :each do
       ldap_entry[:cn] = "Jeffrey Lebowski"
@@ -189,10 +189,10 @@ describe ActiveDirectoryService, type: :service do
     end
 
     it "should update dn if department changes" do
-      employee.department = Department.find_by(:name => "OT Customer Support")
+      employee.department = Department.find_by(:name => "Customer Support")
       allow(ldap).to receive(:search).and_return([ldap_entry])
 
-      expect(ldap).to receive(:replace_attribute).once.with(employee.dn, :department, "OT Customer Support")
+      expect(ldap).to receive(:replace_attribute).once.with(employee.dn, :department, "Customer Support")
       expect(ldap).to receive(:rename).once.with(
         :olddn => "cn=Jeffrey Lebowski,ou=People and Culture,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com",
         :newrdn => "cn=Jeffrey Lebowski",

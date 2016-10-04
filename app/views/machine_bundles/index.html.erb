@@ -5,6 +5,7 @@
     <tr>
       <th>Name</th>
       <th>Description</th>
+      <th>Departments</th>
       <th colspan="3"></th>
     </tr>
   </thead>
@@ -14,6 +15,7 @@
       <tr>
         <td><%= machine_bundle.name %></td>
         <td><%= machine_bundle.description %></td>
+        <td><%= raw(machine_bundle.departments.map(&:name).join('<br/>')) %></td>
         <td><%= link_to 'Show', machine_bundle %></td>
         <td><%= link_to 'Edit', edit_machine_bundle_path(machine_bundle) %></td>
         <td><%= link_to 'Destroy', machine_bundle, method: :delete, data: { confirm: 'Are you sure?' } %></td>

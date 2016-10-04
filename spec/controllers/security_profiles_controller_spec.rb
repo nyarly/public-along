@@ -21,7 +21,7 @@ require 'rails_helper'
 RSpec.describe SecurityProfilesController, type: :controller do
 
   let!(:security_profile) { FactoryGirl.create(:security_profile) }
-  let!(:user) { FactoryGirl.create(:user, :role_name => "Admin") }
+  let!(:user) { FactoryGirl.create(:user, :role_names => ["Admin"]) }
 
   let(:valid_attributes) {
     {

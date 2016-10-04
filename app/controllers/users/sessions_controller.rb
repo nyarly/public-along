@@ -1,25 +1,27 @@
 class Users::SessionsController < Devise::SessionsController
   def create
     super do |user|
-      user.update_attributes(role_name: role_name(user))
+      user.update_attributes(role_names: roles(user))
     end
   end
 
   protected
 
-  def role_name(user)
-    case
-    when memberships(user).include?("CN=mezzo_access_admin,OU=OT,DC=ottest,DC=opentable,DC=com")
-      "Admin"
-    when memberships(user).include?("CN=mezzo_access_hr,OU=OT,DC=ottest,DC=opentable,DC=com")
-      "HumanResources"
-    when memberships(user).include?("CN=mezzo_access_manager,OU=OT,DC=ottest,DC=opentable,DC=com")
-      "Manager"
-    when memberships(user).include?("CN=mezzo_access_helpdesk,OU=OT,DC=ottest,DC=opentable,DC=com")
-      "Helpdesk"
-    else
-      "Basic"
+  DN_MAPPING = {
+    "Admin" => "CN=mezzo_access_admin,OU=OT,DC=ottest,DC=opentable,DC=com",
+    "HumanResources" => "CN=mezzo_access_hr,OU=OT,DC=ottest,DC=opentable,DC=com",
+    "Manager" => "CN=mezzo_access_manager,OU=OT,DC=ottest,DC=opentable,DC=com",
+    "Helpdesk" => "CN=mezzo_access_helpdesk,OU=OT,DC=ottest,DC=opentable,DC=com"
+  }
+
+  def roles(user)
+    roles = []
+    DN_MAPPING.each do |k, v|
+      if memberships(user).include?(v)
+        roles << k
+      end
     end
+    roles
   end
 
   def memberships(user)

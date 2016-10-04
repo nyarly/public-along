@@ -17,7 +17,7 @@
         <td><%= access_level.name %></td>
         <td><%= access_level.application.name %></td>
         <td><%= access_level.ad_security_group %></td>
-        <td><%= access_level.security_profiles.map(&:name) %></td>
+        <td><%= raw(access_level.security_profiles.map(&:name).join('<br/>')) %></td>
         <td><%= link_to 'Show', access_level %></td>
         <td><%= link_to 'Edit', edit_access_level_path(access_level) %></td>
         <td><%= link_to 'Destroy', access_level, method: :delete, data: { confirm: 'Are you sure?' } %></td>

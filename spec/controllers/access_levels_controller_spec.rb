@@ -21,7 +21,7 @@ require 'rails_helper'
 RSpec.describe AccessLevelsController, type: :controller do
 
   let!(:access_level) { FactoryGirl.create(:access_level) }
-  let!(:user) { FactoryGirl.create(:user, :role_name => "Admin") }
+  let!(:user) { FactoryGirl.create(:user, :role_names => ["Admin"]) }
 
   let(:valid_attributes) {
     {

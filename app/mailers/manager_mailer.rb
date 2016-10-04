@@ -3,6 +3,7 @@ class ManagerMailer < ApplicationMailer
     @manager = manager
     @employee = employee
     @kind = kind
-    mail(to: @manager.email, subject: "IMMEDIATE ACTION REQUIRED: #{kind} forms for #{employee.first_name} #{employee.last_name}")
+    attachments.inline['techtable.png'] = File.read(Rails.root.join('app/assets/images/techtable.png'))
+    mail(to: @manager.email, subject: "IMMEDIATE ACTION REQUIRED: Employee Event Form for #{employee.first_name} #{employee.last_name}")
   end
 end

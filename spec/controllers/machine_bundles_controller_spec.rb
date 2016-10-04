@@ -21,7 +21,7 @@ require 'rails_helper'
 RSpec.describe MachineBundlesController, type: :controller do
 
   let!(:machine_bundle) { FactoryGirl.create(:machine_bundle) }
-  let!(:user) { FactoryGirl.create(:user, :role_name => "Admin") }
+  let!(:user) { FactoryGirl.create(:user, :role_names => ["Admin"]) }
 
   let(:valid_attributes) {
     {

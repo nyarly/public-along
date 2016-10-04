@@ -1,6 +1,6 @@
 <h4>Machine Bundles *</h4>
 <p class="help-text">Select a machine bundle for the worker.</p>
-<% MachineBundle.all.each do |mb| %>
+<% MachineBundle.find_bundles_for(@employee.department.id).each do |mb| %>
     <div class="column large-6 medium-12">
       <%= radio_button_tag 'machine_bundle_id', mb.id, false, required: true %>
       <%= f.label "#{mb.name}" %><br>

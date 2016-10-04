@@ -1,5 +1,6 @@
+<%= image_tag attachments['techtable.png'].url -%>
 <div style="font-family: helvetica;">
-  <p>You have <% @kind %> forms to fill for:</p>
+  <p>You have an employee event form awaiting your action for:</p>
 
   <p style="margin-left: 2em">
     <strong>Name:</strong>
@@ -24,26 +25,28 @@
   <% if @kind == "Onboarding" %>
     <p>
       <strong style="color: red; text-decoration: underline">
-        You must complete the onboarding forms by <%= @employee.onboarding_due_date %>.
+        You must complete this form by <%= @employee.onboarding_due_date %>.
       </strong>
     </p>
 
     <p>
-      <strong style="color: red">Submissions after the due date risk the new hire not having access rights or equipment on their first day.</strong>
+      <strong style="color: red">Submissions after the due date may cause your employee’s access to be compromised and delayed.</strong>
     </p>
   <% end %>
 
   <% if @kind == "Offboarding" %>
     <p>
       <strong style="color: red; text-decoration: underline">
-        You must complete the offboarding forms by <%= @employee.termination_date.strftime("%b %e, %Y") %>.
+        You must complete this form by <%= @employee.termination_date.strftime("%b %e, %Y") %>.
       </strong>
     </p>
   <% end %>
 
-  <p>Please follow the link below to complete the <%= @kind.downcase %> form:</p>
-  <p style="margin-left: 2em"><%= link_to "#{@kind} Form for #{@employee.cn}", new_emp_transaction_url({
+  <p>Please follow the link below to complete the employee event form:</p>
+  <p style="margin-left: 2em"><%= link_to "Employee Event Form for #{@employee.cn}", new_emp_transaction_url({
     :user_emp_id => @manager.employee_id,
     :employee_id => @employee.id,
     :kind => @kind}) %></p>
+
+    <p>For any questions, please contact <%= mail_to "othelpme@opentable.com" %>.</p>
 </div>

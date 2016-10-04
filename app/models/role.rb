@@ -3,19 +3,22 @@ class Role
   include ClassRegistry
   def self.registrar; Role; end
 
-  def self.for(user)
-    registry[user.role_name].new.tap do |role|
-      role.user = user
+  def self.list(user)
+    list = []
+    user.role_names.each do |role_name|
+      role = registry[role_name].new.tap { |r| r.user = user }
+      list << role
     end
+    list
   end
 
   def self.users
-    User.where(:role_name => registrar.registry_key(self))
+    User.where('role_names LIKE ?', "%#{registrar.registry_key(self)}%")
   end
 
 
-  def role_name
-    user.role_name
+  def role_names
+    user.role_names
   end
 
 

@@ -1,9 +1,9 @@
 require 'rails_helper'
 
 describe Employee, type: :model do
-  let(:dept) { Department.find_by(name: "OT Customer Support") }
+  let(:dept) { Department.find_by(name: "Customer Support") }
 
-  let!(:location) { Location.find_by(:name => "OT London") }
+  let!(:location) { Location.find_by(:name => "London") }
 
   context "with a regular employee" do
 
@@ -181,12 +181,12 @@ describe Employee, type: :model do
     it "should calculate an onboarding due date according to location" do
       emp_1 = FactoryGirl.create(:employee,
         hire_date: Date.new(2016, 7, 25, 2),
-        location: Location.find_by_name("OT San Francisco")
+        location: Location.find_by_name("San Francisco")
       )
 
       emp_2 = FactoryGirl.create(:employee,
         hire_date: Date.new(2016, 7, 25, 2),
-        location: Location.find_by_name("OT London")
+        location: Location.find_by_name("London")
       )
 
       expect(emp_1.onboarding_due_date).to eq("Jul 18, 2016")

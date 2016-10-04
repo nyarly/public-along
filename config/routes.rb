@@ -23,7 +23,7 @@ Rails.application.routes.draw do
     get  '/logout' => "users/sessions#destroy", :as => :logout
   end
 
-  authenticate :user, lambda { |u| u.role_name == "Admin" } do
+  authenticate :user, lambda { |u| u.role_names.include?("Admin") } do
     Sidekiq::Web.session_secret = Rails.application.secrets[:secret_key_base]
     mount Sidekiq::Web => '/sidekiq'
   end

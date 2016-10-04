@@ -27,9 +27,9 @@ describe XmlService, type: :service do
       expect(Employee.find_by(:first_name => "Jeffrey").business_title).to eq("Software Development Team Lead")
       expect(Employee.find_by(:first_name => "Jeffrey").employee_type).to eq("Regular")
       expect(Employee.find_by(:first_name => "Jeffrey").location.kind).to eq("Office")
-      expect(Employee.find_by(:first_name => "Jeffrey").location.name).to eq("OT Los Angeles")
+      expect(Employee.find_by(:first_name => "Jeffrey").location.name).to eq("Los Angeles")
       expect(Employee.find_by(:first_name => "Jeffrey").manager_id).to eq("12100123")
-      expect(Employee.find_by(:first_name => "Jeffrey").department.name).to eq("OT Business Optimization")
+      expect(Employee.find_by(:first_name => "Jeffrey").department.name).to eq("BizOpti/Internal Systems Engineering")
       expect(Employee.find_by(:first_name => "Jeffrey").office_phone).to eq("(213) 555-4321")
       expect(Employee.find_by(:first_name => "Jeffrey").image_code).to be_nil
       expect(Employee.find_by(:first_name => "Jeffrey").home_address_1).to be_nil
@@ -66,9 +66,9 @@ describe XmlService, type: :service do
       expect(Employee.find_by(:first_name => "Walter").business_title).to eq("OT Contingent Position - Product Management")
       expect(Employee.find_by(:first_name => "Walter").employee_type).to eq("Vendor")
       expect(Employee.find_by(:first_name => "Walter").location.kind).to eq("Office")
-      expect(Employee.find_by(:first_name => "Walter").location.name).to eq("OT London")
+      expect(Employee.find_by(:first_name => "Walter").location.name).to eq("London")
       expect(Employee.find_by(:first_name => "Walter").manager_id).to eq("12101502")
-      expect(Employee.find_by(:first_name => "Walter").department.name).to eq("OT General Product Management")
+      expect(Employee.find_by(:first_name => "Walter").department.name).to eq("Consumer Product Management")
       expect(Employee.find_by(:first_name => "Walter").office_phone).to eq("(213) 555-9876")
       expect(Employee.find_by(:first_name => "Walter").image_code).to be_nil
       expect(Employee.find_by(:first_name => "Walter").home_address_1).to be_nil
@@ -111,7 +111,7 @@ describe XmlService, type: :service do
       :business_title => "Software Development Team Lead",
       :first_name => "Jeffrey",
       :last_name => "Lebowski",
-      :department => Department.find_by(:name =>"OT Business Optimization"),
+      :department => Department.find_by(:name =>"BizOpti/Internal Systems Engineering"),
       :image_code => nil)
     }
     let!(:terminated_employee) { FactoryGirl.create(:employee,
@@ -258,7 +258,7 @@ describe XmlService, type: :service do
       allow(ads).to receive(:create_disabled_accounts)
       allow(ads).to receive(:update)
 
-      expect(XmlTransaction).to receive(:create).with({:name=>"new_hire.xml", :checksum=>"b391376cd38195663620209aeca25a10"})
+      expect(XmlTransaction).to receive(:create).with({:name=>"new_hire.xml", :checksum=>"9153748e16ec8c472137f285bcfbae83"})
 
       xml.parse_to_ad
     end

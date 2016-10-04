@@ -2,9 +2,10 @@ require 'rails_helper'
 
 RSpec.describe EmployeesController, type: :controller do
 
-  let!(:employee) { FactoryGirl.create(:employee, manager_id: manager.employee_id) }
-  let!(:manager) { FactoryGirl.create(:employee) }
-  let!(:user) { FactoryGirl.create(:user, :role_name => "Admin", employee_id: manager.employee_id) }
+  let!(:employee) { FactoryGirl.create(:employee, first_name: "Alex", last_name: "Trebek", manager_id: manager.employee_id) }
+  let!(:manager) { FactoryGirl.create(:employee, first_name: "Pat", last_name: "Sajak") }
+  let!(:user) { FactoryGirl.create(:user, :role_names => ["Admin"], employee_id: employee.employee_id) }
+  let!(:mgr_user) { FactoryGirl.create(:user, :role_names => ["Manager"], employee_id: manager.employee_id) }
   let!(:mailer) { double(ManagerMailer) }
   let!(:ads) { double(ActiveDirectoryService) }
 
@@ -33,6 +34,22 @@ RSpec.describe EmployeesController, type: :controller do
 
   describe "GET #index" do
     it "assigns all employees as @employees" do
+      allow(controller).to receive(:current_user).and_return(user)
+      should_authorize(:index, Employee)
+      get :index
+      expect(assigns(:employees)).to include(employee)
+    end
+
+    it "finds the correct employees with search params" do
+      allow(controller).to receive(:current_user).and_return(user)
+      should_authorize(:index, Employee)
+      get :index, { search: "pa" }
+      expect(assigns(:employees)).to include(manager)
+      expect(assigns(:employees)).to_not include(employee)
+    end
+
+    it "only shows direct reports for managers" do
+      allow(controller).to receive(:current_user).and_return(mgr_user)
       should_authorize(:index, Employee)
       get :index
       expect(assigns(:employees)).to include(employee)
@@ -134,9 +151,7 @@ RSpec.describe EmployeesController, type: :controller do
     context "with valid params" do
       let(:new_attributes) {
         {
-          first_name: "Bobby",
-          last_name: "Barker",
-          business_title: "New Title",
+          first_name: "Al",
           department_id: 1,
           location_id: 1
         }
@@ -145,7 +160,7 @@ RSpec.describe EmployeesController, type: :controller do
       it "updates the requested employee" do
         put :update, {:id => employee.id, :employee => new_attributes}
         employee.reload
-        expect(employee.first_name).to eq("Bobby")
+        expect(employee.first_name).to eq("Al")
       end
 
       it "assigns the requested employee as @employee" do
@@ -160,15 +175,90 @@ RSpec.describe EmployeesController, type: :controller do
         put :update, {:id => employee.id, :employee => new_attributes}
       end
 
-      it "calls EmployeeWorker with correct values" do
-        expect(EmployeeWorker).to receive(:perform_async).with("job_change", employee.id)
-
-        put :update, {:id => employee.id, :employee => new_attributes}
-      end
-
       it "redirects to the employee" do
         put :update, {:id => employee.id, :employee => valid_attributes}
         expect(response).to redirect_to(employees_url)
+      end
+    end
+
+    context "Job Change - Business Title" do
+      let(:new_attributes) {
+        {
+          first_name: "Bobby",
+          last_name: "Barker",
+          business_title: "New Title"
+        }
+      }
+
+      it "calls EmployeeWorker with correct values" do
+        expect(EmployeeWorker).to receive(:perform_async).with("Security Access", employee.id)
+
+        put :update, {:id => employee.id, :employee => new_attributes}
+      end
+    end
+
+    context "Job Change - Manager change" do
+      let(:new_attributes) {
+        {
+          first_name: "Bobby",
+          last_name: "Barker",
+          manager_id: "newmgr1234"
+        }
+      }
+
+      it "calls EmployeeWorker with correct values" do
+        expect(EmployeeWorker).to receive(:perform_async).with("Security Access", employee.id)
+
+        put :update, {:id => employee.id, :employee => new_attributes}
+      end
+    end
+
+    context "Rehire" do
+      let(:new_attributes) {
+        {
+          hire_date: 2.weeks.from_now,
+          termination_date: nil
+        }
+      }
+
+      it "calls EmployeeWorker with correct values" do
+        employee.hire_date = 4.years.ago
+        employee.termination_date = 3.years.ago
+        employee.save!
+
+        expect(EmployeeWorker).to receive(:perform_async).with("Onboarding", employee.id)
+
+        put :update, {:id => employee.id, :employee => new_attributes}
+      end
+    end
+
+    context "Termination" do
+      let(:zeroed_date) { 8.days.from_now.change(:usec => 0) }
+
+      let(:new_attributes) {
+        {
+          termination_date: zeroed_date
+        }
+      }
+
+      it "calls EmployeeWorker with correct values" do
+        expect(EmployeeWorker).to receive(:perform_at).with(5.business_days.before(zeroed_date),"Offboarding", employee.id)
+
+        put :update, {:id => employee.id, :employee => new_attributes}
+      end
+    end
+
+    context "Termination - expedited" do
+      let(:new_attributes) {
+        {
+          termination_date: 2.days.from_now
+        }
+      }
+
+      it "calls EmployeeWorker with correct values" do
+        expect(EmployeeWorker).to receive(:perform_async).with("Offboarding", employee.id)
+
+        put :update, {:id => employee.id, :employee => new_attributes}
       end
     end
 

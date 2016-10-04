@@ -15,5 +15,13 @@
   <% end %>
 </p>
 
+<p>
+  <strong>Machine Bundles:</strong>
+  <% @department.machine_bundles.each do |sp| %>
+    <br><%= sp.name %>
+  <% end %>
+</p>
+
+
 <%= link_to 'Edit', edit_department_path(@department) %> |
 <%= link_to 'Back', departments_path %>

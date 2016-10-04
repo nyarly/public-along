@@ -21,7 +21,7 @@ require 'rails_helper'
 RSpec.describe DepartmentsController, type: :controller do
 
   let!(:department) { FactoryGirl.create(:department) }
-  let!(:user) { FactoryGirl.create(:user, :role_name => "Admin") }
+  let!(:user) { FactoryGirl.create(:user, :role_names => ["Admin"]) }
 
   let(:valid_attributes) {
     {

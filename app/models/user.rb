@@ -2,9 +2,10 @@ class User < ActiveRecord::Base
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
   devise :ldap_authenticatable, :trackable
+  serialize :role_names
 
-  def role
-    @role ||= Role.for(self)
+  def roles
+    @roles ||= Role.list(self)
   end
 
   validates :first_name,

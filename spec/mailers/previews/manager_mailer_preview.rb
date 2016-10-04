@@ -1,4 +1,7 @@
 class ManagerMailerPreview < ActionMailer::Preview
+  # set preview interceptor to show images in preview mode
+  ActionMailer::Base.register_preview_interceptor(ActionMailer::InlinePreviewInterceptor)
+
   def onboarding_permissions
     employee = Employee.unscoped.order('created_at ASC').last
     manager = Employee.find_by(employee_id: employee.manager_id) if employee && employee.manager_id
