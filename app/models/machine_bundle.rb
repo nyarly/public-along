@@ -5,4 +5,7 @@ class MachineBundle < ActiveRecord::Base
             case_sensitive: false
   validates :description,
             presence: true
+
+  has_many :dept_mach_bundles
+  has_many :departments, through: :dept_mach_bundles
 end

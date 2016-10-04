@@ -8,5 +8,12 @@
   <%= @machine_bundle.description %>
 </p>
 
+<p>
+  <strong>Departments:</strong>
+  <% @machine_bundle.departments.each do |dept| %>
+    <br><%= dept.name %>
+  <% end %>
+</p>
+
 <%= link_to 'Edit', edit_machine_bundle_path(@machine_bundle) %> |
 <%= link_to 'Back', machine_bundles_path %>

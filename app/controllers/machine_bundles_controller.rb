@@ -71,6 +71,6 @@ class MachineBundlesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def machine_bundle_params
-      params.require(:machine_bundle).permit(:name, :description)
+      params.require(:machine_bundle).permit(:name, :description, department_ids: [])
     end
 end

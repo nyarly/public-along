@@ -40,9 +40,9 @@ depts = [
   {:name =>  "Business Development", :code => "000070"}
 ]
 
-ActiveRecord::Base.transaction do
-  depts.each { |attrs| Department.create(attrs) }
-end
+# ActiveRecord::Base.transaction do
+#   depts.each { |attrs| Department.create(attrs) }
+# end
 
 locs = [
   { :name => "San Francisco", :kind => "Office", :country => "US" },
@@ -90,9 +90,9 @@ locs = [
   { :name => "Kentucky", :kind => "Remote Location", :country => "US" }
 ]
 
-ActiveRecord::Base.transaction do
-  locs.each { |attrs| Location.create(attrs) }
-end
+# ActiveRecord::Base.transaction do
+#   locs.each { |attrs| Location.create(attrs) }
+# end
 
 # mach_bundles = [
 #   {:name => 'Engineer Basic Mac Bundle', :description => 'MacBook Pro 15", 27" Asus Monitor, Accessories' },
@@ -113,46 +113,45 @@ end
 # ]
 
 mach_bundles = [
-  {:name => 'Engineer Basic Mac Bundle', :description => 'MacBook Pro 15", 27" Asus Monitor, Accessories' },
-  {:name => 'Engineer Basic PC Bundle', :description => 'T460 (engineering), 27" Asus Monitor, Accessories' },
-  {:name => 'Sales/Restaurant Relations - PC', :description => 'T460, 27" Asus Monitor, Accessories' },
-  {:name => 'Sales/Restaurant Relations - Mac', :description => '13" MacBook Air, Asus Monitor, Accessories' },
-  {:name => 'Sales/Restaurant Relations - Remote - PC', :description => 'T460, 27" Asus Monitor, Accessories, Verizon Jetpack' },
-  {:name => 'Sales/Restaurant Relations - Remote - Mac', :description => '13" MacBook Air, Asus Monitor, Accessories, Verizon Jetpack' },
-  # {:name => 'Customer Support - PC', :description => 'T460, 27" Asus Monitor, Accessories' },
-  {:name => 'Designer - Mac Bundle', :description => '15" MacBook Pro, Thunderbolt Display, Accessories' },
-  # {:name => 'Accounting - PC Bundle', :description => 'T460, 27" Asus Monitor, Accessories' },
-  # {:name => 'People & Culture - PC Bundle', :description => 'T460, 27" Asus Monitor, Accessories' },
-  # {:name => 'Marketing - PC Bundle', :description => 'T460, 27" Asus Monitor, Accessories' },
-  # {:name => 'Marketing - Mac Bundle', :description => '13" MacBook Air, Asus Monitor, Accessories' },
-  # {:name => 'Finance - PC Bundle', :description => 'T460, 27" Asus Monitor, Accessories' },
-  # {:name => 'Legal - PC Bundle', :description => 'T460, 27" Asus Monitor, Accessories' },
+  {:name => 'Mac Bundle - Engineering', :description => 'MacBook Pro 15", 27" Asus Monitor, Accessories' },
+  {:name => 'PC Bundle - Engineering', :description => 'T460 (engineering), 27" Asus Monitor, Accessories' },
+  {:name => 'PC Bundle', :description => 'T460, 27" Asus Monitor, Accessories' },
+  {:name => 'Mac Bundle', :description => '13" MacBook Air, Asus Monitor, Accessories' },
+  {:name => 'PC Bundle - Remote', :description => 'T460, 27" Asus Monitor, Accessories, Verizon Jetpack' },
+  {:name => 'Mac Bundle - Remote', :description => '13" MacBook Air, Asus Monitor, Accessories, Verizon Jetpack' },
+  {:name => 'Mac Bundle - Designer', :description => '15" MacBook Pro, Thunderbolt Display, Accessories' },
   {:name => 'No Equipment Needed', :description => '' },
 ]
 
 ActiveRecord::Base.transaction do
+  depts.each { |attrs| Department.create(attrs) }
+  locs.each { |attrs| Location.create(attrs) }
   mach_bundles.each { |attrs| MachineBundle.create(attrs) }
 end
 
-# dept_mach_bundles = [
-#   {:department_id => Department.find_by(:name => "Sales").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
-#   {:department_id => Department.find_by(:name => "Sales").id, :machine_bundle_id => MachineBundle.find_by(:name => "Mac 13\" Bundle").id},
-#   {:department_id => Department.find_by(:name => "Sales").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle - Remote").id},
-#   {:department_id => Department.find_by(:name => "Sales").id, :machine_bundle_id => MachineBundle.find_by(:name => "Mac 13\" Bundle - Remote").id},
-#   {:department_id => Department.find_by(:name => "Restaurant Relations Management").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
-#   {:department_id => Department.find_by(:name => "Restaurant Relations Management").id, :machine_bundle_id => MachineBundle.find_by(:name => "Mac 13\" Bundle").id},
-#   {:department_id => Department.find_by(:name => "Restaurant Relations Management").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle - Remote").id},
-#   {:department_id => Department.find_by(:name => "Restaurant Relations Management").id, :machine_bundle_id => MachineBundle.find_by(:name => "Mac 13\" Bundle - Remote").id},
-#   {:department_id => Department.find_by(:name => "Customer Support").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
-#   {:department_id => Department.find_by(:name => "Finance Operations").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
-#   {:department_id => Department.find_by(:name => "People and Culture").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
-#   {:department_id => Department.find_by(:name => "Brand/General Marketing").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
-#   {:department_id => Department.find_by(:name => "Brand/General Marketing").id, :machine_bundle_id => MachineBundle.find_by(:name => "Mac 13\" Bundle").id},
-#   {:department_id => Department.find_by(:name => "Brand/General Marketing").id, :machine_bundle_id => MachineBundle.find_by(:name => "Mac Bundle - Designer").id},
-#   {:department_id => Department.find_by(:name => "Consumer Marketing").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
-#   {:department_id => Department.find_by(:name => "Consumer Marketing").id, :machine_bundle_id => MachineBundle.find_by(:name => "Mac 13\" Bundle").id},
-#   {:department_id => Department.find_by(:name => "Restaurant Marketing").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
-#   {:department_id => Department.find_by(:name => "Restaurant Marketing").id, :machine_bundle_id => MachineBundle.find_by(:name => "Mac 13\" Bundle").id},
-#   {:department_id => Department.find_by(:name => "Finance").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
-#   {:department_id => Department.find_by(:name => "Legal").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
-# ]
+dept_mach_bundles = [
+  {:department_id => Department.find_by(:name => "Sales").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
+  {:department_id => Department.find_by(:name => "Sales").id, :machine_bundle_id => MachineBundle.find_by(:name => "Mac Bundle").id},
+  {:department_id => Department.find_by(:name => "Sales").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle - Remote").id},
+  {:department_id => Department.find_by(:name => "Sales").id, :machine_bundle_id => MachineBundle.find_by(:name => "Mac Bundle - Remote").id},
+  {:department_id => Department.find_by(:name => "Restaurant Relations Management").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
+  {:department_id => Department.find_by(:name => "Restaurant Relations Management").id, :machine_bundle_id => MachineBundle.find_by(:name => "Mac Bundle").id},
+  {:department_id => Department.find_by(:name => "Restaurant Relations Management").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle - Remote").id},
+  {:department_id => Department.find_by(:name => "Restaurant Relations Management").id, :machine_bundle_id => MachineBundle.find_by(:name => "Mac Bundle - Remote").id},
+  {:department_id => Department.find_by(:name => "Customer Support").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
+  {:department_id => Department.find_by(:name => "Finance Operations").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
+  {:department_id => Department.find_by(:name => "People and Culture").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
+  {:department_id => Department.find_by(:name => "Brand/General Marketing").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
+  {:department_id => Department.find_by(:name => "Brand/General Marketing").id, :machine_bundle_id => MachineBundle.find_by(:name => "Mac Bundle").id},
+  {:department_id => Department.find_by(:name => "Brand/General Marketing").id, :machine_bundle_id => MachineBundle.find_by(:name => "Mac Bundle - Designer").id},
+  {:department_id => Department.find_by(:name => "Consumer Marketing").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
+  {:department_id => Department.find_by(:name => "Consumer Marketing").id, :machine_bundle_id => MachineBundle.find_by(:name => "Mac Bundle").id},
+  {:department_id => Department.find_by(:name => "Restaurant Marketing").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
+  {:department_id => Department.find_by(:name => "Restaurant Marketing").id, :machine_bundle_id => MachineBundle.find_by(:name => "Mac Bundle").id},
+  {:department_id => Department.find_by(:name => "Finance").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
+  {:department_id => Department.find_by(:name => "Legal").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
+]
+
+ActiveRecord::Base.transaction do
+  dept_mach_bundles.each { |attrs| DeptMachBundle.create(attrs) }
+end
