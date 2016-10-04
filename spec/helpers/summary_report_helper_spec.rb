@@ -9,10 +9,6 @@ describe SummaryReportHelper, type: :helper do
   let(:sec_prof)  { FactoryGirl.create(:security_profile) }
   let(:helper)     { SummaryReportHelper::Csv.new }
 
-  it "should find manager name" do
-    expect(helper.manager_name(emp_group[0])).to eq("Bob Barker")
-  end
-
   context "onboarding" do
     it "should call the correct Employee scope" do
       expect(Employee).to receive(:onboarding_report_group).and_return(emp_group)

@@ -66,7 +66,7 @@ class ActiveDirectoryService
 
   def update(employees)
     employees.each do |e|
-      ldap_entry = find_entry("employeeID", e.employee_id).first
+      ldap_entry = find_entry("sAMAccountName", e.sam_account_name).first
       if ldap_entry
         attrs = updatable_attrs(e, ldap_entry)
         blank_attrs, populated_attrs = attrs.partition { |k,v| v.blank? }
@@ -85,7 +85,7 @@ class ActiveDirectoryService
     [:objectclass, :sAMAccountName, :mail, :unicodePwd].each { |k| attrs.delete(k) }
     # Only update attrs that differ
     attrs.each { |k,v|
-      if (ldap_entry.try(k).present? && ldap_entry.try(k).include?(v)) || (ldap_entry.try(k).blank? && v == nil)
+      if (ldap_entry.try(k).present? && ldap_entry.try(k).include?(v)) || (ldap_entry.try(k).blank? && v.blank?)
         attrs.delete(k)
       end
     }
@@ -141,14 +141,14 @@ class ActiveDirectoryService
 
     sam_options.each do |sam|
       if find_entry("sAMAccountName", sam).blank?
-        employee.sAMAccountName = sam
+        employee.update_attributes(sam_account_name: sam)
         break
       end
     end
 
-    gen_numeric_sam(employee, first, last) if employee.sAMAccountName.blank?
+    gen_numeric_sam(employee, first, last) if employee.sam_account_name.blank?
 
-    employee.sAMAccountName.present?
+    employee.sam_account_name.present?
   end
 
   def gen_numeric_sam(employee, first, last)
@@ -156,7 +156,7 @@ class ActiveDirectoryService
     while n < 100 do
       sam = first[0,1] + last + n.to_s
       if find_entry("sAMAccountName", sam).blank?
-        employee.sAMAccountName = sam
+        employee.update_attributes(sam_account_name: sam)
         break
       else
         n += 1

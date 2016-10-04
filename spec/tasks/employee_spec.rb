@@ -193,6 +193,12 @@ describe "employee rake tasks", type: :tasks do
   end
 
   context "employee:xml_to_ad" do
+    # create managers for the xml to reference
+    let!(:manager_1) { FactoryGirl.create(:employee, employee_id: "12100123", sam_account_name: "samaccountname1")}
+    let!(:manager_2) { FactoryGirl.create(:employee, employee_id: "12101502", sam_account_name: "samaccountname2")}
+    let!(:manager_3) { FactoryGirl.create(:employee, employee_id: "12100567", sam_account_name: "samaccountname3")}
+    let!(:manager_4) { FactoryGirl.create(:employee, employee_id: "12101034", sam_account_name: "samaccountname4")}
+
     before :each do
       Rake.application = Rake::Application.new
       Rake.application.rake_require "lib/tasks/employee", [Rails.root.to_s], ''
@@ -258,6 +264,7 @@ describe "employee rake tasks", type: :tasks do
         givenName: "The Big",
         sn: "Lebowski",
         sAMAccountName: "tlebowski",
+        manager: manager_1.dn,
         workdayUsername: "biglebowski",
         co: "US",
         accountExpires: "9223372036854775807",
@@ -324,6 +331,7 @@ describe "employee rake tasks", type: :tasks do
           :givenName=>"Jeffrey",
           :sn=>"Lebowski",
           :sAMAccountName=>"jlebowski",
+          :manager=>manager_1.dn,
           :mail=>"jlebowski@opentable.com",
           :unicodePwd=>"\"\x001\x002\x003\x00O\x00p\x00e\x00n\x00t\x00a\x00b\x00l\x00e\x00\"\x00",
           :workdayUsername=>"jefflebowski",
@@ -346,6 +354,7 @@ describe "employee rake tasks", type: :tasks do
           :givenName=>"Walter",
           :sn=>"Sobchak",
           :sAMAccountName=>"wsobchak",
+          :manager=>manager_2.dn,
           :unicodePwd=>"\"\x001\x002\x003\x00O\x00p\x00e\x00n\x00t\x00a\x00b\x00l\x00e\x00\"\x00",
           :workdayUsername=>"walters",
           :co=>"GB",
@@ -364,6 +373,7 @@ describe "employee rake tasks", type: :tasks do
           :givenName=>"Maude",
           :sn=>"Lebowski",
           :sAMAccountName=>"mlebowski",
+          :manager=>manager_3.dn,
           :mail=>"mlebowski@opentable.com",
           :unicodePwd=>"\"\x001\x002\x003\x00O\x00p\x00e\x00n\x00t\x00a\x00b\x00l\x00e\x00\"\x00",
           :workdayUsername=>"12101234",
@@ -386,7 +396,7 @@ describe "employee rake tasks", type: :tasks do
       expect{
         expect{
           Rake::Task["employee:xml_to_ad"].invoke
-        }.to change{ Employee.count }.from(2).to(5)
+        }.to change{ Employee.count }.from(6).to(9)
       }.to change{ XmlTransaction.count }.from(0).to(1)
       expect(XmlTransaction.last.name).to eq("test_20160523_135008.xml")
       expect(XmlTransaction.last.checksum).to eq(Digest::MD5.hexdigest(File.read("lib/assets/test_20160523_135008.xml")))

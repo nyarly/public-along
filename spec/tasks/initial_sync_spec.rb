@@ -3,6 +3,12 @@ require 'rake'
 
 describe "initial sync rake task", type: :tasks do
   context "sync:csv['some/path']" do
+    # create managers for the csv to reference
+    let!(:manager_1) { FactoryGirl.create(:employee, employee_id: "12500096", sam_account_name: "samaccountname1", email: "email1")}
+    let!(:manager_2) { FactoryGirl.create(:employee, employee_id: "12100784", sam_account_name: "samaccountname2", email: "email2")}
+    let!(:manager_3) { FactoryGirl.create(:employee, employee_id: "12101112", sam_account_name: "samaccountname3", email: "email3")}
+    let!(:manager_4) { FactoryGirl.create(:employee, employee_id: "1209012", sam_account_name: "samaccountname4", email: "email4")}
+
     before :each do
       Rake.application = Rake::Application.new
       Rake.application.rake_require "lib/tasks/initial_sync", [Rails.root.to_s], ''
@@ -16,6 +22,7 @@ describe "initial sync rake task", type: :tasks do
         givenName: "Sir",
         sn: "Mighty-Dinosaur",
         sAMAccountName: "smighty",
+        manager: manager_1.dn,
         workdayUsername: nil,
         co: "DE",
         accountExpires: "9223372036854775807",
@@ -42,6 +49,7 @@ describe "initial sync rake task", type: :tasks do
         givenName: "Kevin",
         sn: "Smith",
         sAMAccountName: "ksmith",
+        manager: manager_2.dn,
         workdayUsername: nil,
         co: "US",
         accountExpires: "9223372036854775807",
@@ -68,6 +76,7 @@ describe "initial sync rake task", type: :tasks do
         givenName: "Maria Luigi",
         sn: "Whoops",
         sAMAccountName: "mwhoops",
+        manager: manager_3.dn,
         workdayUsername: nil,
         co: "GB",
         accountExpires: "9223372036854775807",
@@ -108,7 +117,6 @@ describe "initial sync rake task", type: :tasks do
 
     it "should create new employees in db" do
       allow(@ldap).to receive(:replace_attribute)
-
       expect{
         Rake::Task["sync:csv"].invoke(Rails.root.to_s+'/spec/fixtures/test_sync.csv')
       }.to change{ Employee.count }.by(5)

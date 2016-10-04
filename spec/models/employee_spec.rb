@@ -5,12 +5,23 @@ describe Employee, type: :model do
 
   let!(:location) { Location.find_by(:name => "London") }
 
-  context "with a regular employee" do
+  let!(:manager) { FactoryGirl.create(:employee,
+    first_name: "Alex",
+    last_name: "Trebek",
+    department_id: dept.id,
+    sam_account_name: "atrebek",
+    employee_id: "at123",
+    hire_date: 5.years.ago,
+    ad_updated_at: 2.years.ago
+  )}
 
+  context "with a regular employee" do
     let(:employee) { FactoryGirl.build(:employee,
       first_name: "Bob",
       last_name: "Barker",
       department_id: dept.id,
+      sam_account_name: "bbarker",
+      manager_id: manager.employee_id,
       location_id: location.id
     )}
 
@@ -23,7 +34,7 @@ describe Employee, type: :model do
       expect(employee).to_not allow_value(nil).for(:location_id)
       expect(employee).to     allow_value(nil).for(:email)
       expect(employee).to     validate_uniqueness_of(:email)
-      expect(employee).to     validate_uniqueness_of(:employee_id).case_insensitive
+      # expect(employee).to     validate_uniqueness_of(:employee_id).case_insensitive
     end
 
     it "should scope the create group" do
@@ -224,7 +235,8 @@ describe Employee, type: :model do
           objectclass: ["top", "person", "organizationalPerson", "user"],
           givenName: "Bob",
           sn: "Barker",
-          sAMAccountName: employee.sAMAccountName,
+          sAMAccountName: employee.sam_account_name,
+          manager: manager.dn,
           mail: employee.email,
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
@@ -249,22 +261,19 @@ describe Employee, type: :model do
   end
 
   context "regular worker that has been assigned a sAMAccountName" do
-
     let(:employee) { FactoryGirl.build(:employee,
       first_name: "Bob",
       last_name: "Barker",
-      department_id: dept.id
+      department_id: dept.id,
+      manager_id: "at123",
+      sam_account_name: "mrbobbarker"
     )}
 
     it "should generate an email using the sAMAccountName" do
-      employee.sAMAccountName = "mrbobbarker"
-
       expect(employee.generated_email).to eq("mrbobbarker@opentable.com")
     end
 
     it "should create attr hash" do
-      employee.sAMAccountName = "mrbobbarker"
-
       expect(employee.ad_attrs).to eq(
         {
           cn: "Bob Barker",
@@ -272,6 +281,7 @@ describe Employee, type: :model do
           givenName: "Bob",
           sn: "Barker",
           sAMAccountName: "mrbobbarker",
+          manager: manager.dn,
           mail: "mrbobbarker@opentable.com",
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
@@ -296,17 +306,17 @@ describe Employee, type: :model do
   end
 
   context "with a contingent worker" do
-
     let(:employee) { FactoryGirl.build(:employee, :contingent,
       first_name: "Bob",
       last_name: "Barker",
       employee_type: "Vendor",
       department_id: dept.id,
+      manager_id: "at123",
+      sam_account_name: "senorbob",
       contract_end_date: 1.month.from_now
     )}
 
     it "should not generate an email when sAMAccountName is set" do
-      employee.sAMAccountName = "senorbob"
       expect(employee.generated_email).to be_nil
     end
 
@@ -325,7 +335,8 @@ describe Employee, type: :model do
           objectclass: ["top", "person", "organizationalPerson", "user"],
           givenName: "Bob",
           sn: "Barker",
-          sAMAccountName: employee.sAMAccountName,
+          sAMAccountName: employee.sam_account_name,
+          manager: manager.dn,
           mail: employee.email,
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
@@ -366,6 +377,7 @@ describe Employee, type: :model do
       first_name: "Bob",
       last_name: "Barker",
       department_id: dept.id,
+      manager_id: "at123",
       contract_end_date: 1.month.from_now,
       termination_date: 1.day.from_now
     )}
@@ -381,7 +393,8 @@ describe Employee, type: :model do
           objectclass: ["top", "person", "organizationalPerson", "user"],
           givenName: "Bob",
           sn: "Barker",
-          sAMAccountName: employee.sAMAccountName,
+          sAMAccountName: employee.sam_account_name,
+          manager: manager.dn,
           mail: employee.email,
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
@@ -411,6 +424,7 @@ describe Employee, type: :model do
       first_name: "Bob",
       last_name: "Barker",
       department_id: dept.id,
+      manager_id: "at123",
       home_address_1: "123 Fake St.",
       home_city: "Beverly Hills",
       home_state: "CA",
@@ -429,7 +443,8 @@ describe Employee, type: :model do
           objectclass: ["top", "person", "organizationalPerson", "user"],
           givenName: "Bob",
           sn: "Barker",
-          sAMAccountName: employee.sAMAccountName,
+          sAMAccountName: employee.sam_account_name,
+          manager: manager.dn,
           mail: employee.email,
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
@@ -458,6 +473,7 @@ describe Employee, type: :model do
       first_name: "Bob",
       last_name: "Barker",
       department_id: dept.id,
+      manager_id: "at123",
       home_address_1: "123 Fake St.",
       home_address_2: "Apt 3G",
       home_city: "Beverly Hills",
@@ -476,7 +492,8 @@ describe Employee, type: :model do
           objectclass: ["top", "person", "organizationalPerson", "user"],
           givenName: "Bob",
           sn: "Barker",
-          sAMAccountName: employee.sAMAccountName,
+          sAMAccountName: employee.sam_account_name,
+          manager: manager.dn,
           mail: employee.email,
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
