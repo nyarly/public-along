@@ -235,12 +235,12 @@ RSpec.describe EmployeesController, type: :controller do
     context "Termination" do
       let(:new_attributes) {
         {
-          termination_date: 1.week.from_now
+          termination_date: 8.days.from_now
         }
       }
 
       it "calls EmployeeWorker with correct values" do
-        expect(EmployeeWorker).to receive(:perform_at).with(5.business_days.before(1.week.from_now),"Offboarding", employee.id)
+        expect(EmployeeWorker).to receive(:perform_at).with(5.business_days.before(8.days.from_now),"Offboarding", employee.id)
 
         put :update, {:id => employee.id, :employee => new_attributes}
       end
