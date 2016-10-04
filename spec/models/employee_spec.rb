@@ -33,8 +33,8 @@ describe Employee, type: :model do
       expect(employee).to_not allow_value(nil).for(:department_id)
       expect(employee).to_not allow_value(nil).for(:location_id)
       expect(employee).to     allow_value(nil).for(:email)
-      expect(employee).to     validate_uniqueness_of(:email)
-      # expect(employee).to     validate_uniqueness_of(:employee_id).case_insensitive
+      expect(employee).to     validate_uniqueness_of(:employee_id).with_message(/Worker ID has already been taken/).case_insensitive
+      expect(employee).to     validate_uniqueness_of(:email).case_insensitive
     end
 
     it "should scope the create group" do

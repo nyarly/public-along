@@ -1,5 +1,6 @@
 class Employee < ActiveRecord::Base
   TYPES = ["Regular", "Temporary", "Contingent", "Agency", "Contract"]
+  before_validation :downcase_unique_attrs
 
   validates :first_name,
             presence: true
@@ -10,12 +11,10 @@ class Employee < ActiveRecord::Base
   validates :location_id,
             presence: true
   validates :email,
-            case_sensitive: false,
             allow_nil: true,
             uniqueness: true
   validates :employee_id,
-            uniqueness: true,
-            case_sensitive: false
+            uniqueness: { message: "Worker ID has already been taken" }
 
   belongs_to :department
   belongs_to :location
@@ -27,6 +26,11 @@ class Employee < ActiveRecord::Base
   attr_accessor :nearest_time_zone
 
   default_scope { order('last_name ASC') }
+
+  def downcase_unique_attrs
+    self.email = email.downcase if email.present?
+    self.employee_id = employee_id.downcase if employee_id.present?
+  end
 
   def self.create_group
     where(:ad_updated_at => nil)
