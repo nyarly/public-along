@@ -6,6 +6,7 @@ module SummaryReportHelper
       attrs = [
         "Name",
         "Employee ID",
+        "Employee Type",
         "Position",
         "Department",
         "Manager",
@@ -23,6 +24,7 @@ module SummaryReportHelper
           csv << [
             employee.cn,
             employee.employee_id,
+            employee.employee_type,
             employee.business_title,
             employee.department.name,
             manager_name(employee),
@@ -41,6 +43,7 @@ module SummaryReportHelper
       attrs = [
         "Name",
         "Employee ID",
+        "Employee Type",
         "Position",
         "Department",
         "Manager",
@@ -57,6 +60,7 @@ module SummaryReportHelper
           csv << [
             employee.cn,
             employee.employee_id,
+            employee.employee_type,
             employee.business_title,
             employee.department.name,
             manager_name(employee),
