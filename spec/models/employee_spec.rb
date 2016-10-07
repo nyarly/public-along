@@ -189,8 +189,14 @@ describe Employee, type: :model do
         location: Location.find_by_name("London")
       )
 
+      emp_3 = FactoryGirl.create(:employee,
+        hire_date: Date.new(2016, 7, 25, 2),
+        location: Location.find_by_name("Mumbai")
+      )
+
       expect(emp_1.onboarding_due_date).to eq("Jul 18, 2016")
-      expect(emp_2.onboarding_due_date).to eq("Jul 11, 2016")
+      expect(emp_2.onboarding_due_date).to eq("Jul 18, 2016")
+      expect(emp_3.onboarding_due_date).to eq("Jul 11, 2016")
     end
 
     it "should create a cn" do
