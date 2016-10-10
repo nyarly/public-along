@@ -205,7 +205,7 @@ class Employee < ActiveRecord::Base
 
   def onboarding_due_date
     # plus 9.hours to account for the beginning of the business day
-    if location.country == "US"
+    if location.country == "US" || location.country == "GB"
       5.business_days.before(hire_date + 9.hours).strftime("%b %e, %Y")
     else
       10.business_days.before(hire_date + 9.hours).strftime("%b %e, %Y")

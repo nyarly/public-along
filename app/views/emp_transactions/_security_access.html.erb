@@ -2,7 +2,12 @@
   <p class="help-text">Select only the appropriate security access profiles to apply to the worker.</p>
   <% SecurityProfile.find_profiles_for(@employee.department.id).each do |sp| %>
       <div class="column large-4 medium-6 small-12">
-        <%= check_box_tag 'security_profile_ids[]', sp.id, @employee.active_security_profiles.include?(sp) %>
+        <% if @employee.employee_type == "Regular" && sp.name == "Default OpenTable" %>
+          <%= check_box_tag 'security_profile_ids[]', sp.id, true, disabled: true %>
+          <%= check_box_tag 'security_profile_ids[]', sp.id, true, style: 'visibility: hidden' %>
+        <% else %>
+          <%= check_box_tag 'security_profile_ids[]', sp.id, @employee.active_security_profiles.include?(sp) %>
+        <% end %>
         <%= f.label 'security_profile_ids[]', "#{sp.name}" %><br>
         <ul>
           <% sp.access_levels.find_each do |al| %>

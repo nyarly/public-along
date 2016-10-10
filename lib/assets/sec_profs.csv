@@ -1,0 +1,37 @@
+name,description,departments
+Default OpenTable,All regular OT workers will have this profile,All
+Basic BizOpti/Internal Systems Engineering,Most BizOpti/Internal Systems should have this profile,BizOpti/Internal Systems Engineering
+Basic Brand/General Marketing,Most Brand/General Marketing should have this profile,Brand/General Marketing
+Basic Business Development,Most Business Development should have this profile,Business Development
+Basic Consumer Marketing,Most Consumer Marketing should have this profile,Consumer Marketing
+Basic Consumer Product Management,Most Consumer Product Management should have this profile,Consumer Product Management
+Basic Customer Support - Tier 1,Most Customer Support should have this profile,Customer Support
+Basic Customer Support - Supervisor,Customer Support Supervisor should have this profile,Customer Support
+Basic Customer Support - Tier 2,Customer Support Tier 2 should have this profile,Customer Support
+Basic Data Analytics & Experimentation,Most Data Analytics & Experimentation should have this profile,Data Analytics & Experimentation
+Basic Data Science,Most Data Science should have this profile,Data Science
+Basic Executive,Most Executive should have this profile,Executive
+Basic Facilities,Most Facilities should have this profile,Facilities
+Basic Field Operations,Most Field Operations should have this profile,Field Operations
+Basic Finance,Most Finance should have this profile,Finance
+Basic Finance Operations,Most Finance Operations should have this profile,Finance Operations
+Basic Infrastructure Engineering,Most Infrastructure Engineering should have this profile,Infrastructure Engineering
+Basic Inside Sales,Most Inside Sales should have this profile,Inside Sales
+Basic Legal,Most Legal should have this profile,Legal
+Basic People & Culture,Most People & Culture should have this profile,People and Culture
+Basic Product Engineering - Back End,Most Engineer should have this profile,Product Engineering - Back End
+Basic Product Engineering - Front End Diner,Most Engineer should have this profile,Product Engineering - Front End Diner
+Basic Product Engineering - Front End Restaurant,Most Engineer should have this profile,Product Engineering - Front End Restaurant
+Basic Product Marketing,Most Product Marketing should have this profile,Product Marketing
+Basic Public Relations,Most Public Relations should have this profile,Public Relations
+Basic Restaurant Marketing,Most Restaurant Marketing should have this profile,Restaurant Marketing
+Basic Restaurant Product Management,Most Restaurant Product Management should have this profile,Restaurant Product Management
+Basic Restaurant Relations Management,Most Restaurant Relations Management should have this profile,Restaurant Relations Management
+Basic Risk Management,Most Risk Management should have this profile,Risk Management
+Basic Sales,Most Sales should have this profile,Sales
+Basic Sales Operations,Most Sales Operations should have this profile,Sales Operations
+Basic Talent Acquisition,Most Talent Acquisition should have this profile,Talent Acquisition
+Basic TechTable,Most TechTable should have this profile,Tech Table
+Basic Technology/CTO Admin,Most Technology Admin should have this profile,Technology/CTO Admin
+OT SQL Profile,Access to OT SQL Domain,"Infrastructure Engineering, Tech Table, Product Engineering - Back End, Product Engineering - Front End Diner, Product Engineering - Front End Restaurant"
+QA SQL Profile,Access to QA SQL Domain,"Infrastructure Engineering, Tech Table, Product Engineering - Back End, Product Engineering - Front End Diner, Product Engineering - Front End Restaurant"

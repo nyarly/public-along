@@ -1,0 +1,90 @@
+name,application,ad_security_group,security_groups
+callcenter,Distribution List,"CN=callcenter,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 1
+Callcenter,Security Group,"CN=callcenter,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 1
+Operations,Security Group,"CN=Operations,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 1
+operations,Distribution List,"CN=operations,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 1
+Wifi General,Security Group,"CN=OT-Netsec-General,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Customer Support - Tier 1, Basic Brand/General Marketing, Basic Business Development, Basic Consumer Marketing, Basic Consumer Product Management, Basic Executive, Basic Facilities, Basic Field Operations, Basic Inside Sales, Basic Product Marketing, Basic Public Relations, Basic Restaurant Marketing, Basic Restaurant Product Management, Basic Restaurant Relations Management, Basic Sales, Basic Sales Operations, Basic Technology/CTO Admin"
+Wifi Finance/P&C/Legal,Security Group,"CN=OT-Netsec-Privileged,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Finance, Basic Finance Operations, Basic Legal, Basic People & Culture, Basic Talent Acquisition"
+Wifi Net Ops,Security Group,"CN=OT-Netsec-IT,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Infrastructure Engineering
+Wifi Production,Security Group,"CN=OT-Netsec-Production,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Product Engineering - Back End, Basic Product Engineering - Front End Diner, Basic Product Engineering - Front End Restaurant"
+Wifi Engineer,Security Group,"CN=OT-Netsec-Production,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Product Engineering - Back End, Basic Product Engineering - Front End Diner, Basic Product Engineering - Front End Restaurant"
+Engineering ,Security Group,"CN=Engineering,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Product Engineering - Back End, Basic Product Engineering - Front End Diner, Basic Product Engineering - Front End Restaurant, Basic TechTable"
+engineering ,Distribution List,"CN=Engineering,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Product Engineering - Back End, Basic Product Engineering - Front End Diner, Basic Product Engineering - Front End Restaurant, Basic TechTable"
+TechTable,Office 365,,Basic TechTable
+TechTable,Google Apps,,Basic TechTable
+Wifi TechTable,Security Group,"CN=OT-Netsec-TechTable,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic TechTable
+Regular,Office 365,,Default OpenTable
+Regular,Google Apps,,Default OpenTable
+Wifi internet only,Security Group,"CN=OT-Netsec-Authenticated,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",
+,,,
+TechOps,VPN,"CN=00_VPN_IT,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Infrastructure Engineering
+Engineer,VPN,"CN=VPN_12_ENG,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Product Engineering - Back End, Basic Product Engineering - Front End Diner, Basic Product Engineering - Front End Restaurant"
+VPN 13 Engineer Limited,VPN,"CN=VPN_13_ENG_LIMITED,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",
+VPN 99 Default,VPN,"CN=VPN_99_Default,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 1
+VPN 90 Finance,VPN,"CN=VPN_90_Finance,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Finance, Basic Finance Operations, Basic Legal, Basic People & Culture"
+VPN 05 IT,VPN,"CN=VPN_05_IT_not_DC,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic TechTable
+Duo VPN,VPN,"CN=duo_2fa_vpn,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic TechTable
+,,,
+DB Archive Read,Distribution List,"CN=dbarch_r,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 2
+DB Archive Write,Distribution List,"CN=dbarch_w,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 2
+ERB Update ,Distribution List,"CN=erb-updates,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 2
+ERB UPDATE IT Distribution List,Distribution List,"CN=erb-updates-IT,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 2
+Support-Escalations,Distribution List,"CN=support-Escalations,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 2
+Tier II Call Center,Distribution List,"CN=Tier II Call Center,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 2
+upgrade-request,Distribution List,"CN=upgrade-request,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 2
+,,,
+otstaff ,Distribution List,"CN=otstaff,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Default OpenTable
+Global Sales Distribution List,Distribution List,"CN=Global Sales,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Inside Sales, Basic Sales, Basic Sales Operations"
+,,,
+Sales Security Group,Security Group,"CN=Sales,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Inside Sales, Basic Sales, Basic Sales Operations"
+Engineering File System,Security Group,"CN=OT-FS-Engineering-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Product Engineering - Back End, Basic Product Engineering - Front End Diner, Basic Product Engineering - Front End Restaurant"
+,,,
+Engineer Terminal Server ,Security Group,"CN=OT-TerminalServer_Engineering_Users,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Product Engineering - Back End, Basic Product Engineering - Front End Diner, Basic Product Engineering - Front End Restaurant"
+Customer Support Terminal Server,Security Group,"CN=OT-FS-Engineering-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 1
+HelpDesk Terminal Server Security Group,Security Group,"CN=OT-TerminalServer_HelpDesk,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic TechTable
+Sales File Server Security Group,Security Group,"CN=OT-FS-Sales-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Sales, Basic Sales Operations, Basic Inside Sales"
+Marketing Security Group,Security Group,"CN=Marketing_SG,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Public Relations
+BizOpti Distribution List,Distribution List,"CN=BizOptiSFDC,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic BizOpti/Internal Systems Engineering
+BizOpit SFDC Distribution List,Distribution List,"CN=BizOptiSFDC,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic BizOpti/Internal Systems Engineering
+On Board Approved Distribution List,Security Group,"CN=OnBoardApproved,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic BizOpti/Internal Systems Engineering, Basic TechTable"
+Off Board Approved Distribution List,Security Group,"CN=OffBoardApproved,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic BizOpti/Internal Systems Engineering, Basic TechTable"
+Tier 1,CHARM EU,,Basic Customer Support - Tier 1
+Tier 2,CHARM EU,,Basic Customer Support - Tier 2
+Administration,CHARM EU,,Basic TechTable
+Tier 1,CHARM JP,,Basic Customer Support - Tier 1
+Tier 2,CHARM JP,,Basic Customer Support - Tier 2
+Administration,CHARM JP,,Basic TechTable
+Tier 1,CHARM NA,,Basic Customer Support - Tier 1
+Tier 2,CHARM NA,,Basic Customer Support - Tier 2
+Administration,CHARM NA,,Basic TechTable
+Regular,Docusign,,"Basic Sales, Basic Sales Operations"
+Administration,Docusign,,Basic TechTable
+Regular,Five9,,Basic Customer Support - Tier 1
+Administration,Five9,,Basic TechTable
+Regular,Gifts,,Default OpenTable
+Regular,Github,,"Basic Product Engineering - Back End, Basic Product Engineering - Front End Diner, Basic Product Engineering - Front End Restaurant, Basic Infrastructure Engineering"
+Administration,Github,,Basic TechTable
+Regular,Great Plains,,"Basic Finance, Basic Finance Operations"
+Administration,Great Plains,,Basic TechTable
+Administration,HipChat,,Basic TechTable
+Regular,HipChat,,Default OpenTable
+Basic ,JIRA,,Default OpenTable
+Regular,OT SQL,,OT SQL Profile
+Regular,OTA,,Basic Customer Support - Tier 1
+Regular,OTA,,Basic Customer Support - Tier 2
+Administration,OTA,,Basic TechTable
+Regular,OTR,,Basic Customer Support - Tier 1
+Regular,OTR,,Basic Customer Support - Tier 2
+Administration,OTR,,Basic TechTable
+Regular,PagerDuty,,Basic Infrastructure Engineering
+Regular,Putty,,
+Regular,QA SQL,,QA SQL Profile
+Tier 1,ROMS,,Basic Customer Support - Tier 1
+Administration,ROMS,,Basic TechTable
+Regular,Salesforce,,"Basic Sales, Basic Sales Operations, Basic Finance, Basic Finance Operations"
+Administration,Salesforce,,Basic BizOpti/Internal Systems Engineering
+Basic - Chatter Only,Salesforce,,Default OpenTable
+Regular,Salesforce sandbox,,"Basic Sales, Basic Sales Operations"
+Regular,Test email Account,,"Basic Sales, Basic Sales Operations"
+Regular,Zendesk,,Default OpenTable
+Location,Distribution List,,Default OpenTable
