@@ -25,7 +25,7 @@ set :rbenv_ruby, '2.3.0'
 
 set :rbenv_custom_path , "/usr/local/rbenv"
 set :rbenv_prefix, "RBENV_ROOT=#{fetch(:rbenv_custom_path)} RBENV_VERSION=#{fetch(:rbenv_ruby)} #{fetch(:rbenv_custom_path)}/bin/rbenv exec"
-set :rbenv_map_bins, %w{rake gem bundle ruby rails}
+set :rbenv_map_bins, %w{rake gem bundle ruby rails sidekiq sidekiqctl}
 set :rbenv_roles, :all # default value
 set :tmp_dir, "/home/mezzo/tmp"
 
