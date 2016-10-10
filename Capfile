@@ -4,6 +4,7 @@ require "capistrano/rails"
 require "capistrano/bundler"
 require "capistrano/rbenv"
 require "capistrano/puma"
+require "capistrano/sidekiq"
 
 require "whenever/capistrano"
 
