@@ -49,7 +49,7 @@ class ActiveDirectoryService
         :olddn => e.dn,
         :newrdn => "cn=#{e.cn}",
         :delete_attributes => true,
-        :new_superior => "ou=Disabled Users," + Rails.application.secrets.ad_ou_base
+        :new_superior => "ou=Disabled Users,ou=Users," + Rails.application.secrets.ad_ou_base
       )
     end
   end

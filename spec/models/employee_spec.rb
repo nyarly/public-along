@@ -215,7 +215,7 @@ describe Employee, type: :model do
     end
 
     it "should find the correct ou" do
-      expect(employee.ou).to eq("ou=Operations,ou=EU,")
+      expect(employee.ou).to eq("ou=Operations,ou=EU,ou=Users,")
     end
 
     it "should create a dn" do
