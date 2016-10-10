@@ -1,5 +1,6 @@
 class Employee < ActiveRecord::Base
   TYPES = ["Regular", "Temporary", "Contingent", "Agency", "Contract"]
+  before_validation :downcase_unique_attrs
 
   validates :first_name,
             presence: true
@@ -10,12 +11,10 @@ class Employee < ActiveRecord::Base
   validates :location_id,
             presence: true
   validates :email,
-            case_sensitive: false,
             allow_nil: true,
             uniqueness: true
   validates :employee_id,
-            uniqueness: true,
-            case_sensitive: false
+            uniqueness: { message: "Worker ID has already been taken" }
 
   belongs_to :department
   belongs_to :location
@@ -24,10 +23,14 @@ class Employee < ActiveRecord::Base
   has_many :emp_transactions, through: :emp_sec_profiles
   has_many :offboarding_infos
 
-  attr_accessor :sAMAccountName
   attr_accessor :nearest_time_zone
 
   default_scope { order('last_name ASC') }
+
+  def downcase_unique_attrs
+    self.email = email.downcase if email.present?
+    self.employee_id = employee_id.downcase if employee_id.present?
+  end
 
   def self.create_group
     where(:ad_updated_at => nil)
@@ -125,11 +128,15 @@ class Employee < ActiveRecord::Base
     "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT)
   end
 
+  def manager
+    Employee.find_by(employee_id: manager_id)
+  end
+
   def generated_email
     if email.present?
       email
-    elsif sAMAccountName.present? && employee_type != "Vendor"
-      gen_email = sAMAccountName + "@opentable.com"
+    elsif sam_account_name.present? && employee_type != "Vendor"
+      gen_email = sam_account_name + "@opentable.com"
       update_attribute(:email, gen_email)
       gen_email
     else
@@ -168,7 +175,8 @@ class Employee < ActiveRecord::Base
       objectclass: ["top", "person", "organizationalPerson", "user"],
       givenName: first_name,
       sn: last_name,
-      sAMAccountName: sAMAccountName,
+      sAMAccountName: sam_account_name,
+      manager: manager.dn,
       mail: generated_email,
       unicodePwd: encode_password,
       workdayUsername: workday_username,

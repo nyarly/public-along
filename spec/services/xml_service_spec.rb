@@ -207,6 +207,11 @@ describe XmlService, type: :service do
     let(:http) { double(Net::HTTP) }
     let(:response) { double(Net::HTTPResponse) }
 
+    # create managers for the new_hire.xml to reference
+    let!(:manager_1) { FactoryGirl.create(:employee, employee_id: "12100123", sam_account_name: "samaccountname1")}
+    let!(:manager_2) { FactoryGirl.create(:employee, employee_id: "12101502", sam_account_name: "samaccountname2")}
+    let!(:manager_3) { FactoryGirl.create(:employee, employee_id: "12100567", sam_account_name: "samaccountname3")}
+
     before :each do
       allow(Net::HTTP).to receive(:new).and_return(http)
       allow(http).to receive(:use_ssl=).with(true)
@@ -258,7 +263,7 @@ describe XmlService, type: :service do
       allow(ads).to receive(:create_disabled_accounts)
       allow(ads).to receive(:update)
 
-      expect(XmlTransaction).to receive(:create).with({:name=>"new_hire.xml", :checksum=>"9153748e16ec8c472137f285bcfbae83"})
+      expect(XmlTransaction).to receive(:create).with({:name=>"new_hire.xml", :checksum=>"5b0fdd8a11081f9b68c6569e6ead807c"})
 
       xml.parse_to_ad
     end

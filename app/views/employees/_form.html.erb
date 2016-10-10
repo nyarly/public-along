@@ -1,4 +1,16 @@
 <%= form_for @employee, builder: LabellingFormBuilder, :html => {:class => "form"}  do |f| %>
+  <% if @employee.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@employee.errors.count, "error") %> prohibited this worker from being saved:</h2>
+
+      <ul>
+      <% @employee.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
   <%= f.text_field :first_name, label: "Preferred First Name" %>
   <%= f.text_field :last_name, label: "Preferred Last Name" %>
   <%= f.text_field :employee_id, label: "Worker ID - From ADP" %>

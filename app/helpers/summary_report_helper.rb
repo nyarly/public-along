@@ -25,7 +25,7 @@ module SummaryReportHelper
             employee.employee_id,
             employee.business_title,
             employee.department.name,
-            manager_name(employee),
+            employee.manager.cn,
             employee.location.name,
             employee.onboarding_due_date,
             employee.email,
@@ -59,7 +59,7 @@ module SummaryReportHelper
             employee.employee_id,
             employee.business_title,
             employee.department.name,
-            manager_name(employee),
+            employee.manager.cn,
             employee.location.name,
             employee.email,
             salesforce(employee).try(:cn),
@@ -68,10 +68,6 @@ module SummaryReportHelper
           ]
         end
       end
-    end
-
-    def manager_name(employee)
-      Employee.find_by(employee_id: employee.manager_id).cn
     end
 
     def buddy(employee)
