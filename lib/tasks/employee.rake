@@ -38,12 +38,12 @@ namespace :employee do
   end
 
   desc "send onboarding summary reports"
-  task :onboard_report do
+  task :onboard_report => :environment do
     SummaryReportMailer.onboard_report.deliver_now
   end
 
   desc "send offboarding summary reports"
-  task :offboard_report do
+  task :offboard_report => :environment do
     SummaryReportMailer.offboard_report.deliver_now
   end
 

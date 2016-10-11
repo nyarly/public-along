@@ -176,7 +176,7 @@ class Employee < ActiveRecord::Base
       givenName: first_name,
       sn: last_name,
       sAMAccountName: sam_account_name,
-      manager: manager.dn,
+      manager: manager.try(:dn),
       mail: generated_email,
       unicodePwd: encode_password,
       workdayUsername: workday_username,
