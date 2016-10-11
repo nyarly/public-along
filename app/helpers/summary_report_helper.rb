@@ -27,7 +27,7 @@ module SummaryReportHelper
             employee.employee_type,
             employee.business_title,
             employee.department.name,
-            employee.manager.cn,
+            employee.manager.try(:cn),
             employee.location.name,
             employee.onboarding_due_date,
             employee.email,
