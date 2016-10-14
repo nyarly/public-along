@@ -31,7 +31,6 @@ set :tmp_dir, "/home/mezzo/tmp"
 
 ## Linked Files & Directories (Default None):
 set :linked_files, %w{config/database.yml config/secrets.yml config/ldap.yml}
-set :linked_dirs,  %w{lib/assets}
 
 namespace :puma do
   desc 'Create Directories for Puma Pids and Socket'
