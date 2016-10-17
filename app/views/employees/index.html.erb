@@ -14,6 +14,7 @@
         <th>Last Name</th>
         <th>First Name</th>
         <th>Email</th>
+        <th>Manager</th>
         <th>Department</th>
         <th>Location</th>
         <th>Business Title</th>
@@ -33,6 +34,7 @@
           <td><%= e.last_name %></td>
           <td><%= e.first_name %></td>
           <td><%= e.email %></td>
+          <td><%= e.manager.try(:cn) %></td>
           <td><%= e.department.name %></td>
           <td><%= e.location.name %></td>
           <td><%= e.business_title %></td>

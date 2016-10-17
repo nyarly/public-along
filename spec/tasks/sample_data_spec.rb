@@ -16,4 +16,12 @@ describe "db:sample_data", type: :tasks do
       expect(Employee.count).to eq(2)
     end
   end
+
+  context "db:sample_data:lebowski" do
+    it "should load lebowski" do
+      Rake::Task["db:sample_data:lebowski"].invoke
+      expect(Employee.count).to eq(1)
+      expect(Employee.first.last_name).to eq("Lebowski")
+    end
+  end
 end

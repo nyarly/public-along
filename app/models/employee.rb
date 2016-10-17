@@ -129,7 +129,7 @@ class Employee < ActiveRecord::Base
   end
 
   def manager
-    Employee.find_by(employee_id: manager_id)
+    Employee.find_by(employee_id: manager_id) if manager_id
   end
 
   def generated_email

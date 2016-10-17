@@ -142,7 +142,7 @@
 
   <p>
     <strong>Transfer GoogleDocs To:</strong>
-    <%= Employee.find(@emp_transaction.offboarding_infos.first.transfer_google_docs_id).cn %>
+    <%= Employee.find(@emp_transaction.offboarding_infos.first.transfer_google_docs_id).try(:cn) %>
   </p>
 <% end %>
 

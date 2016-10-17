@@ -25,13 +25,13 @@
   <%= f.text_field :office_phone %>
   <%= f.text_field :personal_mobile_phone %>
   <h5>Contract Workers Only</h5>
-  <div class="section">
+  <div class="section primary">
     <div class="date-select">
         <%= f.date_select :contract_end_date, {:order => [:month, :day, :year] , :include_blank => true, :default => nil} %>
     </div>
   </div>
   <h5>Home-Based Workers Only - For equipment shipment</h5>
-  <div class="section">
+  <div class="section primary">
     <%= f.text_field :home_address_1 %>
     <%= f.text_field :home_address_2 %>
     <%= f.text_field :home_city %>

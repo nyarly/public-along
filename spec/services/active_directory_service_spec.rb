@@ -137,7 +137,7 @@ describe ActiveDirectoryService, type: :service do
       :manager_id => manager.employee_id,
       :sam_account_name => "jlebowski",
       :department_id => Department.find_by(:name => "People and Culture").id ,
-      :location_id => Location.find_by(:name => "San Francisco").id
+      :location_id => Location.find_by(:name => "San Francisco Office").id
     )}
 
     before :each do

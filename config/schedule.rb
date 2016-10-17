@@ -6,11 +6,11 @@ every 1.hour do
   rake "employee:change_status"
 end
 
-every :day, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Time.parse("9:00")) do
+every :weekday, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Time.parse("9:00")) do
   rake "employee:onboard_report"
 end
 
-every :day, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Time.parse("18:00")) do
+every :weekday, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Time.parse("18:00")) do
   rake "employee:offboard_report"
 end
 

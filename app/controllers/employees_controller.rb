@@ -27,7 +27,7 @@ class EmployeesController < ApplicationController
     @employee = Employee.new(employee_params)
 
     if @employee.save
-      EmployeeWorker.perform_async("onboard", @employee.id)
+      EmployeeWorker.perform_async("Onboarding", @employee.id)
 
       ads = ActiveDirectoryService.new
       ads.create_disabled_accounts([@employee])
