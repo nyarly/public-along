@@ -41,7 +41,7 @@
     <%= @manager.email %>
   </p>
 
-  <% if @emp_transaction.kind == "Onboarding" %>
+  <% if @emp_transaction.kind == "Onboarding" && @employee.is_contingent_worker? %>
     <p>
       <strong>Contingent Worker:</strong>
       <div style="margin-left: 2em">

@@ -1,5 +1,6 @@
 class Employee < ActiveRecord::Base
-  TYPES = ["Regular", "Temporary", "Contingent", "Agency", "Contract"]
+  TYPES = ["Agency Contractor", "Independent Contractor", "Service Provider", "Intern", "Regular", "Temporary"]
+
   before_validation :downcase_unique_attrs
 
   validates :first_name,
@@ -50,6 +51,10 @@ class Employee < ActiveRecord::Base
 
   def self.full_termination_group
     where('termination_date BETWEEN ? AND ?', 31.days.ago, 30.days.ago)
+  end
+
+  def is_contingent_worker?
+    ["Agency Contractor", "Independent Contractor", "Service Provider"].include?(employee_type)
   end
 
   def contract_end_date_needed?

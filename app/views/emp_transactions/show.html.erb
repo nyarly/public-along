@@ -30,14 +30,14 @@
   <%= @manager.first_name %> <%= @manager.last_name %>
 </p>
 
-<% if @emp_transaction.kind == "Onboarding" && @employee.employee_type != "Contingent" %>
+<% if @emp_transaction.kind == "Onboarding" && !@employee.is_contingent_worker? %>
   <p>
     <strong>Buddy:</strong>
     <%= @buddy.first_name %> <%= @buddy.last_name %>
   </p>
 <% end %>
 
-<% if @emp_transaction.kind == "Onboarding" && @employee.employee_type == "Contingent" %>
+<% if @emp_transaction.kind == "Onboarding" && @employee.is_contingent_worker? %>
   <p>
     <strong>Contingent Worker:</strong>
     <div class="indent-1">

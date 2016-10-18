@@ -105,6 +105,14 @@ describe Employee, type: :model do
       expect(Employee.deactivation_group).to_not include(non_deactivation_group)
     end
 
+    it "should check if the employee is contingent" do
+      reg_emp = FactoryGirl.create(:employee)
+      contingent_emp = FactoryGirl.create(:employee, :contingent)
+
+      expect(reg_emp.is_contingent_worker?).to eq(false)
+      expect(contingent_emp.is_contingent_worker?).to eq(true)
+    end
+
     it "should scope the onboarding group" do
       onboarding_group = [
         FactoryGirl.create(:employee, :hire_date => Date.today),
