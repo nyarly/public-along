@@ -30,6 +30,7 @@ describe Employee, type: :model do
 
       expect(employee).to_not allow_value(nil).for(:first_name)
       expect(employee).to_not allow_value(nil).for(:last_name)
+      expect(employee).to_not allow_value(nil).for(:hire_date)
       expect(employee).to_not allow_value(nil).for(:department_id)
       expect(employee).to_not allow_value(nil).for(:location_id)
       expect(employee).to     allow_value(nil).for(:email)

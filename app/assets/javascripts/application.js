@@ -16,3 +16,19 @@
 //= require_tree .
 
 $(function(){ $(document).foundation(); });
+
+$(document).ready(function(){
+  $('#employee_employee_type').on('change', function() {
+    if ( this.value != 'Regular') {
+      $("#employee_contract_end_date_1i").attr('required', true);
+      $("#employee_contract_end_date_2i").attr('required', true);
+      $("#employee_contract_end_date_3i").attr('required', true);
+      $("#contract-date").show();
+    } else {
+      $("#employee_contract_end_date_1i").removeAttr('required');
+      $("#employee_contract_end_date_2i").removeAttr('required');
+      $("#employee_contract_end_date_3i").removeAttr('required');
+      $("#contract-date").hide();
+    }
+  });
+});

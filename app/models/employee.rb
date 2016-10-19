@@ -7,6 +7,8 @@ class Employee < ActiveRecord::Base
             presence: true
   validates :last_name,
             presence: true
+  validates :hire_date,
+            presence: true
   validates :department_id,
             presence: true
   validates :location_id,
