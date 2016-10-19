@@ -38,11 +38,11 @@
           <td><%= e.department.name %></td>
           <td><%= e.location.name %></td>
           <td><%= e.business_title %></td>
-          <td><%= e.hire_date %></td>
-          <td><%= e.contract_end_date %></td>
-          <td><%= e.termination_date %></td>
-          <td><%= e.leave_start_date %></td>
-          <td><%= e.leave_return_date %></td>
+          <td><%= e.hire_date.strftime("%m/%d/%Y") if e.hire_date.present? %></td>
+          <td><%= e.contract_end_date.strftime("%m/%d/%Y") if e.contract_end_date.present? %></td>
+          <td><%= e.termination_date.strftime("%m/%d/%Y") if e.termination_date.present? %></td>
+          <td><%= e.leave_start_date.strftime("%m/%d/%Y") if e.leave_start_date.present? %></td>
+          <td><%= e.leave_return_date.strftime("%m/%d/%Y") if e.leave_return_date.present? %></td>
           <td><%= e.ad_updated_at %></td>
           <td><%= link_to "Show", employee_path(e) %></td>
           <% if can? :update, Employee %>

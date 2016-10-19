@@ -3,7 +3,7 @@
   <% SecurityProfile.find_profiles_for(@employee.department.id).each do |sp| %>
     <% if @employee.is_contingent_worker? && sp.name == "Default OpenTable"%>
       <%= check_box_tag 'security_profile_ids[]', sp.id, false, style: 'display: none' %>
-    <% elsif !@employee.is_contingent_worker? && sp.name == "Basic Contingent"%>
+    <% elsif !@employee.is_contingent_worker? && sp.name == "Basic Contingent Worker"%>
       <%= check_box_tag 'security_profile_ids[]', sp.id, false, style: 'display: none' %>
     <% else %>
       <div class="column large-4 medium-6 small-12">

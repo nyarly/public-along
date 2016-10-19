@@ -358,7 +358,7 @@ describe "employee rake tasks", type: :tasks do
           :unicodePwd=>"\"\x001\x002\x003\x00O\x00p\x00e\x00n\x00t\x00a\x00b\x00l\x00e\x00\"\x00",
           :workdayUsername=>"walters",
           :co=>"GB",
-          :accountExpires=>"131117184000000000",
+          :accountExpires=>"131117904000000000",
           :title=>"Contingent Position - Product Management",
           :description=>"Contingent Position - Product Management",
           :employeeType=>"Vendor",
@@ -392,7 +392,7 @@ describe "employee rake tasks", type: :tasks do
           :postalCode=>"60611",
           :thumbnailPhoto=>Base64.decode64(IMAGE)}})
       expect(@ldap).to receive(:replace_attribute).once.with("cn=The Big Lebowski,ou=Engineering,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com", :telephoneNumber, "(213) 555-4321")
-      expect(@ldap).to receive(:replace_attribute).once.with("cn=Kylie Kylie,ou=OT,dc=ottest,dc=opentable,dc=com", :accountExpires, "131061888000000000")
+      expect(@ldap).to receive(:replace_attribute).once.with("cn=Kylie Kylie,ou=OT,dc=ottest,dc=opentable,dc=com", :accountExpires, "131062266000000000")
       expect{
         expect{
           Rake::Task["employee:xml_to_ad"].invoke

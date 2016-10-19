@@ -325,6 +325,7 @@ describe Employee, type: :model do
       last_name: "Barker",
       employee_type: "Vendor",
       department_id: dept.id,
+      location_id: location.id,
       manager_id: "at123",
       sam_account_name: "senorbob",
       contract_end_date: 1.month.from_now
@@ -335,7 +336,9 @@ describe Employee, type: :model do
     end
 
     it "should set the correct account expiry" do
-      expect(employee.generated_account_expires).to eq(DateTimeHelper::FileTime.wtime(1.month.from_now))
+      date = 1.month.from_now
+      datetime = DateTime.new(date.year, date.month, date.day, 21)
+      expect(employee.generated_account_expires).to eq(DateTimeHelper::FileTime.wtime(datetime))
     end
 
     it "should set the correct address" do
@@ -355,7 +358,6 @@ describe Employee, type: :model do
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
           co: employee.location.country,
-          accountExpires: employee.generated_account_expires,
           accountExpires: employee.generated_account_expires,
           title: employee.business_title,
           description: employee.business_title,
@@ -378,11 +380,14 @@ describe Employee, type: :model do
   context "with a terminated worker" do
     let(:employee) { FactoryGirl.build(:employee,
       department_id: dept.id,
+      location_id: location.id,
       termination_date: 2.days.from_now
     )}
 
     it "should set the correct account expiry" do
-      expect(employee.generated_account_expires).to eq(DateTimeHelper::FileTime.wtime(2.days.from_now))
+      date = 2.days.from_now
+      datetime = DateTime.new(date.year, date.month, date.day, 20)
+      expect(employee.generated_account_expires).to eq(DateTimeHelper::FileTime.wtime(datetime))
     end
   end
 
@@ -391,13 +396,16 @@ describe Employee, type: :model do
       first_name: "Bob",
       last_name: "Barker",
       department_id: dept.id,
+      location_id: location.id,
       manager_id: "at123",
       contract_end_date: 1.month.from_now,
       termination_date: 1.day.from_now
     )}
 
     it "should set the correct account expiry" do
-      expect(employee.generated_account_expires).to eq(DateTimeHelper::FileTime.wtime(1.day.from_now))
+      date = 1.day.from_now
+      datetime = DateTime.new(date.year, date.month, date.day, 20)
+      expect(employee.generated_account_expires).to eq(DateTimeHelper::FileTime.wtime(datetime))
     end
 
     it "should create attr hash" do

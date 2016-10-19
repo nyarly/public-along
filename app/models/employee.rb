@@ -151,9 +151,13 @@ class Employee < ActiveRecord::Base
 
   def generated_account_expires
     if termination_date.present?
-      DateTimeHelper::FileTime.wtime(termination_date)
+      date_time = DateTime.new(termination_date.year, termination_date.month, termination_date.day, 21)
+      time_conversion = ActiveSupport::TimeZone.new(nearest_time_zone).local_to_utc(date_time)
+      DateTimeHelper::FileTime.wtime(time_conversion)
     elsif contract_end_date.present?
-      DateTimeHelper::FileTime.wtime(contract_end_date)
+      date_time = DateTime.new(contract_end_date.year, contract_end_date.month, contract_end_date.day, 21)
+      time_conversion = ActiveSupport::TimeZone.new(nearest_time_zone).local_to_utc(date_time)
+      DateTimeHelper::FileTime.wtime(time_conversion)
     else
       # In AD, this value indicates that the account never expires
       "9223372036854775807"
