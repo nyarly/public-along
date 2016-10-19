@@ -27,7 +27,7 @@ class EmployeesController < ApplicationController
     @employee = Employee.new(employee_params)
 
     if @employee.save
-      EmployeeWorker.perform_async("onboard", @employee.id)
+      EmployeeWorker.perform_async("Onboarding", @employee.id)
 
       ads = ActiveDirectoryService.new
       ads.create_disabled_accounts([@employee])
@@ -44,7 +44,7 @@ class EmployeesController < ApplicationController
     if @employee.changed? && @employee.valid?
       if @employee.hire_date_changed? && @employee.termination_date_changed?
         EmployeeWorker.perform_async("Onboarding", @employee.id)
-      elsif @employee.termination_date_changed?
+      elsif @employee.termination_date_changed? && !@employee.termination_date.blank?
         EmployeeWorker.perform_at(5.business_days.before(@employee.termination_date), "Offboarding", @employee.id) if Time.now < 5.business_days.before(@employee.termination_date)
         EmployeeWorker.perform_async("Offboarding", @employee.id) if Time.now > 5.business_days.before(@employee.termination_date)
       elsif @employee.manager_id_changed? || @employee.business_title_changed?

@@ -17,7 +17,7 @@ Manager: <%= @manager.first_name %> <%= @manager.last_name %>
 
 Manager Email: <%= @manager.email %>
 
-<% if @emp_transaction.kind == "Onboarding" %>
+<% if @emp_transaction.kind == "Onboarding" && @employee.is_contingent_worker? %>
 Contingent Worker:
 ------------------
 Create OpenTable Email: <%= @emp_transaction.onboarding_infos.first.cw_email %>Create Google Group Membership: <%= @emp_transaction.onboarding_infos.first.cw_google_membership %>

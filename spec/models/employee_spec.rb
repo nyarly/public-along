@@ -3,7 +3,7 @@ require 'rails_helper'
 describe Employee, type: :model do
   let(:dept) { Department.find_by(name: "Customer Support") }
 
-  let!(:location) { Location.find_by(:name => "London") }
+  let!(:location) { Location.find_by(:name => "London Office") }
 
   let!(:manager) { FactoryGirl.create(:employee,
     first_name: "Alex",
@@ -30,6 +30,7 @@ describe Employee, type: :model do
 
       expect(employee).to_not allow_value(nil).for(:first_name)
       expect(employee).to_not allow_value(nil).for(:last_name)
+      expect(employee).to_not allow_value(nil).for(:hire_date)
       expect(employee).to_not allow_value(nil).for(:department_id)
       expect(employee).to_not allow_value(nil).for(:location_id)
       expect(employee).to     allow_value(nil).for(:email)
@@ -103,6 +104,14 @@ describe Employee, type: :model do
 
       expect(Employee.deactivation_group).to match_array(deactivation_group)
       expect(Employee.deactivation_group).to_not include(non_deactivation_group)
+    end
+
+    it "should check if the employee is contingent" do
+      reg_emp = FactoryGirl.create(:employee)
+      contingent_emp = FactoryGirl.create(:employee, :contingent)
+
+      expect(reg_emp.is_contingent_worker?).to eq(false)
+      expect(contingent_emp.is_contingent_worker?).to eq(true)
     end
 
     it "should scope the onboarding group" do
@@ -192,17 +201,17 @@ describe Employee, type: :model do
     it "should calculate an onboarding due date according to location" do
       emp_1 = FactoryGirl.create(:employee,
         hire_date: Date.new(2016, 7, 25, 2),
-        location: Location.find_by_name("San Francisco")
+        location: Location.find_by_name("San Francisco Office")
       )
 
       emp_2 = FactoryGirl.create(:employee,
         hire_date: Date.new(2016, 7, 25, 2),
-        location: Location.find_by_name("London")
+        location: Location.find_by_name("London Office")
       )
 
       emp_3 = FactoryGirl.create(:employee,
         hire_date: Date.new(2016, 7, 25, 2),
-        location: Location.find_by_name("Mumbai")
+        location: Location.find_by_name("Mumbai Office")
       )
 
       expect(emp_1.onboarding_due_date).to eq("Jul 18, 2016")
@@ -317,6 +326,7 @@ describe Employee, type: :model do
       last_name: "Barker",
       employee_type: "Vendor",
       department_id: dept.id,
+      location_id: location.id,
       manager_id: "at123",
       sam_account_name: "senorbob",
       contract_end_date: 1.month.from_now
@@ -327,7 +337,9 @@ describe Employee, type: :model do
     end
 
     it "should set the correct account expiry" do
-      expect(employee.generated_account_expires).to eq(DateTimeHelper::FileTime.wtime(1.month.from_now))
+      date = 1.month.from_now
+      datetime = DateTime.new(date.year, date.month, date.day, 21)
+      expect(employee.generated_account_expires).to eq(DateTimeHelper::FileTime.wtime(datetime))
     end
 
     it "should set the correct address" do
@@ -347,7 +359,6 @@ describe Employee, type: :model do
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
           co: employee.location.country,
-          accountExpires: employee.generated_account_expires,
           accountExpires: employee.generated_account_expires,
           title: employee.business_title,
           description: employee.business_title,
@@ -370,11 +381,14 @@ describe Employee, type: :model do
   context "with a terminated worker" do
     let(:employee) { FactoryGirl.build(:employee,
       department_id: dept.id,
+      location_id: location.id,
       termination_date: 2.days.from_now
     )}
 
     it "should set the correct account expiry" do
-      expect(employee.generated_account_expires).to eq(DateTimeHelper::FileTime.wtime(2.days.from_now))
+      date = 2.days.from_now
+      datetime = DateTime.new(date.year, date.month, date.day, 20)
+      expect(employee.generated_account_expires).to eq(DateTimeHelper::FileTime.wtime(datetime))
     end
   end
 
@@ -383,13 +397,16 @@ describe Employee, type: :model do
       first_name: "Bob",
       last_name: "Barker",
       department_id: dept.id,
+      location_id: location.id,
       manager_id: "at123",
       contract_end_date: 1.month.from_now,
       termination_date: 1.day.from_now
     )}
 
     it "should set the correct account expiry" do
-      expect(employee.generated_account_expires).to eq(DateTimeHelper::FileTime.wtime(1.day.from_now))
+      date = 1.day.from_now
+      datetime = DateTime.new(date.year, date.month, date.day, 20)
+      expect(employee.generated_account_expires).to eq(DateTimeHelper::FileTime.wtime(datetime))
     end
 
     it "should create attr hash" do

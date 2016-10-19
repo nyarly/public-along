@@ -3,11 +3,11 @@ require 'rake'
 
 describe "employee rake tasks", type: :tasks do
 
-  let!(:london) { Location.find_by(:name => "London") }
-  let!(:sf) { Location.find_by(:name => "San Francisco") }
-  let!(:la) { Location.find_by(:name => "Los Angeles") }
-  let!(:mumbai) { Location.find_by(:name => "Mumbai") }
-  let!(:melbourne) { Location.find_by(:name => "Melbourne") }
+  let!(:london) { Location.find_by(:name => "London Office") }
+  let!(:sf) { Location.find_by(:name => "San Francisco Office") }
+  let!(:la) { Location.find_by(:name => "Los Angeles Office") }
+  let!(:mumbai) { Location.find_by(:name => "Mumbai Office") }
+  let!(:melbourne) { Location.find_by(:name => "Melbourne Office") }
   let!(:illinois) { Location.find_by(:name => "Illinois") }
 
   let(:mailer) { double(ManagerMailer) }
@@ -271,7 +271,7 @@ describe "employee rake tasks", type: :tasks do
         title: "Rich Guy",
         description: "Rich Guy",
         employeeType: "Regular",
-        physicalDeliveryOfficeName: "Los Angeles",
+        physicalDeliveryOfficeName: "Los Angeles Office",
         department: "BizOpti/Internal Systems Engineering",
         employeeID: "1234567",
         mobile: nil,
@@ -297,7 +297,7 @@ describe "employee rake tasks", type: :tasks do
         title: "Fraud Analyst",
         description: "Fraud Analyst",
         employeeType: "Regular",
-        physicalDeliveryOfficeName: "Melbourne",
+        physicalDeliveryOfficeName: "Melbourne Office",
         department: "Legal",
         employeeID: "109843",
         mobile: nil,
@@ -340,7 +340,7 @@ describe "employee rake tasks", type: :tasks do
           :title=>"Software Development Team Lead",
           :description=>"Software Development Team Lead",
           :employeeType=>"Regular",
-          :physicalDeliveryOfficeName=>"Los Angeles",
+          :physicalDeliveryOfficeName=>"Los Angeles Office",
           :department=>"BizOpti/Internal Systems Engineering",
           :employeeID=>"12100401",
           :telephoneNumber=>"(213) 555-4321"}})
@@ -358,11 +358,11 @@ describe "employee rake tasks", type: :tasks do
           :unicodePwd=>"\"\x001\x002\x003\x00O\x00p\x00e\x00n\x00t\x00a\x00b\x00l\x00e\x00\"\x00",
           :workdayUsername=>"walters",
           :co=>"GB",
-          :accountExpires=>"131117184000000000",
+          :accountExpires=>"131117904000000000",
           :title=>"Contingent Position - Product Management",
           :description=>"Contingent Position - Product Management",
           :employeeType=>"Vendor",
-          :physicalDeliveryOfficeName=>"London",
+          :physicalDeliveryOfficeName=>"London Office",
           :department=>"Consumer Product Management",
           :employeeID=>"109640",
           :telephoneNumber=>"(213) 555-9876"}})
@@ -392,7 +392,7 @@ describe "employee rake tasks", type: :tasks do
           :postalCode=>"60611",
           :thumbnailPhoto=>Base64.decode64(IMAGE)}})
       expect(@ldap).to receive(:replace_attribute).once.with("cn=The Big Lebowski,ou=Engineering,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com", :telephoneNumber, "(213) 555-4321")
-      expect(@ldap).to receive(:replace_attribute).once.with("cn=Kylie Kylie,ou=OT,dc=ottest,dc=opentable,dc=com", :accountExpires, "131061888000000000")
+      expect(@ldap).to receive(:replace_attribute).once.with("cn=Kylie Kylie,ou=OT,dc=ottest,dc=opentable,dc=com", :accountExpires, "131062266000000000")
       expect{
         expect{
           Rake::Task["employee:xml_to_ad"].invoke

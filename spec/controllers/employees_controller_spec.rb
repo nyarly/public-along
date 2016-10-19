@@ -15,6 +15,7 @@ RSpec.describe EmployeesController, type: :controller do
       last_name: "Barker",
       department_id: 1,
       location_id: 1,
+      employee_type: "Regular",
       hire_date: 1.week.from_now
     }
   }

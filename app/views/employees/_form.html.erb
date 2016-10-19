@@ -11,27 +11,29 @@
     </div>
   <% end %>
 
-  <%= f.text_field :first_name, label: "Preferred First Name" %>
-  <%= f.text_field :last_name, label: "Preferred Last Name" %>
-  <%= f.text_field :employee_id, label: "Worker ID - From ADP" %>
-  <%= f.select :employee_type, Employee::TYPES, {label: "Worker Type"} %>
+  <%= f.text_field :first_name, label: "Preferred First Name*", required: true %>
+  <%= f.text_field :last_name, label: "Preferred Last Name*", required: true %>
+  <%= f.text_field :employee_id, label: "Worker ID - From ADP*", required: true %>
+  <%= f.select :employee_type, Employee::TYPES, {label: "Worker Type*", required: true} %>
   <div class="date-select">
-    <%= f.date_select :hire_date, {:order => [:month, :day, :year], :include_blank => true, :default => nil} %>
+    <%= f.date_select :hire_date, {:order => [:month, :day, :year], :include_blank => true, :default => nil, label: "Hire Date*"}, {required: true} %>
   </div>
-  <%= f.collection_select :department_id, Department.all, :id, :name %>
-  <%= f.collection_select :manager_id, Employee.all.order(last_name: :asc), :employee_id, :cn, {label: "Manager"} %>
-  <%= f.text_field :business_title %>
-  <%= f.collection_select :location_id, Location.all, :id, :name %>
+  <%= f.collection_select :department_id, Department.all, :id, :name, {label: "Department*"}, {required: true} %>
+  <%= f.collection_select :manager_id, Employee.all.order(last_name: :asc), :employee_id, :cn, {label: "Manager*"}, {required: true} %>
+  <%= f.text_field :business_title, label: "Business Title*",required: true %>
+  <%= f.collection_select :location_id, Location.all, :id, :name, {label: "Location*"}, {required: true} %>
   <%= f.text_field :office_phone %>
   <%= f.text_field :personal_mobile_phone %>
-  <h5>Contract Workers Only</h5>
-  <div class="section">
-    <div class="date-select">
-        <%= f.date_select :contract_end_date, {:order => [:month, :day, :year] , :include_blank => true, :default => nil} %>
+  <div id="contract-date">
+    <h5>Contract Workers Only</h5>
+    <div class="section primary">
+      <div class="date-select">
+          <%= f.date_select :contract_end_date, {label: "Contract End Date*", :order => [:month, :day, :year] , :include_blank => true, :default => nil}, {required: true}%>
+      </div>
     </div>
   </div>
   <h5>Home-Based Workers Only - For equipment shipment</h5>
-  <div class="section">
+  <div class="section primary">
     <%= f.text_field :home_address_1 %>
     <%= f.text_field :home_address_2 %>
     <%= f.text_field :home_city %>

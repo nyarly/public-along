@@ -35,15 +35,27 @@ namespace :sync do
       ["location", "location_type", "country"].each do |k|
         row_attrs.delete(k)
       end
-
+      # Convert dates
+      row_attrs["hire_date"] = DateTime.strptime(row_attrs["hire_date"], "%m/%d/%y")
+      row_attrs["leave_start_date"] = DateTime.strptime(row_attrs["leave_start_date"], "%m/%d/%y") if row_attrs["leave_start_date"]
+      # add sAMAccountName
+      row_attrs["sam_account_name"] = row_attrs["email"].partition("@").first if row_attrs["email"]
       e.update_attributes(row_attrs)
 
       # Update the worker info in AD
       if e.valid? && e.email.present?
         ldap_entry = ads.find_entry("mail", e.email).first
         if ldap_entry
+          # Write account expiry back to Mezzo record if it exists in AD
+          if ldap_entry.accountExpires[0] != "9223372036854775807"
+            ad_date = DateTimeHelper::FileTime.to_datetime(ldap_entry.accountExpires[0])
+            tz_date = ad_date.in_time_zone(e.nearest_time_zone)
+            new_date = DateTime.new(tz_date.year,tz_date.month, tz_date.day)
+            e.update_attributes(:contract_end_date => new_date)
+          end
           attrs = ads.updatable_attrs(e, ldap_entry)
           attrs.delete(:mobile) # Not currently saving this information for any workers until Workday mobile export is ironed out
+          attrs.delete(:accountExpires) # Do not overwrite account expirations
           blank_attrs, populated_attrs = attrs.partition { |k,v| v.blank? }
 
           ads.delete_attrs(e, ldap_entry, blank_attrs)

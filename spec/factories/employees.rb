@@ -16,12 +16,13 @@ FactoryGirl.define do
     personal_mobile_phone { Faker::PhoneNumber.phone_number }
     office_phone          { Faker::PhoneNumber.phone_number }
     image_code            { IMAGE }
-    location_id           { Location.all.map(&:id).sample || 1 }
+    location_id           { Location.find_by(name: "San Francisco Office").id }
 
     trait :contingent do
       employee_id            { nil }
+      employee_type          { "Agency Contractor" }
       contingent_worker_id   { Faker::Number.number(10) }
-      contingent_worker_type { "Agency" }
+      contingent_worker_type { "Agency Contractor" }
       contract_end_date      { 1.month.from_now }
     end
 

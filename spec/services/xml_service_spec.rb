@@ -27,7 +27,7 @@ describe XmlService, type: :service do
       expect(Employee.find_by(:first_name => "Jeffrey").business_title).to eq("Software Development Team Lead")
       expect(Employee.find_by(:first_name => "Jeffrey").employee_type).to eq("Regular")
       expect(Employee.find_by(:first_name => "Jeffrey").location.kind).to eq("Office")
-      expect(Employee.find_by(:first_name => "Jeffrey").location.name).to eq("Los Angeles")
+      expect(Employee.find_by(:first_name => "Jeffrey").location.name).to eq("Los Angeles Office")
       expect(Employee.find_by(:first_name => "Jeffrey").manager_id).to eq("12100123")
       expect(Employee.find_by(:first_name => "Jeffrey").department.name).to eq("BizOpti/Internal Systems Engineering")
       expect(Employee.find_by(:first_name => "Jeffrey").office_phone).to eq("(213) 555-4321")
@@ -66,7 +66,7 @@ describe XmlService, type: :service do
       expect(Employee.find_by(:first_name => "Walter").business_title).to eq("OT Contingent Position - Product Management")
       expect(Employee.find_by(:first_name => "Walter").employee_type).to eq("Vendor")
       expect(Employee.find_by(:first_name => "Walter").location.kind).to eq("Office")
-      expect(Employee.find_by(:first_name => "Walter").location.name).to eq("London")
+      expect(Employee.find_by(:first_name => "Walter").location.name).to eq("London Office")
       expect(Employee.find_by(:first_name => "Walter").manager_id).to eq("12101502")
       expect(Employee.find_by(:first_name => "Walter").department.name).to eq("Consumer Product Management")
       expect(Employee.find_by(:first_name => "Walter").office_phone).to eq("(213) 555-9876")
@@ -263,7 +263,7 @@ describe XmlService, type: :service do
       allow(ads).to receive(:create_disabled_accounts)
       allow(ads).to receive(:update)
 
-      expect(XmlTransaction).to receive(:create).with({:name=>"new_hire.xml", :checksum=>"5b0fdd8a11081f9b68c6569e6ead807c"})
+      expect(XmlTransaction).to receive(:create).with({:name=>"new_hire.xml", :checksum=>"631263e820cce53399b03526c4642469"})
 
       xml.parse_to_ad
     end

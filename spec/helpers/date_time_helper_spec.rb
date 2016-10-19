@@ -15,4 +15,11 @@ describe DateTimeHelper, type: :helper do
       expect(DateTimeHelper::FileTime.wtime(DateTime.now)).to eq("131102748000000000")
     end
   end
+
+  describe "FileTime.to_datetime(filetime)" do
+    it "should convert FileTime to DateTime object" do
+      expect(DateTimeHelper::FileTime.to_datetime("131304852000000000")).to be_a(DateTime)
+      expect(DateTimeHelper::FileTime.to_datetime("131304852000000000")).to eq(DateTime.new(2017, 2, 1, 21).change(:offset => "-0800"))
+    end
+  end
 end

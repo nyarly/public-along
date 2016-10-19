@@ -7,11 +7,11 @@ class LabellingFormBuilder < ActionView::Helpers::FormBuilder
     label(attribute, options[:label]) + super
   end
 
-  def date_select(attribute, options={})
-    label(attribute) + super
+  def date_select(attribute, options={}, html_options={})
+    label(attribute, options[:label]) + super
   end
 
-  def collection_select(attribute, collection, value_method, text_method, options={})
+  def collection_select(attribute, collection, value_method, text_method, options={}, html_options={})
     label(attribute, options[:label]) + super
   end
 end

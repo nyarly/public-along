@@ -7,5 +7,10 @@ module DateTimeHelper
     def self.wtime(datetime)
       (datetime.to_i * 10000000 + 116444736000000000).to_s
     end
+
+    def self.to_datetime(filetime)
+      int = (filetime.to_i - 116444736000000000)/10000000
+      Time.at(int).to_datetime
+    end
   end
 end

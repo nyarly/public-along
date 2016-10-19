@@ -1,10 +1,13 @@
 class Employee < ActiveRecord::Base
-  TYPES = ["Regular", "Temporary", "Contingent", "Agency", "Contract"]
+  TYPES = ["Agency Contractor", "Independent Contractor", "Service Provider", "Intern", "Regular", "Temporary"]
+
   before_validation :downcase_unique_attrs
 
   validates :first_name,
             presence: true
   validates :last_name,
+            presence: true
+  validates :hire_date,
             presence: true
   validates :department_id,
             presence: true
@@ -50,6 +53,10 @@ class Employee < ActiveRecord::Base
 
   def self.full_termination_group
     where('termination_date BETWEEN ? AND ?', 31.days.ago, 30.days.ago)
+  end
+
+  def is_contingent_worker?
+    ["Agency Contractor", "Independent Contractor", "Service Provider"].include?(employee_type)
   end
 
   def contract_end_date_needed?
@@ -129,7 +136,7 @@ class Employee < ActiveRecord::Base
   end
 
   def manager
-    Employee.find_by(employee_id: manager_id)
+    Employee.find_by(employee_id: manager_id) if manager_id
   end
 
   def generated_email
@@ -146,9 +153,13 @@ class Employee < ActiveRecord::Base
 
   def generated_account_expires
     if termination_date.present?
-      DateTimeHelper::FileTime.wtime(termination_date)
+      date_time = DateTime.new(termination_date.year, termination_date.month, termination_date.day, 21)
+      time_conversion = ActiveSupport::TimeZone.new(nearest_time_zone).local_to_utc(date_time)
+      DateTimeHelper::FileTime.wtime(time_conversion)
     elsif contract_end_date.present?
-      DateTimeHelper::FileTime.wtime(contract_end_date)
+      date_time = DateTime.new(contract_end_date.year, contract_end_date.month, contract_end_date.day, 21)
+      time_conversion = ActiveSupport::TimeZone.new(nearest_time_zone).local_to_utc(date_time)
+      DateTimeHelper::FileTime.wtime(time_conversion)
     else
       # In AD, this value indicates that the account never expires
       "9223372036854775807"
