@@ -17,6 +17,8 @@
 
 $(function(){ $(document).foundation(); });
 
+// Shows and hides contract end date depending on employee type selection
+// This is temporary and should be removed when this UI is retired.
 $(document).ready(function(){
   $('#employee_employee_type').on('change', function() {
     if ( this.value != 'Regular') {
