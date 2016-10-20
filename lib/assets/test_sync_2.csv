@@ -1,0 +1,964 @@
+employee_id,first_name,last_name,business_title,hire_date,cost_center,location,email,leave_start_date,employee_type,manager_id
+101952,Daniel,Abud,Accounts Receivable Specialist,7/5/16,Finance Operations,San Francisco Office,dabud@opentable.com,,Regular,101328
+101281,Casey,Adams,Account Executive,9/4/12,Sales,Arizona,cadams@opentable.com,,Regular,101865
+101458,Steven,Addison,Enterprise Onboarding Specialist,11/18/13,Field Operations,Chicago Office,saddison@opentable.com,,Regular,100393
+101590,Manolo,Agustin,Senior Finance Systems Engineer,8/25/14,BizOpti/Internal Systems Engineering,San Francisco Office,magustin@opentable.com,,Regular,101764
+100038,Veronika,Aicher,PC Manager,11/15/10,Field Operations,London Office,vaicher@opentable.com,,Regular,100632
+101905,Charles,Ajarrista,Bilingual Client Success Specialist,4/25/16,Restaurant Relations Management,Denver Office,cajarrista@opentable.com,,Regular,101120
+101467,James,Alexander,"Director, Product Management",12/13/13,Restaurant Product Management,Chattanooga Office,jalexander@opentable.com,,Regular,101469
+500116,Hannah,Allan,Restaurant Relations Associate,7/28/14,Restaurant Relations Management,London Office,hallan@opentable.com,,Regular,100054
+101411,Sang,Almazzo,Sr. People Business Partner,8/5/13,People and Culture,Los Angeles Office,salmazzo@opentable.com,,Regular,101705
+500205,Maria,Almeida,Communication Designer,9/7/15,Brand/General Marketing,London Office,malmeida@opentable.com,,Regular,101879
+500070,Angela,Altvater,Sr. Marketing Manager,9/23/13,Restaurant Marketing,Frankfurt Office,aaltvater@opentable.com,,Regular,101838
+101578,David,Amusin,Principal Software Engineer,7/21/14,Data Science,San Francisco Office,damusin@opentable.com,,Regular,101844
+101582,Savitha,Anantharam,Senior Business Intelligence Engineer,8/4/14,Data Analytics & Experimentation,Los Angeles Office,sanantharam@opentable.com,,Regular,101322
+500178,Karin,Anders,Project Coordinator,4/7/15,Field Operations,London Office,kanders@opentable.com,,Regular,100038
+101462,Jennifer,Anderson,Central Queue Restaurant Trainer,12/9/13,Field Operations,Minnesota,jtomlinson@opentable.com,9/6/16,Regular,101257
+101779,Austin,Andrews,Technical Support Representative,8/10/15,Customer Support,San Francisco Office,aandrews@opentable.com,,Regular,100420
+101688,Kevin,Andrews,Sr. Software Engineer,2/2/15,Product Engineering - Back End,San Francisco Office,kandrews@opentable.com,,Regular,100359
+100594,Thomas,Angst,"Regional VP, Sales & Restaurant Relations",10/25/04,Sales,Georgia,tangst@opentable.com,,Regular,100842
+101699,Steven,Annessa,Sr. Software Engineer,3/2/15,Data Science,San Francisco Office,sannessa@opentable.com,,Regular,101844
+102005,Maria,Anzola,Customer Support Representative,10/3/16,Customer Support,Denver Office,ianzola@opentable.com,,Regular,101998
+500197,Naoko,Aoki,Business Operations Specialist,6/26/15,Finance Operations,Tokyo Office,naoki@opentable.com,,Regular,500243
+101830,Hannah,Arambul,Sales Associate,10/26/15,Inside Sales,Denver Office,harambul@opentable.com,,Regular,101039
+101873,Adrienne,Arcellana,"Sales Representative, Promotions",2/22/16,Inside Sales,San Francisco Office,aarcellana@opentable.com,,Regular,101006
+500213,Tania,Arena,Restaurant Relations Manager,10/5/15,Restaurant Relations Management,Ontario,tarena@opentable.com,,Regular,100991
+101869,Dani,Arnold,"Director, Customer Support",2/16/16,Customer Support,Denver Office,darnold@opentable.com,,Regular,100351
+500167,Arca,Artem,Senior Engineer,3/9/15,Product Engineering - Front End Diner,London Office,aartem@opentable.com,,Regular,101073
+500117,Hiroshi,Aso,"Director, Sales and Services",7/28/14,Restaurant Relations Management,Tokyo Office,haso@opentable.com,,Regular,100842
+500270,Laura,Atherton,Human Resources Coordinator,4/20/15,People and Culture,London Office,latherton@opentable.com,,Temporary,100981
+500104,Seif,Attar,Principal Software Engineer,4/14/14,Product Engineering - Front End Diner,London Office,sattar@opentable.com,,Regular,101073
+500265,Ricky,Audsley,"Director, Engineering",2/9/16,Product Engineering - Back End,Melbourne Office,raudsley@opentable.com,,Regular,100824
+100818,Ahna,Azevedo,Cash Management Lead,6/28/10,Finance Operations,San Francisco Office,aguedmin@opentable.com,,Regular,100710
+101536,Jennifer,Bader,Sr. UI Writer,4/28/14,Consumer Product Management,San Francisco Office,jbader@opentable.com,,Regular,101845
+101451,Keivan,Bagheri Kelagari,QA Engineer,11/11/13,Product Engineering - Back End,San Francisco Office,kbagheri@opentable.com,,Regular,101841
+101995,Melissa,Bagley,Onboarding Specialist,9/12/16,Field Operations,Colorado,mbagley@opentable.com,,Regular,100580
+101227,Richard,Bailey,Account Manager,6/4/12,Sales,British Columbia,rbailey@opentable.com,,Regular,100694
+101326,Justin,Baker,Inside Sales Coordinator,1/7/13,Inside Sales,Denver Office,jbaker@opentable.com,,Regular,101372
+101309,Tianna,Baker,Account Manager,11/12/12,Sales,Maine,tbaker@opentable.com,9/6/16,Regular,101782
+500306,Nick,Balestra,Senior Engineer,3/14/16,Product Engineering - Front End Diner,London Office,nbalestra@opentable.com,,Regular,101082
+101552,Karin,Ballard,"Trainer, Sales & RR",6/2/14,Sales Operations,Colorado,kballard@opentable.com,,Regular,100695
+500263,Pamela,Balsam,Account Executive,1/11/16,Sales,England,pbalsam@opentable.com,,Regular,100070
+100401,Andrew,Barash,"Manager, Software Development",2/1/05,BizOpti/Internal Systems Engineering,San Francisco Office,abarash@opentable.com,,Regular,100344
+101847,Jessie,Barnes,Sales Associate,12/7/15,Inside Sales,New York City Office,jbarnes@opentable.com,,Regular,101039
+101466,Krisanawan Paulina,Barrack,"Marketing Specialist, SEO",12/9/13,Consumer Marketing,San Francisco Office,pbarrack@opentable.com,,Regular,101375
+100987,Drew,Barrett,Sr. Software Engineer,10/7/09,Product Engineering - Front End Restaurant,Texas,dbarrett@opentable.com,,Regular,101842
+101975,Mia,Barrett,Recruiter,8/1/16,Talent Acquisition,Denver Office,mabbott@opentable.com,,Regular,101642
+100488,Jeremy,Barry,Sr. Product Manager,9/20/04,BizOpti/Internal Systems Engineering,San Francisco Office,jbarry@opentable.com,,Regular,100449
+101767,Kevin,Barry,Inside Sales Representative,7/20/15,Inside Sales,Denver Office,kbarry@opentable.com,,Regular,100784
+100753,Thomas,Bateman,Sr. Restaurant Operations Specialist,1/11/10,Field Operations,Washington DC,tbateman@opentable.com,,Regular,100289
+500157,Piotr,Bazydlo,Engineer,1/14/15,Product Engineering - Front End Diner,London Office,pbazydlo@opentable.com,,Regular,101082
+101452,William,Bealmear,Sr. Engineer,11/11/13,Product Engineering - Front End Diner,San Francisco Office,tbealmear@opentable.com,,Regular,500075
+500235,Petr,Becak,Sr. Software Engineer,8/27/15,Product Engineering - Back End,Melbourne Office,pbecak@opentable.com,,Regular,500265
+101468,Stephen,Beck,Software Engineer,12/13/13,Product Engineering - Front End Restaurant,Chattanooga Office,sbeck@opentable.com,,Regular,101814
+101883,Rachel,Beckenhauer,Sr. Business Systems Analyst,3/14/16,BizOpti/Internal Systems Engineering,San Francisco Office,rbeckenhauer@opentable.com,,Regular,101764
+101910,Christopher,Beley,Sr. Software Engineer,5/2/16,Product Engineering - Front End Diner,San Francisco Office,cbeley@opentable.com,,Regular,101875
+101141,Heather,Bell,Sr. Account Executive,1/9/12,Sales,San Francisco Office,hbell@opentable.com,,Regular,100773
+101545,Sophian,Bensaou,Product Manager,5/12/14,Consumer Product Management,San Francisco Office,sbensaou@opentable.com,,Regular,101393
+101674,Michael-Keith,Bernard,Sr. Operations Engineer,1/12/15,Infrastructure Engineering,San Francisco Office,mkbernard@opentable.com,,Regular,101408
+101656,Julia,Bersin,Sr. Marketing Specialist,12/15/14,Restaurant Marketing,San Francisco Office,jbersin@opentable.com,,Regular,101864
+100989,Elena,Bethmann,Global Sales Operations Associate,7/6/11,Sales Operations,Denver Office,ebethmann@opentable.com,,Regular,100761
+500299,Lily,Betjeman,Copywriter,4/4/16,Consumer Marketing,San Francisco Office,lbetjeman@opentable.com,,Regular,101879
+101368,Tushar,Bhambure,Sr. Software Engineer,5/13/13,Product Engineering - Back End,San Francisco Office,tbhambure@opentable.com,,Regular,100824
+101878,Rahul,Bhatia,Sr. Data Engineer,3/7/16,Data Analytics & Experimentation,San Francisco Office,rbhatia@opentable.com,,Regular,101322
+500314,Arnab,Bhattacharya,Sr. Software Engineer,5/3/16,Data Analytics & Experimentation,Mumbai Office,abhattacharya@opentable.com,,Regular,500043
+101771,Mathieu,Bilodeau,Restaurant Relations Manager,7/27/15,Sales,Oregon,mbilodeau@opentable.com,,Regular,100694
+500012,Edward,Binnie,Business Development Manager,12/17/12,Sales,London Office,ebinnie@opentable.com,,Regular,500261
+101131,Nancy,Black,"Global Sales Operations Lead, Process/Enable",9/7/11,Sales Operations,Denver Office,nblack@opentable.com,,Regular,100761
+101668,Matthew,Blair,Principal Software Engineer,1/5/15,Product Engineering - Front End Diner,San Francisco Office,mblair@opentable.com,,Regular,101861
+101877,Danielle,Blank,Software Engineer,3/7/16,Product Engineering - Front End Restaurant,San Francisco Office,dblank@opentable.com,,Regular,100582
+101964,Christopher,Boersma,Restaurant Relations Manager,7/12/16,Restaurant Relations Management,New South Wales (Sydney),cboersma@opentable.com,,Regular,101145
+101738,Ilan,Boico,Account Manager,5/26/15,Sales,Wisconsin,iboico@opentable.com,,Regular,100991
+500246,Deborah,Bollom,"Director, Restaurant Relations",8/27/15,Customer Support,Melbourne Office,dbollom@opentable.com,,Regular,100388
+500318,Adam,Bordow,Temporary Photography Coordinator,7/5/16,Brand/General Marketing,San Francisco Office,abordow@opentable.com,,Temporary,101879
+100765,Amanda,Botelho,"Director, Restaurant Marketing",11/2/15,Restaurant Marketing,San Francisco Office,abotelho@opentable.com,,Regular,101838
+101273,Nicole,Boucard,Central Queue Operations Coordinator,8/20/12,Field Operations,San Francisco Office,nboucard@opentable.com,,Regular,100178
+101542,Amanda,Bowman,Restaurant Relations Manager,5/5/14,Restaurant Relations Management,San Francisco Office,abowman@opentable.com,,Regular,100358
+101589,Brittany,Boynton,Human Resources Representative,8/25/14,People and Culture,San Francisco Office,bboynton@opentable.com,,Regular,101605
+101423,Colby,Braun,Global Community Content Manager,8/13/13,Customer Support,San Francisco Office,cbraun@opentable.com,,Regular,101737
+100071,Deborah,Breton Henaine,Account Executive,3/10/08,Sales,Mexico City Office,dbreton@opentable.com,,Regular,100074
+101903,Matthew,Brooks,Software Engineer,4/25/16,Product Engineering - Back End,San Francisco Office,mbrooks@opentable.com,,Regular,101872
+101566,Shelly,Broussard,Restaurant Relations Manager,6/23/14,Restaurant Relations Management,Texas,sbroussard@opentable.com,,Regular,101650
+101899,Sarah,Browning,Treasury Analyst,4/18/16,Finance,San Francisco Office,sbrowning@opentable.com,,Regular,101807
+101223,Amy,Brubaker,Account Executive,6/4/12,Sales,California,aoconnell@opentable.com,,Regular,101865
+101133,Kristina,Buckwald,Account Executive,1/3/12,Sales,Ohio,kbuckwald@opentable.com,,Regular,101782
+500227,Jason,Bulger,"Director, Hotel Sales and Strategy",8/27/15,Sales,Melbourne Office,jbulger@opentable.com,,Regular,100388
+500040,Frederick,Bullock,Account Executive,6/3/13,Sales,London Office,fbullock@opentable.com,,Regular,100070
+101770,Ariel,Burkhart,Sr. Technical Recruiter,7/27/15,Talent Acquisition,Los Angeles Office,aburkhart@opentable.com,,Regular,101734
+101692,Noah,Burney,Sr. Software Engineer,2/9/15,Product Engineering - Front End Restaurant,Illinois,nburney@opentable.com,,Regular,101814
+101524,Brooks,Burtch,"Senior Recruiter, Sales",3/24/14,Talent Acquisition,San Francisco Office,bburtch@opentable.com,,Regular,101454
+101039,Kristin,Bush,"Manager, New Business Development",10/3/11,Inside Sales,Denver Office,kbush@opentable.com,,Regular,101372
+101208,Julia,Butcher,Restaurant Relations Associate,5/1/12,Restaurant Relations Management,Denver Office,jbutcher@opentable.com,,Regular,100286
+500139,Thomas,Buttigieg,Restaurant Operations Specialist,12/1/14,Field Operations,London Office,tbuttigieg@opentable.com,,Regular,100762
+500134,John,Cabalit,Technical Support Assistant,11/5/14,Customer Support,London Office,jcabalit@opentable.com,,Regular,100913
+100042,Victor,Cabrera,Sr. Restaurant Operations Specialist,1/5/09,Field Operations,London Office,vcabrera@opentable.com,,Regular,100762
+100043,Errol,Caldeira,Sr. Account Executive,11/7/07,Sales,London Office,ecaldeira@opentable.com,,Regular,100070
+102002,Kristina,Calderon,Customer Support Representative,10/3/16,Customer Support,Denver Office,kcalderon@opentable.com,,Regular,101994
+100449,Gina,Calhoun,"Sr. Director, Product Management",10/1/05,BizOpti/Internal Systems Engineering,San Francisco Office,gcalhoun@opentable.com,,Regular,101615
+101422,Shane,Call,Restaurant Relations Team Lead,4/13/15,Restaurant Relations Management,California,scall@opentable.com,,Regular,101865
+101879,Brendan,Callahan,"Senior Manager, Brand Design",3/7/16,Brand/General Marketing,San Francisco Office,bcallahan@opentable.com,,Regular,101638
+100580,Jonathan,Calpin,Onboarding Specialist Lead,12/10/07,Field Operations,Pennsylvania,jcalpin@opentable.com,,Regular,100741
+101546,Edward,Calvert,Restaurant Relations Manager,5/12/14,Restaurant Relations Management,Washington DC,scalvert@opentable.com,,Regular,100289
+100358,Denise,Capobianco,Restaurant Relations Team Lead,4/16/12,Restaurant Relations Management,San Francisco Office,dcapobianco@opentable.com,,Regular,100773
+101955,Monica,Caravantes,Administrative Assistant,8/22/16,Executive,San Francisco Office,mcaravantes@opentable.com,,Regular,101848
+100826,Marisela,Cardona,Restaurant Relations Team Lead,9/22/08,Restaurant Relations Management,New York City Office,mcardona@opentable.com,,Regular,100902
+500127,Stefano,Carlino,Technical Support Representative,10/9/14,Customer Support,London Office,scarlino@opentable.com,,Regular,100913
+101960,Kevin,Carlson,Software Engineer,7/11/16,BizOpti/Internal Systems Engineering,San Francisco Office,kcarlson@opentable.com,,Regular,100344
+102016,Christine,Carroll,Account Executive,10/3/16,Sales,Massachusetts,ccarroll@opentable.com,,Regular,101782
+101177,Alessandro,Carrubba,Restaurant Operations Specialist,4/2/12,Field Operations,Quebec,acarrubba@opentable.com,,Regular,100991
+101563,Rebecca,Carson,Global Sales Operations Analyst,6/16/14,Sales Operations,Denver Office,rebeccac@opentable.com,,Regular,100761
+500251,Christopher,Cartlidge,Engineer,10/26/15,Product Engineering - Front End Diner,London Office,ccartlidge@opentable.com,,Regular,101082
+101320,Rachel,Cartwright,Inside Sales Representative,1/2/13,Inside Sales,Denver Office,rcartwright@opentable.com,,Regular,101006
+100861,Charles,Cary,Restaurant Operations Specialist,11/1/10,Field Operations,Ohio,ccary@opentable.com,,Regular,101782
+100885,James,Castillo,"Director, Engineering",9/19/05,Product Engineering - Front End Restaurant,San Francisco Office,jcastillo@opentable.com,,Regular,101306
+101646,Thomas,Caterina,Sr. Marketing Specialist,12/1/14,Consumer Marketing,San Francisco Office,tcaterina@opentable.com,,Regular,101907
+100344,Bryce,Catlin,"Director, Engineering",12/3/03,BizOpti/Internal Systems Engineering,San Francisco Office,bcatlin@opentable.com,,Regular,101615
+101073,John,Catterfeld,Sr. Engineering Manager,9/14/09,Product Engineering - Front End Diner,London Office,jcatterfeld@opentable.com,,Regular,101306
+101868,Angela,Cerreta-Palauqui,Restaurant Marketing Manager,2/8/16,Restaurant Marketing,San Francisco Office,acerreta@opentable.com,,Regular,100765
+100415,Bryant,Chae,"Manager, Data Center Operations",3/16/05,Infrastructure Engineering,San Francisco Office,bchae@opentable.com,,Regular,100513
+101683,Brittany,Chait,Associate Product Manager,2/2/15,Consumer Product Management,San Francisco Office,bchait@opentable.com,,Regular,101592
+101576,Nathaniel,Chait,"Director, Product Management",7/21/14,Restaurant Product Management,San Francisco Office,echait@opentable.com,,Regular,101915
+100486,Nageswara,Challapalli,"Manager, Engineering",8/22/06,Product Engineering - Front End Diner,San Francisco Office,nchallapalli@opentable.com,,Regular,101861
+101746,Lok Tung,Chan,Software Engineer,8/29/16,Product Engineering - Front End Restaurant,San Francisco Office,lchan@opentable.com,,Regular,101434
+101861,Rajkumar,Chandrasekaran,Director of Engineering,1/4/16,Product Engineering - Front End Diner,San Francisco Office,rchandrasekaran@opentable.com,,Regular,101306
+101713,Christopher,Chang,"Sales Representative, Promotions",4/13/15,Inside Sales,Chicago Office,cchang@opentable.com,,Regular,101006
+101583,Katherine,Chang,Restaurant Relations Manager,8/4/14,Restaurant Relations Management,Massachusetts,kchang@opentable.com,,Regular,101782
+101271,Dylan,Charleston,Operations Engineer,8/13/12,Infrastructure Engineering,Washington,dcharleston@opentable.com,,Regular,100415
+500191,Christopher,Charlick,Restaurant Relations Associate,6/1/15,Restaurant Relations Management,England,ccharlick@opentable.com,,Regular,100070
+101769,Shiv,Chawla,Sr. Product Manager,7/27/15,BizOpti/Internal Systems Engineering,San Francisco Office,schawla@opentable.com,,Regular,100449
+101034,Connie,Chen,"VP, General Counsel",10/17/11,Executive,San Francisco Office,cchen@opentable.com,9/26/16,Regular,101724
+101917,Olivia,Cheung,Marketing Manager,5/9/16,Restaurant Marketing,San Francisco Office,ocheung@opentable.com,,Regular,101864
+100564,Tatyana,Chicherova,Sr. GL Accountant,11/1/07,Finance,San Francisco Office,tchicherova@opentable.com,,Regular,101815
+101569,Joseph,Chin,Accounts Receivable Specialist,6/30/14,Finance Operations,San Francisco Office,jchin@opentable.com,,Regular,101328
+100513,Wesley,Cho,"Sr. Director, Technology Operations",4/2/07,Infrastructure Engineering,San Francisco Office,wcho@opentable.com,,Regular,101615
+101527,Dmytro,Chornyi,Principal Software Engineer,3/31/14,Product Engineering - Back End,San Francisco Office,dchornyi@opentable.com,,Regular,100824
+101106,Tahmina,Choudhury,Inside Sales Representative,9/5/11,Inside Sales,London Office,tchoudhury@opentable.com,,Regular,101112
+101849,Tyrick,Christian,Senior Experience Designer,12/7/15,Consumer Product Management,Chattanooga Office,tchristian@opentable.com,,Regular,101845
+101494,Valerie,Christian,Restaurant Relations Manager,1/27/14,Restaurant Relations Management,Florida,vchristian@opentable.com,,Regular,100643
+101145,Leslie,Christianson,"Manager, Restaurant Relations",1/23/12,Restaurant Relations Management,New South Wales (Sydney),lchristianson@opentable.com,,Regular,100529
+101378,Zhichao,Chu,Software Engineer,5/20/13,Product Engineering - Front End Diner,San Francisco Office,cchu@opentable.com,,Regular,100486
+500158,Viraj,Churi,Sr. Software Engineer,1/20/15,Data Analytics & Experimentation,Mumbai Office,vchuri@opentable.com,,Regular,500043
+500382,Robin,Chuter,Customer Support Representative,10/3/16,Customer Support,London Office,rchuter@opentable.com,,Regular,100913
+101606,Joanna,Citarella,Hotel Accounts Manager,10/6/14,Restaurant Relations Management,Florida,jcitarella@opentable.com,,Regular,101360
+101871,Jordan,Clark,Software Engineer,2/16/16,Product Engineering - Front End Diner,San Francisco Office,jclark@opentable.com,,Regular,101668
+500146,James,Clarke,Account Executive,1/5/15,Sales,England,jclarke@opentable.com,,Regular,100054
+500042,Jacob,Clarkson,Marketing Manager,6/17/13,Consumer Marketing,London Office,jclarkson@opentable.com,,Regular,101731
+100738,Samantha,Cleaves,Sr. Account Executive,10/11/99,Sales,New York City Office,scleaves@opentable.com,,Regular,100902
+500239,Sean,Cobbett,Business Development Manager,8/27/15,Sales,Melbourne Office,scobbett@opentable.com,,Regular,100529
+100582,Agustin,Colchado Jr.,Principal Software Engineer,12/26/07,Product Engineering - Front End Restaurant,San Francisco Office,acolchado@opentable.com,,Regular,100885
+101469,Jeffrey,Cole,"Director, Product Management",12/13/13,Restaurant Product Management,Chattanooga Office,jcole@opentable.com,,Regular,101915
+101916,Ryan,Cole,Contracts Administrator,5/9/16,Legal,San Francisco Office,rcole@opentable.com,,Regular,101537
+100761,Amanda,Collier,"Director, Global Sales & Rest. Services Opera",2/8/10,Sales,Pennsylvania,acollier@opentable.com,9/8/16,Regular,100312
+101959,Ashley,Collins,Global Sourcing Manager,7/7/16,Finance Operations,San Francisco Office,acollins@opentable.com,,Regular,500150
+101477,Gregory,Comishock,Restaurant Operations Specialist,12/23/13,Field Operations,Pennsylvania,gcomishock@opentable.com,,Regular,100289
+101419,Casey,Compton,"Restaurant Relations Manager, National Accts",8/9/13,Field Operations,Nevada,ccompton@opentable.com,,Regular,100286
+101943,Joel,Contreras,Sales Associate,6/13/16,Inside Sales,Denver Office,jcontreras@opentable.com,,Regular,101039
+101006,Christopher,Cook,Inside Sales Manager,8/8/11,Inside Sales,Denver Office,ccook@opentable.com,,Regular,101372
+101823,Jordan,Corlew,Onboarding Specialist,10/12/15,Field Operations,Denver Office,jcorlew@opentable.com,,Regular,100580
+100551,Pierre-Yves,Corlobe,Principal Engineer,10/1/07,Product Engineering - Front End Diner,San Francisco Office,pcorlobe@opentable.com,,Regular,500075
+100902,Mark,Cornell,District Manager,11/8/04,Sales,New Jersey,mcornell@opentable.com,,Regular,100594
+100863,Brady,Costello,Global Process & Reporting Supervisor,11/15/10,Finance Operations,San Francisco Office,bcostello@opentable.com,,Regular,500150
+100706,Gina,Coughlin,"Sr. GL Accountant, Tier II",7/9/09,Finance,San Francisco Office,glenardon@opentable.com,,Regular,101604
+500228,Jasper,Coutts,Restaurant Relations Manager,8/27/15,Restaurant Relations Management,Melbourne Office,jcoutts@opentable.com,,Regular,101145
+101075,Philip,Cox,Principal Software Engineer,2/14/11,Product Engineering - Front End Diner,London Office,pcox@opentable.com,,Regular,101073
+101057,Shelley,Cox,"Sr. RRM, Major Accounts",7/12/10,Restaurant Relations Management,London Office,scox@opentable.com,,Regular,500261
+101431,Daniel,Cunha,Senior Counsel,9/23/13,Legal,San Francisco Office,dcunha@opentable.com,,Regular,101034
+101638,Cort,Cunningham,"Sr. Director, Brand Marketing",11/1/14,Brand/General Marketing,New York City Office,ccunningham@opentable.com,,Regular,100604
+101704,Jennifer,D'Annunzio,Account Executive,3/16/15,Sales,Oregon,jdannunzio@opentable.com,,Regular,100694
+101058,Laura,D'Elia,Sr. Restaurant Relations Manager,7/13/09,Restaurant Relations Management,London Office,ldelia@opentable.com,,Regular,100070
+500045,Sanjay,Dalsania,Software Engineer,6/10/13,Data Analytics & Experimentation,Mumbai Office,sdalsania@opentable.com,,Regular,500043
+500186,Matthew,Davis,Account Executive,5/4/15,Sales,New South Wales (Sydney),matthewd@opentable.com,,Regular,100529
+102021,Joseph Scott,Day,"Sr. Vice President, People & Culture",10/3/16,People and Culture,San Francisco Office,sday@opentable.com,,Regular,101724
+102001,Luis,Day,Workforce Optimization Manager,10/3/16,Customer Support,Denver Office,lday@opentable.com,,Regular,101869
+101988,Jerry,De Soto,Sr. Product Manager,8/29/16,Restaurant Product Management,San Francisco Office,jdesoto@opentable.com,,Regular,101794
+101107,Maria Luisa,De Stefano,Inside Sales Representative,2/9/07,Inside Sales,London Office,mdestefano@opentable.com,,Regular,101112
+101737,Nathan,Deeds,"Sr. Manager, Customer Support",6/8/15,Customer Support,San Francisco Office,ndeeds@opentable.com,,Regular,100351
+500184,Jorge,Del Toro Perez,Sr. Accounts Receivable Analyst,4/27/15,Finance Operations,London Office,jperez@opentable.com,,Regular,500034
+101516,Whitney,DeLuca,Sales Associate,3/3/14,Inside Sales,San Francisco Office,wdeluca@opentable.com,,Regular,101039
+101739,Patricia,Demorest,Software Engineer,6/15/15,Product Engineering - Front End Diner,San Francisco Office,pdemorest@opentable.com,,Regular,101317
+101618,William,Deriso,Sr. Software Engineer,10/27/14,Product Engineering - Back End,San Francisco Office,dderiso@opentable.com,,Regular,101841
+500043,Hrishikesh,Deshpande,"Director, Payments Engineering",6/10/13,Data Analytics & Experimentation,Mumbai Office,rdeshpande@opentable.com,,Regular,101293
+500210,Maxime,Devalland,Sr. Operations Engineer,9/21/15,Infrastructure Engineering,London Office,mdevalland@opentable.com,,Regular,100415
+500203,Helen,Dhont,Sales Associate,8/17/15,Sales,London Office,hdhont@opentable.com,,Regular,101112
+101773,Michael,Dietel,Delivery Manager,8/3/15,Technology/CTO Admin,San Francisco Office,mdietel@opentable.com,,Regular,101446
+100901,Chiara,DiGeronimo,Sr. Account Executive,1/31/11,Sales,San Francisco Office,cdigeronimo@opentable.com,,Regular,100773
+101726,Michael,Dokovna,Enterprise Operations Specialist,5/11/15,Restaurant Relations Management,New York,mdokovna@opentable.com,,Regular,100393
+101436,Sarah,Dolezal,Sr. Risk and Compliance Associate,9/30/13,Risk Management,San Francisco Office,sgabriel@opentable.com,,Regular,101034
+500241,Timothy,Domelow,Senior Account Executive,8/27/15,Sales,Melbourne Office,tdomelow@opentable.com,,Regular,500227
+500253,Nickolas,Donegan,Restaurant Operations Specialist,11/17/15,Field Operations,Tokyo Office,ndonegan@opentable.com,,Regular,100178
+101599,Sandesh,Dongari,Salesforce Developer,9/22/14,BizOpti/Internal Systems Engineering,San Francisco Office,sdongari@opentable.com,,Regular,100401
+101969,Aicha,Doucoure,Senior Program Manager,9/12/16,Brand/General Marketing,San Francisco Office,adoucoure@opentable.com,,Regular,101638
+101644,Natalie,Dow,Global Sales Operations Analyst,11/17/14,Sales Operations,San Francisco Office,ndow@opentable.com,,Regular,100761
+500034,Jason,Doyle,Billing and Settlement Manager EMEA,4/22/13,Finance Operations,London Office,jdoyle@opentable.com,,Regular,500150
+101919,Shawn,Doyle,Restaurant Relations Manager,5/16/16,Restaurant Relations Management,San Francisco Office,sdoyle@opentable.com,,Regular,100358
+101091,Nicola,Drake,"Director, Product Management",6/7/10,Consumer Product Management,London Office,ndrake@opentable.com,,Regular,101722
+100957,David,Du,Account Executive,5/16/11,Sales,San Francisco Office,ddu@opentable.com,,Regular,100773
+100827,Norman,Ducasse,Distribution Lead,7/15/10,Customer Support,San Francisco Office,nducasse@opentable.com,,Regular,101737
+101989,Oneida,Duenas,Customer Support Representative,9/6/16,Customer Support,Denver Office,oduenas@opentable.com,,Regular,101994
+100740,Beth,Dumas,Project Coordinator,7/16/05,Field Operations,New York,bdumas@opentable.com,,Regular,100902
+101686,Travis,Dunn,Sr. Software Engineer,2/2/15,Product Engineering - Front End Restaurant,Chattanooga Office,tdunn@opentable.com,,Regular,101814
+101792,Emily,Dymond,Fraud Analyst,8/31/15,Risk Management,San Francisco Office,edymond@opentable.com,,Regular,101463
+101441,Brianne,Eastburn,SFDC Administrator,10/7/13,BizOpti/Internal Systems Engineering,San Francisco Office,beastburn@opentable.com,,Regular,100449
+100049,Jair,Eastbury,Restaurant Operations Specialist,11/15/10,Field Operations,London Office,jeastbury@opentable.com,,Regular,100762
+101837,Alan,Edwards,Inside Sales Associate,11/2/15,Inside Sales,Denver Office,alan.edwards@opentable.com,,Regular,100784
+500196,Jason,Eich,Business Development Manager,6/15/15,Sales,London Office,jecollins@opentable.com,,Regular,500261
+101722,Mats,Einarsen,"Sr. Director, Product Management",4/27/15,Consumer Product Management,San Francisco Office,meinarsen@opentable.com,,Regular,101970
+101731,Christine,Elfalan,"Sr. Director, Engagement Marketing",5/26/15,Consumer Marketing,San Francisco Office,celfalan@opentable.com,,Regular,100604
+101979,Nicole,Ellenbecker,Restaurant Operations Specialist,8/8/16,Sales,Chicago Office,nellenbecker@opentable.com,,Regular,100991
+100050,Alistair,Emmet,"Director, Customer Support",4/23/07,Customer Support,London Office,aemmet@opentable.com,,Regular,100351
+101856,Nelson,Eng,Senior Finance Systems Analyst,12/14/15,Finance,San Francisco Office,neng@opentable.com,,Regular,101531
+500372,Maria Athena,Engesaeth,Strategy Analyst,8/22/16,Consumer Product Management,London Office,mathena@opentable.com,,Regular,101091
+500231,Lavinia,Enosa,Onboarding Specialist Lead,8/27/15,Field Operations,Melbourne Office,lenosa@opentable.com,,Regular,100178
+101622,Annelise,Espinosa,Sr. Marketing Specialist,10/27/14,Consumer Marketing,San Francisco Office,aespinosa@opentable.com,,Regular,101395
+102017,Jason,Esquivel,Customer Support Representative,10/3/16,Customer Support,Denver Office,jesquivel@opentable.com,,Regular,101994
+101256,Joseph,Essas,Chief Technology Officer,7/18/12,Executive,San Francisco Office,jessas@opentable.com,,Regular,101724
+101399,Jennifer,Essl,Restaurant Relations Manager,7/1/13,Restaurant Relations Management,New York City Office,jessl@opentable.com,,Regular,100902
+500142,Duncan,Evemy,Lead Recruiter,12/15/14,Talent Acquisition,London Office,devemy@opentable.com,,Regular,101454
+500326,William,Everett,Account Executive,5/9/16,Sales,London Office,weverett@opentable.com,,Regular,100054
+500230,Jeremy,Excell,Business Development Manager,8/27/15,Sales,Melbourne Office,jexcell@opentable.com,,Regular,100529
+500121,Nora,Fabian,Restaurant Relations Associate,9/1/14,Restaurant Relations Management,Germany,nfabian@opentable.com,11/12/15,Regular,500096
+500033,Marjorie,Faccenda,Sr. Account Executive,4/22/13,Sales,England,mfaccenda@opentable.com,,Regular,100070
+101789,Caitlin,Farr,Account Manager,8/31/15,Sales,Hawaii,cfarr@opentable.com,,Regular,100694
+101108,Saba,Faruqui,Sr. Inside Sales Representative,6/28/11,Inside Sales,London Office,sfaruqui@opentable.com,,Regular,101112
+101825,Laudan,Fatemi,Sr. GL Accountant,10/19/15,Finance,San Francisco Office,lfatemi@opentable.com,,Regular,100763
+101864,Christopher,Faville,"Director, Restaurant Marketing",1/19/16,Restaurant Marketing,San Francisco Office,cfaville@opentable.com,,Regular,101838
+500313,Louise,Ferguson,Marketing Specialist,5/3/16,Restaurant Marketing,Melbourne Office,lferguson@opentable.com,,Regular,500232
+500220,Anthony,Ferlazzo,Onboarding Specialist,8/27/15,Field Operations,Melbourne Office,aferlazzo@opentable.com,,Regular,100178
+101514,Paul,Ferris,Product Manager,2/10/14,Restaurant Product Management,Chattanooga Office,pferris@opentable.com,,Regular,101469
+101408,John,Fessenden,Technology Operations Architect,7/29/13,Infrastructure Engineering,Los Angeles Office,fess@opentable.com,,Regular,101615
+101092,Tim,Fiddies,Sr. Customer Care Data Analyst,10/17/05,Customer Support,London Office,tfiddies@opentable.com,,Regular,100351
+500063,Matteo,Figus,Senior Engineer,7/30/13,Product Engineering - Front End Diner,London Office,mfigus@opentable.com,,Regular,101073
+100051,Cara,Fitzmaurice,Account Executive,4/27/09,Sales,England,cfitzmaurice@opentable.com,,Regular,100070
+101708,Carl,Flippin,Sr. Operations Engineer,3/30/15,Infrastructure Engineering,Los Angeles Office,cflippin@opentable.com,,Regular,100415
+102009,Edwin,Flores,Customer Support Representative,10/3/16,Customer Support,Denver Office,eflores@opentable.com,,Regular,101998
+500181,Jonathan,Flowers,Delivery Manager,4/20/15,Technology/CTO Admin,London Office,jflowers@opentable.com,,Regular,101446
+101372,Jonathan,Foley,"Director, Inside Sales",5/13/13,Inside Sales,Denver Office,jfoley@opentable.com,,Regular,100842
+101808,Travis,Foster,Sr. Operations Engineer,9/21/15,Infrastructure Engineering,San Francisco Office,tfoster@opentable.com,,Regular,101408
+100461,Sherri,Fottler,"Sr. Account Executive, National Accounts",3/27/06,Sales,California,sdagostin@opentable.com,,Regular,101652
+100853,Tiffany,Fox,"Sr. Director, Corporate Communications",10/18/10,Public Relations,San Francisco Office,tfox@opentable.com,,Regular,100604
+101664,Fabiana,Franco,Inside Sales Representative,1/5/15,Inside Sales,Denver Office,ffranco@opentable.com,,Regular,100784
+500084,Mareike,Frith,Restaurant Relations Manager,1/6/14,Restaurant Relations Management,Germany,mfrith@opentable.com,11/11/15,Regular,500096
+101463,Robert,Fritts,"Manager, Payments Operations and Fraud",12/9/13,Risk Management,San Francisco Office,rfritts@opentable.com,,Regular,101034
+101990,Nery,Fuentes-Cortes,Customer Support Representative,9/6/16,Customer Support,Denver Office,nfuentes@opentable.com,,Regular,101994
+100512,Yasuko,Fukui,Sr. QA Engineer,3/12/07,Product Engineering - Back End,San Francisco Office,yfukui@opentable.com,,Regular,101453
+102019,George,Fuller,"Senior Manager, Customer Support",10/3/16,Customer Support,Denver Office,gfuller@opentable.com,,Regular,100420
+500120,Victoria,Furneau,Recruitment Coordinator,8/18/14,Talent Acquisition,London Office,vfurneau@opentable.com,,Regular,500142
+101323,Alison,Gage,Sr. Inside Sales Representative,1/2/13,Inside Sales,Denver Office,agage@opentable.com,,Regular,101006
+101852,Mark,Gagnon,Technical Support Representative,12/7/15,Customer Support,San Francisco Office,mgagnon@opentable.com,,Regular,100420
+101827,Igor,Gammer,Principal Data Science Engineer,10/19/15,Data Science,San Francisco Office,igammer@opentable.com,,Regular,101844
+100102,Julieta,Garcia Martinez,Sr. Account Executive,8/21/06,Sales,Ontario,jgarcia@opentable.com,,Regular,100991
+101255,Ashley,Garcia,"Sr. RRM, National Accounts",11/2/10,Restaurant Relations Management,Vermont,agarcia@opentable.com,,Regular,100286
+500152,Julia,Garibaldi,Restaurant Relations Manager,1/5/15,Restaurant Relations Management,Ontario,jgaribaldi@opentable.com,,Regular,100991
+101037,Benjamin,Garlock,Sr. Field Operations Specialist,7/14/04,Field Operations,New York City Office,bgarlock@opentable.com,,Regular,100902
+100052,James,Garratt,Sr. Restaurant Relations Manager,8/31/10,Restaurant Relations Management,England,jgarratt@opentable.com,,Regular,100054
+102020,Kilo,Garrow,Sr. Computer Technician,10/3/16,Customer Support,Concord Warehouse,kgarrow@opentable.com,,Regular,101737
+100741,Mark,Garufi,Onboarding Manager,7/9/07,Field Operations,New York City Office,mgarufi@opentable.com,,Regular,100178
+101333,Harish,Gazula,Principle Data Warehouse Engineer,1/28/13,Data Analytics & Experimentation,Los Angeles Office,hgazula@opentable.com,,Regular,101293
+500183,Sophie,Gelsthorpe,Senior Human Resources Manager,4/27/15,People and Culture,London Office,sgelsthorpe@opentable.com,,Regular,101705
+102015,Thomas,Gemetti,Computer Technician,10/3/16,Customer Support,Concord Warehouse,tgemetti@opentable.com,,Regular,101737
+500380,Maurizio,Gencarelli,Customer Support Representative,10/3/16,Customer Support,London Office,mgencarelli@opentable.com,,Regular,100050
+101218,Ronald,Genise,Sr. Software Engineer,5/29/12,Product Engineering - Back End,San Francisco Office,rgenise@opentable.com,,Regular,100824
+100407,Raymond,Geronimo,IT Ops Team Lead,2/16/05,Infrastructure Engineering,San Francisco Office,rgeronimo@opentable.com,,Regular,100513
+500150,Haydn,Gibbins,"Director, Finance Operations",1/6/15,Finance Operations,London Office,hgibbins@opentable.com,,Regular,100608
+102022,Jackson,Gibson,Customer Support Representative,10/3/16,Customer Support,Denver Office,jgibson@opentable.com,,Regular,101994
+500165,Dafydd,Giddins,Senior Engineer,3/2/15,Product Engineering - Front End Diner,London Office,dgiddins@opentable.com,,Regular,500104
+101487,Ellen,Gladish,Onboarding Specialist,1/13/14,Field Operations,Chicago Office,egladish@opentable.com,,Regular,100360
+101851,Evan,Glick,Marketing Coordinator,12/7/15,Consumer Marketing,San Francisco Office,eglick@opentable.com,,Regular,101907
+101958,Simon,Goetz,"Copywriter, Brand",7/7/16,Brand/General Marketing,San Francisco Office,sgoetz@opentable.com,,Temporary,101879
+500307,Alex,Goff,Account Executive,3/14/16,Sales,London Office,agoff@opentable.com,,Regular,100054
+100698,Igor,Golovko,Principal Software Engineer,4/29/09,Product Engineering - Back End,San Francisco Office,igolovko@opentable.com,,Regular,100824
+100952,Gregory,Golphin,Restaurant Operations Specialist,5/9/11,Field Operations,San Francisco Office,ggolphin@opentable.com,,Regular,100773
+100938,Alicia,Gomes,"Sales Representative, Promotions",4/11/11,Inside Sales,New York City Office,agomes@opentable.com,,Regular,100784
+101991,Sheila,Gonzales,Talent Acquisition & HR Coordinator,9/7/16,Talent Acquisition,Denver Office,sgonzales@opentable.com,,Temporary,101642
+500009,Jorge,Gonzalez Aragon,Restaurant Relations Manager,11/7/12,Restaurant Relations Management,Mexico City Office,jgonzalez@opentable.com,,Regular,100074
+69,Kevin,Goodman,Sr. Restaurant Operations Specialist,4/16/12,Field Operations,London Office,kgoodman@opentable.com,,Regular,100762
+101212,Dmitry,Gordeychev,Sr. Software Engineer,5/15/12,Product Engineering - Back End,San Francisco Office,dgordeychev@opentable.com,,Regular,100824
+101782,Peter,Gosdanian,District Manager,8/17/15,Sales,Massachusetts,pgosdanian@opentable.com,,Regular,100594
+101645,Sarah,Gottfried,Sr. Experience Designer,12/1/14,Consumer Product Management,San Francisco Office,sgottfried@opentable.com,,Regular,101845
+100935,Joshua,Gottlieb,Sr. Account Executive,1/21/14,Sales,Missouri,jgottlieb@opentable.com,,Regular,101650
+100968,Mariel,Gottlieb,Inside Sales Representative,4/27/15,Inside Sales,Denver Office,mgottlieb@opentable.com,,Regular,100784
+100373,Christopher,Gould,Sr. Engineering Manager,9/20/04,Product Engineering - Front End Diner,San Francisco Office,cgould@opentable.com,,Regular,101317
+500194,Laura,Grassick,Global Sales Operations Analyst,6/8/15,Sales Operations,London Office,lgrassick@opentable.com,,Regular,500211
+100352,Brian,Gray,Operations Engineer,3/1/04,Infrastructure Engineering,San Francisco Office,bgray@opentable.com,,Regular,100415
+102011,Shawn,Griggs,Customer Support Representative,10/3/16,Customer Support,Denver Office,sgriggs@opentable.com,,Regular,101994
+101754,Carly,Grimm,Account Executive,6/29/15,Sales,Texas,cgrimm@opentable.com,,Regular,101650
+101601,Erich,Grois,"Lead Designer, Brand",9/22/14,Brand/General Marketing,San Francisco Office,egrois@opentable.com,,Regular,101879
+101888,Jonathan,Grubb,"Director, Product Management",9/26/16,Consumer Product Management,Los Angeles Office,jgrubb@opentable.com,,Regular,101970
+101821,Fabian,Guerra Soto,Sr. Software Engineer,10/5/15,Product Engineering - Front End Restaurant,Chattanooga Office,fguerra@opentable.com,,Regular,101434
+101912,Kristen,Guhde,Sr. Product Manager,5/2/16,Consumer Product Management,San Francisco Office,kguhde@opentable.com,,Regular,101722
+100558,Galen,Guilbert,Principal Software Engineer,10/15/07,Product Engineering - Front End Diner,San Francisco Office,gguilbert@opentable.com,,Regular,100373
+101900,Todd,Gunderson,Account Executive,4/18/16,Sales,Chicago Office,tgunderson@opentable.com,,Regular,100991
+101915,Prasad,Gune,"Sr. VP, Restaurant Product Management",5/9/16,Restaurant Product Management,San Francisco Office,pgune@opentable.com,,Regular,101724
+500250,Rahul,Gupta,Sr. Software Engineer,10/5/15,Data Analytics & Experimentation,Mumbai Office,rgupta@opentable.com,,Regular,500043
+101714,Maxwell,Gurewitz,Software Engineer,4/13/15,Product Engineering - Front End Diner,San Francisco Office,mgurewitz@opentable.com,,Regular,101668
+100306,Sean,Gustilo,IT Helpdesk Manager,2/1/03,Tech Table,San Francisco Office,sgustilo@opentable.com,,Regular,100513
+101887,Ivana Marice,Guzman,Product Marketing Specialist,3/28/16,Consumer Marketing,San Francisco Office,iguzman@opentable.com,,Regular,101658
+101826,Michael,Haan,Sr. Software Engineer,10/19/15,BizOpti/Internal Systems Engineering,San Francisco Office,mhaan@opentable.com,,Regular,100344
+100081,Isao,Hagiwara,Restaurant Operations Specialist,3/23/10,Field Operations,Tokyo Office,ihagiwara@opentable.com,,Regular,100178
+101811,Vincent,Halbwachs,Software Engineer,9/28/15,Product Engineering - Front End Restaurant,San Francisco Office,vhalbwachs@opentable.com,,Regular,100885
+500016,Sabine,Haller,Technical Support Representative,1/21/13,Customer Support,London Office,shaller@opentable.com,,Regular,100913
+500164,Philip,Halpin,"Restaurant Relations Manager, Major Accounts",2/16/15,Restaurant Relations Management,London Office,phalpin@opentable.com,,Regular,500261
+100054,David,Hamilton,District Manager,4/6/09,Sales,London Office,dhamilton@opentable.com,,Regular,100632
+101896,Dylan,Hanour,Technical Recruiter,4/18/16,Talent Acquisition,San Francisco Office,dhanour@opentable.com,,Temporary,101734
+101965,Jenifer,Hansen,Restaurant Relations Manager,7/18/16,Sales,Chicago Office,jhansen@opentable.com,,Regular,100991
+101518,Benjamin,Hardy,Principal Software Engineer,3/10/14,Product Engineering - Back End,Chattanooga Office,bhardy@opentable.com,,Regular,101504
+101610,Brandon,Harrington,Technical Support Representative,10/13/14,Customer Support,San Francisco Office,bharrington@opentable.com,,Regular,100420
+101613,Kristin,Hartenstein,Account Executive,10/20/14,Sales,Louisiana,kpellegrin@opentable.com,,Regular,101650
+100529,Lisa,Hasen,"VP, Sales and Restaurant Relations",1/26/15,Sales,New South Wales (Sydney),lhasen@opentable.com,,Regular,100842
+101648,Walter,Hassig,Sr. Experience Designer,12/1/14,Consumer Product Management,San Francisco Office,bhassig@opentable.com,,Regular,101449
+100781,Paula,Hatfield,Senior Project Coordinator,3/24/10,Field Operations,San Francisco Office,phatfield@opentable.com,,Regular,100773
+500217,Ivan,Hayes,Engineer,10/12/15,Product Engineering - Front End Diner,London Office,ihayes@opentable.com,,Regular,101073
+500214,Jonathan,Hayes,Principal Software Engineer,10/12/15,Product Engineering - Front End Diner,London Office,jhayes@opentable.com,,Regular,101073
+100762,Jason,Healy,Field Operations Manager,4/2/07,Field Operations,London Office,jhealy@opentable.com,,Regular,100632
+100057,Laura,Healy,Account Executive,1/26/15,Sales,Chicago Office,lhealy@opentable.com,,Regular,101129
+100946,Olivia,Healy,Restaurant Relations Associate,3/21/11,Restaurant Relations Management,London Office,ohealy@opentable.com,,Regular,100070
+101687,Anna,Hebert,Inside Sales Representative,2/2/15,Inside Sales,Denver Office,ahebert@opentable.com,,Regular,100784
+500238,Sayuri,Heenatigala,Accounting Assistant,8/27/15,Finance Operations,Melbourne Office,sheenatigala@opentable.com,,Regular,500243
+500038,Stefanie,Heissenstein,Restaurant Relations Administrator,5/8/13,Restaurant Relations Management,London Office,sheissenstein@opentable.com,,Regular,500261
+101711,Tor,Helmer,Software Engineer,4/13/15,Product Engineering - Front End Diner,San Francisco Office,thelmer@opentable.com,,Regular,101501
+100107,Ernesto,Herrera Paula,Restaurant Operations Specialist,2/26/07,Field Operations,Mexico City Office,epaula@opentable.com,,Regular,100078
+100073,Laura Gabriela,Herrera,Finance Specialist,10/3/08,Finance Operations,Mexico City Office,gherrera@opentable.com,,Regular,100710
+100575,Dylan,Herzog,Client Success Specialist,5/1/00,Restaurant Relations Management,New Jersey,dherzog@opentable.com,,Regular,101120
+101756,Lachlan,Hespe,Senior Services Engineer,6/29/15,Product Engineering - Back End,San Francisco Office,lhespe@opentable.com,,Regular,100359
+100913,Oliver,Hess,European Support Supervisor,2/28/11,Customer Support,London Office,ohess@opentable.com,,Regular,100050
+500353,Leon,Hewitt,Senior Engineer,7/18/16,Product Engineering - Front End Diner,London Office,lhewitt@opentable.com,,Regular,101075
+500378,Sabrina,Hewitt,Customer Support Representative,10/3/16,Customer Support,London Office,shewitt@opentable.com,,Regular,100913
+101820,Lindsey,Hight,Senior Experience Designer,10/5/15,Consumer Product Management,San Francisco Office,lhight@opentable.com,,Regular,101845
+100021,Alexander,Hildebrandt,Account Executive,5/4/09,Sales,Germany,ahildebrandt@opentable.com,,Regular,500096
+500354,Ryota,Hirano,Account Executive,7/19/16,Restaurant Relations Management,Tokyo Office,rhirano@opentable.com,,Regular,500117
+500058,Wataru,Hirose,Restaurant Operations Specialist,7/8/13,Field Operations,Tokyo Office,whirose@opentable.com,,Regular,100178
+500224,David,Ho,Business Development Manager,8/27/15,Sales,New South Wales (Sydney),dho@opentable.com,,Regular,100529
+101884,Patricia,Ho,Sr. Software Engineer,3/21/16,Infrastructure Engineering,Los Angeles Office,pho@opentable.com,,Regular,101751
+100424,Stanley,Ho,Automation Engineer,5/1/05,Product Engineering - Front End Diner,San Francisco Office,sho@opentable.com,,Regular,101317
+500333,Mark,Hobson,Restaurant Relations Manager,5/23/16,Sales,New York City Office,mhobson@opentable.com,,Regular,100902
+101541,Stephanie,Hon,Sr. Experience Researcher,5/5/14,Consumer Product Management,San Francisco Office,shon@opentable.com,,Regular,101449
+101616,Toland,Hon,Sr. Software Engineer,10/20/14,Product Engineering - Front End Restaurant,San Francisco Office,thon@opentable.com,,Regular,101434
+101902,Athena,Hong,Sr. Financial Analyst,4/25/16,Finance,San Francisco Office,ahong@opentable.com,,Regular,101927
+500124,Katherine,Hopcraft,"Head of PR, International",9/29/14,Public Relations,London Office,khopcraft@opentable.com,,Regular,100853
+101624,Sarah,Hopkins,Inside Sales Associate,10/27/14,Inside Sales,Denver Office,shopkins@opentable.com,,Regular,101006
+500035,Richard,Hopton,Senior Engineer,4/29/13,Product Engineering - Front End Diner,London Office,rhopton@opentable.com,,Regular,500104
+101603,Vail,Horn,Inside Sales Representative,9/29/14,Inside Sales,Denver Office,vhorn@opentable.com,,Regular,101006
+500259,Folpmer,Houwert,Account Executive,12/3/15,Sales,Melbourne Office,fhouwert@opentable.com,,Regular,100529
+100608,Antoinette,How,"VP, Finance",3/31/08,Finance,San Francisco Office,torzano@opentable.com,,Regular,101862
+100752,Jeffrey,Howard,Restaurant Relations Manager,1/11/10,Field Operations,Missouri,jhoward@opentable.com,,Regular,101650
+101634,Belinda,Hu,Sr. Marketing Specialist,11/10/14,Consumer Marketing,San Francisco Office,bhu@opentable.com,,Regular,101375
+500242,Danhui,Huang,Sr. Software Engineer,8/27/15,Product Engineering - Back End,Melbourne Office,thuang@opentable.com,,Regular,500265
+101728,Michael,Huang,Sr. Product Manager,5/11/15,Consumer Product Management,San Francisco Office,mhuang@opentable.com,,Regular,101888
+101261,Peidi,Huang,Sr. Software Engineer,7/23/12,Product Engineering - Front End Diner,San Francisco Office,phuang@opentable.com,,Regular,101875
+100023,Stefan,Huber,Restaurant Services Manager,7/1/08,Restaurant Relations Management,Frankfurt Office,shuber@opentable.com,,Regular,500096
+500261,Scott,Hudson,"Sales Manager, Major Accounts",1/4/16,Sales,London Office,shudson@opentable.com,,Regular,100632
+101797,Thomas,Hunter,Sr. Software Engineer,9/8/15,Product Engineering - Front End Diner,San Francisco Office,thunter@opentable.com,,Regular,101668
+101158,Mark,Hyland,Sr. Restaurant Operations Specialist,2/6/12,Field Operations,London Office,mhyland@opentable.com,,Regular,100762
+101010,Jonathan,Hyman,Client Success Specialist,11/3/09,Restaurant Relations Management,Pennsylvania,jhyman@opentable.com,,Regular,101120
+500189,Masaharu,Ide,"Director, Japan Operations",5/25/15,Field Operations,Tokyo Office,mide@opentable.com,,Regular,500095
+101550,Ian,Iepson,Salesforce Developer,6/2/14,BizOpti/Internal Systems Engineering,San Francisco Office,iiepson@opentable.com,,Regular,100401
+500340,Maria,Ipson,Business Development Manager,6/21/16,Sales,New South Wales (Sydney),mipson@opentable.com,,Regular,100529
+101857,Michelle,Isaac,Accounts Receivable Specialist,1/4/16,Finance Operations,San Francisco Office,misaac@opentable.com,,Regular,101328
+100055,Dagmar,Ivanovicova,Account Executive,7/26/10,Sales,London Office,divanovicova@opentable.com,,Regular,100054
+101809,Ese,Iweh,"Sr. Manager, Finance Operations",9/21/15,Finance Operations,San Francisco Office,eiweh@opentable.com,,Regular,500150
+500376,Oladipo,Izilein,Customer Support Representative,10/3/16,Customer Support,London Office,lizilein@opentable.com,,Regular,100913
+101807,Chris,Jackson,"Sr. Manager, Treasury Operations",9/21/15,Finance,San Francisco Office,cjackson@opentable.com,,Regular,100608
+101953,Nafeesa,Jafferjee,Experience Designer,7/11/16,Consumer Product Management,San Francisco Office,njafferjee@opentable.com,,Regular,101845
+101950,Vijaykumar,Jain,Site Reliability Engineer,6/27/16,Infrastructure Engineering,Mumbai Office,vjain@opentable.com,,Regular,500254
+500092,Philip,James,Restaurant Operations Specialist,2/17/14,Field Operations,London Office,pjames@opentable.com,,Regular,100762
+500162,Alexander,Jamieson,"Senior Analyst, Financial Planning & Analysis",2/2/15,Finance,London Office,ajamieson@opentable.com,,Regular,500080
+100604,Scott,Jampol,"Sr. VP, Marketing",3/10/08,Executive,San Francisco Office,sjampol@opentable.com,,Regular,101724
+500156,Maria,Jankowiak,Engineer,1/14/15,Product Engineering - Front End Diner,London Office,mjankowiak@opentable.com,,Regular,101075
+100994,Sara,Janovsky,Product Operations Specialist,12/15/14,Restaurant Product Management,San Francisco Office,sjanovsky@opentable.com,,Regular,101576
+101418,Alexander,Jen,Product Integration Engineer,8/9/13,Field Operations,New York City Office,ajen@opentable.com,,Regular,100741
+100336,Michael,Joe,Sr. QA Engineer,9/8/03,Product Engineering - Front End Restaurant,San Francisco Office,mjoe@opentable.com,,Regular,101434
+101665,Ashley,Johnson,Marketing Specialist,1/5/15,Consumer Marketing,San Francisco Office,ajohnson@opentable.com,,Regular,101395
+101244,Michael,Johnson,"Sr. Sales Representative, Promotions",6/21/12,Inside Sales,New York City Office,mjohnson@opentable.com,,Regular,100784
+101146,Robert,Johnson,Restaurant Operations Specialist,1/31/12,Field Operations,Arizona,tjohnson@opentable.com,,Regular,101865
+500179,Thomas,Johnson,Restaurant Relations Associate,4/7/15,Restaurant Relations Management,London Office,thomas.johnson@opentable.com,,Regular,100054
+100842,Andrea,Johnston,"Sr. VP, North America Sales and Services",8/25/10,Executive,San Francisco Office,ajohnston@opentable.com,,Regular,101724
+101652,Jeffrey,Jones,"Director, Enterprise Sales",12/8/14,Sales,Texas,jjones@opentable.com,,Regular,100388
+500352,Mitchell,Jones,Sales Associate,7/12/16,Sales,New South Wales (Sydney),mjones@opentable.com,,Regular,100529
+101880,Pamela,Jones,Delivery Manager,3/7/16,Technology/CTO Admin,San Francisco Office,pjones@opentable.com,,Regular,101446
+500195,David,Jonquet,Account Manager,6/8/15,Sales,Quintana Roo (Cancun),djonquet@opentable.com,,Regular,100074
+100988,Ali,Jordan,Restaurant Operations Specialist,7/5/11,Field Operations,California,pjordan@opentable.com,,Regular,101865
+101806,Neeraj,Joshi,Sr. Product Manager,9/21/15,Restaurant Product Management,Denver Office,njoshi@opentable.com,,Regular,101639
+5800105,Yadnyesh,Joshi,"Manager, Engineering",4/7/14,Data Analytics & Experimentation,Mumbai Office,yjoshi@opentable.com,,Regular,500043
+100814,Rachel,Jukofsky,Client Success Specialist,6/21/10,Restaurant Relations Management,New Jersey,rjukofsky@opentable.com,,Regular,101120
+101214,Patrick,Jump,Operations Engineer,5/17/12,Infrastructure Engineering,San Francisco Office,pjump@opentable.com,,Regular,101751
+500128,Tanja,Kaaria,International Payroll Specialist,10/14/14,Finance,London Office,tkaaria@opentable.com,,Regular,101922
+101267,Ardhia,Kadriati,Revenue Operations Analyst,7/2/12,Finance Operations,London Office,rkadriati@opentable.com,,Regular,500034
+100860,Ursula,Kaelin,"Sr. Sales Representative, Promotions",11/8/10,Inside Sales,New Jersey,ukaelin@opentable.com,,Regular,100784
+101748,Sravani,Kamisetty,Data Science Engineer,6/27/16,Data Science,San Francisco Office,skamisetty@opentable.com,,Regular,101844
+101663,Mia,Kang,Onboarding Specialist,1/5/15,Field Operations,California,mkang@opentable.com,,Regular,100580
+101643,Rima,Karam,"Director, Technical Accounting & Reporting",11/17/14,Finance,San Francisco Office,rkaram@opentable.com,,Regular,101862
+101642,Rachel,Kargas,"Manager, Recruiting",11/17/14,Talent Acquisition,Denver Office,rkargas@opentable.com,,Regular,101454
+500065,Karst,Karsten,Restaurant Operations Specialist,8/22/13,Field Operations,London Office,kkarsten@opentable.com,,Regular,100762
+101798,Nicholas,Kasimatis,Senior Communications Designer,9/8/15,Brand/General Marketing,San Francisco Office,nkasimatis@opentable.com,,Regular,101879
+500140,Masayuki,Kato,Restaurant Relations Manager,12/15/14,Restaurant Relations Management,Tokyo Office,mkato@opentable.com,,Regular,500117
+500225,Dmytro,Kayukov,Principal Software Engineer,8/27/15,Product Engineering - Back End,Melbourne Office,dkaukov@opentable.com,,Regular,500265
+101160,Zydrune,Kazlauskaite,Sr. Restaurant Relations Manager,2/7/12,Restaurant Relations Management,London Office,zkazlauskaite@opentable.com,,Regular,100054
+101200,Jerod,Keevican,Technical Support Representative,8/1/12,Customer Support,San Francisco Office,jkeevican@opentable.com,,Regular,100420
+101371,Braulio,Kegel,Quality Assurance Excellence Specialist,5/13/13,Customer Support,San Francisco Office,bkegel@opentable.com,,Regular,101869
+100931,Nicole,Kehoe,"Lead, Quality Assurance Excellence",4/11/11,Customer Support,Los Angeles Office,nmathis@opentable.com,,Regular,101869
+100841,Joseph,Kelly,Sr. Software Engineer,8/23/10,Product Engineering - Back End,San Francisco Office,jkelly@opentable.com,,Regular,100824
+100905,Elizabeth,Kemp,Sr. Restaurant Relations Manager,2/14/11,Restaurant Relations Management,San Francisco Office,bkemp@opentable.com,,Regular,100773
+101636,David,Khanaferov,Sr. Software Engineer,11/10/14,Product Engineering - Back End,Los Angeles Office,dkhanaferov@opentable.com,,Regular,100359
+101721,Abhishek,Khanna,Sr. Software Engineer,4/27/15,Product Engineering - Back End,San Francisco Office,akhanna@opentable.com,,Regular,100824
+100953,Ewelina,Kierzkowska,Restaurant Relations Associate,5/9/11,Restaurant Relations Management,London Office,ekierzkowska@opentable.com,,Regular,100070
+101967,Bill,Kim,Software Engineer,7/18/16,BizOpti/Internal Systems Engineering,San Francisco Office,bkim@opentable.com,,Regular,100344
+101970,James,Kinder,"Sr. VP, Consumer Prod & Head of Global Market",7/18/16,Executive,San Francisco Office,jkinder@opentable.com,,Regular,101724
+500226,Erdogan,Kinik,Technical Support Representative,8/27/15,Customer Support,Melbourne Office,ekinik@opentable.com,,Regular,500234
+101152,Capri,Kinney,Enterprise Onboarding Specialist,2/21/12,Field Operations,Chicago Office,ckinney@opentable.com,,Regular,100393
+101999,Keith,Kirk,Corporate Controller,9/19/16,Finance,San Francisco Office,kkirk@opentable.com,,Regular,101862
+500383,Gareth,Kirkbright,Inside Sales Representative,10/3/16,Inside Sales,London Office,gjames@opentable.com,,Temporary,101112
+101531,Brian,Kirrene,"Manager, Financial Reporting and Systems",4/14/14,Finance,San Francisco Office,bkirrene@opentable.com,,Regular,100608
+101875,Jeffrey,Knight,"Senior Manager, Engineering",2/29/16,Product Engineering - Front End Diner,San Francisco Office,jknight@opentable.com,,Regular,101861
+101894,Sarah,Knight,Product Marketing Specialist,4/18/16,Restaurant Marketing,San Francisco Office,sknight@opentable.com,,Regular,101838
+500198,Hironori,Kobayashi,Technical Support Representative,7/1/15,Customer Support,Tokyo Office,hkobayashi@opentable.com,,Regular,100420
+101471,Jacob,Kobernik,Software Engineer,12/13/13,Product Engineering - Back End,Chattanooga Office,jkobernik@opentable.com,,Regular,101690
+500145,Antje,Koch,Restaurant Services Manager,1/1/15,Restaurant Relations Management,Germany,akoch@opentable.com,,Regular,500096
+100560,Raphael,Kochuvaried,Principal Software Engineer,10/18/07,Product Engineering - Back End,San Francisco Office,rkochuvaried@opentable.com,,Regular,100359
+100870,Jon,Koenig,"Trainer, Operations",11/29/10,Sales Operations,Denver Office,jkoenig@opentable.com,,Regular,100695
+101691,Cheryl,Koeth,Restaurant Relations Manager,2/9/15,Restaurant Relations Management,Georgia,ckoeth@opentable.com,,Regular,100643
+500221,Kok Yew Charlton,KOH,Restaurant Relations Manager,8/27/15,Restaurant Relations Management,Melbourne Office,ckoh@opentable.com,,Regular,500246
+101611,Naga Pavan,Konda,Operations Engineer,10/13/14,Infrastructure Engineering,San Francisco Office,nkonda@opentable.com,,Regular,101751
+100088,Masayuki,Koroki,Sr. Account Executive,11/19/07,Sales,Tokyo Office,mkoroki@opentable.com,,Regular,500117
+101655,John,Krause,Sr. Automation Engineer,12/15/14,Product Engineering - Front End Diner,San Francisco Office,jkrause@opentable.com,,Regular,100373
+100911,Jacqueline,Kravette,Sr. Account Executive,2/28/11,Sales,California,jkravette@opentable.com,,Regular,101865
+100965,Victor,Kretov,Software Engineer,10/27/14,Product Engineering - Front End Diner,San Francisco Office,vkretov@opentable.com,,Regular,101875
+100649,Yuriy,Kretov,Sr. Operations Engineer,8/21/08,Infrastructure Engineering,San Francisco Office,ykretov@opentable.com,,Regular,101751
+500059,Christine,Kriarakis,Restaurant Relations Manager,7/9/13,Restaurant Relations Management,Quebec,ckriarakis@opentable.com,,Regular,100991
+101593,Dharmendra,Krishnamurthi,Sr. QA Engineer,9/2/14,Product Engineering - Front End Diner,San Francisco Office,dkrishnamurthi@opentable.com,,Regular,100486
+500050,Keshav,Krity,Product Manager,6/10/13,Restaurant Product Management,San Francisco Office,kkrity@opentable.com,,Regular,101888
+500316,Matthew,Lai,General Ledger Accountant,5/16/16,Finance,San Francisco Office,mlai@opentable.com,,Regular,101447
+101791,Winnie,Lai,Senior Tax Analyst,8/31/15,Finance,San Francisco Office,wlai@opentable.com,,Regular,101495
+101453,Venkata Manoj Kumar,Lakinana,Sr. Software Engineer,11/11/13,Product Engineering - Back End,San Francisco Office,mlakinana@opentable.com,,Regular,101841
+101369,Kristina,LaMontagna,Account Executive,5/13/13,Sales,Minnesota,klamontagna@opentable.com,,Regular,100991
+500177,James,Lane,Restaurant Services Manager,4/7/15,Restaurant Relations Management,Ireland,jlane@opentable.com,,Regular,100632
+100991,Dawn,Lang,District Manager,7/11/11,Sales,Minnesota,dbrus@opentable.com,,Regular,100594
+101416,James,Lao,Restaurant Operations Specialist,8/9/13,Field Operations,Texas,jlao@opentable.com,,Regular,101650
+101317,Olivier,Larivain,"Director, Engineering",12/17/12,Product Engineering - Front End Diner,Los Angeles Office,olarivain@opentable.com,,Regular,101306
+101300,Irene,Lau,Workplace Experience Specialist,10/1/12,Facilities,San Francisco Office,ilau@opentable.com,,Regular,101390
+100667,Victor,Lau,Operations Engineer,10/29/08,Infrastructure Engineering,San Francisco Office,vlau@opentable.com,,Regular,100415
+101190,Sandra,Laufmann,Senior National Accounts Manager,4/2/12,Restaurant Relations Management,Frankfurt Office,sbenfer@opentable.com,,Regular,500096
+101530,Katherine,Laurents,Restaurant Relations Manager,4/7/14,Restaurant Relations Management,Washington,klaurents@opentable.com,,Regular,100694
+101375,Scott,Lavelle,"Director, SEO Marketing",5/20/13,Consumer Marketing,San Francisco Office,slavelle@opentable.com,,Regular,101363
+102018,Johanna,Lavender,Customer Support Representative,10/3/16,Customer Support,Denver Office,jlavender@opentable.com,,Regular,101994
+101561,Taj,Lawler,Onboarding Specialist,6/16/14,Field Operations,Washington DC,tlawler@opentable.com,,Regular,100360
+500029,Helen,Lawson,Sr. Account Executive,4/2/13,Sales,London Office,hgraves@opentable.com,5/2/16,Regular,100054
+101604,Sonja,Le Roux,"Associate Director, Accounting",10/1/14,Finance,San Francisco Office,sleroux@opentable.com,,Regular,101999
+101963,Phuong,Le,Lead Business Intelligence Engineer,7/11/16,Data Analytics & Experimentation,Los Angeles Office,ple@opentable.com,,Regular,101322
+500099,Kirsti,Lea,Account Executive,4/7/14,Sales,Scotland,klea@opentable.com,,Regular,100054
+101455,Scott,Leavitt,Account Executive,11/11/13,Sales,Florida,sleavitt@opentable.com,,Regular,100643
+101790,Joseph,Lee,Engagement Marketing Tech Manager,8/31/15,Consumer Marketing,Los Angeles Office,joseph.lee@opentable.com,,Regular,101731
+500087,Karin,Lee,Account Executive,1/14/14,Sales,Tokyo Office,klee@opentable.com,12/14/15,Regular,500117
+101239,Stephanie,Leitner,Restaurant Relations Associate,6/1/12,Restaurant Relations Management,Frankfurt Office,sleitner@opentable.com,10/15/14,Regular,500096
+101537,Alisa,Lenart,Senior Counsel,4/28/14,Legal,San Francisco Office,alenart@opentable.com,,Regular,101034
+101976,Scott,Lepich,Sr. Software Engineer,8/1/16,Product Engineering - Back End,San Francisco Office,slepich@opentable.com,,Regular,101573
+101882,Judson,Lester,Sr. Software Engineer,3/14/16,Infrastructure Engineering,Los Angeles Office,jlester@opentable.com,,Regular,101408
+100917,Joshua,Levy,"Account Executive, National Accounts",3/14/11,Sales,Colorado,jlevy@opentable.com,,Regular,101652
+101387,Joshua,Lewis,Community and QA Technical Lead,6/10/13,Customer Support,San Francisco Office,joshl@opentable.com,,Regular,100420
+101859,Fangyuan,Li,Marketing Analyst,1/4/16,Consumer Marketing,San Francisco Office,lli@opentable.com,,Regular,101978
+101898,Michael,Liang,Software Engineer,4/18/16,Product Engineering - Front End Restaurant,San Francisco Office,mliang@opentable.com,,Regular,101842
+500216,Patrycja,Lima,Contract Management Analyst,10/12/15,Finance Operations,London Office,plima@opentable.com,,Regular,101053
+500072,Monika,Limmer,Sr. Project Coordinator,9/30/13,Field Operations,London Office,mlimmer@opentable.com,,Regular,100038
+101835,Patricia,Lin,Engagement Marketing Tech Specialist,10/26/15,Consumer Marketing,San Francisco Office,plin@opentable.com,,Regular,101790
+500294,Shuyu,Lin,Accounts Payable Analyst,4/11/16,Finance Operations,San Francisco Office,sue.lin@opentable.com,,Regular,101562
+101911,Aaron,Liu,Sr. Financial Analyst,5/2/16,Finance,San Francisco Office,aliu@opentable.com,,Regular,101927
+101567,Jinru,Liu,Software Engineer,6/23/14,Product Engineering - Front End Diner,San Francisco Office,jinrul@opentable.com,,Regular,101317
+100334,Tony,Liu,Central Queue Restaurant Trainer,8/25/03,Field Operations,Los Angeles Office,tliu@opentable.com,,Regular,101257
+101794,Alex,Livingston,"Director, Product Management",9/8/15,Restaurant Product Management,San Francisco Office,alivingston@opentable.com,,Regular,101915
+101860,Juliana,Lo,"Sr. Manager, Total Rewards",1/4/16,People and Culture,San Francisco Office,jlo@opentable.com,8/29/16,Regular,100608
+101774,Meryll,Locquiao,Talent Acquisition Coordinator,8/3/15,Talent Acquisition,San Francisco Office,mlocquiao@opentable.com,,Regular,101454
+100061,Nilani,Loganathan,Technical Support Representative II,6/8/10,Customer Support,London Office,nbhogadi@opentable.com,,Regular,100913
+100074,Juan Luis,Lopez Reed,District Manager,8/2/10,Sales,Mexico City Office,jreed@opentable.com,,Regular,101129
+101733,Kristyn,LoPresti,Restaurant Relations Manager,5/26/15,Restaurant Relations Management,Ohio,klopresti@opentable.com,,Regular,101782
+101551,Alexandra,Loscher,Sr. Marketing Specialist,6/2/14,Restaurant Marketing,San Francisco Office,aloscher@opentable.com,,Regular,101640
+101841,Jerry,Louis,"Director, Engineering",11/2/15,Product Engineering - Back End,San Francisco Office,jlouis@opentable.com,,Regular,100359
+101695,Jessica,Lovvorn-Zimmerman,Sr. Sales Associate,2/23/15,Inside Sales,Denver Office,jzimmerman@opentable.com,,Regular,101039
+102010,Vito,Lucero,Customer Support Representative,10/3/16,Customer Support,Denver Office,vlucero@opentable.com,,Regular,101998
+500215,Robert,Luong,Senior Engineer,10/12/15,Product Engineering - Front End Diner,London Office,rluong@opentable.com,,Regular,101082
+100918,Sviatlana,Lupandzina,Onboarding Specialist,3/14/11,Field Operations,Washington DC,slupandzina@opentable.com,,Regular,100360
+500028,Manh,Ly,Technical Support Representative,4/2/13,Customer Support,London Office,mhung@opentable.com,,Regular,100913
+101939,Joo Hyun,Lyoo,Sr. UX Researcher,6/6/16,Consumer Product Management,San Francisco Office,jlyoo@opentable.com,,Regular,101449
+500080,Steven,Lyth,"Director, Financial Planning & Analysis",1/6/14,Finance,London Office,slyth@opentable.com,,Regular,100608
+101667,Evonne,Ma,SEO Specialist,1/5/15,Consumer Marketing,San Francisco Office,ema@opentable.com,,Regular,101375
+101573,Robert,Macdonald Smith,Principal Software Engineer,7/14/14,Product Engineering - Back End,San Francisco Office,rsmith@opentable.com,,Regular,100359
+101730,Raghavendar,Madireddy,Salesforce Developer,5/18/15,BizOpti/Internal Systems Engineering,San Francisco Office,rmadireddy@opentable.com,,Regular,100401
+500368,Pamela,Madrigal Herrera,Technical Support Representative,8/1/16,Field Operations,Mexico City Office,pmadrigal@opentable.com,,Regular,100078
+100961,Heather,Madsen,Account Executive,5/23/11,Sales,Georgia,hcanepa@opentable.com,,Regular,100643
+500348,Riya,Maeda,Technical Support Representative,7/6/16,Field Operations,Melbourne Office,rmaeda@opentable.com,,Regular,500370
+500136,Federico,Maffei,Engineer,11/17/14,Product Engineering - Front End Diner,London Office,fmaffei@opentable.com,,Regular,101073
+500268,Michelle,Magee,Account Executive,2/16/16,Sales,British Columbia,mich.magee@gmail.com,6/6/16,Regular,100694
+100763,Norman,Maglaya,Sr. Accounting Manager,4/14/14,Finance,San Francisco Office,nmaglaya@opentable.com,,Regular,101604
+100992,Patrick,Mahon,Account Manager,7/11/11,Sales,Florida,pmahon@opentable.com,,Regular,100643
+500308,Elvera,Maione,Account Executive,3/28/16,Sales,Ontario,vmaione@opentable.com,,Regular,100991
+100784,Brian,Maiorana,Inside Sales Manager,9/2/08,Inside Sales,New York City Office,bmaiorana@opentable.com,,Regular,101372
+101777,Sriswetha,Malladi,Accounts Receivable Accountant,8/3/15,Finance Operations,San Francisco Office,smalladi@opentable.com,,Regular,100710
+101126,Michael,Malloy,Sr. Restaurant Relations Manager,12/5/11,Restaurant Relations Management,Texas,mmalloy@opentable.com,,Regular,101650
+500101,Kieren,Malone,Account Executive,4/7/14,Sales,England,kmalone@opentable.com,,Regular,100070
+101390,Joseph,Mandel,Workplace Experience Manager,6/17/13,Facilities,San Francisco Office,jmandel@opentable.com,,Regular,101862
+101701,Michael,Manfrin,Software Engineer,3/9/15,Product Engineering - Front End Diner,San Francisco Office,mmanfrin@opentable.com,,Regular,500075
+101434,Simone,Manganelli,"Senior Manager, Engineering",9/23/13,Product Engineering - Front End Restaurant,San Francisco Office,smanganelli@opentable.com,,Regular,100885
+101639,Sanjay,Manghnani,"Director, Product Management",11/17/14,Restaurant Product Management,San Francisco Office,smanghnani@opentable.com,,Regular,101915
+101586,Krista,Manns,Restaurant Relations Manager,8/18/14,Restaurant Relations Management,North Carolina,kmanns@opentable.com,,Regular,100289
+100351,Benjamin,Markowitz,"VP, Customer Support",3/7/00,Customer Support,Colorado,bmarkowitz@opentable.com,,Regular,101256
+101292,Mary,Markowitz,Quality Assurance Excellence Specialist,9/17/12,Customer Support,Colorado,kmarkowitz@opentable.com,,Regular,101256
+100927,Carlos Rainer,Martin,Senior National Accounts Manager,3/28/11,Restaurant Relations Management,Frankfurt Office,cmartin@opentable.com,,Regular,500096
+100360,Jessica,Martin,Onboarding Specialist Lead,5/30/00,Field Operations,Massachusetts,jessica.martin@opentable.com,,Regular,100741
+100026,Judith,Martin,Senior Account Executive,2/22/10,Sales,Germany,judith.martin@opentable.com,,Regular,500096
+101473,Maurice,Martin,Principal Engineer,12/13/13,Product Engineering - Back End,Chattanooga Office,lmartin@opentable.com,,Regular,100824
+500143,Thomas,Martin,Junior Engineer,12/15/14,Product Engineering - Front End Diner,London Office,tmartin@opentable.com,,Regular,101073
+101328,Jordyn,Martinez,"Collections Supervisor, North America",1/14/13,Finance Operations,San Francisco Office,jmartinez@opentable.com,,Regular,100710
+101048,Anita,Marton,Commercial Finance Analyst,1/10/07,Finance,London Office,amarton@opentable.com,,Regular,500080
+117,Heike,Marx,Project Coordinator,6/26/12,Field Operations,London Office,hmarx@opentable.com,5/10/16,Regular,100038
+101322,Raman,Marya,"Sr. Manager, Business Intelligence",1/2/13,Data Analytics & Experimentation,Los Angeles Office,rmarya@opentable.com,,Regular,101293
+500255,Shashank,Mathur,Site Reliability Engineer,11/16/15,Infrastructure Engineering,Mumbai Office,smathur@opentable.com,,Regular,500254
+100983,Jennifer,Matyasovsky,Sr. Restaurant Relations Manager,6/27/11,Restaurant Relations Management,New York City Office,jmatyasovsky@opentable.com,,Regular,100902
+101417,Evan,Matzner,Project Coordinator,8/9/13,Field Operations,New York City Office,ematzner@opentable.com,,Regular,100902
+100707,Leah,Mawhirter,Project Coordinator,4/11/06,Field Operations,Idaho,lmawhirter@opentable.com,,Regular,100773
+101710,Ahmad,Mawlavizada,Accounts Receivable Specialist,4/6/15,Finance Operations,San Francisco Office,rmawlavizada@opentable.com,,Regular,101328
+100075,Regina,Mayo Kurth,Sr. Account Executive,1/6/09,Sales,Mexico City Office,rmayo@opentable.com,,Regular,100074
+100062,Marcin,Mazurkiewicz,Restaurant Services Manager,2/1/10,Restaurant Relations Management,Germany,mmazurkiewicz@opentable.com,,Regular,500096
+101810,Chase,McBride,Brand Experience Designer,9/21/15,Brand/General Marketing,San Francisco Office,cmcbride@opentable.com,,Regular,101879
+101862,Jeffrey,McCombs,CFO,1/11/16,Executive,San Francisco Office,jmccombs@opentable.com,,Regular,101724
+101331,Elizabeth,McCune,Sr. Account Executive,1/28/13,Sales,Colorado,bmccune@opentable.com,,Regular,100694
+101410,Claire,McDonald,Account Executive,7/31/13,Sales,San Francisco Office,cmcdonald@opentable.com,6/27/14,Regular,100694
+101885,Patrick,McLaughlin,Restaurant Relations Manager,3/28/16,Restaurant Relations Management,Colorado,pmclaughlin@opentable.com,,Regular,100694
+101968,Kevin,McMahon,Sales Operations Administrator,7/18/16,Sales Operations,San Francisco Office,kevin.mcmahon@opentable.com,,Temporary,101644
+101822,Kiersten,McMahon,Restaurant Relations Manager,10/12/15,Restaurant Relations Management,Florida,kmcmahon@opentable.com,,Regular,100643
+500026,Ian,McTavish,Restaurant Relations Manager,3/18/13,Restaurant Relations Management,British Columbia,imctavish@opentable.com,,Regular,100694
+101757,Cynthia,Medranda,Experience Designer,7/6/15,Consumer Product Management,San Francisco Office,cmedranda@opentable.com,,Regular,101845
+101751,John,Mehringer,Principal Operations Engineer,6/22/15,Infrastructure Engineering,Los Angeles Office,jmehringer@opentable.com,,Regular,101615
+500108,Lars,Meiners,Technical Support Representative,5/27/14,Customer Support,London Office,lmeiners@opentable.com,,Regular,100913
+101221,John Arcadio,Meneses,Helpdesk/IT Support Technician,6/4/12,Tech Table,San Francisco Office,jmeneses@opentable.com,,Regular,100306
+101934,Samra,Mengistu,Talent Acquisition Coordinator,6/6/16,Talent Acquisition,San Francisco Office,smengistu@opentable.com,,Regular,101454
+101628,Neil,Menne,Sr. Software Engineer,10/31/14,Product Engineering - Back End,Chattanooga Office,nmenne@opentable.com,,Regular,101690
+500153,Claudia,Meola,Inside Sales Representative,1/14/15,Inside Sales,London Office,cmeola@opentable.com,,Regular,101112
+101054,Charlotte,Metcalf,Office Manager,8/2/10,People and Culture,London Office,cmetcalf@opentable.com,,Regular,500183
+100597,Lorna,Meyers,Sales Associate Manager,2/18/08,Sales,Florida,lmeyers@opentable.com,,Regular,100761
+100349,Christopher,Michel,"Senior Manager, Engineering",9/6/16,Product Engineering - Back End,San Francisco Office,cmichel@opentable.com,,Regular,101841
+100924,Susan,Mielke,Account Executive,3/21/11,Sales,Maryland,smielke@opentable.com,,Regular,100289
+101971,Grant,Miller,Onboarding Specialist,7/18/16,Field Operations,Colorado,gmiller@opentable.com,,Regular,100580
+101588,Eryka,Milligan,Human Resources Generalist,8/25/14,People and Culture,San Francisco Office,emilligan@opentable.com,,Regular,101705
+101580,Melani,Miron,Account Executive,7/28/14,Sales,Texas,mmiron@opentable.com,,Regular,101650
+500249,Anurag,Mishra,Test Automation Engineer,10/5/15,Data Analytics & Experimentation,Mumbai Office,amishra@opentable.com,,Regular,500043
+101647,Michael,Mitchell,Restaurant Relations Manager,12/1/14,Restaurant Relations Management,California,mmitchell@opentable.com,,Regular,101865
+500244,Vasko,Mitrevski,Software Engineer,8/27/15,Product Engineering - Back End,Melbourne Office,vmitrevski@opentable.com,,Regular,500265
+101272,Shunsuke,Miura,Restaurant Relations Manager,8/16/12,Restaurant Relations Management,Tokyo Office,smiura@opentable.com,,Regular,500117
+100091,Mio,Miyasaka,Sr. Account Executive,4/16/08,Sales,Tokyo Office,mmiyasaka@opentable.com,,Regular,500246
+100598,Anastasia,Molchanenko,QA Engineer,2/25/08,Product Engineering - Front End Restaurant,San Francisco Office,amolchanenko@opentable.com,,Regular,100885
+500122,Melinda,Monaco,"Sr. Manager, Restaurant Marketing",9/15/14,Restaurant Marketing,London Office,mmonaco@opentable.com,,Regular,101838
+100746,Brian,Montalto,Sr. Account Executive,1/29/07,Sales,New York,bmontalto@opentable.com,,Regular,101782
+500247,Joshua,Moon,Onboarding Specialist,8/27/15,Field Operations,Melbourne Office,jmoon@opentable.com,,Regular,100178
+101483,Rachael,Moore,Sr. Software Engineer,1/13/14,Product Engineering - Front End Restaurant,San Francisco Office,rmoore@opentable.com,,Regular,100582
+101163,Chloe,Moreno,Account Executive,2/27/12,Sales,California,cmoreno@opentable.com,,Regular,101865
+102006,Maria,Moreno,Customer Support Representative,10/3/16,Customer Support,Denver Office,mmoreno@opentable.com,,Regular,101998
+500014,Alison,Morin,Account Executive,1/7/13,Sales,Alberta,amorin@opentable.com,,Regular,100694
+101035,Jonathan,Morin,"Director, Product Management",9/26/11,Restaurant Product Management,Germany,jmorin@opentable.com,,Regular,101915
+101264,Caleb,Morrell,Software Engineer,8/1/12,Product Engineering - Back End,San Francisco Office,cmorrell@opentable.com,,Regular,101841
+101520,Sue,Morris,"Sr. Recruiter, General & Administrative",3/17/14,Talent Acquisition,San Francisco Office,smorris@opentable.com,,Regular,101454
+500113,Thomas,Morris,Restaurant Operations Specialist,7/7/14,Field Operations,London Office,tmorris@opentable.com,,Regular,100762
+101555,Alisha,Mowder,Brand Experience Designer,6/9/14,Brand/General Marketing,San Francisco Office,amowder@opentable.com,,Regular,101879
+100565,Debalina,Mukherjee,Sr. QA Engineer,5/22/07,Product Engineering - Front End Restaurant,San Francisco Office,dmukherjee@opentable.com,,Regular,101842
+100937,Sandra,Mullen,Sr. Restaurant Relations Manager,4/11/11,Restaurant Relations Management,Pennsylvania,sbattaglia@opentable.com,,Regular,100289
+500147,Justine,Multon,Account Executive,1/5/15,Sales,London Office,jmulton@opentable.com,,Regular,100054
+500095,Yukiko,Muto,"President, OpenTable Japan",3/1/14,Executive,Tokyo Office,ymuto@opentable.com,6/27/16,Regular,100842
+100064,Ilona,Mwim,Staff Accountant,9/29/08,Finance Operations,London Office,imwim@opentable.com,,Regular,500150
+500334,Hisae,Nakahara,Technical Support Representative,5/24/16,Customer Support,Melbourne Office,hnakahara@opentable.com,,Regular,500370
+101308,Barbiliz,Nash,Inside Sales Representative,11/5/12,Inside Sales,Denver Office,bnash@opentable.com,,Regular,100784
+500229,Jay,Naughten,Restaurant Relations Manager,8/27/15,Restaurant Relations Management,Melbourne Office,jnaughten@opentable.com,,Regular,500246
+101927,Daniel,Naughton,"Sr. Manager, Financial Planning & Analysis",6/6/16,Finance,San Francisco Office,dnaughton@opentable.com,,Regular,100608
+500171,Rie,Neishi,Account Executive,4/1/15,Sales,Tokyo Office,rneishi@opentable.com,,Regular,500246
+101389,Alexandra,Nelson,Sr. Product Manager,7/14/14,Consumer Product Management,San Francisco Office,snelson@opentable.com,,Regular,101502
+101376,Carly,Nelthropp,Inside Sales Representative,5/20/13,Inside Sales,Denver Office,cnelthropp@opentable.com,,Regular,100784
+101474,Matthew,Newberry,Sr. Software Engineer,12/13/13,Product Engineering - Front End Restaurant,Chattanooga Office,mnewberry@opentable.com,,Regular,101434
+101544,Ashley,Newman,Fraud Operations Manager,5/12/14,Risk Management,Florida,aodell@opentable.com,,Regular,101463
+101716,Lai-Mei,Ng,Lead QA Engineer,4/20/15,Product Engineering - Front End Diner,San Francisco Office,lng@opentable.com,,Regular,100486
+500347,Seow Sheng,Ng,Technical Support Representative II,6/28/16,Customer Support,Melbourne Office,sng@opentable.com,,Regular,500234
+101501,Lamthuy,Nguyen,"Manager, Software Engineering",2/4/14,Product Engineering - Front End Diner,San Francisco Office,knguyen@opentable.com,,Regular,101861
+500338,Luisea,Nic Lochlainn,Sales Associate,6/6/16,Sales,London Office,llochlainn@opentable.com,,Regular,101112
+101904,John,Nichols,Sales Associate,4/25/16,Inside Sales,Denver Office,jnichols@opentable.com,,Regular,101039
+101257,Jamie,Nickerson,Training Manager,3/10/10,Sales Operations,New York City Office,jnickerson@opentable.com,,Regular,100695
+101764,David,Nicoll,Sr. Product Manager,7/13/15,BizOpti/Internal Systems Engineering,San Francisco Office,dnicoll@opentable.com,,Regular,100449
+101844,Nicolas,Nicolov,Head of Data Science,11/23/15,Data Science,San Francisco Office,nnicolov@opentable.com,,Regular,101256
+100393,Peter,Nielsen,"Senior Manager, Enterprise Operations",12/7/04,Sales,Chicago Office,pnielsen@opentable.com,,Regular,100388
+101321,Ralph,Nierras,Tech Ops Project Manager,1/2/13,Technology/CTO Admin,Los Angeles Office,jnierras@opentable.com,,Regular,101256
+101490,Natsuyo,Noda,Finance Operations Lead,1/21/14,Finance Operations,San Francisco Office,nnoda@opentable.com,,Regular,101809
+101736,Sayuri,Nojima,Business Operations Associate,6/3/15,Finance Operations,Tokyo Office,snojima@opentable.com,,Regular,500243
+500075,John,Nolan,Principal Software Engineer,10/8/13,Product Engineering - Front End Diner,San Francisco Office,jnolan@opentable.com,,Regular,101861
+101682,Patrick,Normyle,Inside Sales Representative,2/2/15,Inside Sales,Denver Office,bnormyle@opentable.com,,Regular,101006
+101110,Michele,Norris,Sr. Inside Sales Representative,4/1/00,Inside Sales,London Office,mnorris@opentable.com,,Regular,101112
+101855,Maritsa,Norton,Strategy Analyst,12/14/15,Consumer Product Management,San Francisco Office,mnorton@opentable.com,,Regular,101393
+101454,Roger,Norton,"Sr. Director, Talent Acquisition",11/7/13,Talent Acquisition,San Francisco Office,rnorton@opentable.com,,Regular,101724
+500206,Elisa,Novoa,Project Coordinator,9/14/15,Field Operations,London Office,enovoa@opentable.com,,Regular,100038
+500232,Mitchell,Nunis,Senior Marketing Manager,8/27/15,Restaurant Marketing,Melbourne Office,mnunis@opentable.com,,Regular,100604
+500381,Kathy-Martin,Nzenga,Customer Support Representative,10/3/16,Customer Support,London Office,knzenga@opentable.com,,Regular,100913
+500175,Caroline,O'Callaghan,Sales Associate,4/7/15,Sales,London Office,cocallaghan@opentable.com,,Regular,101112
+500190,Noel,O'Connell,Account Executive,6/1/15,Sales,Ireland,noconnell@opentable.com,,Regular,100632
+101000,Matthew,O'Hearn,Senior Enterprise Sales Representative,7/25/11,Inside Sales,New York City Office,mohearn@opentable.com,,Regular,100784
+101892,Cynthia,O'Neil,Client Success Specialist,4/11/16,Restaurant Relations Management,Denver Office,coneil@opentable.com,,Regular,101120
+101828,Kelly,O'Rourke,Human Resources Coordinator,10/19/15,People and Culture,San Francisco Office,korourke@opentable.com,,Regular,101588
+101872,Denis,O'Sullivan,Sr. Engineer,2/16/16,Product Engineering - Back End,San Francisco Office,dosullivan@opentable.com,,Regular,101841
+101802,Alex,Ognibene,Account Manager,9/14/15,Sales,New York,aognibene@opentable.com,,Regular,101782
+101944,Raymond,Ohanian,Sr. Software Engineer,6/13/16,BizOpti/Internal Systems Engineering,Los Angeles Office,rohanian@opentable.com,,Regular,100344
+500207,Tibor,Olah,IT Support Technician,9/14/15,Tech Table,London Office,tolah@opentable.com,,Regular,100306
+101993,Leonardo,Oliviero,Project Coordinator,9/12/16,Restaurant Relations Management,London Office,loliviero@opentable.com,,Temporary,100038
+500377,Iredia,Omere,Customer Support Representative,10/3/16,Customer Support,London Office,momere@opentable.com,,Regular,100913
+101772,Kathleen,Ortiz,Sr. Technical Recruiter,7/27/15,Talent Acquisition,San Francisco Office,kortiz@opentable.com,,Regular,101734
+101819,Abellona,Ouk,Front Desk Coordinator,10/5/15,Facilities,San Francisco Office,aouk@opentable.com,,Regular,101390
+500141,Stephanie,Ouston,Inside Sales Representative,12/8/14,Inside Sales,London Office,souston@opentable.com,,Regular,101112
+101946,Jennifer,Page,Account Executive,6/20/16,Sales,North Carolina,jpage@opentable.com,,Regular,100289
+101121,Pearly,Paguntalan,Quality Assurance Excellence Specialist,11/28/11,Customer Support,San Francisco Office,ppaguntalan@opentable.com,,Regular,101869
+101495,One Jae,Paik,"Sr. Manager, Tax",1/27/14,Finance,San Francisco Office,opaik@opentable.com,,Regular,101643
+101206,Samuel,Panoplos,Sr. Software Engineer,4/30/12,Product Engineering - Back End,San Francisco Office,spanoplos@opentable.com,,Regular,101841
+101836,John,Paradis,Sr. Product Manager,11/2/15,BizOpti/Internal Systems Engineering,Massachusetts,jparadis@opentable.com,,Regular,100449
+101571,Chang In,Park,Helpdesk/IT Support Technician,7/7/14,Tech Table,San Francisco Office,changp@opentable.com,,Regular,100306
+102004,Gregory,Parker,Customer Support Representative,10/3/16,Customer Support,Denver Office,gparker@opentable.com,,Regular,101998
+100579,Morgan,Parker,Product Manager,12/10/07,Consumer Product Management,San Francisco Office,mparker@opentable.com,,Regular,101722
+101293,Grant,Parsamyan,"Sr. Director, Data Analytics",9/24/12,Data Analytics & Experimentation,San Francisco Office,gparsamyan@opentable.com,,Regular,101256
+101981,Rachael,Passov,Software Engineer,8/15/16,Product Engineering - Front End Restaurant,San Francisco Office,rpassov@opentable.com,,Regular,100582
+500129,Kuldip,Patel,Sr. Test Automation Engineer,10/13/14,Data Analytics & Experimentation,Mumbai Office,kpatel@opentable.com,,Regular,500043
+101712,Umang,Patel,Automation Engineer,4/13/15,BizOpti/Internal Systems Engineering,San Francisco Office,upatel@opentable.com,,Regular,100401
+101850,Mansi,Pathak,Marketing Coordinator,12/7/15,Consumer Marketing,San Francisco Office,mpathak@opentable.com,,Regular,101889
+101356,Megan,Pattee,Sr. Restaurant Relations Manager,3/18/13,Restaurant Relations Management,Maryland,mpattee@opentable.com,,Regular,100289
+101304,Jennifer,Patterson,Account Executive,10/15/12,Sales,New Jersey,jpatterson@opentable.com,,Regular,100289
+101094,Leanne,Patterson,Marketing Manager,5/24/10,Brand/General Marketing,London Office,lmcgirr@opentable.com,,Regular,500122
+101956,Michael,Patterson,Sr. Software Engineer,7/11/16,Product Engineering - Back End,Los Angeles Office,mpatterson@opentable.com,,Regular,100359
+100660,Thushara,Paul,Sr. Software Engineer,9/11/08,Product Engineering - Back End,San Francisco Office,tpaul@opentable.com,,Regular,100824
+101994,Cory,Pease,Customer Support Supervisor,9/12/16,Customer Support,Denver Office,cpease@opentable.com,,Regular,102013
+500282,Daniel,Pedroza,Restaurant Relations Manager,4/25/16,Restaurant Relations Management,Mexico City Office,dpedroza@opentable.com,,Regular,100074
+101866,Christopher,Pennello,Principal Software Engineer,2/1/16,Product Engineering - Back End,San Francisco Office,cpennello@opentable.com,,Regular,101504
+101340,Robert,Penrod,Principal Software Engineer,2/6/13,Product Engineering - Front End Diner,San Francisco Office,bpenrod@opentable.com,,Regular,100373
+101677,Terez,Percenti,Account Executive,1/12/15,Sales,Texas,tpercenti@opentable.com,8/1/16,Regular,101650
+100601,Carlos,Perez,Restaurant Operations Specialist,3/9/08,Field Operations,Florida,cperez@opentable.com,,Regular,100643
+500327,Michelle,Perez,Account Executive,5/16/16,Sales,London Office,mperez@opentable.com,,Regular,100070
+101481,Kira,Perkins,Human Resources Representative,1/6/14,People and Culture,Denver Office,kperkins@opentable.com,,Regular,101705
+500098,Melissa,Perrin,Restaurant Relations Associate,3/31/14,Restaurant Relations Management,London Office,melissa.gonzalez@opentable.com,9/12/16,Regular,100054
+101260,Erik,Petersen,Client Success Specialist,7/18/12,Restaurant Relations Management,San Francisco Office,epetersen@opentable.com,,Regular,101120
+101876,Whitney,Peterson,Corporate Counsel,2/29/16,Legal,San Francisco Office,wpeterson@opentable.com,,Regular,101034
+102023,Phetsamone,Phongsa,Customer Support Representative,10/3/16,Customer Support,Denver Office,sphongsa@opentable.com,,Regular,101998
+100031,Barbara,Piazzolla-Prvanovic,Office & HR Administrator,2/4/08,Sales,Frankfurt Office,bpiazzolla@opentable.com,,Regular,500096
+100773,Kurt,Pickerell,District Manager,3/5/10,Sales,San Francisco Office,kpickerell@opentable.com,,Regular,101129
+101056,Kate,Pierce,European Content Editor,3/31/08,Public Relations,London Office,kpierce@opentable.com,,Regular,500124
+500256,Suraj,Pokhriyal,Site Reliability Engineer,11/16/15,Infrastructure Engineering,Mumbai Office,spokhriyal@opentable.com,,Regular,500254
+100178,George,Pokorny,"Sr. Director, Global Operations",4/1/05,Sales,San Francisco Office,gpokorny@opentable.com,,Regular,100842
+101839,Joshua,Polsky,Delivery Manager,11/2/15,Technology/CTO Admin,San Francisco Office,jpolsky@opentable.com,,Regular,101446
+101942,Courtney,Popelka,Business Development Representative,6/13/16,Inside Sales,Denver Office,cpopelka@opentable.com,,Regular,101039
+101401,Catherine,Porter,"Sr. VP, Strategy & Business Development",7/15/13,Executive,San Francisco Office,cporter@opentable.com,,Regular,101724
+101662,Caroline,Potter,"Sr. Manager, Editorial Content",1/2/15,Public Relations,New York City Office,cpotter@opentable.com,,Regular,100853
+101987,Sharis,Poulatian,IT Administrator,8/24/16,Technology/CTO Admin,Los Angeles Office,spoulatian@opentable.com,,Temporary,101321
+101615,Henry,Praw,"VP, Technology Operations",10/20/14,Infrastructure Engineering,Los Angeles Office,hpraw@opentable.com,,Regular,101256
+101846,Christopher,Prazak,"Restaurant Relations Manager, National Accts",11/23/15,Restaurant Relations Management,Texas,cprazak@opentable.com,,Regular,100286
+101065,Savoeun,Preap,Project Coordinator,9/9/10,Field Operations,London Office,spreap@opentable.com,7/18/16,Regular,100038
+101854,Ryan,Price,Senior HRIS/Compensation Analyst,12/14/15,People and Culture,San Francisco Office,rprice@opentable.com,,Regular,102021
+100066,Derek,Prophet,Sr. Account Executive,12/7/09,Sales,Scotland,dprophet@opentable.com,,Regular,100054
+100995,Vincent,Pujo,Restaurant Relations Manager,6/20/11,Restaurant Relations Management,New York,vpujo@opentable.com,,Regular,101782
+500209,Ivy,Puterflam,Sales Operations Coordinator,9/14/15,Sales,New South Wales (Sydney),iputerflam@opentable.com,,Regular,101131
+101793,Jocelyn,Qian,Software Engineer,9/8/15,Product Engineering - Back End,San Francisco Office,jqian@opentable.com,,Regular,100824
+101840,Bryan,Quach,Marketing Specialist,11/2/15,Consumer Marketing,San Francisco Office,bquach@opentable.com,,Regular,101907
+101724,Christa,Quarles,CEO,5/4/15,Executive,San Francisco Office,cquarles@opentable.com,,Regular,
+500373,Filippo,Radrizzani,Onboarding Specialist,9/7/16,Field Operations,New South Wales (Sydney),fradrizzani@opentable.com,,Regular,100178
+500370,Ziaur,Rahman,Technical Support Lead,8/9/16,Customer Support,Melbourne Office,zrahman@opentable.com,,Regular,100420
+100899,Claudia,Raibstein,Account Executive,1/17/11,Sales,Germany,cmeiler@opentable.com,,Regular,500096
+101139,Heather,Raich,Account Executive,1/5/12,Sales,San Francisco Office,hraich@opentable.com,,Regular,100773
+100820,Govindarajan,Rajagopalan,Principal Engineer,7/1/10,Product Engineering - Front End Restaurant,San Francisco Office,grajagopalan@opentable.com,,Regular,100885
+101391,Ramanathan,Ramadurai,Data Warehouse Engineer,6/17/13,Data Analytics & Experimentation,Los Angeles Office,rramadurai@opentable.com,,Regular,101293
+100694,Shawna,Ramona,"Director, Sales",7/23/08,Sales,Colorado,sramona@opentable.com,,Regular,101129
+100693,Roberto,Ramos,Sr. Account Executive,2/2/09,Sales,Florida,rramos@opentable.com,,Regular,100643
+101834,Rachita,Rangnath,Sr. GL Accountant,10/26/15,Finance,San Francisco Office,rrangnath@opentable.com,,Regular,100763
+100695,Seth,Rankin,"Director, Training",4/25/05,Sales,Colorado,SRankin@opentable.com,,Regular,100312
+500185,Abhijit,Rao,"Architect, Payments Engineer",4/15/15,Data Analytics & Experimentation,Mumbai Office,arao@opentable.com,,Regular,500043
+101347,Nikhil,Rao,Software Engineer,2/19/13,Product Engineering - Front End Diner,San Francisco Office,nrao@opentable.com,,Regular,101501
+101195,Nargis,Rasool,Sr. Accounts Receivable Analyst,3/26/12,Finance Operations,London Office,nrasool@opentable.com,,Regular,500034
+101890,Dale,Rasquinha,Pricing Strategy Analyst,4/4/16,Restaurant Marketing,San Francisco Office,drasquinha@opentable.com,,Regular,101669
+101502,Corey,Reese,"Director, Product Management",2/4/14,Consumer Product Management,San Francisco Office,creese@opentable.com,,Regular,101970
+101848,Keely,Reese,Executive Assistant,12/7/15,Executive,San Francisco Office,kreese@opentable.com,,Regular,101724
+101753,Michael,Reeves,Restaurant Operations Specialist,6/22/15,Field Operations,Colorado,treeves@opentable.com,,Regular,100694
+101765,Daniel,Rego,Technical Support Representative,7/13/15,Customer Support,San Francisco Office,drego@opentable.com,,Regular,100420
+101612,Morgan,Reis,Account Executive,10/13/14,Sales,New York City Office,mreis@opentable.com,,Regular,100902
+102013,Anthony,Renzulli,Operations Manager,10/3/16,Customer Support,Denver Office,arenzulli@opentable.com,,Regular,101869
+102012,Rachelle,Reppe,Customer Support Representative,10/3/16,Customer Support,Denver Office,rreppe@opentable.com,,Regular,101998
+500252,Stefano,Ricciardi,Senior Engineer,11/9/15,Product Engineering - Front End Diner,London Office,sricciardi@opentable.com,,Regular,101082
+101360,Robyn,Rice,"Director, Hotels Group",4/15/13,Sales,Florida,rrice@opentable.com,,Regular,100388
+500008,Brian,Richardson,Restaurant Operations Specialist,10/29/12,Field Operations,Ontario,brichardson@opentable.com,,Regular,100991
+500202,Mattia,Richetto,Senior Engineer,8/17/15,Product Engineering - Front End Diner,London Office,mrichetto@opentable.com,,Regular,101073
+100076,Jesus Alfredo,Rivera Loza,Technical Support Representative,8/1/07,Field Operations,Mexico City Office,jrivera@opentable.com,,Regular,100078
+100337,Stacey,Roberson,Sr. Account Executive,10/6/03,Sales,California,showard@opentable.com,,Regular,101865
+101019,Charles,Roberts,Senior Trainer,8/22/11,Sales Operations,San Francisco Office,croberts@opentable.com,,Regular,100695
+100710,Omari,Robinson,"Billing and Settlement Manager, NA",8/24/09,Finance Operations,San Francisco Office,orobinson@opentable.com,,Regular,101809
+101881,Daniel,Rochman,Financial Systems Administrator,3/14/16,BizOpti/Internal Systems Engineering,San Francisco Office,drochman@opentable.com,,Regular,101764
+101632,Joshua,Rodgers,Onboarding Specialist,10/31/14,Field Operations,New York City Office,jrodgers@opentable.com,,Regular,100360
+101997,Ivy,Rogatko,Software Engineer,9/12/16,Product Engineering - Front End Diner,San Francisco Office,irogatko@opentable.com,,Regular,100486
+101812,John,Rogerson,Lead UX Engineer,9/28/15,Brand/General Marketing,San Francisco Office,jrogerson@opentable.com,,Regular,101879
+101759,Melissa,Rojas,Account Executive,7/6/15,Sales,Texas,mrojas@opentable.com,,Regular,101650
+101996,James,Rolfs,Sr. Software Engineer,9/12/16,Product Engineering - Front End Diner,San Francisco Office,jrolfs@opentable.com,,Regular,500075
+101805,Stephanie,Romero,Business Development Representative,9/21/15,Inside Sales,Denver Office,sromero@opentable.com,,Regular,101039
+101801,Kalev,Roomann-Kurrik,Software Engineer,9/14/15,Product Engineering - Front End Restaurant,San Francisco Office,kroomannkurrik@opentable.com,,Regular,100582
+101148,Barry,Rose,Sr. Account Executive,2/6/12,Sales,Pennsylvania,brose@opentable.com,,Regular,100289
+500350,David,Ross,Account Executive,7/11/16,Sales,Ireland,dross@opentable.com,,Regular,100632
+101985,Mark,Ross,Accounts Receivable Specialist,8/22/16,Finance Operations,San Francisco Office,mross@opentable.com,,Regular,101328
+101977,Jessika,Roth,Temporary Lead Experience Designer,8/1/16,Consumer Product Management,San Francisco Office,jroth@opentable.com,,Temporary,101845
+500264,Phillip,Rowlands,Restaurant Relations Associate,1/11/16,Restaurant Relations Management,London Office,prowlands@opentable.com,,Regular,100070
+101120,Christopher,Rule,Client Success Manager,2/28/11,Restaurant Relations Management,Denver Office,crule@opentable.com,,Regular,100178
+500115,Golam,Rumi,IT Support Technician,7/23/14,Tech Table,London Office,grumi@opentable.com,,Regular,100306
+101891,Ward,Ruth,Sr. Software Engineer,4/4/16,Product Engineering - Back End,San Francisco Office,wruth@opentable.com,,Regular,101841
+100289,Joseph,Ryan Jr.,District Manager,8/5/02,Sales,Pennsylvania,jryan@opentable.com,,Regular,100594
+101605,Amy,Sadek,People Business Partner,10/6/14,People and Culture,San Francisco Office,asadek@opentable.com,,Regular,101705
+500172,Takashi,Saito,Restaurant Relations Associate,4/13/15,Restaurant Relations Management,Tokyo Office,taka.saitoh.0216@gmail.com,,Regular,500117
+500011,Marcel,Salas Garcia,Lead Technical Support Rep,6/1/16,Customer Support,London Office,msgarcia@opentable.com,,Regular,100913
+500076,Sam,Salisbury,Senior Engineer,10/21/13,Infrastructure Engineering,London Office,ssalisbury@opentable.com,,Regular,101408
+101945,Alicia,San Cristobal,Account Executive,6/13/16,Sales,Quebec,asancristobal@opentable.com,,Regular,100991
+101832,Pauline,Sanchez,Contracts Manager,10/26/15,Legal,San Francisco Office,pkleynersanchez@opentable.com,,Regular,101431
+500211,Marc,Sansome,Global Sales Operations Senior Analyst,9/28/15,Sales Operations,London Office,msansome@opentable.com,,Regular,100761
+101136,Leticia,Santarelli,Restaurant Relations Manager,1/3/12,Restaurant Relations Management,New Jersey,lsantarelli@opentable.com,,Regular,100289
+101450,Luis,Santiago,Sr. Engineer,11/4/13,Product Engineering - Back End,San Francisco Office,lsantiago@opentable.com,,Regular,101618
+100420,Anthony,Sarkisian,"Director, Customer Support",5/1/05,Customer Support,San Francisco Office,asarkisian@opentable.com,,Regular,100351
+500254,Shibashish,Satpathy,NOC Manager,11/9/15,Infrastructure Engineering,Mumbai Office,ssatpathy@opentable.com,,Regular,100513
+101865,Andrew,Saypack,District Director,1/19/16,Sales,California,dsaypack@opentable.com,,Regular,101129
+101602,Anton,Sazhin,Principal Software Engineer,9/29/14,Product Engineering - Back End,San Francisco Office,asazhin@opentable.com,,Regular,100824
+101044,David,Scanlon,Senior Major Account Executive,7/18/11,Sales,London Office,dscanlon@opentable.com,,Regular,500261
+100067,Laura,Schamari,Sr. Project Coordinator,5/25/10,Field Operations,London Office,lschamari@opentable.com,,Regular,100038
+101947,Jonathan,Schapiro,Software Engineer,6/20/16,Product Engineering - Front End Diner,San Francisco Office,jschapiro@opentable.com,,Regular,101668
+101735,Erin,Scheidt,Restaurant Relations Manager,6/1/15,Restaurant Relations Management,Arizona,escheidt@opentable.com,,Regular,101865
+101768,Vicki,Schertz,Inside Sales Representative,7/20/15,Inside Sales,Denver Office,vschertz@opentable.com,,Regular,100784
+100103,Ziv,Schierau,"Sr. Account Executive, National Accounts",4/25/05,Sales,British Columbia,ZSchierau@opentable.com,,Regular,101652
+101824,Amy,Schiess,Account Executive,10/12/15,Sales,Massachusetts,aschiess@opentable.com,,Regular,101782
+100068,Maria,Schiffner,Sr. Restaurant Relations Manager,5/25/10,Restaurant Relations Management,London Office,mschiffner@opentable.com,,Regular,100054
+101507,Steven,Schlansker,Principal Software Engineer,2/4/14,Product Engineering - Back End,San Francisco Office,sschlansker@opentable.com,,Regular,101504
+101886,Elizabeth,Schmitter,Business Development Representative,3/28/16,Inside Sales,Denver Office,lschmitter@opentable.com,,Regular,101039
+500106,Moritz,Schorr,Marketing Executive,4/15/14,Consumer Marketing,London Office,mschorr@opentable.com,,Regular,500042
+101270,Scott,Schulte,Enterprise Sales Solutions Specialist,8/13/12,Field Operations,California,sschulte@opentable.com,,Regular,100393
+101984,Jonathan,Schwartz,Business Development Representative,8/15/16,Inside Sales,Denver Office,jschwartz@opentable.com,,Regular,101039
+102025,Matthew,Schwartz,Software Engineer,10/3/16,Product Engineering - Front End Restaurant,San Francisco Office,mschwartz@opentable.com,,Regular,100885
+100069,Kerstin,Schwenke,"Trainer, Sales & RR",8/11/08,Sales Operations,London Office,kschwenke@opentable.com,,Regular,100695
+100526,Timothy,Scott Jr.,Sr. Account Executive,5/15/07,Sales,Florida,vscott@opentable.com,,Regular,100643
+101363,Denis,Scott,"VP, Consumer Acquisition Marketing",4/23/13,Consumer Marketing,San Francisco Office,dscott@opentable.com,,Regular,100604
+101393,Christopher,Seidell,"Director, Product Management",6/24/13,Consumer Product Management,San Francisco Office,cseidell@opentable.com,,Regular,101722
+101972,Andrew,Selbie,Software Engineer,7/25/16,Product Engineering - Back End,San Francisco Office,aselbie@opentable.com,,Regular,101872
+101717,Utkarsh,Sengar,Sr. Software Engineer,4/20/15,Data Science,San Francisco Office,usengar@opentable.com,,Regular,101844
+101562,Sean,Senior,Accounts Payable Supervisor,6/16/14,Finance Operations,San Francisco Office,ssenior@opentable.com,,Regular,101809
+101500,Grace,Seto,Order Administration Coordinator,2/3/14,Finance Operations,San Francisco Office,gseto@opentable.com,,Regular,101412
+101867,Miraj,Shah,Software Engineer,2/8/16,Product Engineering - Back End,San Francisco Office,mshah@opentable.com,,Regular,100359
+100070,Sasha,Shaker,District Manager,1/4/10,Sales,London Office,sshaker@opentable.com,,Regular,100632
+101992,Qing,Shao,Sr. Database Engineer,9/6/16,Product Engineering - Back End,San Francisco Office,qshao@opentable.com,,Regular,100359
+100552,Anshul,Sharma,Principal Software Engineer,10/1/07,Product Engineering - Back End,San Francisco Office,asharma@opentable.com,,Regular,100359
+101980,Arjun,Sharma,Sr. Software Engineer,8/8/16,Product Engineering - Back End,Chattanooga Office,Arjuns@opentable.com,,Regular,101690
+500187,Robert,Shaw,Content Manager,5/5/15,Consumer Product Management,London Office,rshaw@opentable.com,,Regular,101091
+100824,Daama,Sheepo,"Sr. Director, Engineering",7/8/10,Product Engineering - Back End,San Francisco Office,dsheepo@opentable.com,,Regular,101306
+100400,Yujo,Shen,Sr. Business Analyst,2/1/05,Customer Support,Hawaii,jshen@opentable.com,,Regular,100351
+101870,Jeremy,Sher,Customer Support Representative II,2/16/16,Customer Support,Los Angeles Office,jsher@opentable.com,,Regular,101737
+101654,Jane,Sherman,Delivery Manager,12/15/14,Technology/CTO Admin,San Francisco Office,jsherman@opentable.com,,Regular,101446
+100643,Rebecca,Sherman,District Manager,1/22/07,Sales,North Carolina,rsherman@opentable.com,,Regular,100594
+101961,Noriko,Shimodaira,Japanese Marketing Manager,7/11/16,Restaurant Marketing,San Francisco Office,nshimodaira@opentable.com,,Regular,500070
+500025,Yumi,Shiraishi,Business Operations Specialist,3/13/13,Finance Operations,Tokyo Office,yshiraishi@opentable.com,,Regular,500243
+500119,Masatsune,Shironishi,"Director, Sales",8/1/14,Sales,Tokyo Office,mshironishi@opentable.com,,Regular,500095
+101758,Marcia,Shor Faria,"Sr. Analyst, Financial Planning & Analysis",7/6/15,Finance,San Francisco Office,mshor@opentable.com,,Regular,500080
+101658,Vannie,Shu,Sr. Marketing Manager,12/15/14,Consumer Marketing,San Francisco Office,vshu@opentable.com,,Regular,101731
+102000,Thomas,Shurrock,Senior Product Manager,9/19/16,Consumer Product Management,London Office,tshurrock@opentable.com,,Regular,101091
+101398,Jacqlene,Sifre,Onboarding Specialist,7/1/13,Field Operations,New York City Office,jsifre@opentable.com,,Regular,100360
+101226,Heather,Silberberg,Onboarding Specialist,6/3/12,Field Operations,British Columbia,hsilberberg@opentable.com,10/3/16,Regular,100580
+500096,Daniel,Simon,"VP, Global Sales & Services",3/13/14,Sales,Germany,dsimon@opentable.com,,Regular,100632
+101631,Thomas,Simone,Restaurant Operations Specialist,10/31/14,Field Operations,New York City Office,tsimone@opentable.com,,Regular,100902
+500126,Janardhan,Singh,Sr. Software Engineer,10/6/14,Data Analytics & Experimentation,Maharashtra (Powai),jsingh@opentable.com,,Regular,500043
+101707,Lisa,Singh,"Associate Director, NA PR",3/30/15,Public Relations,San Francisco Office,lsingh@opentable.com,,Regular,100853
+500260,Preet,Singh,Assistant Accountant,12/14/15,Finance Operations,Melbourne Office,psingh@opentable.com,,Temporary,500243
+101592,Miles,Skorpen,Group Product Manager,9/2/14,Consumer Product Management,San Francisco Office,mskorpen@opentable.com,,Regular,101502
+500355,Lorraine,Smith,Contract Management Analyst,7/25/16,Finance Operations,London Office,lsmith@opentable.com,,Regular,101053
+101734,Brian,Snodgrass,"Manager, Technical Recruiting",5/28/15,Talent Acquisition,San Francisco Office,bsnodgrass@opentable.com,,Regular,101454
+101395,Nicole,Snowhite,"Sr. Manager, Email Marketing",6/24/13,Consumer Marketing,San Francisco Office,nsnowhite@opentable.com,,Regular,101731
+101189,Daniel,Snyderman,Account Executive,4/16/12,Sales,Chicago Office,dsnyderman@opentable.com,,Regular,100991
+101874,William,So,Sr. Software Engineer,2/22/16,Product Engineering - Back End,Los Angeles Office,wso@opentable.com,,Regular,100359
+101669,Ashwin,Somakumar,"Associate Director, Pricing",1/5/15,Restaurant Marketing,San Francisco Office,asomakumar@opentable.com,,Regular,100604
+101843,Tracey,Son,Sales Associate,11/16/15,Inside Sales,Denver Office,tson@opentable.com,,Regular,101039
+500051,Prashant,Sonawane,Finance Controller,6/10/13,Finance,Mumbai Office,psonawane@opentable.com,,Regular,101604
+101528,Kelvin,Song,Helpdesk/IT Support Technician II,4/7/14,Tech Table,San Francisco Office,ksong@opentable.com,,Regular,100306
+100724,Christopher,Sorsby,Onboarding Specialist,10/26/09,Field Operations,North Carolina,csorsby@opentable.com,,Regular,100360
+101572,Fidel,Sosa,Principal Software Engineer,7/7/14,Product Engineering - Front End Restaurant,San Francisco Office,fsosa@opentable.com,,Regular,101434
+101676,Stephen,Spalding,Senior Services Engineer,1/12/15,Product Engineering - Back End,Chattanooga Office,sspalding@opentable.com,,Regular,101473
+101986,Megan,Specht,Recruiter- Temporary,8/22/16,Talent Acquisition,Denver Office,mspecht@opentable.com,,Temporary,101642
+101690,Brent,Spell,Principal Software Engineer,2/9/15,Product Engineering - Back End,Chattanooga Office,bspell@opentable.com,,Regular,100824
+101895,Kristi,St. Arnauld,Restaurant Relations Manager,4/18/16,Restaurant Relations Management,Chicago Office,kst.arnauld@opentable.com,,Regular,100991
+101784,Kim,St. Dennis,Sr. Operations Engineer,8/17/15,Infrastructure Engineering,Los Angeles Office,kstdennis@opentable.com,,Regular,100415
+500154,Dana,Stancu,Restaurant Marketing Executive,1/14/15,Restaurant Marketing,London Office,dstancu@opentable.com,,Regular,500122
+100435,William,Stanton,Principal Software Engineer,6/13/05,Product Engineering - Back End,San Francisco Office,wstanton@opentable.com,,Regular,100359
+101449,Wyatt,Starosta,Senior User Research Manager,11/4/13,Consumer Product Management,San Francisco Office,wstarosta@opentable.com,,Regular,101970
+101052,Rebecca,Starr,Cash Management Lead,4/12/10,Finance Operations,London Office,bstarr@opentable.com,,Regular,500034
+500328,Sonja,Stefanidis,Assistant Accountant,5/10/16,Finance Operations,Melbourne Office,sstefanidis@opentable.com,,Regular,500243
+101863,Frank,Stehberger,Principal Engineer,1/11/16,Infrastructure Engineering,California,fstehberger@opentable.com,,Regular,101615
+101202,Marianne,Steimer,Global Sales Operations Associate,4/23/12,Sales Operations,Denver Office,mpulidore@opentable.com,,Regular,100597
+101918,Noah,Steinhardt,Restaurant Operations Specialist,5/16/16,Sales,Massachusetts,nsteinhardt@opentable.com,,Regular,101782
+100470,Tarn,Stem,Sr. Restaurant Relations Manager,5/8/06,Restaurant Relations Management,Massachusetts,tstem@opentable.com,,Regular,101782
+101741,Daniel,Stenmark,Sr. Software Engineer,6/15/15,Product Engineering - Front End Diner,San Francisco Office,dstenmark@opentable.com,,Regular,101317
+500208,Carolyn,Stephure,Restaurant Relations Manager,9/14/15,Sales,Alberta,cstephure@opentable.com,,Regular,100694
+101297,Steven,Stern,Restaurant Relations Team Lead,10/1/12,Restaurant Relations Management,Chicago Office,sstern@opentable.com,,Regular,100991
+101187,Page,Stokes,Account Manager,4/9/12,Sales,South Carolina,pstokes@opentable.com,9/6/16,Regular,100643
+101626,Aaron,Stoquert,Central Queue Restaurant Trainer,10/31/14,Field Operations,New York City Office,astoquert@opentable.com,,Regular,101257
+500091,Heike,Storm,Senior A/R Analyst/ Office Administrator,2/3/14,Finance Operations,Frankfurt Office,hstorm@opentable.com,,Regular,500034
+101504,David,Stryker,Software Architect,2/4/14,Product Engineering - Back End,San Francisco Office,dstryker@opentable.com,,Regular,100359
+101594,Jennifer,Sturek,Restaurant Relations Manager,9/2/14,Restaurant Relations Management,New York City Office,jbayrouty@opentable.com,,Regular,100902
+101938,Alexandra,Styc,"Lead Designer, Brand",6/6/16,Brand/General Marketing,San Francisco Office,astyc@opentable.com,,Regular,101879
+500309,Badri,Sugavanam,Senior Automation Engineer,3/29/16,Product Engineering - Back End,Melbourne Office,bsugavanam@opentable.com,,Regular,500265
+101365,Heidi,Sulzman,Restaurant Relations Associate,5/1/13,Restaurant Relations Management,Los Angeles Office,hsulzman@opentable.com,,Regular,101865
+101211,David,Sun,Principal Software Engineer,5/14/12,Product Engineering - Back End,San Francisco Office,dsun@opentable.com,,Regular,100824
+101858,Huizhong,Sun,Sr. Database Engineer,1/4/16,Product Engineering - Back End,Los Angeles Office,tsun@opentable.onmicrosoft.com,,Regular,100359
+101147,Julia,Sway,Client Success Specialist,1/31/12,Restaurant Relations Management,Maine,jsway@opentable.com,,Regular,101120
+101129,Jennifer,Swigert,"Regional VP, Sales & Restaurant Relations",8/26/02,Sales,Oregon,jswigert@opentable.com,,Regular,100842
+101709,Courtney,Sylvester,"Sales Representative, Promotions",4/6/15,Sales,Washington DC,csylvester@opentable.com,,Regular,100784
+101505,Pavel,Syrtsov,Data Scientist,2/4/14,Data Science,San Francisco Office,psyrtsov@opentable.com,,Regular,101844
+500234,Paul,Tacey,Manager. Customer Support,8/27/15,Customer Support,Melbourne Office,ptacey@opentable.com,,Regular,100351
+100312,Joy,Tagert,"SVP, Global Sales Operations and Enterprise S",1/13/00,Executive,Colorado,jtagert@opentable.com,,Regular,101724
+101307,Joycelyn,Tagle,Accounts Payable Specialist,11/1/12,Finance Operations,San Francisco Office,jtagle@opentable.com,,Regular,101562
+101597,Lu,Tahmazyan,Principal Software Engineer,9/8/14,Product Engineering - Back End,Los Angeles Office,ltahmazyan@opentable.com,,Regular,100359
+101787,Nicolas,Taing,Software Engineer,8/24/15,Product Engineering - Front End Diner,San Francisco Office,ntaing@opentable.com,,Regular,500075
+500062,Kenichi,Takada,Technical Support Representative,7/16/13,Customer Support,Tokyo Office,ktakada@opentable.com,,Regular,100420
+500374,Moriyuki,Takahashi,Finance Operations Analyst,9/20/16,Finance Operations,Melbourne Office,mtakahashi@opentable.com,,Regular,500243
+101974,Keishi,Takashima,Sr. Engineer,7/25/16,Product Engineering - Front End Restaurant,San Francisco Office,ktakashima@opentable.com,,Regular,101842
+101845,Angela,Tang,Senior Experience Design Manager,11/23/15,Consumer Product Management,San Francisco Office,atang@opentable.com,,Regular,101970
+101909,Judy,Tang,Sr. Product Manager,5/2/16,BizOpti/Internal Systems Engineering,San Francisco Office,jtang@opentable.com,,Regular,100449
+101715,Alejandra,Tarrell,Business Development Representative,4/13/15,Inside Sales,Denver Office,atarrell@opentable.com,,Regular,101039
+500371,Shindei,Tawada,Technical Support Representative,8/16/16,Customer Support,Melbourne Office,stawada@opentable.com,,Regular,500370
+101112,Lucy,Taylor,"Head of Inside Sales, UK",7/23/01,Inside Sales,London Office,ltaylor@opentable.com,,Regular,100632
+100942,Steven,Tayse,Account Manager,4/25/11,Sales,Kentucky,stayse@opentable.com,,Regular,101650
+101640,Anne,Terenzio,"Sr. Manager, Restaurant Marketing",11/17/14,Product Marketing,San Francisco Office,oterenzio@opentable.com,,Regular,100765
+100925,Melissa,Thede,Sr. Inside Sales Representative,3/21/11,Inside Sales,Denver Office,mthede@opentable.com,,Regular,101006
+101140,Carley,Thomas,Sr. Account Executive,1/9/12,Sales,Washington DC,cthomas@opentable.com,,Regular,100289
+500375,Amanda,Thompson,Customer Support Representative,10/3/16,Customer Support,London Office,athompson@opentable.com,,Regular,100913
+101113,Olivia,Thompson,Restaurant Relations Coordinator,11/22/10,Inside Sales,London Office,othompson@opentable.com,,Regular,101112
+500351,Alice,Thomson,Contract Management Analyst,7/4/16,Finance Operations,London Office,athomson@opentable.com,,Temporary,101053
+101543,Tucker,Thoreson,Inside Sales Representative,5/12/14,Inside Sales,Denver Office,tthoreson@opentable.com,,Regular,100784
+101440,Mara,Tilen-Torres,Senior National Accounts Manager,10/7/13,Restaurant Relations Management,Florida,mtilen@opentable.com,,Regular,100286
+500019,Anke,Tillmann,Restaurant Services Manager,2/18/13,Restaurant Relations Management,Germany,atillmann@opentable.com,,Regular,500096
+500266,Byron,Tobin,Restaurant Relations Manager,2/9/16,Restaurant Relations Management,New South Wales (Sydney),btobin@opentable.com,,Regular,101145
+101853,Katrin,Tomanek,Senior Data Scientist,12/7/15,Data Science,San Francisco Office,ktomanek@opentable.com,,Regular,101844
+101313,Caleb,Tomlinson,Software Engineer,12/3/12,Product Engineering - Back End,San Francisco Office,ctomlinson@opentable.com,,Regular,101573
+101750,Jason,Tong,Quality Assurance Excellence Specialist,6/22/15,Customer Support,San Francisco Office,jtong@opentable.com,,Regular,101869
+102024,Dayanara,Torres Cruz,Customer Support Representative,10/3/16,Customer Support,Denver Office,dcruz@opentable.com,,Regular,101998
+100869,Matthew,Touron,Account Executive,11/29/10,Sales,New York City Office,mtouron@opentable.com,,Regular,100902
+100078,Jose,Tovar Vargas,Sr. ROS & ROS Lead,1/16/06,Field Operations,Mexico City Office,etovar@opentable.com,,Regular,100074
+101053,Kimberly,Townsend,Contract Execution Manager,7/7/08,Finance Operations,London Office,ktownsend@opentable.com,,Regular,500150
+101637,Hung,Tran,Software Engineer,11/10/14,Product Engineering - Back End,San Francisco Office,htran@opentable.com,,Regular,100824
+101901,Myranda,Tran,Senior Tax Analyst,4/18/16,Finance,San Francisco Office,myranda.tran@opentable.com,,Regular,101495
+101538,Thuy,Tran,Sr. Marketing Manager,4/28/14,Consumer Marketing,San Francisco Office,jtran@opentable.com,,Regular,101907
+100034,Maritha,Tremel,Project Coordinator,7/1/08,Field Operations,Germany,mtremel@opentable.com,,Regular,500096
+101954,Darrel,Trinh,Temporary Sales Operations Administrator,7/11/16,Sales Operations,Denver Office,dtrinh@opentable.com,,Temporary,101131
+101402,Kimberly,Trouard,Restaurant Relations Manager,7/22/13,Restaurant Relations Management,Louisiana,ktrouard@opentable.com,,Regular,101650
+102014,Aaron,Truitt,Customer Support Representative,10/3/16,Customer Support,Denver Office,atruitt@opentable.com,,Regular,101994
+100835,David,Trumpler,Sr. Software Engineer,8/16/10,Product Engineering - Back End,San Francisco Office,dtrumpler@opentable.com,,Regular,100359
+100644,Julia,Tseyref,Sr. QA Engineer,8/18/08,Product Engineering - Back End,San Francisco Office,jtseyref@opentable.com,,Regular,100824
+101233,Thulisile,Tshalibe,Business Operations Specialist,6/6/12,Finance Operations,London Office,ttshalibe@opentable.com,,Regular,101053
+101966,Scott,Tsuchiyama,Software Engineer,7/18/16,Product Engineering - Front End Diner,San Francisco Office,stsuchiyama@opentable.com,,Regular,101501
+100897,Bradley,Tucker,Senior Technical Solutions Engineer,1/19/11,Restaurant Product Management,Georgia,btucker@opentable.com,,Regular,101639
+101897,Ryan,Tuohy,"Sr. Director, Business Development",4/18/16,Business Development,San Francisco Office,rtuohy@opentable.com,,Regular,101401
+100723,Jeffrey,Turner,Restaurant Operations Specialist,10/26/09,Field Operations,San Francisco Office,jturner@opentable.com,,Regular,100773
+101475,Michael,Turner,Visual Designer,12/13/13,Consumer Product Management,Chattanooga Office,mturner@opentable.com,,Regular,101845
+101306,Cormac,Twomey,"Sr. VP, Engineering",10/22/12,Product Engineering - Front End Diner,San Francisco Office,ctwomey@opentable.com,,Regular,101256
+101575,Ashley,Tyra,Product Manager,7/21/14,Restaurant Product Management,San Francisco Office,atyra@opentable.com,,Regular,101576
+102008,Katarah,Udarro,Customer Support Representative,10/3/16,Customer Support,Denver Office,kudarro@opentable.com,,Regular,101994
+500262,Vishal,Uderani,Senior Site Reliability Architect,1/5/16,Infrastructure Engineering,Mumbai Office,vuderani@opentable.com,,Regular,500254
+101180,Rashid,Ullah,Central Queue Restaurant Trainer,4/9/12,Field Operations,San Francisco Office,rullah@opentable.com,,Regular,101257
+101229,Joshua,Umbro,Lead Technical Support Rep,3/30/12,Customer Support,San Francisco Office,jumbro@opentable.com,,Regular,100420
+100359,Edgard,Valdivia,"Sr. Director, Engineering",4/30/04,Product Engineering - Back End,Los Angeles Office,EValdivia@opentable.com,,Regular,101306
+102007,Jeff,Valenzuela,Customer Support Representative,10/3/16,Customer Support,Denver Office,jvalenzuela@opentable.com,,Regular,101998
+100632,Adrian,Valeriano,"VP, Global Sales & Services",10/14/02,Sales,London Office,avaleriano@opentable.com,,Regular,100842
+100939,Philip,Van Dervort,Helpdesk/IT Support Technician,4/18/11,Tech Table,San Francisco Office,pvandervort@opentable.com,,Regular,100306
+101675,Miguel,Vargas,Sr. Software Engineer,1/12/15,Product Engineering - Front End Diner,San Francisco Office,miguelv@opentable.com,,Regular,100373
+101465,Krystin,Versoza,Global Procurement & Inventory Administrator,12/9/13,Finance Operations,San Francisco Office,kversoza@opentable.com,,Regular,101959
+500132,Adhityan,Vetrivel,Sr. Software Engineer,11/3/14,Data Analytics & Experimentation,Mumbai Office,adhityan@opentable.com,,Regular,500043
+500243,Valerian,Vincent,Senior Finance Operations Manager,8/27/15,Finance Operations,Melbourne Office,vvincent@opentable.com,,Regular,500150
+100846,Matthew,Vogel,Senior Major Accounts Specialist,9/7/10,Field Operations,Chicago Office,mvogel@opentable.com,,Regular,100393
+101818,Ksenia,Volkova,Sr. Bad Debt Analyst,10/5/15,Finance Operations,San Francisco Office,kvolkova@opentable.com,9/28/16,Regular,101809
+100396,Tatyana,Vovchenko,Sr. BI Developer,1/3/05,Data Analytics & Experimentation,San Francisco Office,tvovchenko@opentable.com,,Regular,101322
+100626,Andrew,Vuong,Sr. Database Engineer,4/27/15,Product Engineering - Back End,San Francisco Office,avuong@opentable.com,,Regular,100359
+500071,Markus,Wackler,Sales Associate,9/25/13,Sales,Frankfurt Office,mwackler@opentable.com,,Regular,500096
+101906,William,Wade,Automation Engineer,4/22/16,Product Engineering - Back End,Chattanooga Office,wwade@opentable.com,,Regular,101473
+101579,Adam,Wagner,Sr. Product Manager,7/21/14,Restaurant Product Management,San Francisco Office,awagner@opentable.com,,Regular,101576
+500222,Conor,Wainer,Technical Support Representative,8/27/15,Customer Support,Melbourne Office,cwainer@opentable.com,,Regular,500234
+101143,Christopher,Walker,Project Coordinator,1/17/12,Field Operations,Maine,cwalker@opentable.com,,Regular,100902
+101301,Kathryn,Walker,"Restaurant Relations Manager, National Accts",10/8/12,Restaurant Relations Management,California,kwalker@opentable.com,,Regular,100286
+101914,Lindsy,Walker,Restaurant Relations Manager,5/2/16,Restaurant Relations Management,California,lwalker@opentable.com,,Regular,101422
+101460,Patrick,Walker,Inside Sales Representative,11/26/13,Inside Sales,Denver Office,pwalker@opentable.com,,Regular,101006
+100923,Jack,Wall,Sr. Account Manager,3/21/11,Sales,Chattanooga Office,jwall@opentable.com,,Regular,100289
+101082,Michael,Wallett,Principal Software Engineer,3/7/11,Product Engineering - Front End Diner,London Office,mwallett@opentable.com,,Regular,101073
+500125,Kim Anders,Wallgren Ahlstrom,Principal Software Engineer,12/6/13,Product Engineering - Front End Diner,London Office,kahlstrom@opentable.com,,Regular,500075
+500077,Miwa,Wallgren Ahlstrom,Product Manager,11/11/13,Consumer Product Management,London Office,mahlstrom@opentable.com,,Regular,101091
+102003,Denny,Walton,Customer Support Representative,10/3/16,Customer Support,Denver Office,dwalton@opentable.com,,Regular,101994
+101509,Yige,Wang,Lead Experience Designer,2/4/14,Consumer Product Management,San Francisco Office,ywang@opentable.com,,Regular,101449
+101702,Yuebo,Wang,Experience Designer,3/9/15,Consumer Product Management,San Francisco Office,yuebow@opentable.com,,Regular,101845
+500219,Alana,Ward,Product Manager,8/27/15,Restaurant Product Management,Melbourne Office,award@opentable.com,,Regular,101639
+500079,Helen,Ward,Restaurant Relations Associate,1/6/14,Restaurant Relations Management,London Office,hward@opentable.com,,Regular,100070
+101435,Ryan,Ward,Sr. Benefits/HRIS Analyst,9/25/13,People and Culture,San Francisco Office,rward@opentable.com,,Regular,102021
+101842,Shawn,Ward,"Senior Manager, Engineering",11/16/15,Product Engineering - Front End Restaurant,San Francisco Office,sward@opentable.com,,Regular,100885
+500237,Sandamal,Warnakulasuriya,Sr. Software Engineer,8/27/15,Product Engineering - Back End,Melbourne Office,swarnakulasuriya@opentable.com,,Regular,500265
+101913,Byron,Warner,Sr. Software Engineer,5/2/16,Product Engineering - Front End Restaurant,San Francisco Office,bfwarner@gmail.com,,Regular,100885
+101446,Cathleen,Warren,"Director, Delivery Management",10/21/13,Technology/CTO Admin,San Francisco Office,cwarren@opentable.com,,Regular,101256
+100855,Samuel,Weber,Project Coordinator,11/1/10,Field Operations,California,sweber@opentable.com,,Regular,100773
+101680,Noel,Weichbrodt,Senior Services Engineer,1/20/15,Product Engineering - Back End,Chattanooga Office,nweichbrodt@opentable.com,,Regular,101473
+101558,Steven,Weinbaum,Restaurant Relations Manager,6/16/14,Restaurant Relations Management,San Francisco Office,sweinbaum@opentable.com,,Regular,100358
+101838,Alisa,Weiner,"Vice President, Restaurant Marketing",11/2/15,Restaurant Marketing,San Francisco Office,aweiner@opentable.com,,Regular,100604
+101650,Kristina,Weiss,District Manager,12/8/14,Sales,Texas,kweiss@opentable.com,,Regular,101129
+101799,Nicholas,Wells,Sr. Product Marketing Manager,9/8/15,Restaurant Marketing,San Francisco Office,nwells@opentable.com,,Regular,101838
+500149,Tova,Wellton,Restaurant Relations Associate,1/5/15,Restaurant Relations Management,London Office,twellton@opentable.com,,Regular,100054
+101935,Rebecca,Wetherbee,Restaurant Marketing Manager,6/6/16,Restaurant Marketing,San Francisco Office,rwetherbee@opentable.com,,Regular,101864
+100636,Michael,Whatley,Lead Consumer Support Rep,7/14/08,Customer Support,San Francisco Office,mwhatley@opentable.com,,Regular,101737
+500102,Amy,White,Restaurant Relations Associate,4/7/14,Restaurant Relations Management,England,aocallaghan@opentable.com,,Regular,100070
+500257,Anthony,White,Senior Engineer,11/23/15,Product Engineering - Front End Diner,London Office,anthony.white@opentable.com,,Regular,500104
+101231,Zachary,Whitman,Associate Product Manager,9/12/11,Restaurant Product Management,San Francisco Office,zwhitman@opentable.com,,Regular,101794
+101067,James,Whyte,Engineer,6/14/10,Product Engineering - Front End Diner,London Office,jwhyte@opentable.com,,Regular,101073
+101705,Erin,Wier,Sr. People Business Partner,3/23/15,People and Culture,San Francisco Office,ewier@opentable.com,,Regular,101724
+101998,Rodney,Wildeman,Customer Support Supervisor,9/12/16,Customer Support,Denver Office,rwildeman@opentable.com,,Regular,102013
+101889,Kelly,Wilfong,Marketing Manager,3/29/16,Consumer Marketing,San Francisco Office,kwilfong@opentable.com,,Regular,101375
+100909,Neil,Wilkinson,Sr. Account Executive,2/21/11,Sales,London Office,nwilkinson@opentable.com,,Regular,100054
+101922,Lisa,Williams,Sr. Global Payroll Manager,6/6/16,Finance,San Francisco Office,lwilliams@opentable.com,,Regular,101999
+101476,Timothy,Willison,Sr. Software Engineer,12/13/13,Product Engineering - Front End Restaurant,Chattanooga Office,twillison@opentable.com,,Regular,101814
+101084,Andrew,Wilson,Engineer,8/29/06,Infrastructure Engineering,London Office,dwilson@opentable.com,,Regular,101408
+100981,Anna,Wilson,Human Resources Generalist,6/27/11,People and Culture,London Office,awilson@opentable.com,,Regular,500183
+101353,Colter,Wilson,Account Manager,3/1/13,Sales,Utah,cwilson@opentable.com,,Regular,100694
+101962,Marina,Wilson,Inside Sales Associate,7/11/16,Inside Sales,Denver Office,mwilson@opentable.com,,Regular,101006
+101920,Wesley,Wilson,Sr. Software Engineer,5/16/16,Product Engineering - Front End Restaurant,San Francisco Office,wwilson@opentable.com,,Regular,101842
+101493,Julie,Windschitl,Restaurant Relations Manager,1/27/14,Restaurant Relations Management,Minnesota,jwindschitl@opentable.com,,Regular,100991
+101003,Kathryn,Winship,Account Executive,8/1/11,Sales,California,kwinship@opentable.com,,Regular,101865
+101727,Caroline,Wiryadinata,Lead Experience Designer,5/11/15,Consumer Product Management,San Francisco Office,cwiryadinata@opentable.com,,Regular,101845
+500212,Simeon,Wishlade,Senior Experience Designer,9/28/15,Consumer Product Management,London Office,swishlade@opentable.com,,Regular,101845
+101800,Ryan,Wogan,Technical Support Representative,9/8/15,Customer Support,San Francisco Office,rwogan@opentable.com,,Regular,101737
+101437,Barry,Wong,Software Engineer,9/30/13,Product Engineering - Front End Restaurant,San Francisco Office,bwong@opentable.com,,Regular,101842
+101698,Sharon,Wong,Product Manager,3/2/15,Restaurant Product Management,San Francisco Office,swong@opentable.com,,Regular,101576
+101749,Valentin,Wong,Helpdesk/IT Support Technician,6/15/15,Tech Table,San Francisco Office,vwong@opentable.com,,Regular,100306
+101412,Alina,Woo,Contract Execution Supervisor,8/5/13,Finance Operations,San Francisco Office,awoo@opentable.com,,Regular,101809
+115,Michael,Wood,Sr. Operations Engineer,6/14/12,Infrastructure Engineering,London Office,mwood@opentable.com,,Regular,101751
+101814,Timothy,Woodbury,"Manager, Engineering",9/28/15,Product Engineering - Front End Restaurant,Chattanooga Office,twoodbury@opentable.com,,Regular,100885
+101651,David,Woodruff,Operations Engineer,12/8/14,Infrastructure Engineering,San Francisco Office,dwoodruff@opentable.com,,Regular,101751
+101332,Jennifer,Woods,Principal BI Developer,1/28/13,Data Analytics & Experimentation,Los Angeles Office,jrhough@opentable.com,,Regular,101322
+100545,Phillip,Woodside,Restaurant Operations Specialist,8/27/07,Field Operations,Georgia,pwoodside@opentable.com,,Regular,100643
+101349,Susan,Woster,Sr. Information Developer,2/25/13,Technology/CTO Admin,Los Angeles Office,swoster@opentable.com,,Regular,101256
+500369,Richard,Wright,Engineer,8/8/16,Product Engineering - Front End Diner,London Office,rwright@opentable.com,,Regular,101073
+101747,Chen,Wu,Software Engineer,6/15/15,Product Engineering - Front End Diner,San Francisco Office,cwu@opentable.com,,Regular,101317
+101600,Feng,Wu,Principal Software Engineer,9/22/14,Product Engineering - Back End,Los Angeles Office,fwu@opentable.com,,Regular,100359
+100286,Melissa,Wulff,"Director, National Accounts",8/17/99,Sales,Chicago Office,mrinke@opentable.com,,Regular,100388
+101816,Frank,Xin,General Ledger Accountant,10/5/15,Finance Operations,San Francisco Office,fxin@opentable.com,,Regular,101447
+101813,Lin,Xu,Principal Software Engineer,9/28/15,Product Engineering - Front End Diner,San Francisco Office,lxu@opentable.com,,Regular,101501
+101978,Michelle,Yam,"Director, Marketing Strategy and Effectivenes",8/1/16,Consumer Marketing,San Francisco Office,myam@opentable.com,,Regular,101363
+500131,Kei,Yamakawa,Technical Support Representative,11/4/14,Customer Support,Tokyo Office,kyamakawa@opentable.com,,Regular,100420
+500133,Masashi,Yanagida,Account Executive,11/10/14,Sales,Tokyo Office,masashiy@opentable.com,,Regular,500117
+101815,Claudia,Yang,Sr. Accounting Manager,8/22/16,Finance,San Francisco Office,cyang@opentable.com,,Regular,101604
+101973,Quincy,Yang,"Sr. Director, Business Operations",7/25/16,Finance,San Francisco Office,qyang@opentable.com,,Regular,101862
+100101,Yoichiro,Yatsuda,Restaurant Operations Specialist,5/1/08,Field Operations,Tokyo Office,yyatsuda@opentable.com,,Regular,100178
+101164,Frank,Yau,Operations Engineer,3/2/12,Infrastructure Engineering,San Francisco Office,fyau@opentable.com,,Regular,100415
+101907,Khe,Yeh,"Director, Digital Marketing",4/25/16,Consumer Marketing,San Francisco Office,kyeh@opentable.com,,Regular,101363
+101982,Simon,Yip,Sr. Engineer,8/22/16,Product Engineering - Back End,San Francisco Office,syip@opentable.com,,Regular,101618
+101017,Scott,Young,Account Executive,8/22/11,Sales,New Jersey,syoung@opentable.com,,Regular,100902
+101447,Annie,Yu,Accounting Manager,10/28/13,Finance,San Francisco Office,ayu@opentable.com,,Regular,101604
+101119,Jasper,Yuan,"Team Lead, Restaurant Development Coordinator",11/21/11,Inside Sales,San Francisco Office,jyuan@opentable.com,,Regular,101372
+101725,Maggie,Yue,Experience Designer,5/4/15,Consumer Product Management,San Francisco Office,myue@opentable.com,,Regular,101449
+101633,Holly,Yuen,Sr. Payroll Specialist,11/10/14,Finance,San Francisco Office,hyuen@opentable.com,,Regular,101922
+101700,Clarence,Yung,Lead Experience Designer,3/2/15,Consumer Product Management,Oregon,cyung@opentable.com,,Regular,101845
+100388,Eric,Yusefzadeh,"VP, Global Sales & Services",6/8/06,Sales,Minnesota,eyusefzadeh@opentable.com,,Regular,100312
+500233,Miu,Zennyoji,Finance Operations Analyst,8/27/15,Finance Operations,Melbourne Office,mzennyoji@opentable.com,,Regular,500243
+101893,Brendan,Zhang,Product Marketing Manager,4/11/16,Restaurant Marketing,San Francisco Office,bzhang@opentable.com,,Regular,101838
+101743,Kevin,Zhang,Software Engineer,2/29/16,Product Engineering - Back End,San Francisco Office,kzhang@opentable.com,,Regular,100824
+101796,Yao,Zhang,Software Engineer,9/8/15,Product Engineering - Front End Diner,San Francisco Office,vzhang@opentable.com,,Regular,101501
+101762,Yihao,Zhang,Software Engineer,6/15/15,Product Engineering - Back End,San Francisco Office,dzhang@opentable.com,,Regular,100824
+101499,Katharine,Zhao,Order Administration Coordinator,2/3/14,Finance Operations,San Francisco Office,kzhao@opentable.com,,Regular,101412
+100426,Elina,Zhmako,"Sr. Manager, Analytics",5/23/05,Data Analytics & Experimentation,San Francisco Office,EZhmako@opentable.com,,Regular,101293
+101678,Joshua,Ziegler,Software Engineer,1/20/15,Product Engineering - Back End,Chattanooga Office,jziegler@opentable.com,,Regular,101473
+500379,Catiana,Zignani,Customer Support Representative,10/3/16,Customer Support,London Office,czignani@opentable.com,,Regular,100913
+500240,Thomas,Zois,Product Manager,8/27/15,Restaurant Product Management,Melbourne Office,tzois@opentable.com,,Regular,101035
+500020,Arnold,Zokas,Principal Engineer,2/25/13,Product Engineering - Front End Diner,London Office,azokas@opentable.com,,Regular,101073
+101763,Hayley,Zulkoski,Onboarding Specialist,7/13/15,Field Operations,Colorado,hzulkoski@opentable.com,,Regular,100580
+500180,Iwona,Zurowska,Sr. Accounts Receivable Analyst,4/1/15,Finance Operations,London Office,izurowska@opentable.com,,Regular,500034

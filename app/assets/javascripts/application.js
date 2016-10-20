@@ -20,17 +20,20 @@ $(function(){ $(document).foundation(); });
 // Shows and hides contract end date depending on employee type selection
 // This is temporary and should be removed when this UI is retired.
 $(document).ready(function(){
-  $('#employee_employee_type').on('change', function() {
-    if ( this.value != 'Regular') {
-      $("#employee_contract_end_date_1i").attr('required', true);
-      $("#employee_contract_end_date_2i").attr('required', true);
-      $("#employee_contract_end_date_3i").attr('required', true);
-      $("#contract-date").show();
-    } else {
-      $("#employee_contract_end_date_1i").removeAttr('required');
-      $("#employee_contract_end_date_2i").removeAttr('required');
-      $("#employee_contract_end_date_3i").removeAttr('required');
-      $("#contract-date").hide();
-    }
-  });
+  toggleContract();
+  $('#employee_employee_type').change(toggleContract);
 });
+
+function toggleContract() {
+  if ( $('#employee_employee_type').val() != 'Regular') {
+    $("#employee_contract_end_date_1i").attr('required', true);
+    $("#employee_contract_end_date_2i").attr('required', true);
+    $("#employee_contract_end_date_3i").attr('required', true);
+    $("#contract-date").show();
+  } else {
+    $("#employee_contract_end_date_1i").removeAttr('required');
+    $("#employee_contract_end_date_2i").removeAttr('required');
+    $("#employee_contract_end_date_3i").removeAttr('required');
+    $("#contract-date").hide();
+  }
+}

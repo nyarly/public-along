@@ -95,14 +95,13 @@ class ActiveDirectoryService
   def delete_attrs(employee, ldap_entry, attrs)
     attrs.each do |k,v|
       ldap.delete_attribute(employee.dn, k)
-      ldap_success_check(employee, "ERROR: Could not successfully update #{k}: #{v} for #{employee.cn}.")
+      ldap_success_check(employee, "ERROR: Could not successfully delete #{k}: #{v} for #{employee.cn}.")
     end
   end
 
   def replace_attrs(employee, ldap_entry, attrs)
     attrs.each do |k,v|
-      # Changing cn, co or dept requires a dn renaming
-      if [:cn, :co, :department].include?(k)
+      if k == :dn
         ldap.rename(
           :olddn => ldap_entry.dn,
           :newrdn => "cn=#{employee.cn}",
@@ -112,7 +111,7 @@ class ActiveDirectoryService
         ldap_success_check(employee, "ERROR: Could not successfully update #{k}: #{v} for #{employee.cn}.")
       end
 
-      unless k == :cn
+      unless k == :cn || k == :dn
         ldap.replace_attribute(employee.dn, k, v)
         ldap_success_check(employee, "ERROR: Could not successfully update #{k}: #{v} for #{employee.cn}.")
       end
