@@ -126,7 +126,7 @@ class Employee < ActiveRecord::Base
       match.keys[0]
     else
       TechTableMailer.alert_email("WARNING: could not find an exact ou match for #{first_name} #{last_name}; placed in default ou. To remedy, assign appropriate department and country values in Workday.").deliver_now
-      return ""
+      return "ou=Users,"
     end
   end
 
@@ -183,6 +183,7 @@ class Employee < ActiveRecord::Base
   def ad_attrs
     {
       cn: cn,
+      dn: dn,
       objectclass: ["top", "person", "organizationalPerson", "user"],
       givenName: first_name,
       sn: last_name,

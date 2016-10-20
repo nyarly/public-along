@@ -247,6 +247,7 @@ describe Employee, type: :model do
       expect(employee.ad_attrs).to eq(
         {
           cn: "Bob Barker",
+          dn: "cn=Bob Barker,ou=Operations,ou=EU,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com",
           objectclass: ["top", "person", "organizationalPerson", "user"],
           givenName: "Bob",
           sn: "Barker",
@@ -292,6 +293,7 @@ describe Employee, type: :model do
       expect(employee.ad_attrs).to eq(
         {
           cn: "Bob Barker",
+          dn: "cn=Bob Barker,ou=Customer Support,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com",
           objectclass: ["top", "person", "organizationalPerson", "user"],
           givenName: "Bob",
           sn: "Barker",
@@ -350,6 +352,7 @@ describe Employee, type: :model do
       expect(employee.ad_attrs).to eq(
         {
           cn: "Bob Barker",
+          dn: "cn=Bob Barker,ou=Operations,ou=EU,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com",
           objectclass: ["top", "person", "organizationalPerson", "user"],
           givenName: "Bob",
           sn: "Barker",
@@ -413,6 +416,7 @@ describe Employee, type: :model do
       expect(employee.ad_attrs).to eq(
         {
           cn: "Bob Barker",
+          dn: "cn=Bob Barker,ou=Operations,ou=EU,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com",
           objectclass: ["top", "person", "organizationalPerson", "user"],
           givenName: "Bob",
           sn: "Barker",
@@ -463,6 +467,7 @@ describe Employee, type: :model do
       expect(employee.ad_attrs).to eq(
         {
           cn: "Bob Barker",
+          dn: "cn=Bob Barker,ou=Customer Support,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com",
           objectclass: ["top", "person", "organizationalPerson", "user"],
           givenName: "Bob",
           sn: "Barker",
@@ -512,6 +517,7 @@ describe Employee, type: :model do
       expect(employee.ad_attrs).to eq(
         {
           cn: "Bob Barker",
+          dn: "cn=Bob Barker,ou=Customer Support,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com",
           objectclass: ["top", "person", "organizationalPerson", "user"],
           givenName: "Bob",
           sn: "Barker",

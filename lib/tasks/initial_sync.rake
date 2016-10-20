@@ -53,9 +53,29 @@ namespace :sync do
             new_date = DateTime.new(tz_date.year,tz_date.month, tz_date.day)
             e.update_attributes(:contract_end_date => new_date)
           end
+          # Write personal info back to Mezzo record if it exists in AD
+          preserve_attrs = {
+            mobile: "personal_mobile_phone",
+            telephoneNumber: "office_phone",
+            streetAddress: "home_address_1",
+            l: "home_city",
+            st: "home_state",
+            postalCode: "home_zip"
+          }.each do |k, v|
+            ad_value = ldap_entry.try(k).try(:first)
+            e.update_attributes(v => ad_value)
+          end
+
           attrs = ads.updatable_attrs(e, ldap_entry)
-          attrs.delete(:mobile) # Not currently saving this information for any workers until Workday mobile export is ironed out
+          attrs.delete(:mobile) # Not currently overwriting personal information
+          attrs.delete(:telephoneNumber)
+          attrs.delete(:streetAddress)
+          attrs.delete(:l)
+          attrs.delete(:st)
+          attrs.delete(:postalCode)
+
           attrs.delete(:accountExpires) # Do not overwrite account expirations
+
           blank_attrs, populated_attrs = attrs.partition { |k,v| v.blank? }
 
           ads.delete_attrs(e, ldap_entry, blank_attrs)
