@@ -161,8 +161,7 @@ class Employee < ActiveRecord::Base
       time_conversion = ActiveSupport::TimeZone.new(nearest_time_zone).local_to_utc(date_time)
       DateTimeHelper::FileTime.wtime(time_conversion)
     else
-      # In AD, this value indicates that the account never expires
-      "9223372036854775807"
+      NEVER_EXPIRES
     end
   end
 

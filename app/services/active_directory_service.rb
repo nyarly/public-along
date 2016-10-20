@@ -22,6 +22,7 @@ class ActiveDirectoryService
           TechTableMailer.alert_email("WARNING: #{e.first_name} #{e.last_name} is a contract worker and needs a contract_end_date. A disabled Active Directory user has been created, but will not be enabled until a contract_end_date is provided").deliver_now
         end
         attrs = e.ad_attrs.delete_if { |k,v| v.blank? } # AD#add won't accept nil or empty strings
+        attrs.delete(:dn) # need to remove dn for create
         ldap.add(dn: e.dn, attributes: attrs)
         ldap_success_check(e, "ERROR: Creation of disabled account for #{e.first_name} #{e.last_name} failed.")
       else
