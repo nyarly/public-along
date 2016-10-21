@@ -327,7 +327,6 @@ describe "employee rake tasks", type: :tasks do
       expect(@ldap).to receive(:add).once.with({
         :dn=>"cn=Jeffrey Lebowski,ou=Engineering,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com",
         :attributes=>{:cn=>"Jeffrey Lebowski",
-          :dn=>"cn=Jeffrey Lebowski,ou=Engineering,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com",
           :objectclass=>["top", "person", "organizationalPerson", "user"],
           :givenName=>"Jeffrey",
           :sn=>"Lebowski",
@@ -348,7 +347,6 @@ describe "employee rake tasks", type: :tasks do
       expect(@ldap).to receive(:add).once.with({
         :dn=>"cn=Walter Sobchak,ou=Product,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com",
         :attributes=>{:cn=>"Walter Sobchak",
-          :dn=>"cn=Walter Sobchak,ou=Product,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com",
           :objectclass=>["top",
           "person",
           "organizationalPerson",
@@ -371,7 +369,6 @@ describe "employee rake tasks", type: :tasks do
       expect(@ldap).to receive(:add).once.with({
         :dn=>"cn=Maude Lebowski,ou=Sales,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com",
         :attributes=>{:cn=>"Maude Lebowski",
-          :dn=>"cn=Maude Lebowski,ou=Sales,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com",
           :objectclass=>["top", "person", "organizationalPerson", "user"],
           :givenName=>"Maude",
           :sn=>"Lebowski",
