@@ -23,7 +23,6 @@ class ActiveDirectoryService
         end
         attrs = e.ad_attrs.delete_if { |k,v| v.blank? } # AD#add won't accept nil or empty strings
         attrs.delete(:dn) # need to remove dn for create
-        attrs
         ldap.add(dn: e.dn, attributes: attrs)
         ldap_success_check(e, "ERROR: Creation of disabled account for #{e.first_name} #{e.last_name} failed.")
       else
