@@ -34,7 +34,7 @@ describe ActiveDirectoryService, type: :service do
           attributes: employees[0].ad_attrs.merge({
             :sAMAccountName => "dkerabatsos",
             :mail => "dkerabatsos@opentable.com"
-          }).delete_if { |k,v| v.blank? }
+          }).delete_if { |k,v| v.blank? || k == :dn}
         )
       )
 
