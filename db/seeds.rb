@@ -37,6 +37,7 @@ depts = [
   {:name =>  "Product Marketing", :code => "000054"},
   {:name =>  "Restaurant Product Management", :code => "000061"},
   {:name =>  "Consumer Product Management", :code => "000062"},
+  {:name =>  "Design", :code => "000063"},
   {:name =>  "Business Development", :code => "000070"}
 ]
 
@@ -101,20 +102,31 @@ locs = [
 
 mach_bundles = [
   {:name => 'PC Bundle', :description => 'T460, 27" Asus Monitor' },
-  {:name => '13" Mac Bundle', :description => '13" MacBook, 27" Asus Monitor' },
+  {:name => '13" Mac Bundle', :description => '13" MacBook Air, 27" Asus Monitor' },
   {:name => 'PC Bundle - Remote', :description => 'T460' },
-  {:name => '13" Mac Bundle - Remote', :description => '13" MacBook' },
+  {:name => '13" Mac Bundle - Remote', :description => '13" MacBook Air' },
   {:name => 'PC Bundle - Engineer', :description => 'T460 (engineering), 27" Asus Monitor, Accessories' },
   {:name => '15" Mac Bundle', :description => '15" MacBook Pro, 27" Asus Monitor' },
   {:name => 'Customer Support', :description => 'T460, 2x 24" Monitors' },
   {:name => 'Special Equipment Bundle', :description => 'Please describe in notes to Tech Table below' },
-  {:name => 'No Equipment Needed', :description => 'Tech Table will not provision any equipment' }
+  {:name => 'No Equipment Needed', :description => 'Tech Table will not provision any equipment' },
+  {:name => 'Contingent Worker Mac', :description => 'Mac laptop, model depending on availability' },
+  {:name => 'Contingent Worker PC', :description => 'PC laptop, model depending on availability' }
 ]
 
 ActiveRecord::Base.transaction do
-  depts.each { |attrs| Department.create(attrs) }
-  locs.each { |attrs| Location.create(attrs) }
-  mach_bundles.each { |attrs| MachineBundle.create(attrs) }
+  depts.each { |attrs|
+    dept = Department.find_or_create_by(name: attrs[:name])
+    dept.update_attributes(attrs)
+  }
+  locs.each { |attrs|
+    loc = Location.find_or_create_by(name: attrs[:name])
+    loc.update_attributes(attrs)
+  }
+  mach_bundles.each { |attrs|
+    mb = MachineBundle.find_or_create_by(name: attrs[:name])
+    mb.update_attributes(attrs)
+  }
 end
 
 dept_mach_bundles = [
@@ -122,8 +134,6 @@ dept_mach_bundles = [
   {:department_id => Department.find_by(:name => "BizOpti/Internal Systems Engineering").id, :machine_bundle_id => MachineBundle.find_by(:name => '15" Mac Bundle').id},
   {:department_id => Department.find_by(:name => "Brand/General Marketing").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
   {:department_id => Department.find_by(:name => "Brand/General Marketing").id, :machine_bundle_id => MachineBundle.find_by(:name => '13" Mac Bundle').id},
-  {:department_id => Department.find_by(:name => "Brand/General Marketing").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle - Engineer").id},
-  {:department_id => Department.find_by(:name => "Brand/General Marketing").id, :machine_bundle_id => MachineBundle.find_by(:name => '15" Mac Bundle').id},
   {:department_id => Department.find_by(:name => "Business Development").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
   {:department_id => Department.find_by(:name => "Business Development").id, :machine_bundle_id => MachineBundle.find_by(:name => '13" Mac Bundle').id},
   {:department_id => Department.find_by(:name => "Consumer Marketing").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
@@ -135,6 +145,8 @@ dept_mach_bundles = [
   {:department_id => Department.find_by(:name => "Data Analytics & Experimentation").id, :machine_bundle_id => MachineBundle.find_by(:name => '15" Mac Bundle').id},
   {:department_id => Department.find_by(:name => "Data Science").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle - Engineer").id},
   {:department_id => Department.find_by(:name => "Data Science").id, :machine_bundle_id => MachineBundle.find_by(:name => '15" Mac Bundle').id},
+  {:department_id => Department.find_by(:name => "Design").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle - Engineer").id},
+  {:department_id => Department.find_by(:name => "Design").id, :machine_bundle_id => MachineBundle.find_by(:name => '15" Mac Bundle').id},
   {:department_id => Department.find_by(:name => "Executive").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
   {:department_id => Department.find_by(:name => "Executive").id, :machine_bundle_id => MachineBundle.find_by(:name => '13" Mac Bundle').id},
   {:department_id => Department.find_by(:name => "Facilities").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
@@ -185,11 +197,11 @@ dept_mach_bundles = [
 ]
 
 ActiveRecord::Base.transaction do
-  dept_mach_bundles.each { |attrs| DeptMachBundle.create(attrs) }
-  no_equip = MachineBundle.find_by(:name => "No Equipment Needed")
-  special = MachineBundle.find_by(:name => "Special Equipment Bundle")
+  dept_mach_bundles.each { |attrs| DeptMachBundle.find_or_create_by(attrs) }
   Department.find_each { |d|
-    d.machine_bundles << no_equip
-    d.machine_bundles << special
+    ["No Equipment Needed", "Special Equipment Bundle", "Contingent Worker Mac", "Contingent Worker PC"].each do |name|
+      mb = MachineBundle.find_by(:name => name)
+      d.machine_bundles << mb unless d.machine_bundles.include?(mb)
+    end
   }
 end

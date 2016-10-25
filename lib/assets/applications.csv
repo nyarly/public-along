@@ -2,22 +2,22 @@ name,description,dependency,instructions
 Adobe Creative Cloud Complete,"Access to Photoshop, Illustrator, etc. - for designers",,create Adobe Creative Cloud account
 Bazaarvoice,Access to Bazaarvoice,,create Bazaarvoice account
 Box.com account,Access to read sales contracts,,create box.com account
-CHARM EU,Access to EU CHARM,need AD Account,"create charm account, need someone to mirror from"
-CHARM JP,Access to JP CHARM,need AD Account,"create charm account, need someone to mirror from"
-CHARM NA,Access to NA CHARM,need AD Account,"create charm account, need someone to mirror from"
+CHARM EU,Access to EU CHARM,,"create charm account, need someone to mirror from"
+CHARM JP,Access to JP CHARM,,"create charm account, need someone to mirror from"
+CHARM NA,Access to NA CHARM,,"create charm account, need someone to mirror from"
 Distribution List,Active Directory D-List,,
-Docusign,Access to Docusign,,create Docusign account 
+DocuSign,Access to DocuSign,,create DocuSign account
 Five9,Access to Five9 (cloud based call center),,create Five9 account
 Gifts,Access to monthly employee discount for OT Gift cards,,create OT Gifts account
 Github,Access to Github,,Requires employee's Github username
-Google Apps,"Access to Drive, Hangouts, and Google Apps",Need active AD account,make sure we have enough license
-GoToMeeting,Access to GoToMeeting,sales ops,create gotomeeting.com account
+Google Apps,"Access to Drive, Hangouts, and Google Apps",,make sure we have enough license
+GoToMeeting,Access to GoToMeeting,,create gotomeeting.com account
 Great Plains,Access to Great Plains,,"create GP account, need someone to mirror from"
-HipChat,Access to OT default collaboration tool,need AD Account,
+HipChat,Access to OT default collaboration tool,,
 JIRA,Access to OT JIRA,,create Jira account
 MSDN Subscription,Access to Microsoft developer tools,,created MSDN account
 MyGet,Access to MyGet,,Requires employee's MyGet username
-Office 365,Email address and Office 2016 software,Need AD Account,"Add Office365 license, Remove Skype, run exchange script"
+Office 365,Email address and Office 2016 software,,"Add Office365 license, Remove Skype, run exchange script"
 Omniture,Access to Omniture,,create Omniture account
 OT SQL,Access to OT SQL Domain,,create OT SQL account
 OTA,Access to OpenTable Anywhere,,"create OTA account, need someone to mirror from"
@@ -25,10 +25,11 @@ OTR,Access to OpenTable Resturant,,"create OTR account, need someone to mirror f
 PagerDuty,Access to PagerDuty,,create Five9 account
 Putty,Access to create FTP logins for ERB backups,,create Putty account
 QA SQL,Access to QA SQL Domain,,create QA SQL account
-ROMS,Access to Roms,need AD Account,"create roms account, need someone to mirror from"
+ROMS,Access to Roms,,"create roms account, need someone to mirror from"
 Salesforce,Access to OT Salesforce,,create salesforce account
 Salesforce sandbox,Access to OT Salesforce Sandbox account,,create salesforce sandbox account
 Security Group,Active Directory Sec Group,,
 Test email Account,create username.test@opentable.com for test booking purposes,need Office 365 license,create username.test@opentable.com email
 VPN,VPN access to OT network,Duo Activation,Remind Users to sign up for Duo
 Zendesk,Access to OT ticketing system,,send welcome ticket via zendesk
+Mezzo,Account Access Automation Application,,
