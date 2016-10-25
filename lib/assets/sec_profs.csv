@@ -1,12 +1,13 @@
 name,description,departments
 Default OpenTable,All regular OT workers will have this profile,All
+Basic Manager,Most manager should have this profile,All
 Basic BizOpti/Internal Systems Engineering,Most BizOpti/Internal Systems should have this profile,BizOpti/Internal Systems Engineering
 Basic Brand/General Marketing,Most Brand/General Marketing should have this profile,Brand/General Marketing
 Basic Business Development,Most Business Development should have this profile,Business Development
 Basic Consumer Marketing,Most Consumer Marketing should have this profile,Consumer Marketing
 Basic Consumer Product Management,Most Consumer Product Management should have this profile,Consumer Product Management
+Basic Design,Most Designer should have this,Design
 Basic Customer Support - Tier 1,Most Customer Support should have this profile,Customer Support
-Basic Customer Support - Supervisor,Customer Support Supervisor should have this profile,Customer Support
 Basic Customer Support - Tier 2,Customer Support Tier 2 should have this profile,Customer Support
 Basic Data Analytics & Experimentation,Most Data Analytics & Experimentation should have this profile,Data Analytics & Experimentation
 Basic Data Science,Most Data Science should have this profile,Data Science
@@ -18,7 +19,7 @@ Basic Finance Operations,Most Finance Operations should have this profile,Financ
 Basic Infrastructure Engineering,Most Infrastructure Engineering should have this profile,Infrastructure Engineering
 Basic Inside Sales,Most Inside Sales should have this profile,Inside Sales
 Basic Legal,Most Legal should have this profile,Legal
-Basic People & Culture,Most People & Culture should have this profile,People and Culture
+Basic People and Culture,Most People & Culture should have this profile,People and Culture
 Basic Product Engineering - Back End,Most Engineer should have this profile,Product Engineering - Back End
 Basic Product Engineering - Front End Diner,Most Engineer should have this profile,Product Engineering - Front End Diner
 Basic Product Engineering - Front End Restaurant,Most Engineer should have this profile,Product Engineering - Front End Restaurant

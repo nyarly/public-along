@@ -1,53 +1,167 @@
 name,application,ad_security_group,security_groups
-callcenter,Distribution List,"CN=callcenter,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 1
-Callcenter,Security Group,"CN=callcenter,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 1
-Operations,Security Group,"CN=Operations,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 1
-operations,Distribution List,"CN=operations,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 1
+Callcenter,Security Group,"CN=callcenter,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Customer Support - Tier 1, Basic Restaurant Product Management"
+Callcenter,Distribution List,"CN=callcenter,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Customer Support - Tier 1, Basic Restaurant Product Management"
+Operations,Security Group,"CN=Operations,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Customer Support - Tier 1, Basic Field Operations"
 Wifi General,Security Group,"CN=OT-Netsec-General,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Customer Support - Tier 1, Basic Brand/General Marketing, Basic Business Development, Basic Consumer Marketing, Basic Consumer Product Management, Basic Executive, Basic Facilities, Basic Field Operations, Basic Inside Sales, Basic Product Marketing, Basic Public Relations, Basic Restaurant Marketing, Basic Restaurant Product Management, Basic Restaurant Relations Management, Basic Sales, Basic Sales Operations, Basic Technology/CTO Admin"
 Wifi Finance/P&C/Legal,Security Group,"CN=OT-Netsec-Privileged,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Finance, Basic Finance Operations, Basic Legal, Basic People & Culture, Basic Talent Acquisition"
 Wifi Net Ops,Security Group,"CN=OT-Netsec-IT,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Infrastructure Engineering
-Wifi Production,Security Group,"CN=OT-Netsec-Production,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Product Engineering - Back End, Basic Product Engineering - Front End Diner, Basic Product Engineering - Front End Restaurant"
-Wifi Engineer,Security Group,"CN=OT-Netsec-Production,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Product Engineering - Back End, Basic Product Engineering - Front End Diner, Basic Product Engineering - Front End Restaurant"
-Engineering ,Security Group,"CN=Engineering,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Product Engineering - Back End, Basic Product Engineering - Front End Diner, Basic Product Engineering - Front End Restaurant, Basic TechTable"
-engineering ,Distribution List,"CN=Engineering,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Product Engineering - Back End, Basic Product Engineering - Front End Diner, Basic Product Engineering - Front End Restaurant, Basic TechTable"
+Wifi Production,Security Group,"CN=OT-Netsec-Production,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Product Engineering - Back End, Basic Product Engineering - Front End Diner, Basic Product Engineering - Front End Restaurant, Basic Infrastructure Engineering, Basic Data Science"
+Engineering,Security Group,"CN=Engineering,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Product Engineering - Back End, Basic Product Engineering - Front End Diner, Basic Product Engineering - Front End Restaurant, Basic TechTable, Basic Data Science, Basic Design"
+engineering,Distribution List,"CN=Engineering,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Product Engineering - Back End, Basic Product Engineering - Front End Diner, Basic Product Engineering - Front End Restaurant, Basic TechTable, Basic Data Science,Basic Technology/CTO Admin"
 TechTable,Office 365,,Basic TechTable
 TechTable,Google Apps,,Basic TechTable
 Wifi TechTable,Security Group,"CN=OT-Netsec-TechTable,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic TechTable
 Regular,Office 365,,Default OpenTable
 Regular,Google Apps,,Default OpenTable
-Wifi internet only,Security Group,"CN=OT-Netsec-Authenticated,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",
-,,,
+Tron Shared,Security Group,"CN=Folder - Shared,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Default OpenTable
 TechOps,VPN,"CN=00_VPN_IT,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Infrastructure Engineering
-Engineer,VPN,"CN=VPN_12_ENG,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Product Engineering - Back End, Basic Product Engineering - Front End Diner, Basic Product Engineering - Front End Restaurant"
-VPN 13 Engineer Limited,VPN,"CN=VPN_13_ENG_LIMITED,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",
-VPN 99 Default,VPN,"CN=VPN_99_Default,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 1
-VPN 90 Finance,VPN,"CN=VPN_90_Finance,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Finance, Basic Finance Operations, Basic Legal, Basic People & Culture"
+Engineer,VPN,"CN=VPN_12_ENG,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Product Engineering - Back End, Basic Product Engineering - Front End Diner, Basic Product Engineering - Front End Restaurant, Basic Data Science"
+VPN 99 Default,VPN,"CN=VPN_99_Default,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Customer Support - Tier 1, Basic Brand/General Marketing, Basic Business Development, Basic Consumer Marketing, Basic Consumer Product Management, Basic Executive, Basic Facilities, Basic Field Operations, Basic Inside Sales, Basic Product Marketing, Basic Public Relations, Basic Restaurant Marketing, Basic Restaurant Product Management, Basic Restaurant Relations Management, Basic Sales, Basic Sales Operations"
+VPN 90 Finance,VPN,"CN=VPN_90_Finance,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Finance, Basic Finance Operations, Basic Legal, Basic People & Culture, Basic Risk Management"
 VPN 05 IT,VPN,"CN=VPN_05_IT_not_DC,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic TechTable
 Duo VPN,VPN,"CN=duo_2fa_vpn,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic TechTable
 ,,,
-DB Archive Read,Distribution List,"CN=dbarch_r,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 2
-DB Archive Write,Distribution List,"CN=dbarch_w,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 2
-ERB Update ,Distribution List,"CN=erb-updates,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 2
+DB Archive Read,Security Group,"CN=dbarch_r,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 2
+DB Archive Write,Security Group,"CN=dbarch_w,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 2
+ERB Update,Distribution List,"CN=erb-updates,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 2
 ERB UPDATE IT Distribution List,Distribution List,"CN=erb-updates-IT,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 2
 Support-Escalations,Distribution List,"CN=support-Escalations,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 2
-Tier II Call Center,Distribution List,"CN=Tier II Call Center,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 2
 upgrade-request,Distribution List,"CN=upgrade-request,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 2
+Denver Support Office,Distribution List,"CN=Denver Support Office,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 1
+Customer Support - NA,Distribution List,"CN=CustomerSupport-NA,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 1
+client relations,Security Group,"CN=client relations,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Restaurant Relations Management
+CRM,Security Group,"CN=CRM,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Restaurant Relations Management
+OT-FS-CRM,Security Group,"CN=OT-FS-CRM-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Restaurant Relations Management
 ,,,
-otstaff ,Distribution List,"CN=otstaff,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Default OpenTable
+otstaff,Distribution List,"CN=otstaff,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Default OpenTable
 Global Sales Distribution List,Distribution List,"CN=Global Sales,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Inside Sales, Basic Sales, Basic Sales Operations"
-,,,
-Sales Security Group,Security Group,"CN=Sales,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Inside Sales, Basic Sales, Basic Sales Operations"
-Engineering File System,Security Group,"CN=OT-FS-Engineering-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Product Engineering - Back End, Basic Product Engineering - Front End Diner, Basic Product Engineering - Front End Restaurant"
-,,,
-Engineer Terminal Server ,Security Group,"CN=OT-TerminalServer_Engineering_Users,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Product Engineering - Back End, Basic Product Engineering - Front End Diner, Basic Product Engineering - Front End Restaurant"
-Customer Support Terminal Server,Security Group,"CN=OT-FS-Engineering-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Customer Support - Tier 1
+sp_sales_members,Security Group,"CN=sp_sales_members,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Sales
+OTCSales Team,Distribution List,"CN=OTCSales Team,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Sales
+Sales,Security Group,"CN=Sales,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Inside Sales, Basic Sales, Basic Sales Operations"
+OT-FS-Engineering,Security Group,"CN=OT-FS-Engineering-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Product Engineering - Back End, Basic Product Engineering - Front End Diner, Basic Product Engineering - Front End Restaurant, Basic Data Science, Basic Technology/CTO Admin, Basic Data Analytics & Experimentation"
+OT-FS-Inside_Sales,Security Group,"CN=OT-FS-Inside_Sales-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Inside Sales
+OT-FS-CustomerSupport,Security Group,"CN=OT-FS-CustomerSupport-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Sales Operations, Basic Customer Support - Tier 1, Basic Restaurant Product Management"
+OT-FS-SalesOperations,Security Group,"CN=OT-FS-SalesOperations,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Sales Operations
+SalesOps,Distribution List,"CN=SalesOps,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Sales Operations
+OT-TerminalSerever_Finance,Security Group,"CN=OT-TerminalServer_Finance,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Finance, Basic Finance Operations, Basic Business Development"
+Engineer Terminal Server,Security Group,"CN=OT-TerminalServer_Engineering_Users,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Product Engineering - Back End, Basic Product Engineering - Front End Diner, Basic Product Engineering - Front End Restaurant"
+Customer Support Terminal Server,Security Group,"CN=OT-TerminalServer_CustomerSupport,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Customer Support - Tier 1, Basic Restaurant Relations Management"
 HelpDesk Terminal Server Security Group,Security Group,"CN=OT-TerminalServer_HelpDesk,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic TechTable
-Sales File Server Security Group,Security Group,"CN=OT-FS-Sales-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Sales, Basic Sales Operations, Basic Inside Sales"
-Marketing Security Group,Security Group,"CN=Marketing_SG,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Public Relations
-BizOpti Distribution List,Distribution List,"CN=BizOptiSFDC,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic BizOpti/Internal Systems Engineering
-BizOpit SFDC Distribution List,Distribution List,"CN=BizOptiSFDC,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic BizOpti/Internal Systems Engineering
-On Board Approved Distribution List,Security Group,"CN=OnBoardApproved,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic BizOpti/Internal Systems Engineering, Basic TechTable"
-Off Board Approved Distribution List,Security Group,"CN=OffBoardApproved,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic BizOpti/Internal Systems Engineering, Basic TechTable"
+Sales File Server Security Group,Security Group,"CN=OT-FS-Sales-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Sales, Basic Sales Operations, Basic Inside Sales, Basic Restaurant Relations Management"
+Marketing_SG@opentable.com,Security Group,"CN=Marketing_SG,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Public Relations, Basic Business Development, Basic Consumer Marketing, Basic Public Relations"
+OT-FS-Marketing,Security Group,"CN=OT-FS-Marketing-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Consumer Marketing, Basic Business Development, Basic Public Relations"
+BizOpti,Distribution List,"CN=BizOpti,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic BizOpti/Internal Systems Engineering
+BizOpit SFDC,Distribution List,"CN=BizOptiSFDC,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic BizOpti/Internal Systems Engineering
+On Board Approved,Security Group,"CN=OnBoardApproved,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic TechTable, Basic Facilities, Basic Talent Acquisition"
+Off Board Approved,Security Group,"CN=OffBoardApproved,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic TechTable, Basic Facilities, Basic Talent Acquisition"
+Offboard,Distribution List,"CN=Offboard,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Talent Acquisition
+Onboard,Distribution List,"CN=Onboard,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Talent Acquisition
+Move,Distribution List,"CN=Move,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Facilities
+OT-Safety Team,Distribution List,"CN=OT-SafetyTeam,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Facilities
+headcount-hiring,Security Group,"CN=headcount-hiring,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Talent Acquisition
+OT-FS-TA,Security Group,"CN=OT-FS-TA,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Talent Acquisition
+OT-FS-EquityEdge,Security Group,"CN=OT-FS-EquityEdge,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Talent Acquisition
+talentacquisitioninternal,Distribution List,"CN=talentacquisitioninternal,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Talent Acquisition
+TalentAcquisition-Notification,Distribution List,"CN=TalentAcquisition-Notification,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Talent Acquisition
+gtateam,Distribution List,"CN=gtateam,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Talent Acquisition
+hiring-guild,Distribution List,"CN=hiring-guild,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Talent Acquisition
+,,,
+Folder - Product,Security Group,"CN=Folder - Product,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Business Development
+OT-FS-FinanceMarketingProduct,Security Group,"CN=OT-FS-FinanceMarketingProduct,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Business Development
+OT-FS-Legal,Security Group,"CN=OT-FS-Legal-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Business Development, Basic Legal"
+OT-FS-Affiliate,Security Group,"CN=OT-FS-Affilliate-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Business Development
+busdev@opentable.com,Distribution List,"CN=busdev@opentable.com,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Business Development
+Product,Security Group,"CN=Product,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Business Development, Basic Design, Basic Consumer Product Management"
+Product Team,Distribution List,"CN=Product Team,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Restaurant Product Management, Basic Consumer Product Management"
+Restaurant Product,Distribution List,"CN=Restaurant Product,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Restaurant Product Management
+RestaurantOnboarding@opentable.com,Distribution List,"CN=RestaurantOnboarding@opentable.com,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Restaurant Product Management
+Product Extended,Distribution List,"CN=Product Extended,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Consumer Product Management
+,,,
+it,Security Group,"CN=it,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic TechTable
+IT Helpdesk,Security Group,"CN=IT-Helpdesk-SG,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic TechTable
+IT OPS,Security Group,"CN=IT-OPS-SG,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic TechTable
+OT IT,Security Group,"CN=OT-FS-IT-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic TechTable
+zendesk notify,Distribution List,"CN=zendesk-notify,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic TechTable
+Computer Club,Distribution List,"CN=Computer Club,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic TechTable
+password expired,Distribution List,"CN=password-expire,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic TechTable
+Administration,Great Plains,,Basic TechTable
+,,,
+Finance,Security Group,"CN=Finance,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Finance, Basic Finance Operations"
+finance,Distribution List,"CN=finance,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=comc","Basic Finance, Basic Finance Operations"
+OT-FS-Great_Plains-DIC-GS,Security Group,"CN=OT-FS-Great_Plains-DIC-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Finance, Basic Finance Operations"
+OT-FS-Finance-GS,Security Group,"CN=OT-FS-Finance-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Finance, Basic Finance Operations, Basic Legal, Basic Risk Management"
+Regular Great Plains,Great Plains,,Basic Finance Operations
+Basic,DocuSign,,Basic Finance Operations
+OT-FS-FIN_INTGL-GS,Security Group,"CN=OT-FS-FIN_INTGL-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Finance
+OT-FS-FIN_NAGL-GS,Security Group,"CN=OT-FS-FIN_NAGL-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Finance, Basic Risk Management"
+OT-FS-FIN_SEC-GS,Security Group,"CN=OT-FS-FIN_SEC-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Finance, Basic Risk Management"
+,,,
+Deverlopers,Security Group,"CN=Developers,CN=Users,DC=otcorp,DC=opentable,DC=com",Basic Data Science
+webdev-SF,Security Group,"CN=webdev-SF,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Data Science
+,,,
+email@opentable.com,Distribution List,"CN=email-marketing-alias,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",
+Marketing,Security Group,"CN=marketing,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Consumer Marketing, Basic Restaurant Marketing, Basic Public Relations"
+Opentable OTCC@opentable.com,Security Group,"CN=Opentable OTCC,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Restaurant Marketing
+Opentable OTCC dlist,Security Group,"CN=Opentable OTCC dlist,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Restaurant Marketing
+OT-FS-Treatful,Security Group,"CN=OT-FS-TreatfulShare-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Consumer Marketing, Basic Restaurant Marketing"
+OT-FS-Marketing-GS,Security Group,"CN=OT-FS-Marketing-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Consumer Marketing, Basic Restaurant Marketing, Basic Public Relations"
+OT-FS-Mkt_Shared,Security Group,"CN=OT-FS-Mkt_Shared-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Public Relations
+OutageCustomerImpact,Distribution List,"CN=OutageCustomerImpact,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=comc",Basic Public Relations
+OutageRestaurantImpact,Distribution List,"CN=OutageRestaurantImpact,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=comc",Basic Public Relations
+,,,
+sp_portal_doc_center_authors,Security Group,"CN=sp_portal_doc_center_authors,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Legal
+OT-FS-FIN-MNGMT,Security Group,"CN=OT-FS-FIN_MNGMT-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Legal
+sp_legal_members,Security Group,"CN=sp_legal_members,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Legal
+,,,
+OT-FS-CONF-HR,Security Group,"CN=OT-FS-CONF-HR-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic People and Culture
+OT-FS-Facilities_Collaboration,Security Group,"CN=OT-FS-Facilities_Collaboration-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic People and Culture
+OT-FS-HumanResource,Security Group,"CN=OT-FS-HumanResource-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic People and Culture
+sp_hr_members,Security Group,"CN=sp_hr_members,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic People and Culture
+PeopleandCulture-Notifications,Distribution List,"CN=PeopleandCulture-Notifications,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic People and Culture
+,,,
+Brand,Distribution List,"CN=brand,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Brand/General Marketing
+Brand Design,Distribution List,"CN=branddesign,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Brand/General Marketing
+Consumer Design,Distribution List,"CN=consumerdesign@opentable.com,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Brand/General Marketing
+Design,Distribution List,"CN=design,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Brand/General Marketing, Basic Design"
+Design News,Distribution List,"CN=designnews,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Brand/General Marketing, Basic Design"
+Experience Design,Distribution List,"CN=Experience Design,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Brand/General Marketing, Basic Design"
+Consumer Product,Distribution List,"CN=Consumer Product,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Consumer Product Management
+,,,
+Field Operations,Security Group,"CN=Field Operations,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Field Operations
+FieldOps,Security Group,"CN=FieldOps,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Field Operations
+Operations,Security Group,"CN=Operations,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Field Operations
+OT-FS-FieldOps,Security Group,"CN=OT-FS-FieldOps-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Field Operations
+OT-FS-Operations,Security Group,"CN=OT-FS-Operations-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Field Operations, Basic Restaurant Relations Management, Basic Sales Operations, Basic Restaurant Product Management"
+OT-FS-DBArchive,Security Group,"CN=OT-FS-DBArchive-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Field Operations
+OT-Terminal_Server_ERB_Access,Security Group,"CN=OT-Terminal_Server_ERB_Access,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Field Operations, Basic Restaurant Relations Management"
+OT-DBArchiveCL,Security Group,"CN=OT-DBArchiveCL,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Field Operations
+Operations,Distribution List,"CN=operations,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Field Operations
+,,,
+OT-FS-ExecStaff,Security Group,"CN=OT-DBArchiveCL,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Executive
+execstaff,Distribution List,"CN=execstaff,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Executive
+Senior Leader,Distribution List,"CN=Senior Leaders,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Executive
+,,,
+Delivery Management TEam,Distribution List,"CN=Delivery Management Team,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Technology/CTO Admin
+Umami Cross Functional,Distribution List,"CN=Umami Cross Functional,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Technology/CTO Admin
+,,,
+OT-FS-it_readonly,Security Group,"CN=OT-FS-it_readonly-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Risk Management
+OT-FS-TAX-PRO_read,Security Group,"CN=OT-FS-TAX-PRO_read-GS,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Risk Management
+OT-TS-SOXSurvey,Security Group,"CN=OT-TS-SOXSurvey,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Risk Management
+DiningREwards,Distribution List,"CN=DiningRewards,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Risk Management
+EthocaAlert,Distribution List,"CN=EthocaAlert,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Risk Management
+fraud,Distribution List,"CN=fraud,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Risk Management
+internalfraudteam,Distribution List,"CN=internalfraudteam,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Risk Management
+lrf,Distribution List,"CN=lfr,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Risk Management
+lrp,Distribution List,"CN=lrp,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Risk Management
+Risk,Distribution List,"CN=Risk,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Risk Management
+giftissues,Distribution List,"CN=giftissues,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Risk Management
+giftsissues,Distribution List,"CN=giftsissues,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Risk Management
+,,,
+Managers,Distribution List,"CN=Managers,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Manager
+General,Mezzo,"CN=OTApplications-Mezzo-General,OU=Mezzo,OU=OT Applications,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Manager
+Manager,Mezzo,"CN=OTApplications-Mezzo-Manager,OU=Mezzo,OU=OT Applications,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Manager
+,,,
+,,,
 Tier 1,CHARM EU,,Basic Customer Support - Tier 1
 Tier 2,CHARM EU,,Basic Customer Support - Tier 2
 Administration,CHARM EU,,Basic TechTable
@@ -68,23 +182,22 @@ Regular,Great Plains,,"Basic Finance, Basic Finance Operations"
 Administration,Great Plains,,Basic TechTable
 Administration,HipChat,,Basic TechTable
 Regular,HipChat,,Default OpenTable
-Basic ,JIRA,,Default OpenTable
+Basic,JIRA,,Default OpenTable
 Regular,OT SQL,,OT SQL Profile
 Regular,OTA,,Basic Customer Support - Tier 1
-Regular,OTA,,Basic Customer Support - Tier 2
 Administration,OTA,,Basic TechTable
 Regular,OTR,,Basic Customer Support - Tier 1
-Regular,OTR,,Basic Customer Support - Tier 2
 Administration,OTR,,Basic TechTable
 Regular,PagerDuty,,Basic Infrastructure Engineering
-Regular,Putty,,
 Regular,QA SQL,,QA SQL Profile
 Tier 1,ROMS,,Basic Customer Support - Tier 1
 Administration,ROMS,,Basic TechTable
-Regular,Salesforce,,"Basic Sales, Basic Sales Operations, Basic Finance, Basic Finance Operations"
-Administration,Salesforce,,Basic BizOpti/Internal Systems Engineering
+Regular,Salesforce,,Default OpenTable
+Administration,Salesforce,,"Basic BizOpti/Internal Systems Engineering, Basic TechTable"
 Basic - Chatter Only,Salesforce,,Default OpenTable
-Regular,Salesforce sandbox,,"Basic Sales, Basic Sales Operations"
+Regular,Salesforce sandbox,,"Basic Sales, Basic Sales Operations, Basic Customer Support - Tier 1"
 Regular,Test email Account,,"Basic Sales, Basic Sales Operations"
 Regular,Zendesk,,Default OpenTable
+Administration,Zendesk,,Basic TechTable
 Location,Distribution List,,Default OpenTable
+Customer Support,Salesforce,,Basic Customer Support - Tier 1

@@ -14,14 +14,14 @@ namespace :sec_prof do
     sp_csv.each do |row|
       row_attrs = row.to_hash
       unless row_attrs["departments"].blank?
-        sp = SecurityProfile.new
+        sp = SecurityProfile.find_or_create_by(name: row_attrs["name"])
 
         # Convert department names to Departments
         depts = []
         dept_names = row_attrs["departments"].split(/\s*,\s*/)
         dept_names.each do |name|
           if name == "All"
-            Department.find_each { |dept| sp.departments << dept }
+            Department.find_each { |dept| sp.departments << dept unless sp.departments.include?(dept) }
           else
             depts << Department.find_by(name: name)
           end
@@ -29,7 +29,7 @@ namespace :sec_prof do
 
         # Associate Departments to Security Profile
         depts.each do |dept|
-          sp.departments << dept
+          sp.departments << dept unless sp.departments.include?(dept)
         end unless dept_names.include?("All")
 
         # Remove departments key
@@ -42,7 +42,7 @@ namespace :sec_prof do
     app_csv.each do |row|
       row_attrs = row.to_hash
 
-      app = Application.new
+      app = Application.find_or_create_by(name: row_attrs["name"])
       app.update_attributes(row_attrs)
     end
 
@@ -65,12 +65,12 @@ namespace :sec_prof do
         end
 
         # Create AccessLevel
-        al = AccessLevel.new
+        al = AccessLevel.find_or_create_by({name: row_attrs["name"], application_id: row_attrs["application_id"]})
         al.update_attributes(row_attrs)
 
         # Add AccessLevel to Security Profiles
         sec_profs.each do |sp|
-          sp.access_levels << al
+          sp.access_levels << al unless sp.access_levels.include?(al)
         end
       end
     end
