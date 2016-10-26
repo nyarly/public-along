@@ -65,6 +65,12 @@ namespace :sync do
             ad_value = ldap_entry.try(k).try(:first)
             e.update_attributes(v => ad_value)
           end
+          # Write thumbnail image back to Mezzo
+          image = ldap_entry.try(:thumbnailPhoto).try(:first)
+          if image
+            converted_image = Base64.strict_encode64(image)
+            e.update_attributes(image_code: converted_image)
+          end
 
           attrs = ads.updatable_attrs(e, ldap_entry)
           attrs.delete(:mobile) # Not currently overwriting personal information
@@ -73,6 +79,7 @@ namespace :sync do
           attrs.delete(:l)
           attrs.delete(:st)
           attrs.delete(:postalCode)
+          attrs.delete(:thumbnailPhoto)
 
           attrs.delete(:accountExpires) # Do not overwrite account expirations
 
