@@ -30,7 +30,7 @@ set :rbenv_roles, :all # default value
 set :tmp_dir, "/home/mezzo/tmp"
 
 ## Linked Files & Directories (Default None):
-set :linked_files, %w{config/database.yml config/secrets.yml config/ldap.yml}
+set :linked_files, %w{config/database.yml config/secrets.yml config/ldap.yml config/environments/production.rb}
 
 namespace :puma do
   desc 'Create Directories for Puma Pids and Socket'
