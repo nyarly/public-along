@@ -1,5 +1,5 @@
 class TechTableMailer < ApplicationMailer
-  default to: Rails.application.secrets.tt_email
+  default to: [Rails.application.secrets.tt_email, "pho@opentable.com"]
 
   def alert_email(message)
     @message = message

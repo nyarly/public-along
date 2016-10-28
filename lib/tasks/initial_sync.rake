@@ -38,8 +38,6 @@ namespace :sync do
       # Convert dates
       row_attrs["hire_date"] = DateTime.strptime(row_attrs["hire_date"], "%m/%d/%y")
       row_attrs["leave_start_date"] = DateTime.strptime(row_attrs["leave_start_date"], "%m/%d/%y") if row_attrs["leave_start_date"]
-      # add sAMAccountName
-      row_attrs["sam_account_name"] = row_attrs["email"].partition("@").first if row_attrs["email"]
       e.update_attributes(row_attrs)
 
       # Update the worker info in AD
@@ -55,6 +53,7 @@ namespace :sync do
           end
           # Write personal info back to Mezzo record if it exists in AD
           preserve_attrs = {
+            sAMAccountName: "sam_account_name",
             mobile: "personal_mobile_phone",
             telephoneNumber: "office_phone",
             streetAddress: "home_address_1",

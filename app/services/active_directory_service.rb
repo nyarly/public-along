@@ -179,6 +179,8 @@ class ActiveDirectoryService
     elsif ldap.get_operation_result.code == 68 # 68 code is returned if the attr already exists in AD. Just return true in this case
       true
     else
+      puts ldap.get_operation_result
+      puts employee.map(&:employee_id)
       TechTableMailer.alert_email(error_message + ldap.get_operation_result.to_s).deliver_now
     end
   end
