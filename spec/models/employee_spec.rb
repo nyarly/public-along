@@ -38,6 +38,17 @@ describe Employee, type: :model do
       expect(employee).to     validate_uniqueness_of(:email).case_insensitive
     end
 
+    it "should scope managers" do
+      mgr = FactoryGirl.create(:employee)
+      emp = FactoryGirl.create(:employee)
+
+      sp = FactoryGirl.create(:security_profile, name: "Basic Manager")
+      esp = FactoryGirl.create(:emp_sec_profile, security_profile_id: sp.id, employee_id: mgr.id)
+
+      expect(Employee.managers).to include(mgr)
+      expect(Employee.managers).to_not include(emp)
+    end
+
     it "should scope the create group" do
       create_group = FactoryGirl.create_list(:employee, 10, :department_id => dept.id)
       existing_group = FactoryGirl.create_list(:employee, 10, :existing)

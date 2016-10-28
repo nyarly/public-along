@@ -1,6 +1,4 @@
 class SummaryReportMailer < ApplicationMailer
-  default from: 'no-reply@opentable.com'
-
   def onboard_report
     csv = SummaryReportHelper::Csv.new
 

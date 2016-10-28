@@ -19,7 +19,7 @@
     <%= f.date_select :hire_date, {:order => [:month, :day, :year], :include_blank => true, :default => nil, label: "Hire Date*"}, {required: true} %>
   </div>
   <%= f.collection_select :department_id, Department.all, :id, :name, {label: "Department*"}, {required: true} %>
-  <%= f.collection_select :manager_id, Employee.all.order(last_name: :asc), :employee_id, :cn, {label: "Manager*"}, {required: true} %>
+  <%= f.collection_select :manager_id, Employee.managers.order(first_name: :asc), :employee_id, :cn, {label: "Manager*"}, {required: true} %>
   <%= f.text_field :business_title, label: "Business Title*",required: true %>
   <%= f.collection_select :location_id, Location.all, :id, :name, {label: "Location*"}, {required: true} %>
   <%= f.text_field :office_phone %>
