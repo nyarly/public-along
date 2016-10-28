@@ -1,3 +1,24 @@
 employee_id,first_name,last_name,business_title,hire_date,cost_center,location,email,leave_start_date,employee_type,manager_id
 101884,Patricia,Ho,Sr. Software Engineer,3/21/16,Infrastructure Engineering,Los Angeles Office,pho@opentable.com,,Regular,101751
 101751,John,Mehringer,Principal Operations Engineer,6/22/15,Infrastructure Engineering,Los Angeles Office,jmehringer@opentable.com,,Regular,101615
+100344,Bryce,Catlin,"Director, Engineering",12/3/03,BizOpti/Internal Systems Engineering,San Francisco Office,bcatlin@opentable.com,,Regular,101615
+100401,Andrew,Barash,"Manager, Software Development",2/1/05,BizOpti/Internal Systems Engineering,San Francisco Office,abarash@opentable.com,,Regular,100344
+100449,Gina,Calhoun,"Sr. Director, Product Management",10/1/05,BizOpti/Internal Systems Engineering,San Francisco Office,GCalhoun@opentable.com,,Regular,101615
+100488,Jeremy,Barry,Sr. Product Manager,9/20/04,BizOpti/Internal Systems Engineering,San Francisco Office,jbarry@opentable.com,,Regular,100449
+102044,Bhavani,O'Kelly,Sr. Business Systems Analyst,10/17/16,BizOpti/Internal Systems Engineering,San Francisco Office,bokelly@opentable.com,,Temporary,101764
+101441,Brianne,Eastburn,SFDC Administrator,10/7/13,BizOpti/Internal Systems Engineering,San Francisco Office,beastburn@opentable.com,,Regular,100449
+101550,Ian,Iepson,Salesforce Developer,6/2/14,BizOpti/Internal Systems Engineering,San Francisco Office,iiepson@opentable.com,,Regular,100401
+101590,Manolo,Agustin,Senior Finance Systems Engineer,8/25/14,BizOpti/Internal Systems Engineering,San Francisco Office,magustin@opentable.com,,Regular,101764
+101599,Sandesh,Dongari,Salesforce Developer,9/22/14,BizOpti/Internal Systems Engineering,San Francisco Office,sdongari@opentable.com,,Regular,100401
+101712,Umang,Patel,Automation Engineer,4/13/15,BizOpti/Internal Systems Engineering,San Francisco Office,upatel@opentable.com,,Regular,100401
+101730,Raghavendar,Madireddy,Salesforce Developer,5/18/15,BizOpti/Internal Systems Engineering,San Francisco Office,rmadireddy@opentable.com,,Regular,100401
+101764,David,Nicoll,Sr. Product Manager,7/13/15,BizOpti/Internal Systems Engineering,San Francisco Office,dnicoll@opentable.com,,Regular,100449
+101769,Shiv,Chawla,Sr. Product Manager,7/27/15,BizOpti/Internal Systems Engineering,San Francisco Office,schawla@opentable.com,,Regular,100449
+101826,Michael,Haan,Sr. Software Engineer,10/19/15,BizOpti/Internal Systems Engineering,San Francisco Office,mhaan@opentable.com,,Regular,100344
+101836,John,Paradis,Sr. Product Manager,11/2/15,BizOpti/Internal Systems Engineering,Massachusetts,jparadis@opentable.com,,Regular,100449
+101881,Daniel,Rochman,Financial Systems Administrator,3/14/16,BizOpti/Internal Systems Engineering,San Francisco Office,drochman@opentable.com,,Regular,101764
+101883,Rachel,Beckenhauer,Sr. Business Systems Analyst,3/14/16,BizOpti/Internal Systems Engineering,San Francisco Office,rbeckenhauer@opentable.com,,Regular,101764
+101909,Judy,Tang,Sr. Product Manager,5/2/16,BizOpti/Internal Systems Engineering,San Francisco Office,jtang@opentable.com,,Regular,100449
+101944,Raymond,Ohanian,Sr. Software Engineer,6/13/16,BizOpti/Internal Systems Engineering,Los Angeles Office,rohanian@opentable.com,,Regular,100344
+101960,Kevin,Carlson,Software Engineer,7/11/16,BizOpti/Internal Systems Engineering,San Francisco Office,kcarlson@opentable.com,,Regular,100344
+101967,Bill,Kim,Software Engineer,7/18/16,BizOpti/Internal Systems Engineering,San Francisco Office,bkim@opentable.com,,Regular,100344
