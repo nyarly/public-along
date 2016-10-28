@@ -1,2 +1,3 @@
 employee_id,first_name,last_name,business_title,hire_date,cost_center,location,email,leave_start_date,employee_type,manager_id
 101884,Patricia,Ho,Sr. Software Engineer,3/21/16,Infrastructure Engineering,Los Angeles Office,pho@opentable.com,,Regular,101751
+101751,John,Mehringer,Principal Operations Engineer,6/22/15,Infrastructure Engineering,Los Angeles Office,jmehringer@opentable.com,,Regular,101615
