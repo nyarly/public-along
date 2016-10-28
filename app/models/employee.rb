@@ -59,6 +59,11 @@ class Employee < ActiveRecord::Base
     ["Agency Contractor", "Independent Contractor", "Service Provider"].include?(employee_type)
   end
 
+  def self.managers
+    joins(:emp_sec_profiles)
+    .where('emp_sec_profiles.security_profile_id = ?', SecurityProfile.find_by(name: 'Basic Manager').id)
+  end
+
   def contract_end_date_needed?
     employee_type != "Regular" && contract_end_date.blank?
   end
