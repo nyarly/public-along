@@ -3,7 +3,7 @@ Callcenter,Security Group,"CN=callcenter,OU=Security Groups,OU=OT,DC=otcorp,DC=o
 Callcenter,Distribution List,"CN=callcenter,OU=Distribution Lists,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Customer Support - Tier 1, Basic Restaurant Product Management"
 Operations,Security Group,"CN=Operations,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Customer Support - Tier 1, Basic Field Operations"
 Wifi General,Security Group,"CN=OT-Netsec-General,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Customer Support - Tier 1, Basic Brand/General Marketing, Basic Business Development, Basic Consumer Marketing, Basic Consumer Product Management, Basic Executive, Basic Facilities, Basic Field Operations, Basic Inside Sales, Basic Product Marketing, Basic Public Relations, Basic Restaurant Marketing, Basic Restaurant Product Management, Basic Restaurant Relations Management, Basic Sales, Basic Sales Operations, Basic Technology/CTO Admin"
-Wifi Finance/P&C/Legal,Security Group,"CN=OT-Netsec-Privileged,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Finance, Basic Finance Operations, Basic Legal, Basic People & Culture, Basic Talent Acquisition"
+Wifi Finance/P&C/Legal,Security Group,"CN=OT-Netsec-Privileged,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Finance, Basic Finance Operations, Basic Legal, Basic People and Culture, Basic Talent Acquisition"
 Wifi Net Ops,Security Group,"CN=OT-Netsec-IT,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Infrastructure Engineering
 Wifi Production,Security Group,"CN=OT-Netsec-Production,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Product Engineering - Back End, Basic Product Engineering - Front End Diner, Basic Product Engineering - Front End Restaurant, Basic Infrastructure Engineering, Basic Data Science"
 Engineering,Security Group,"CN=Engineering,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Product Engineering - Back End, Basic Product Engineering - Front End Diner, Basic Product Engineering - Front End Restaurant, Basic TechTable, Basic Data Science, Basic Design"
@@ -17,7 +17,7 @@ Tron Shared,Security Group,"CN=Folder - Shared,OU=Security Groups,OU=OT,DC=otcor
 TechOps,VPN,"CN=00_VPN_IT,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic Infrastructure Engineering
 Engineer,VPN,"CN=VPN_12_ENG,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Product Engineering - Back End, Basic Product Engineering - Front End Diner, Basic Product Engineering - Front End Restaurant, Basic Data Science"
 VPN 99 Default,VPN,"CN=VPN_99_Default,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Customer Support - Tier 1, Basic Brand/General Marketing, Basic Business Development, Basic Consumer Marketing, Basic Consumer Product Management, Basic Executive, Basic Facilities, Basic Field Operations, Basic Inside Sales, Basic Product Marketing, Basic Public Relations, Basic Restaurant Marketing, Basic Restaurant Product Management, Basic Restaurant Relations Management, Basic Sales, Basic Sales Operations"
-VPN 90 Finance,VPN,"CN=VPN_90_Finance,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Finance, Basic Finance Operations, Basic Legal, Basic People & Culture, Basic Risk Management"
+VPN 90 Finance,VPN,"CN=VPN_90_Finance,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com","Basic Finance, Basic Finance Operations, Basic Legal, Basic People and Culture, Basic Risk Management"
 VPN 05 IT,VPN,"CN=VPN_05_IT_not_DC,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic TechTable
 Duo VPN,VPN,"CN=duo_2fa_vpn,OU=Security Groups,OU=OT,DC=otcorp,DC=opentable,DC=com",Basic TechTable
 ,,,
@@ -171,8 +171,8 @@ Administration,CHARM JP,,Basic TechTable
 Tier 1,CHARM NA,,Basic Customer Support - Tier 1
 Tier 2,CHARM NA,,Basic Customer Support - Tier 2
 Administration,CHARM NA,,Basic TechTable
-Regular,Docusign,,"Basic Sales, Basic Sales Operations"
-Administration,Docusign,,Basic TechTable
+Regular,DocuSign,,"Basic Sales, Basic Sales Operations"
+Administration,DocuSign,,Basic TechTable
 Regular,Five9,,Basic Customer Support - Tier 1
 Administration,Five9,,Basic TechTable
 Regular,Gifts,,Default OpenTable
