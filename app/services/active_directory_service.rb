@@ -179,8 +179,8 @@ class ActiveDirectoryService
     elsif ldap.get_operation_result.code == 68 # 68 code is returned if the attr already exists in AD. Just return true in this case
       true
     else
-      puts "LDAP ERROR: #{ldap.get_operation_result}"
-      puts "EMPLOYEE_ID: #{employee.employee_id}"
+      Rails.logger.error "LDAP ERROR: #{ldap.get_operation_result}"
+      Rails.logger.error "EMPLOYEE_ID: #{employee.employee_id}"
       TechTableMailer.alert_email(error_message + ldap.get_operation_result.to_s).deliver_now
     end
   end
