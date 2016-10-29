@@ -4,7 +4,7 @@ OUS = {
   "ou=Accounting,ou=Users," => { :department => ["Finance", "Finance Operations"], :country => ["US", "CA", "MX", "AU", "IN"] },
   "ou=Finance,ou=EU,ou=Users," => { :department => ["Finance", "Finance Operations"], :country => ["GB", "DE"] },
   "ou=Sales,ou=Users," => { :department => ["Sales", "Sales Operations", "Inside Sales", "Restaurant Relations Management"], :country => ["US", "CA", "MX", "AU"] },
-  "ou=UK Sales,ou=EU,ou=Users," => { :department => ["Sales", "Sales Operations", "Inside Sales", "Restaurant Relations Management"], :country => ["GB", "IE"] },
+  "ou=UK Sales,ou=EU,ou=Users," => { :department => ["Sales", "Sales Operations", "Inside Sales", "Restaurant Relations Management"], :country => ["GB", "IE", "DE"] },
   "ou=DE Sales,ou=EU,ou=Users," => { :department => ["Sales", "Sales Operations", "Inside Sales", "Restaurant Relations Management"], :country => ["DE"] },
   "ou=Field OPS,ou=Users," => { :department => ["Field Operations"], :country => ["US", "CA", "MX", "AU"] },
   "ou=Field OPS,ou=EU,ou=Users," => { :department => ["Field Operations"], :country => ["GB", "DE", "IE"] },
