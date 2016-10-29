@@ -43,6 +43,7 @@ namespace :sync do
       # Update the worker info in AD
       if e.valid? && e.email.present?
         ldap_entry = ads.find_entry("mail", e.email).first
+        puts ldap_result: ads.ldap.get_operation_result
         if ldap_entry
           # Write account expiry back to Mezzo record if it exists in AD
           if ldap_entry.accountExpires[0] != "9223372036854775807"
