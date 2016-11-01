@@ -16,7 +16,7 @@ namespace :db do
         email: 'jlebowski@opentable.com',
         employee_id: 'jlebowski123',
         business_title: 'The Dude Sr.',
-        department_id: Department.find_by(name: "People and Culture").id,
+        department_id: Department.find_by(name: "People & Culture").id,
         location_id: Location.find_by(name: "San Francisco Office").id,
         hire_date: 10.years.ago
       )

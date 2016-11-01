@@ -401,7 +401,7 @@ describe Employee, type: :model do
 
     it "should set the correct account expiry" do
       date = 2.days.from_now
-      datetime = DateTime.new(date.year, date.month, date.day, 20)
+      datetime = DateTime.new(date.year, date.month, date.day, 21)
       expect(employee.generated_account_expires).to eq(DateTimeHelper::FileTime.wtime(datetime))
     end
   end
@@ -419,7 +419,7 @@ describe Employee, type: :model do
 
     it "should set the correct account expiry" do
       date = 1.day.from_now
-      datetime = DateTime.new(date.year, date.month, date.day, 20)
+      datetime = DateTime.new(date.year, date.month, date.day, 21)
       expect(employee.generated_account_expires).to eq(DateTimeHelper::FileTime.wtime(datetime))
     end
 
@@ -437,7 +437,6 @@ describe Employee, type: :model do
           unicodePwd: "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           workdayUsername: employee.workday_username,
           co: employee.location.country,
-          accountExpires: employee.generated_account_expires,
           accountExpires: employee.generated_account_expires,
           title: employee.business_title,
           description: employee.business_title,

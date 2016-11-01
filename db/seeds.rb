@@ -8,7 +8,7 @@
 
 depts = [
   {:name =>  "Facilities", :code => "000010"},
-  {:name =>  "People and Culture", :code => "000011"},
+  {:name =>  "People & Culture", :code => "000011"},
   {:name =>  "Legal", :code => "000012"},
   {:name =>  "Finance", :code => "000013"},
   {:name =>  "Risk Management", :code => "000014"},
@@ -161,8 +161,8 @@ dept_mach_bundles = [
   {:department_id => Department.find_by(:name => "Infrastructure Engineering").id, :machine_bundle_id => MachineBundle.find_by(:name => '15" Mac Bundle').id},
   {:department_id => Department.find_by(:name => "Inside Sales").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
   {:department_id => Department.find_by(:name => "Legal").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
-  {:department_id => Department.find_by(:name => "People and Culture").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
-  {:department_id => Department.find_by(:name => "People and Culture").id, :machine_bundle_id => MachineBundle.find_by(:name => '13" Mac Bundle').id},
+  {:department_id => Department.find_by(:name => "People & Culture").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
+  {:department_id => Department.find_by(:name => "People & Culture").id, :machine_bundle_id => MachineBundle.find_by(:name => '13" Mac Bundle').id},
   {:department_id => Department.find_by(:name => "Product Engineering - Front End Diner").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle - Engineer").id},
   {:department_id => Department.find_by(:name => "Product Engineering - Front End Diner").id, :machine_bundle_id => MachineBundle.find_by(:name => '15" Mac Bundle').id},
   {:department_id => Department.find_by(:name => "Product Engineering - Front End Restaurant").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle - Engineer").id},
