@@ -2,6 +2,7 @@ class Employee < ActiveRecord::Base
   TYPES = ["Agency Contractor", "Independent Contractor", "Service Provider", "Intern", "Regular", "Temporary"]
 
   before_validation :downcase_unique_attrs
+  before_validation :strip_whitespace
 
   validates :first_name,
             presence: true
@@ -33,6 +34,11 @@ class Employee < ActiveRecord::Base
   def downcase_unique_attrs
     self.email = email.downcase if email.present?
     self.employee_id = employee_id.downcase if employee_id.present?
+  end
+
+  def strip_whitespace
+    self.first_name = self.first_name.strip unless self.first_name.nil?
+    self.last_name = self.last_name.strip unless self.last_name.nil?
   end
 
   def self.create_group
