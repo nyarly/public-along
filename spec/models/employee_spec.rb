@@ -38,6 +38,19 @@ describe Employee, type: :model do
       expect(employee).to     validate_uniqueness_of(:email).case_insensitive
     end
 
+    it "should strip whitespaces" do
+      emp = FactoryGirl.create(:employee, first_name: " Walter", last_name: " Sobchak ")
+
+      expect(emp.first_name).to eq("Walter")
+      expect(emp.last_name).to eq("Sobchak")
+    end
+
+    it "should downcase emails" do
+      emp = FactoryGirl.create(:employee, email: "WSobchak@opentable.com")
+
+      expect(emp.email).to eq("wsobchak@opentable.com")
+    end
+
     it "should scope managers" do
       mgr = FactoryGirl.create(:employee)
       emp = FactoryGirl.create(:employee)
