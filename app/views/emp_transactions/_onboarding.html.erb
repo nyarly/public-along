@@ -5,9 +5,9 @@
 </div>
 
 <% unless @employee.is_contingent_worker? %>
-  <h4>Buddy *</h4>
-  <p class="help-text">Select a buddy for the worker's first day.</p>
-  <%= f.collection_select :buddy_id, Employee.all - [@employee], :id, :cn, {prompt: "Select from list"}, required: true %>
+  <h4>Buddy</h4>
+  <p class="help-text">Select a buddy for the worker's first day. If you do not know who the buddy will be, leave blank and inform P&amp;C off line.</p>
+  <%= f.collection_select :buddy_id, Employee.all - [@employee], :id, :cn, {prompt: "Select from list"} %>
   <hr>
 <% end %>
 

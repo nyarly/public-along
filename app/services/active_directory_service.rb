@@ -1,7 +1,7 @@
 require "i18n"
 
 class ActiveDirectoryService
-  attr_accessor :ldap
+  attr_accessor :ldap, :errors
 
   def initialize
     @ldap ||= begin
@@ -13,6 +13,7 @@ class ActiveDirectoryService
       l.bind
       l
     end
+    @errors = {}
   end
 
   def create_disabled_accounts(employees)
@@ -24,7 +25,13 @@ class ActiveDirectoryService
         attrs = e.ad_attrs.delete_if { |k,v| v.blank? } # AD#add won't accept nil or empty strings
         attrs.delete(:dn) # need to remove dn for create
         ldap.add(dn: e.dn, attributes: attrs)
-        ldap_success_check(e, "ERROR: Creation of disabled account for #{e.first_name} #{e.last_name} failed.")
+        if ldap.get_operation_result.code == 0
+          EmployeeWorker.perform_async("Onboarding", e.id)
+          e.update_attributes(:ad_updated_at => DateTime.now)
+        else
+          e.update_attributes(email: nil, sam_account_name: nil)
+          @errors[:active_directory] = "Creation of disabled account for #{e.first_name} #{e.last_name} failed. Check the record for errors and re-submit."
+        end
       else
         TechTableMailer.alert_email("ERROR: could not find a suitable sAMAccountName for #{e.first_name} #{e.last_name}: Must create AD account manually").deliver_now
       end

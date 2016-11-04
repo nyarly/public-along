@@ -29,12 +29,14 @@ class EmployeesController < ApplicationController
     @employee = Employee.new(employee_params)
 
     if @employee.save
-      EmployeeWorker.perform_async("Onboarding", @employee.id)
-
       ads = ActiveDirectoryService.new
       ads.create_disabled_accounts([@employee])
 
-      redirect_to employees_path
+      if ads.errors.present?
+        redirect_to edit_employee_path(@employee), alert: "#{ads.errors[:active_directory]}"
+      else
+        redirect_to employee_path(@employee), notice: "#{@employee.cn}'s record was successfully created."
+      end
     else
       render 'new'
     end
@@ -56,9 +58,18 @@ class EmployeesController < ApplicationController
 
     if @employee.update(employee_params)
       ads = ActiveDirectoryService.new
-      ads.update([@employee])
 
-      redirect_to employees_path, notice: "#{@employee.cn} was successfully updated."
+      if @employee.ad_updated_at == nil
+        ads.create_disabled_accounts([@employee])
+      else
+        ads.update([@employee])
+      end
+
+      if ads.errors.present?
+        redirect_to edit_employee_path(@employee), alert: "#{ads.errors[:active_directory]}"
+      else
+        redirect_to employee_path(@employee), notice: "#{@employee.cn}'s record was successfully updated."
+      end
     else
       render :edit
     end

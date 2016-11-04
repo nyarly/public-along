@@ -88,40 +88,43 @@ RSpec.describe EmployeesController, type: :controller do
 
     context "with valid params" do
       it "creates a new employee" do
-        allow(ManagerMailer).to receive_message_chain(:permissions, :deliver_now)
-
         expect {
           post :create, {:employee => valid_attributes}
         }.to change(Employee, :count).by(1)
       end
 
       it "assigns a newly created employee as @employee" do
-        allow(ManagerMailer).to receive_message_chain(:permissions, :deliver_now)
-
         post :create, {:employee => valid_attributes}
         expect(assigns(:employee)).to be_a(Employee)
         expect(assigns(:employee)).to be_persisted
       end
 
       it "sends a new employee to AD" do
-        allow(ManagerMailer).to receive_message_chain(:permissions, :deliver_now)
-
         expect(ActiveDirectoryService).to receive(:new).and_return(ads)
         expect(ads).to receive(:create_disabled_accounts)
-        post :create, {:employee => valid_attributes}
-      end
-
-      it "calls the EmployeeWorker" do
-        expect(EmployeeWorker).to receive(:perform_async).once
+        expect(ads).to receive(:errors).and_return({})
 
         post :create, {:employee => valid_attributes}
       end
 
       it "redirects to the created employee" do
-        allow(ManagerMailer).to receive_message_chain(:permissions, :deliver_now)
+        allow(ActiveDirectoryService).to receive(:new).and_return(ads)
+        allow(ads).to receive(:create_disabled_accounts)
+        allow(ads).to receive(:errors).and_return({})
 
         post :create, {:employee => valid_attributes}
-        expect(response).to redirect_to(employees_url)
+        expect(response).to redirect_to(employee_url(Employee.find_by(last_name: "Barker").id))
+      end
+    end
+
+    context "with valid params and failed account creation" do
+      it "redirects to employee edit" do
+        expect(ActiveDirectoryService).to receive(:new).and_return(ads)
+        expect(ads).to receive(:create_disabled_accounts)
+        allow(ads).to receive(:errors).and_return({ad: "errors"})
+
+        post :create, {:employee => valid_attributes}
+        expect(response).to redirect_to(edit_employee_url(Employee.find_by(last_name: "Barker").id))
       end
     end
 
@@ -154,7 +157,8 @@ RSpec.describe EmployeesController, type: :controller do
         {
           first_name: "Al",
           department_id: 1,
-          location_id: 1
+          location_id: 1,
+          ad_updated_at: 10.months.ago
         }
       }
 
@@ -172,13 +176,66 @@ RSpec.describe EmployeesController, type: :controller do
       it "sends a updated employee to AD" do
         expect(ActiveDirectoryService).to receive(:new).and_return(ads)
         expect(ads).to receive(:update)
+        expect(ads).to receive(:errors).and_return({})
 
         put :update, {:id => employee.id, :employee => new_attributes}
       end
 
       it "redirects to the employee" do
-        put :update, {:id => employee.id, :employee => valid_attributes}
-        expect(response).to redirect_to(employees_url)
+        expect(ActiveDirectoryService).to receive(:new).and_return(ads)
+        expect(ads).to receive(:update)
+        expect(ads).to receive(:errors).and_return({})
+
+        put :update, {:id => employee.id, :employee => new_attributes}
+        expect(response).to redirect_to(employee_url(employee))
+      end
+    end
+
+    context "with valid params for an account not created in AD" do
+      let(:new_attributes) {
+        {
+          first_name: "Al",
+          department_id: 1,
+          location_id: 1,
+          ad_updated_at: nil
+        }
+      }
+
+      it "updates the requested employee" do
+        put :update, {:id => employee.id, :employee => new_attributes}
+        employee.reload
+        expect(employee.first_name).to eq("Al")
+      end
+
+      it "assigns the requested employee as @employee" do
+        put :update, {:id => employee.id, :employee => new_attributes}
+        expect(assigns(:employee)).to eq(employee)
+      end
+
+      it "creates employee to AD" do
+        expect(ActiveDirectoryService).to receive(:new).and_return(ads)
+        expect(ads).to receive(:create_disabled_accounts)
+        allow(ads).to receive(:errors)
+
+        put :update, {:id => employee.id, :employee => new_attributes}
+      end
+
+      it "redirects to the employee if there are no errors" do
+        expect(ActiveDirectoryService).to receive(:new).and_return(ads)
+        expect(ads).to receive(:create_disabled_accounts)
+        allow(ads).to receive(:errors).and_return({})
+
+        put :update, {:id => employee.id, :employee => new_attributes}
+        expect(response).to redirect_to(employee_url(employee))
+      end
+
+      it "redirects to edit employee if there are errors" do
+        expect(ActiveDirectoryService).to receive(:new).and_return(ads)
+        expect(ads).to receive(:create_disabled_accounts)
+        allow(ads).to receive(:errors).and_return({active_directory: "errors"})
+
+        put :update, {:id => employee.id, :employee => new_attributes}
+        expect(response).to redirect_to(edit_employee_url(employee))
       end
     end
 
@@ -187,7 +244,8 @@ RSpec.describe EmployeesController, type: :controller do
         {
           first_name: "Bobby",
           last_name: "Barker",
-          business_title: "New Title"
+          business_title: "New Title",
+          ad_updated_at: 10.months.ago
         }
       }
 
@@ -203,7 +261,8 @@ RSpec.describe EmployeesController, type: :controller do
         {
           first_name: "Bobby",
           last_name: "Barker",
-          manager_id: "newmgr1234"
+          manager_id: "newmgr1234",
+          ad_updated_at: 10.months.ago
         }
       }
 
@@ -218,7 +277,8 @@ RSpec.describe EmployeesController, type: :controller do
       let(:new_attributes) {
         {
           hire_date: 2.weeks.from_now,
-          termination_date: nil
+          termination_date: nil,
+          ad_updated_at: 10.months.ago
         }
       }
 
@@ -238,7 +298,8 @@ RSpec.describe EmployeesController, type: :controller do
 
       let(:new_attributes) {
         {
-          termination_date: zeroed_date
+          termination_date: zeroed_date,
+          ad_updated_at: 10.months.ago
         }
       }
 
@@ -252,7 +313,8 @@ RSpec.describe EmployeesController, type: :controller do
     context "Termination - expedited" do
       let(:new_attributes) {
         {
-          termination_date: 2.days.from_now
+          termination_date: 2.days.from_now,
+          ad_updated_at: 10.months.ago
         }
       }
 
@@ -266,7 +328,8 @@ RSpec.describe EmployeesController, type: :controller do
     context "no change to attributes" do
       let(:new_attributes) {
         {
-          first_name: employee.first_name
+          first_name: employee.first_name,
+          ad_updated_at: 10.months.ago
         }
       }
 
