@@ -1,5 +1,5 @@
 <h4>Security Access</h4>
-  <p class="help-text">Select only the appropriate security access profiles to apply to the worker.</p>
+  <p class="help-text">Select only the appropriate security access profiles to apply to the worker. To change the security profiles for your department, email <%= mail_to "techtable@opentable.com" %></p>
   <% SecurityProfile.find_profiles_for(@employee.department.id).each do |sp| %>
     <% if @employee.is_contingent_worker? && sp.name == "Default OpenTable"%>
       <%= check_box_tag 'security_profile_ids[]', sp.id, false, style: 'display: none' %>

@@ -37,6 +37,7 @@ describe ActiveDirectoryService, type: :service do
           }).delete_if { |k,v| v.blank? || k == :dn}
         )
       )
+      expect(EmployeeWorker).to receive(:perform_async).with("Onboarding", employees[0].id)
 
       ads.create_disabled_accounts(employees)
       expect(employees[0].sam_account_name).to eq("dkerabatsos")
@@ -56,13 +57,14 @@ describe ActiveDirectoryService, type: :service do
       expect(employees[0].ad_updated_at).to eq(DateTime.now)
     end
 
-    it "should send an alert email when account creation fails" do
+    it "should set errors when account creation fails" do
       allow(ldap).to receive(:add)
       allow(ldap).to receive(:search).and_return([]) # Mock search not finding conflicting existing sAMAccountName
       allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(67) # Simulate AD LDAP error
 
-      expect(TechTableMailer).to receive_message_chain(:alert_email, :deliver_now)
       ads.create_disabled_accounts(employees)
+
+      expect(ads.errors).to eq({active_directory: "Creation of disabled account for Donny Kerabatsos failed. Check the record for errors and re-submit."})
     end
   end
 
