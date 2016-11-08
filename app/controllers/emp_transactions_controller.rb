@@ -55,11 +55,14 @@ class EmpTransactionsController < ApplicationController
   def create
     @manager_entry = ManagerEntry.new(manager_entry_params)
     @emp_transaction = @manager_entry.emp_transaction
+    emp_id = manager_entry_params[:employee_id]
+    @employee = Employee.find emp_id if emp_id
 
     authorize! :create, @manager_entry.emp_transaction
 
     respond_to do |format|
       if @manager_entry.save
+        TechTableMailer.permissions(@emp_transaction, @employee).deliver_now
         format.html { redirect_to @emp_transaction, notice: 'Success! TechTable will be notified with the details of your request.' }
         format.json { render :show, status: :created, location: @emp_transaction }
       else
