@@ -80,20 +80,28 @@ RSpec.describe EmpTransactionsController, type: :controller do
 
     context "with valid params" do
       it "creates a new EmpTransaction" do
+        allow(TechTableMailer).to receive_message_chain(:permissions, :deliver_now)
         expect {
           post :create, {:manager_entry => valid_attributes}
         }.to change(EmpTransaction, :count).by(1)
       end
 
       it "assigns a newly created emp_transaction as @emp_transaction" do
+        allow(TechTableMailer).to receive_message_chain(:permissions, :deliver_now)
         post :create, {:manager_entry => valid_attributes}
         expect(assigns(:emp_transaction)).to be_a(EmpTransaction)
         expect(assigns(:emp_transaction)).to be_persisted
       end
 
       it "redirects to the created emp_transaction" do
+        allow(TechTableMailer).to receive_message_chain(:permissions, :deliver_now)
         post :create, {:manager_entry => valid_attributes}
         expect(response).to redirect_to(EmpTransaction.last)
+      end
+
+      it "sends an email to Tech Table" do
+        expect(TechTableMailer).to receive_message_chain(:permissions, :deliver_now)
+        post :create, {:manager_entry => valid_attributes}
       end
     end
 
@@ -106,6 +114,11 @@ RSpec.describe EmpTransactionsController, type: :controller do
       it "re-renders the 'new' template" do
         post :create, {:manager_entry => invalid_attributes}
         expect(response).to redirect_to("http://test.host/emp_transactions/new?kind=Something+else&user_id=12345")
+      end
+
+      it "does not send an email to Tech Table" do
+        expect(TechTableMailer).to_not receive(:permissions)
+        post :create, {:manager_entry => invalid_attributes}
       end
     end
   end

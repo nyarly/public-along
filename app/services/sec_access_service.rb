@@ -11,8 +11,6 @@ class SecAccessService
     collect_groups
     set_employee
     add_or_remove_employee_from_groups
-
-    TechTableMailer.permissions(@emp_transaction, @employee).deliver_now
   end
 
   def set_employee

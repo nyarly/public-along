@@ -5,6 +5,10 @@ Submission Date: <%= @emp_transaction.created_at.strftime("%b %e, %Y") %>
 
 Start Date: <%= @employee.hire_date.strftime("%b %e, %Y") %>
 
+<% if @emp_transaction.kind == "Offboarding" %>
+Termination Date: <%= @employee.termination_date.strftime("%b %e, %Y") %>
+<% end %>
+
 Name: <%= @employee.cn %>
 
 EmployeeID: <%= @employee.employee_id %>

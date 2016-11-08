@@ -11,6 +11,11 @@
     <%= @employee.hire_date.strftime("%b %e, %Y") %>
   </p>
 
+  <% if @emp_transaction.kind == "Offboarding" %>
+    <strong>Termination Date:</strong>
+    <%= @employee.termination_date.strftime("%b %e, %Y") %>
+  <% end %>
+
   <p>
     <strong>Name:</strong>
     <%= @employee.cn %>
