@@ -80,7 +80,7 @@ module SummaryReportHelper
       emp_trans = employee.emp_transactions.where(kind: "Onboarding").last
       if emp_trans
         buddy_id =  emp_trans.onboarding_infos.last.buddy_id
-        Employee.find(buddy_id)
+        Employee.find(buddy_id) if buddy_id
       else
         nil
       end
