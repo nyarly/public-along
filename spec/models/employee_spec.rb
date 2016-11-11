@@ -171,12 +171,12 @@ describe Employee, type: :model do
 
       offboarding_group.each do |emp|
         emp_trans = FactoryGirl.create(:emp_transaction, :kind => "Offboarding")
-        emp_sec_prof = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans.id, employee_id: emp.id, security_profile_id: sec_prof.id)
+        offboarding = FactoryGirl.create(:offboarding_info, emp_transaction_id: emp_trans.id, employee_id: emp.id)
       end
 
       non_offboarding_group.each do |emp|
         emp_trans = FactoryGirl.create(:emp_transaction, :kind => "Offboarding")
-        emp_sec_prof = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans.id, employee_id: emp.id, security_profile_id: sec_prof.id)
+        offboarding = FactoryGirl.create(:offboarding_info, emp_transaction_id: emp_trans.id, employee_id: emp.id)
       end
 
       incomplete_offboarder = FactoryGirl.create(:employee, :first_name => "INCOMPLETE @#$%^&*%$#$%^", :termination_date => 2.weeks.ago)
@@ -186,7 +186,7 @@ describe Employee, type: :model do
       emp_sec_prof_0 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_0.id, employee_id: incomplete_offboarder.id, security_profile_id: sec_prof.id)
 
       emp_trans_1 = FactoryGirl.create(:emp_transaction, :kind => "Offboarding", :created_at => 1.day.ago)
-      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_1.id, employee_id: late_offboarder.id, security_profile_id: sec_prof.id)
+      offboarding_info = FactoryGirl.create(:offboarding_info, emp_transaction_id: emp_trans_1.id, employee_id: late_offboarder.id)
 
       expect(Employee.offboard_group).to match_array(offboarding_group)
       expect(Employee.offboarding_report_group).to_not include(non_offboarding_group)

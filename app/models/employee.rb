@@ -87,19 +87,17 @@ class Employee < ActiveRecord::Base
   end
 
   def self.offboard_group
-    joins(:emp_transactions)
-    .where('emp_transactions.kind = ? AND employees.termination_date BETWEEN ? AND ?', "Offboarding", Date.today - 1.week, Date.today)
+    joins(:offboarding_infos)
+    .where('employees.termination_date BETWEEN ? AND ?', Date.today - 1.week, Date.today)
   end
 
   def self.late_offboard_group
-    joins(:emp_transactions)
-    .where('emp_transactions.kind = ? AND emp_transactions.created_at >= ? AND employees.termination_date < ?', "Offboarding", Date.today - 2.days, Date.today - 1.week)
+    joins(:offboarding_infos)
+    .where('offboarding_infos.created_at >= ? AND employees.termination_date < ?', Date.today - 2.days, Date.today - 1.week)
   end
 
   def self.incomplete_offboard_group
-    where.not(:id => EmpSecProfile
-      .joins(:emp_transaction)
-      .where('emp_transactions.kind = ?', "Offboarding")
+    where.not(:id => OffboardingInfo
       .select(:employee_id).uniq)
     .where('termination_date IS NOT NULL')
   end
