@@ -26,10 +26,11 @@ class Employee < ActiveRecord::Base
   has_many :security_profiles, through: :emp_sec_profiles
   has_many :emp_transactions, through: :emp_sec_profiles
   has_many :offboarding_infos
+  has_many :emp_deltas
 
   attr_accessor :nearest_time_zone
 
-  default_scope { order('last_name ASC') }
+  default_scope { order('first_name ASC') }
 
   def downcase_unique_attrs
     self.email = email.downcase if email.present?
@@ -88,12 +89,12 @@ class Employee < ActiveRecord::Base
 
   def self.offboard_group
     joins(:offboarding_infos)
-    .where('employees.termination_date BETWEEN ? AND ?', Date.today - 1.week, Date.today)
+    .where('employees.termination_date BETWEEN ? AND ?', Date.today - 1.week, Date.today).uniq
   end
 
   def self.late_offboard_group
     joins(:offboarding_infos)
-    .where('offboarding_infos.created_at >= ? AND employees.termination_date < ?', Date.today - 2.days, Date.today - 1.week)
+    .where('offboarding_infos.created_at >= ? AND employees.termination_date < ?', Date.today - 2.days, Date.today - 1.week).uniq
   end
 
   def self.incomplete_offboard_group
