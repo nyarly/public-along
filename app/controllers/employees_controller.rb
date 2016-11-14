@@ -45,18 +45,12 @@ class EmployeesController < ApplicationController
   def update
     @employee.assign_attributes(employee_params)
 
-    if @employee.changed? && @employee.valid?
-      if @employee.hire_date_changed? && @employee.termination_date_changed?
-        EmployeeWorker.perform_async("Onboarding", @employee.id)
-      elsif @employee.termination_date_changed? && !@employee.termination_date.blank?
-        EmployeeWorker.perform_at(5.business_days.before(@employee.termination_date), "Offboarding", @employee.id) if Time.now < 5.business_days.before(@employee.termination_date)
-        EmployeeWorker.perform_async("Offboarding", @employee.id) if Time.now > 5.business_days.before(@employee.termination_date)
-      elsif @employee.manager_id_changed? || @employee.business_title_changed?
-        EmployeeWorker.perform_async("Security Access", @employee.id)
-      end
-    end
+    send_manager_emails
+    build_emp_delta
 
     if @employee.update(employee_params)
+      @emp_delta.save
+
       ads = ActiveDirectoryService.new
 
       if @employee.ad_updated_at == nil
@@ -76,6 +70,29 @@ class EmployeesController < ApplicationController
   end
 
   private
+
+  def build_emp_delta
+    before = @employee.changed_attributes
+    after = Hash[@employee.changes.map { |k,v| [k, v[1]] }]
+    @emp_delta = EmpDelta.new(
+      employee_id: @employee.id,
+      before: before,
+      after: after
+    )
+  end
+
+  def send_manager_emails
+    if @employee.changed? && @employee.valid?
+      if @employee.hire_date_changed? && @employee.termination_date_changed?
+        EmployeeWorker.perform_async("Onboarding", @employee.id)
+      elsif @employee.termination_date_changed? && !@employee.termination_date.blank?
+        EmployeeWorker.perform_at(5.business_days.before(@employee.termination_date), "Offboarding", @employee.id) if Time.now < 5.business_days.before(@employee.termination_date)
+        EmployeeWorker.perform_async("Offboarding", @employee.id) if Time.now > 5.business_days.before(@employee.termination_date)
+      elsif @employee.manager_id_changed? || @employee.business_title_changed?
+        EmployeeWorker.perform_async("Security Access", @employee.id)
+      end
+    end
+  end
 
   def set_employee
     @employee = Employee.find(params[:id])

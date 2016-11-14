@@ -156,9 +156,9 @@ RSpec.describe EmployeesController, type: :controller do
       let(:new_attributes) {
         {
           first_name: "Al",
-          department_id: 1,
           location_id: 1,
-          ad_updated_at: 10.months.ago
+          department_id: 1,
+          ad_updated_at: DateTime.new(2016, 12, 1)
         }
       }
 
@@ -169,8 +169,27 @@ RSpec.describe EmployeesController, type: :controller do
       end
 
       it "assigns the requested employee as @employee" do
-        put :update, {:id => employee.id, :employee => valid_attributes}
+        put :update, {:id => employee.id, :employee => new_attributes}
         expect(assigns(:employee)).to eq(employee)
+      end
+
+      it "records attribute changes" do
+        put :update, {:id => employee.id, :employee => new_attributes}
+        expect(EmpDelta.last.employee_id).to eq(employee.id)
+        expect(EmpDelta.last.before).to eq(
+          {
+            "first_name"=>"Alex",
+            "location_id"=>employee.location.id.to_s,
+            "department_id"=>employee.department.id.to_s,
+            "ad_updated_at"=>nil
+          })
+        expect(EmpDelta.last.after).to eq(
+          {
+            "first_name" => "Al",
+            "location_id" => "1",
+            "department_id" => "1",
+            "ad_updated_at" => "2016-12-01 00:00:00 UTC"
+          })
       end
 
       it "sends a updated employee to AD" do

@@ -6,6 +6,10 @@ describe SummaryReportHelper, type: :helper do
                                             hire_date: Date.today,
                                             termination_date: Date.today + 1.week,
                                             manager_id: manager.employee_id) }
+  let(:emp_delta_group) { FactoryGirl.create_list(:emp_delta, 5,
+                                                  employee_id: manager.id,
+                                                  before: { some: "stuff"},
+                                                  after: { some: "new stuff"}) }
   let(:sec_prof)  { FactoryGirl.create(:security_profile) }
   let(:helper)     { SummaryReportHelper::Csv.new }
 
@@ -40,6 +44,14 @@ describe SummaryReportHelper, type: :helper do
       offboarding_info = FactoryGirl.create(:offboarding_info, employee_id: emp_group[0].id, reassign_salesforce_id: salesforce.id, emp_transaction: emp_trans)
 
       expect(helper.salesforce(emp_group[0])).to eq(salesforce)
+    end
+  end
+
+  context "job change" do
+    it "should have the correct content and queue to send" do
+      expect(EmpDelta).to receive(:report_group).and_return(emp_delta_group)
+
+      helper.job_change_data
     end
   end
 end

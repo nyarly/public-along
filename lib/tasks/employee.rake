@@ -42,6 +42,11 @@ namespace :employee do
     SummaryReportMailer.onboard_report.deliver_now
   end
 
+  desc "send job change summary reports"
+  task :job_change_report => :environment do
+    SummaryReportMailer.job_change_report.deliver_now
+  end
+
   desc "send offboarding summary reports"
   task :offboard_report => :environment do
     SummaryReportMailer.offboard_report.deliver_now

@@ -76,6 +76,25 @@ module SummaryReportHelper
       end
     end
 
+    def job_change_data
+      attrs = [
+        "Name",
+        "Prior Values",
+        "Current Values"
+      ]
+      CSV.generate(headers: true) do |csv|
+        csv << attrs
+
+        EmpDelta.report_group.each do |delta|
+          csv << [
+            delta.employee.cn,
+            delta.format(delta.before),
+            delta.format(delta.after)
+          ]
+        end
+      end
+    end
+
     def buddy(employee)
       emp_trans = employee.emp_transactions.where(kind: "Onboarding").last
       if emp_trans
