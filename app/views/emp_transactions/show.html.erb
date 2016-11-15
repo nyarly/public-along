@@ -33,7 +33,11 @@
 <% if @emp_transaction.kind == "Onboarding" && !@employee.is_contingent_worker? %>
   <p>
     <strong>Buddy:</strong>
-    <%= @buddy.first_name %> <%= @buddy.last_name %>
+    <% if @buddy.present? %>
+      <%= @buddy.first_name %> <%= @buddy.last_name %>
+    <% else %>
+      None selected
+    <% end %>
   </p>
 <% end %>
 
