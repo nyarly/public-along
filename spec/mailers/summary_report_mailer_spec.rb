@@ -9,7 +9,7 @@ RSpec.describe SummaryReportMailer, type: :mailer do
     it "should have the correct content and queue to send" do
       expect(SummaryReportHelper::Csv).to receive(:new).and_return(helper)
       expect(helper).to receive(:onboarding_data)
-      expect(email.to).to eq(["onboardapproved@opentable.com"])
+      expect(email.to).to eq(["onoffboardreport@opentable.com"])
       expect(email.subject).to eq("Onboard Summary Report")
       expect(email.attachments.count).to eq(2)
       expect(email.attachments[0].content_type).to have_content("text/comma-separated-values")
@@ -24,7 +24,7 @@ RSpec.describe SummaryReportMailer, type: :mailer do
     it "should have the correct content and queue to send" do
       expect(SummaryReportHelper::Csv).to receive(:new).and_return(helper)
       expect(helper).to receive(:offboarding_data)
-      expect(email.to).to eq(["offboardapproved@opentable.com"])
+      expect(email.to).to eq(["onoffboardreport@opentable.com"])
       expect(email.subject).to eq("Offboard Summary Report")
       expect(email.attachments.count).to eq(2)
       expect(email.attachments[0].content_type).to have_content('text/comma-separated-values')
@@ -39,7 +39,7 @@ RSpec.describe SummaryReportMailer, type: :mailer do
     it "should have the correct content and queue to send" do
       expect(SummaryReportHelper::Csv).to receive(:new).and_return(helper)
       expect(helper).to receive(:job_change_data)
-      expect(email.to).to eq(["onboardapproved@opentable.com"])
+      expect(email.to).to eq(["onoffboardreport@opentable.com"])
       expect(email.subject).to eq("Job Change Summary Report")
       expect(email.attachments.count).to eq(2)
       expect(email.attachments[0].content_type).to have_content('text/comma-separated-values')

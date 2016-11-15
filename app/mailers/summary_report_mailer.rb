@@ -4,7 +4,7 @@ class SummaryReportMailer < ApplicationMailer
 
     attachments.inline["onboarding_summary_#{DateTime.now.strftime('%Y%m%d')}.csv"] = csv.onboarding_data
     attachments.inline['pandc.png'] = File.read(Rails.root.join('app/assets/images/pandc.png'))
-    mail(to: Rails.application.secrets.onboard_email, subject: "Onboard Summary Report")
+    mail(to: Rails.application.secrets.onoffboard_email, subject: "Onboard Summary Report")
   end
 
   def offboard_report
@@ -12,7 +12,7 @@ class SummaryReportMailer < ApplicationMailer
 
     attachments.inline["offboarding_summary_#{DateTime.now.strftime('%Y%m%d')}.csv"] = csv.offboarding_data
     attachments.inline['pandc.png'] = File.read(Rails.root.join('app/assets/images/pandc.png'))
-    mail(to: Rails.application.secrets.offboard_email, subject: "Offboard Summary Report")
+    mail(to: Rails.application.secrets.onoffboard_email, subject: "Offboard Summary Report")
   end
 
   def job_change_report
@@ -20,6 +20,6 @@ class SummaryReportMailer < ApplicationMailer
 
     attachments.inline["job_change_summary_#{DateTime.now.strftime('%Y%m%d')}.csv"] = csv.job_change_data
     attachments.inline['pandc.png'] = File.read(Rails.root.join('app/assets/images/pandc.png'))
-    mail(to: Rails.application.secrets.onboard_email, subject: "Job Change Summary Report")
+    mail(to: Rails.application.secrets.onoffboard_email, subject: "Job Change Summary Report")
   end
 end
