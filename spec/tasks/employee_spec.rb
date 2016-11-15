@@ -185,16 +185,23 @@ describe "employee rake tasks", type: :tasks do
       Rake::Task["employee:onboard_report"].invoke
     end
 
-    it "should send job change report" do
+    it "should send offboarding report" do
+      expect(SummaryReportMailer).to receive(:offboard_report).and_return(mailer)
+      expect(mailer).to receive(:deliver_now)
+      Rake::Task["employee:offboard_report"].invoke
+    end
+
+    it "should send job change report if EmpDelta.report_group count > 0" do
+      expect(EmpDelta).to receive_message_chain(:report_group, :count).and_return(4)
       expect(SummaryReportMailer).to receive(:job_change_report).and_return(mailer)
       expect(mailer).to receive(:deliver_now)
       Rake::Task["employee:job_change_report"].invoke
     end
 
-    it "should send offboarding report" do
-      expect(SummaryReportMailer).to receive(:offboard_report).and_return(mailer)
-      expect(mailer).to receive(:deliver_now)
-      Rake::Task["employee:offboard_report"].invoke
+    it "should send job change report if EmpDelta.report_group count = 0" do
+      expect(EmpDelta).to receive_message_chain(:report_group, :count).and_return(0)
+      expect(SummaryReportMailer).to_not receive(:job_change_report)
+      Rake::Task["employee:job_change_report"].execute
     end
   end
 
