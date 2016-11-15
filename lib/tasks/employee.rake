@@ -44,7 +44,7 @@ namespace :employee do
 
   desc "send job change summary reports"
   task :job_change_report => :environment do
-    SummaryReportMailer.job_change_report.deliver_now
+    SummaryReportMailer.job_change_report.deliver_now if EmpDelta.report_group.count > 0
   end
 
   desc "send offboarding summary reports"

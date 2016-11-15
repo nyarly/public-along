@@ -11,6 +11,11 @@
     <%= @employee.hire_date.strftime("%b %e, %Y") %>
   </p>
 
+  <% if @emp_transaction.kind == "Onboarding" && @employee.contract_end_date.present? %>
+    <strong>Contract End Date:</strong>
+    <%= @employee.contract_end_date.strftime("%b %e, %Y") %>
+  <% end %>
+
   <% if @emp_transaction.kind == "Offboarding" %>
     <strong>Termination Date:</strong>
     <%= @employee.termination_date.strftime("%b %e, %Y") %>
@@ -51,16 +56,23 @@
     <%= @manager.email %>
   </p>
 
-  <% if @emp_transaction.kind == "Onboarding" && @employee.is_contingent_worker? %>
-    <p>
-      <strong>Contingent Worker:</strong>
-      <div style="margin-left: 2em">
-        <ul>
-          <li style="color: <%= @emp_transaction.onboarding_infos.first.cw_email ? 'red' : 'limegreen' %>"><p>Create OpenTable Email: <%= @emp_transaction.onboarding_infos.first.cw_email %></p></li>
-          <li style="color: <%= @emp_transaction.onboarding_infos.first.cw_google_membership ? 'red' : 'limegreen' %>"><p>Create Google Group Membership: <%= @emp_transaction.onboarding_infos.first.cw_google_membership %></p></li>
-        </ul>
-      </div>
-    </p>
+  <% if @emp_transaction.kind == "Onboarding" %>
+    <% if  @employee.is_contingent_worker? %>
+      <p>
+        <strong>Contingent Worker:</strong>
+        <div style="margin-left: 2em">
+          <ul>
+            <li style="color: <%= @emp_transaction.onboarding_infos.first.cw_email ? 'red' : 'limegreen' %>"><p>Create OpenTable Email: <%= @emp_transaction.onboarding_infos.first.cw_email %></p></li>
+            <li style="color: <%= @emp_transaction.onboarding_infos.first.cw_google_membership ? 'red' : 'limegreen' %>"><p>Create Google Group Membership: <%= @emp_transaction.onboarding_infos.first.cw_google_membership %></p></li>
+          </ul>
+        </div>
+      </p>
+    <% else %>
+      <p>
+        <strong>Contingent Worker:</strong>
+        false
+      </p>
+    <% end %>
   <% end %>
 
   <% if @emp_transaction.kind == "Onboarding" || @emp_transaction.kind == "Security Access" %>
@@ -126,6 +138,24 @@
         </div>
       <% end %>
     </div>
+    <% if @employee.home_address_1.present? %>
+      <p>
+        <strong>Shipping Address:</strong>
+      </p>
+      <p style="margin-left: 2em">Address 1: <%= @employee.home_address_1 %></p>
+      <p style="margin-left: 2em">
+        Address 2: <%= @employee.home_address_2 if @employee.home_address_2.present? %>
+      </p>
+      <p style="margin-left: 2em">
+        City: <%= @employee.home_city if @employee.home_city.present? %>
+      </p>
+      <p style="margin-left: 2em">
+        State: <%= @employee.home_state if @employee.home_state.present? %>
+      </p>
+      <p style="margin-left: 2em">
+        Zip: <%= @employee.home_zip if @employee.home_zip.present? %>
+      </p>
+    <% end %>
   <% end %>
 
   <% if @emp_transaction.kind == "Offboarding" %>
