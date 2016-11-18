@@ -16,7 +16,8 @@ module SummaryReportHelper
         "Email",
         "Buddy Name",
         "Buddy Email",
-        "Start Date"
+        "Start Date",
+        "Contract End Date"
       ]
       CSV.generate(headers: true) do |csv|
         csv << attrs
@@ -35,7 +36,8 @@ module SummaryReportHelper
             employee.email,
             buddy(employee).try(:cn),
             buddy(employee).try(:email),
-            employee.hire_date.strftime("%b %e, %Y")
+            employee.hire_date.strftime("%b %e, %Y"),
+            employee.contract_end_date.try(:strftime, "%b %e, %Y")
           ]
         end
       end

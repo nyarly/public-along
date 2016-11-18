@@ -313,7 +313,7 @@ RSpec.describe EmployeesController, type: :controller do
     end
 
     context "Termination" do
-      let(:zeroed_date) { 10.days.from_now.change(:usec => 0) }
+      let(:zeroed_date) { 14.days.from_now.change(:usec => 0) }
 
       let(:new_attributes) {
         {
