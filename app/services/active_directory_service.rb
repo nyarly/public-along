@@ -29,6 +29,9 @@ class ActiveDirectoryService
           EmployeeWorker.perform_async("Onboarding", e.id)
           e.update_attributes(:ad_updated_at => DateTime.now)
         else
+          Rails.logger.error "LDAP ERROR: #{ldap.get_operation_result}"
+          Rails.logger.info "EMPLOYEE_ID: #{employee.employee_id}"
+          Rails.logger.info "EMPLOYEE_NAME: #{employee.cn}"
           e.update_attributes(email: nil, sam_account_name: nil)
           @errors[:active_directory] = "Creation of disabled account for #{e.first_name} #{e.last_name} failed. Check the record for errors and re-submit."
         end
