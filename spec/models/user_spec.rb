@@ -12,6 +12,6 @@ describe User, type: :model do
     should validate_uniqueness_of(:email).case_insensitive
 
     expect(user).to_not allow_value(nil).for(:ldap_user)
-    should validate_uniqueness_of(:ldap_user)
+    should validate_uniqueness_of(:ldap_user).case_insensitive
   end
 end

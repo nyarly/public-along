@@ -17,7 +17,7 @@ class User < ActiveRecord::Base
             uniqueness: { case_sensitive: false }
   validates :ldap_user,
             presence: true,
-            uniqueness: true
+            uniqueness: { case_sensitive: false }
   validates :employee_id,
             presence: true,
             uniqueness: true
