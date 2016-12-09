@@ -25,6 +25,7 @@ class Employee < ActiveRecord::Base
   has_many :emp_sec_profiles
   has_many :security_profiles, through: :emp_sec_profiles
   has_many :emp_transactions, through: :emp_sec_profiles
+  has_many :onboarding_infos
   has_many :offboarding_infos
   has_many :emp_deltas
 
@@ -104,7 +105,7 @@ class Employee < ActiveRecord::Base
   end
 
   def onboarding_complete?
-    self.emp_transactions.where(kind: "Onboarding").count > 0
+    self.onboarding_infos.count > 0
   end
 
   def active_security_profiles
