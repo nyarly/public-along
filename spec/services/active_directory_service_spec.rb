@@ -85,8 +85,19 @@ describe ActiveDirectoryService, type: :service do
     it "should activate for properly set contract worker" do
       valid_contract_worker = FactoryGirl.create(:employee, employee_type: "Contract", contract_end_date: 3.months.from_now)
       emp_trans = FactoryGirl.create(:emp_transaction, kind: "Onboarding")
+      onboarding_info = FactoryGirl.create(:onboarding_info, employee_id: valid_contract_worker.id, emp_transaction_id: emp_trans.id)
       sec_prof = FactoryGirl.create(:security_profile)
       emp_sec_prof = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans.id, employee_id: valid_contract_worker.id, security_profile_id: sec_prof.id)
+
+      allow(ldap).to receive(:replace_attribute).once
+      expect(TechTableMailer).to_not receive(:alert_email).with("ERROR: #{valid_contract_worker.first_name} #{valid_contract_worker.last_name} is a contract worker and needs a contract_end_date. Account not activated.")
+      ads.activate([valid_contract_worker])
+    end
+
+    it "should activate for properly set contract worker with no security profiles" do
+      valid_contract_worker = FactoryGirl.create(:employee, employee_type: "Contract", contract_end_date: 3.months.from_now)
+      emp_trans = FactoryGirl.create(:emp_transaction, kind: "Onboarding")
+      onboarding_info = FactoryGirl.create(:onboarding_info, employee_id: valid_contract_worker.id, emp_transaction_id: emp_trans.id)
 
       allow(ldap).to receive(:replace_attribute).once
       expect(TechTableMailer).to_not receive(:alert_email).with("ERROR: #{valid_contract_worker.first_name} #{valid_contract_worker.last_name} is a contract worker and needs a contract_end_date. Account not activated.")
