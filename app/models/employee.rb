@@ -108,6 +108,10 @@ class Employee < ActiveRecord::Base
     self.onboarding_infos.count > 0
   end
 
+  def offboarding_complete?
+    self.offboarding_infos.count > 0
+  end
+
   def active_security_profiles
     self.security_profiles.references(:emp_sec_profiles).where(emp_sec_profiles: {revoking_transaction_id: nil})
   end
