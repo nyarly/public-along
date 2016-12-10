@@ -196,8 +196,6 @@ describe Employee, type: :model do
     end
 
     it "should check onboarding is complete" do
-      sec_prof = FactoryGirl.create(:security_profile)
-
       completed = FactoryGirl.create(:employee)
       emp_trans_1 = FactoryGirl.create(:emp_transaction, kind: "Onboarding")
       onboarding_info = FactoryGirl.create(:onboarding_info, employee_id: completed.id, emp_transaction_id: emp_trans_1.id)
@@ -207,6 +205,18 @@ describe Employee, type: :model do
 
       expect(completed.onboarding_complete?).to eq(true)
       expect(not_completed.onboarding_complete?).to eq(false)
+    end
+
+    it "should check offboarding is complete" do
+      completed = FactoryGirl.create(:employee)
+      emp_trans_1 = FactoryGirl.create(:emp_transaction, kind: "Offboarding")
+      offboarding_info = FactoryGirl.create(:offboarding_info, employee_id: completed.id, emp_transaction_id: emp_trans_1.id)
+
+      not_completed = FactoryGirl.create(:employee)
+
+
+      expect(completed.offboarding_complete?).to eq(true)
+      expect(not_completed.offboarding_complete?).to eq(false)
     end
 
     it "should find active/revoked security profiles" do

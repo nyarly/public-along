@@ -37,7 +37,7 @@ module SummaryReportHelper
             buddy(employee).try(:cn),
             buddy(employee).try(:email),
             employee.hire_date.strftime("%b %e, %Y"),
-            employee.contract_end_date.try(:strftime, "%b %e, %Y")
+            employee.contract_end_date.try(:strftime, "%b %e, %Y"),
           ]
         end
       end
@@ -55,7 +55,8 @@ module SummaryReportHelper
         "Email",
         "Transfer SalesForces Cases to",
         "Start Date",
-        "Termination Date"
+        "Termination Date",
+        "Offboarding Form Submitted"
       ]
       CSV.generate(headers: true) do |csv|
         csv << attrs
@@ -73,6 +74,7 @@ module SummaryReportHelper
             salesforce(employee).try(:cn),
             employee.hire_date.strftime("%b %e, %Y"),
             employee.termination_date.strftime("%b %e, %Y"),
+            employee.offboarding_complete?,
           ]
         end
       end
