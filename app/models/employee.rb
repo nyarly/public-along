@@ -190,6 +190,10 @@ class Employee < ActiveRecord::Base
     end
   end
 
+  def generated_upn
+    sam_account_name + "@opentable.com" if sam_account_name
+  end
+
   def decode_img_code
     image_code ? Base64.decode64(image_code) : nil
   end
@@ -201,6 +205,8 @@ class Employee < ActiveRecord::Base
       objectclass: ["top", "person", "organizationalPerson", "user"],
       givenName: first_name,
       sn: last_name,
+      displayName: cn,
+      userPrincipalName: generated_upn,
       sAMAccountName: sam_account_name,
       manager: manager.try(:dn),
       mail: generated_email,

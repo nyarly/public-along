@@ -92,8 +92,8 @@ class ActiveDirectoryService
 
   def updatable_attrs(employee, ldap_entry)
     attrs = employee.ad_attrs
-    # objectClass, sAMAccountName, mail, and unicodePwd should not be updated via Workday
-    [:objectclass, :sAMAccountName, :mail, :unicodePwd].each { |k| attrs.delete(k) }
+    # objectClass, sAMAccountName, mail, userPrincipalName, and unicodePwd should not be updated via Mezzo
+    [:objectclass, :sAMAccountName, :mail, :userPrincipalName, :unicodePwd].each { |k| attrs.delete(k) }
     # Only update attrs that differ
     attrs.each { |k,v|
       if (ldap_entry.try(k).present? && ldap_entry.try(k).include?(v)) || (ldap_entry.try(k).blank? && v.blank?)

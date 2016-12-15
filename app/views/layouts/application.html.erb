@@ -34,9 +34,11 @@
           <% if can? :read, Department %>
             <li>
               <%= link_to "Departments", departments_path %>
-              <ul class="menu vertical">
-                <li><%= link_to "New Department", new_department_path %></li>
-              </ul>
+              <% if can? :create, Department %>
+                <ul class="menu vertical">
+                  <li><%= link_to "New Department", new_department_path %></li>
+                </ul>
+              <% end %>
             </li>
           <% end %>
           <% if can? :read, Location %>

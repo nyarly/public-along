@@ -33,7 +33,8 @@ describe ActiveDirectoryService, type: :service do
           :dn => employees[0].dn,
           attributes: employees[0].ad_attrs.merge({
             :sAMAccountName => "dkerabatsos",
-            :mail => "dkerabatsos@opentable.com"
+            :mail => "dkerabatsos@opentable.com",
+            :userPrincipalName => "dkerabatsos@opentable.com"
           }).delete_if { |k,v| v.blank? || k == :dn}
         )
       )
@@ -158,6 +159,8 @@ describe ActiveDirectoryService, type: :service do
       ldap_entry[:objectClass] = ["top", "person", "organizationalPerson", "user"]
       ldap_entry[:givenName] = "Jeffrey"
       ldap_entry[:sn] = "Lebowski"
+      ldap_entry[:displayName] = "Jeffrey Lebowski"
+      ldap_entry[:userPrincipalName] = "jlebowski@opentable.com"
       ldap_entry[:manager] = manager.dn
       ldap_entry[:workdayUsername] = employee.workday_username
       ldap_entry[:co] = "US"
@@ -262,6 +265,7 @@ describe ActiveDirectoryService, type: :service do
       ldap_entry_2[:objectClass] = ["top", "person", "organizationalPerson", "user"]
       ldap_entry_2[:givenName] = rem_to_reg_employee.first_name
       ldap_entry_2[:sn] = rem_to_reg_employee.last_name
+      ldap_entry_2[:displayName] = rem_to_reg_employee.cn
       ldap_entry_2[:manager] = manager.dn
       ldap_entry_2[:workdayUsername] = rem_to_reg_employee.workday_username
       ldap_entry_2[:co] = rem_to_reg_employee.location.country

@@ -10,4 +10,5 @@ class MachineBundle < ActiveRecord::Base
   has_many :departments, through: :dept_mach_bundles
 
   scope :find_bundles_for, -> (dept_id) { joins(:dept_mach_bundles).where(:dept_mach_bundles => {department_id: dept_id}) }
+  scope :contingent_bundles, -> { where("name iLIKE ?", '%contingent%')}
 end

@@ -21,9 +21,9 @@ OUS = {
   "ou=Product,ou=Users," => { :department => ["Consumer Product Management", "Design", "Restaurant Product Management", "Business Development"], :country => ["US", "GB", "DE", "AU", "IN"] },
   "ou=SRP,ou=Users," => { :department => ["Tier 1 Support - SRP"], :country => ["US", "CA", "MX"] },
   "ou=Apollo Blake,ou=Users," => { :department => ["Tier 1 Support - Apollo Blake"], :country => ["US", "DE", "IE"] },
-  "ou=Customer Support,ou=Users," => { :department => ["Customer Support"], :country => ["US", "AU"] },
-  "ou=Operations,ou=EU,ou=Users," => { :department => ["Customer Support"], :country => ["GB"] },
-  "ou=Japan,ou=Users," => { :department => ["Finance", "Finance Operations", "Sales", "Sales Operations", "Inside Sales", "Restaurant Relations Management", "Field Operations", "Brand/General Marketing", "Consumer Marketing", "Restaurant Marketing", "Public Relations", "Product Marketing", "Customer Support"], :country => ["JP"] }
+  "ou=Customer Support,ou=Users," => { :department => ["Customer Support", "Customer Support - Contact Center"], :country => ["US", "AU"] },
+  "ou=Operations,ou=EU,ou=Users," => { :department => ["Customer Support", "Customer Support - Contact Center"], :country => ["GB"] },
+  "ou=Japan,ou=Users," => { :department => ["Finance", "Finance Operations", "Sales", "Sales Operations", "Inside Sales", "Restaurant Relations Management", "Field Operations", "Brand/General Marketing", "Consumer Marketing", "Restaurant Marketing", "Public Relations", "Product Marketing", "Customer Support", "Customer Support - Contact Center"], :country => ["JP"] }
 }
 
 # In AD, this value indicates that the account never expires
