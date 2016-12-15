@@ -44,6 +44,8 @@ class EmpTransactionsController < ApplicationController
       @manager_user = User.find params[:user_id]
     end
 
+    set_machine_bundles
+
     @manager_entry = ManagerEntry.new
     @emp_transaction = @manager_entry.emp_transaction
 
@@ -76,6 +78,14 @@ class EmpTransactionsController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_emp_transaction
       @emp_transaction = EmpTransaction.find(params[:id])
+    end
+
+    def set_machine_bundles
+      if @employee.employee_type == "Regular"
+        @machine_bundles = MachineBundle.find_bundles_for(@employee.department.id) - MachineBundle.contingent_bundles
+      else
+        @machine_bundles = MachineBundle.contingent_bundles
+      end
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
