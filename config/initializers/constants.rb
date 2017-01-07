@@ -13,7 +13,7 @@ OUS = {
   "ou=IT,ou=EU,ou=Users," => { :department => ["Tech Table", "Infrastructure Engineering"], :country => ["GB"] },
   "ou=Marketing,ou=Users," => { :department => ["Brand/General Marketing", "Consumer Marketing", "Restaurant Marketing", "Public Relations", "Product Marketing"], :country => ["US", "AU"] },
   "ou=Marketing,ou=EU,ou=Users," => { :department => ["Brand/General Marketing", "Consumer Marketing", "Restaurant Marketing", "Public Relations", "Product Marketing"], :country => ["GB", "DE", "IE"] },
-  "ou=Engineering,ou=Users," => { :department => ["Technology/CTO Admin", "Product Engineering - Front End Diner", "Product Engineering - Front End Restaurant", "Product Engineering - Back End", "BizOpti/Internal Systems Engineering", "Data Analytics & Experimentation", "Data Science"], :country => ["US", "AU", "IN"] },
+  "ou=Engineering,ou=Users," => { :department => ["Technology/CTO Admin", "Product Engineering - Front End Diner", "Product Engineering - Front End Restaurant", "Product Engineering - Back End", "BizOpti/Internal Systems Engineering", "Data Analytics & Experimentation", "Data Science"], :country => ["US", "AU", "IN", "MX"] },
   "ou=Engineering,ou=EU,ou=Users," => { :department => ["Technology/CTO Admin", "Product Engineering - Front End Diner", "Product Engineering - Front End Restaurant", "Product Engineering - Back End", "BizOpti/Internal Systems Engineering", "Data Analytics & Experimentation", "Data Science"], :country => ["GB"] },
   "ou=People and Culture,ou=Users," => { :department => ["People & Culture", "Talent Acquisition", "Facilities"], :country => ["US", "AU"] },
   "ou=HR,ou=EU,ou=Users," => { :department => ["People & Culture", "Talent Acquisition", "Facilities"], :country => ["GB"] },

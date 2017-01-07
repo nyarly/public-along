@@ -70,7 +70,8 @@ RSpec.describe EmpDelta, type: :model do
       ),
       FactoryGirl.create(:emp_delta,
         before: {"termination_date" => ""},
-        after: {"termination_date" => Date.today}
+        after: {"termination_date" => Date.today},
+        created_at: 2.days.ago
       ),
       FactoryGirl.create(:emp_delta,
         before: {"termination_date" => Date.yesterday},
@@ -114,9 +115,9 @@ RSpec.describe EmpDelta, type: :model do
       delta = FactoryGirl.create(:emp_delta,
         before: {
           "location_id" => old_loc.id,
-          "manager_id" => old_mgr.id},
+          "manager_id" => old_mgr.employee_id},
         after: {
-          "manager_id" => new_mgr.id,
+          "manager_id" => new_mgr.employee_id,
           "location_id" => new_loc.id}
       )
 

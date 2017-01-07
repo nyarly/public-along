@@ -6,7 +6,7 @@ describe Role::Manager, :type => :model do
 
   describe 'abilities' do
     it_should_behave_like "role abilities", Employee, [:read]
-    # it_should_behave_like "role abilities", PermissionRequest, [:manage]
-    # it_should_behave_like "role abilities", EquipmentRequest, [:manage]
+    it_should_behave_like "role abilities", EmpTransaction, [:new, :show, :create]
+    it_should_behave_like "role abilities", ManagerEntry, [:create]
   end
 end
