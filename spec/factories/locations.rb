@@ -1,6 +1,8 @@
 FactoryGirl.define do
   factory :location do
-    sequence(:name) { |n| "#{n} OT HQ" }
+    sequence(:code) { |n| "#{n}OTCODE" }
+    name "Location Name"
+    status "Active"
     kind "Office"
     country "US"
   end

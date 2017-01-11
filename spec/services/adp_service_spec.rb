@@ -86,4 +86,54 @@ describe AdpService, type: :service do
       expect(JobTitle.find_by(code: "ACCNASST").status).to eq("Active")
     end
   end
+
+  xdescribe "populate locations table" do
+    let!(:existing) { FactoryGirl.create(:location, code: "ACCNASST", name: "Accounting Assistant", status: "Active")}
+
+    before :each do
+      expect(URI).to receive(:parse).with("https://api.adp.com/codelists/hr/v3/worker-management/job-titles/WFN/1").and_return(uri)
+      expect(http).to receive(:get).with(
+        request_uri,
+        { "Accept"=>"application/json",
+          "Authorization"=>"Bearer a-token-value",
+        }).and_return(response)
+    end
+
+    it "should find or create job titles" do
+      expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"job-titles","listItems":[{"valueDescription":"AASFE - Administrative Assistant","codeValue":"AASFE","longName":"Administrative Assistant"},{"valueDescription":"ACCNASST - Accounting Assistant","codeValue":"ACCNASST","shortName":"Accounting Assistant"},{"valueDescription":"ACCPAYSU - Accounts Payable Supervisor","codeValue":"ACCPAYSU","longName":"Accounts Payable Supervisor"}]}]}')
+
+      adp = AdpService.new
+      adp.token = "a-token-value"
+
+      expect{
+        adp.populate_job_titles
+      }.to change{JobTitle.count}.from(1).to(3)
+    end
+
+    it "should update changes in existing job titles" do
+      expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"job-titles","listItems":[{"valueDescription":"AASFE - Administrative Assistant","codeValue":"AASFE","longName":"Administrative Assistant"},{"valueDescription":"ACCNASST - Accounting Assistant","codeValue":"ACCNASST","shortName":"New Accounting Assistant"},{"valueDescription":"ACCPAYSU - Accounts Payable Supervisor","codeValue":"ACCPAYSU","longName":"Accounts Payable Supervisor"}]}]}')
+
+      adp = AdpService.new
+      adp.token = "a-token-value"
+
+      expect{
+        adp.populate_job_titles
+      }.to change{JobTitle.find_by(code: "ACCNASST").name}.from("Accounting Assistant").to("New Accounting Assistant")
+    end
+
+    it "should assign status dependent on presence in response body" do
+      inactive = FactoryGirl.create(:job_title, code: "ACCPAYSU", name: "Accounts Payable Supervisor", status: "Active")
+
+      expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"job-titles","listItems":[{"valueDescription":"AASFE - Administrative Assistant","codeValue":"AASFE","longName":"Administrative Assistant"},{"valueDescription":"ACCNASST - Accounting Assistant","codeValue":"ACCNASST","shortName":"New Accounting Assistant"}]}]}')
+
+      adp = AdpService.new
+      adp.token = "a-token-value"
+
+      expect{
+        adp.populate_job_titles
+      }.to change{JobTitle.find_by(code: "ACCPAYSU").status}.from("Active").to("Inactive")
+      expect(JobTitle.find_by(code: "AASFE").status).to eq("Active")
+      expect(JobTitle.find_by(code: "ACCNASST").status).to eq("Active")
+    end
+  end
 end

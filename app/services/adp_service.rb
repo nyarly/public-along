@@ -18,6 +18,23 @@ class AdpService
     end
   end
 
+  def populate_locations
+    str = get_json_str("https://api.adp.com/codelists/hr/v3/worker-management/locations/WFN/1")
+    json = JSON.parse(str)
+    puts JSON.pretty_generate(json)
+    locs = json["codeLists"].find { |l| l["codeListTitle"] == "locations"}["listItems"]
+    Location.update_all(status: "Inactive")
+    locs.each do |l|
+      code = l["codeValue"]
+      name = l["shortName"].present? ? l["shortName"] : l["longName"]
+      kind = name.include?("Office") ? "Office" : "Remote Location"
+      loc = Location.find_or_create_by(code: code)
+      old_loc_co = Location.find_by(name: loc.name, status: "Inactive").country
+      country = old_loc_co.present? ? old_loc_co : "US"
+      loc.update_attributes({name: name, country: country, kind: kind, status: "Active"})
+    end
+  end
+
   private
 
   def get_bearer_token
@@ -31,8 +48,8 @@ class AdpService
     @http = Net::HTTP.new(@uri.host, @uri.port)
     @http.use_ssl = true
     @http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-    @http.cert = OpenSSL::X509::Certificate.new("#{SECRETS.adp_pem}")
-    @http.key = OpenSSL::PKey::RSA.new("#{SECRETS.adp_key}")
+    @http.cert = OpenSSL::X509::Certificate.new(SECRETS.adp_pem)
+    @http.key = OpenSSL::PKey::RSA.new(SECRETS.adp_key)
   end
 
   def get_json_str(url)

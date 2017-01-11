@@ -16,6 +16,14 @@
     <%= f.text_field :name %>
   </div>
   <div class="field">
+    <%= f.label :code %><br>
+    <%= f.text_field :code %>
+  </div>
+  <div class="field">
+    <%= f.label :status %><br>
+    <%= f.select :status, Location::STATUS %>
+  </div>
+  <div class="field">
     <%= f.label "Type" %><br>
     <%= f.select :kind, Location::KINDS %>
   </div>

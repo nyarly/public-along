@@ -233,7 +233,7 @@ describe Employee, type: :model do
     it "should calculate an onboarding due date according to location" do
       emp_1 = FactoryGirl.create(:employee,
         hire_date: Date.new(2016, 7, 25, 2),
-        location: Location.find_by_name("San Francisco Office")
+        location: Location.find_by_name("San Francisco Headquarters")
       )
 
       emp_2 = FactoryGirl.create(:employee,
