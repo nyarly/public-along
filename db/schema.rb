@@ -141,6 +141,7 @@ ActiveRecord::Schema.define(version: 20170111023308) do
     t.datetime "updated_at", null: false
     t.string   "status"
     t.string   "code"
+    t.string   "timezone"
   end
 
   create_table "machine_bundles", force: :cascade do |t|

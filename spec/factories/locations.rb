@@ -5,5 +5,6 @@ FactoryGirl.define do
     status "Active"
     kind "Office"
     country "US"
+    timezone "(GMT-08:00) Pacific Time (US & Canada), Tijuana"
   end
 end
