@@ -19,6 +19,10 @@
     <%= f.label :code %><br>
     <%= f.text_field :code %>
   </div>
+  <div class="field">
+    <%= f.label :parent_org_id %><br>
+    <%= f.collection_select :parent_org_id, ParentOrg.all, :id, :name, :include_blank => true %>
+  </div>
   <div class="actions">
     <%= link_to 'Back to List', departments_path, :class => "button secondary" %>
     <%= f.submit "Submit", :class => "button" %>

@@ -7,6 +7,7 @@ class Department < ActiveRecord::Base
             uniqueness: true,
             case_sensitive: false
 
+  belongs_to :parent_org
   has_many :employees
   has_many :dept_sec_profs, dependent: :destroy
   has_many :security_profiles, through: :dept_sec_profs

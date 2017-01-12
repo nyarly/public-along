@@ -110,7 +110,7 @@ describe AdpService, type: :service do
       }.to change{Location.count}.from(0).to(5)
     end
 
-    it "should update changes in existing job titles" do
+    it "should update changes in existing locations" do
       existing = FactoryGirl.create(:location, code: "AB", name: "Alberta", status: "Active", country: "CA", kind: "Remote Location", timezone: "(GMT-07:00) Mountain Time (US & Canada)")
       expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"locations","listItems":[{"valueDescription":"AB - Alberta", "codeValue":"AB", "shortName":"New Alberta"}, {"valueDescription":"AZ - Arizona", "codeValue":"AZ", "shortName":"Arizona"}, {"valueDescription":"BC - British Columbia", "codeValue":"BC", "shortName":"British Columbia"}, {"valueDescription":"BER - Berlin", "codeValue":"BER", "shortName":"Berlin"}, {"valueDescription":"BM - Birmingham", "codeValue":"BM", "shortName":"Birmingham"}]}]}')
 
@@ -141,6 +141,42 @@ describe AdpService, type: :service do
       }.to change{Location.find_by(code: "CHA").status}.from("Active").to("Inactive")
       expect(Location.find_by(code: "AB").status).to eq("Active")
       expect(Location.find_by(code: "AZ").status).to eq("Active")
+    end
+  end
+
+  describe "populate departments table" do
+
+    before :each do
+      Department.destroy_all
+      expect(URI).to receive(:parse).with("https://api.adp.com/codelists/hr/v3/worker-management/departments/WFN/1").and_return(uri)
+      expect(http).to receive(:get).with(
+        request_uri,
+        { "Accept"=>"application/json",
+          "Authorization"=>"Bearer a-token-value",
+        }).and_return(response)
+    end
+
+    it "should find or create departments" do
+      expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"departments","listItems":[{"valueDescription":"010000 - Facilities", "foreignKey":"WP8", "codeValue":"010000", "shortName":"Facilities"},{"valueDescription":"011000 - People & Culture-HR & Total Rewards", "foreignKey":"WP8", "codeValue":"011000", "longName":"People & Culture-HR & Total Rewards"},{"valueDescription":"012000 - Legal", "foreignKey":"WP8", "codeValue":"012000", "shortName":"Legal"},{"valueDescription":"013000 - Finance", "foreignKey":"WP8", "codeValue":"013000", "shortName":"Finance"},{"valueDescription":"014000 - Risk Management", "foreignKey":"WP8", "codeValue":"014000", "shortName":"Risk Management"}]}]}')
+
+      adp = AdpService.new
+      adp.token = "a-token-value"
+
+      expect{
+        adp.populate_departments
+      }.to change{Department.count}.from(0).to(5)
+    end
+
+    it "should update changes in existing departments" do
+      existing = FactoryGirl.create(:department, code: "010000", name: "Facilities")
+      expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"departments","listItems":[{"valueDescription":"010000 - Facilities", "foreignKey":"WP8", "codeValue":"010000", "shortName":"New Facilities"},{"valueDescription":"011000 - People & Culture-HR & Total Rewards", "foreignKey":"WP8", "codeValue":"011000", "longName":"People & Culture-HR & Total Rewards"},{"valueDescription":"012000 - Legal", "foreignKey":"WP8", "codeValue":"012000", "shortName":"Legal"},{"valueDescription":"013000 - Finance", "foreignKey":"WP8", "codeValue":"013000", "shortName":"Finance"},{"valueDescription":"014000 - Risk Management", "foreignKey":"WP8", "codeValue":"014000", "shortName":"Risk Management"}]}]}')
+
+      adp = AdpService.new
+      adp.token = "a-token-value"
+
+      expect{
+        adp.populate_departments
+      }.to change{Department.find_by(code: "010000").name}.from("Facilities").to("New Facilities")
     end
   end
 end

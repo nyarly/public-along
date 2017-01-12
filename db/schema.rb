@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170111023308) do
+ActiveRecord::Schema.define(version: 20170112011420) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -37,8 +37,9 @@ ActiveRecord::Schema.define(version: 20170111023308) do
   create_table "departments", force: :cascade do |t|
     t.string   "name"
     t.string   "code"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+    t.integer  "parent_org_id"
   end
 
   create_table "dept_mach_bundles", force: :cascade do |t|
@@ -171,6 +172,13 @@ ActiveRecord::Schema.define(version: 20170111023308) do
     t.boolean  "cw_google_membership"
     t.datetime "created_at",           null: false
     t.datetime "updated_at",           null: false
+  end
+
+  create_table "parent_orgs", force: :cascade do |t|
+    t.string   "name"
+    t.string   "code"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "sec_prof_access_levels", force: :cascade do |t|
