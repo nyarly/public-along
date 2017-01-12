@@ -36,6 +36,19 @@ class AdpService
     #TODO (Netops-763) gather all new locations and send email to P&C notifying them that these location attributes need to be assigned.
   end
 
+  def populate_departments
+    str = get_json_str("https://api.adp.com/codelists/hr/v3/worker-management/departments/WFN/1")
+    json = JSON.parse(str)
+    depts = json["codeLists"].find { |d| d["codeListTitle"] == "departments"}["listItems"]
+    depts.each do |d|
+      code = d["codeValue"]
+      name = d["shortName"].present? ? d["shortName"] : d["longName"]
+      dept = Department.find_or_create_by(code: code)
+      dept.update_attributes({name: name})
+    end
+    #TODO (Netops-763) gather all depts without parent orgs and send email to P&C notifying them that these attributes need to be assigned.
+  end
+
   private
 
   def get_bearer_token

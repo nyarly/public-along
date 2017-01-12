@@ -41,6 +41,14 @@
               <% end %>
             </li>
           <% end %>
+          <% if can? :read, ParentOrg %>
+            <li>
+              <%= link_to "Parent Orgs", parent_orgs_path %>
+              <ul class="menu vertical">
+                <li><%= link_to "New Parent Org", new_parent_org_path %></li>
+              </ul>
+            </li>
+          <% end %>
           <% if can? :read, Location %>
             <li>
               <%= link_to "Locations", locations_path %>
