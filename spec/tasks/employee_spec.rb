@@ -4,7 +4,7 @@ require 'rake'
 describe "employee rake tasks", type: :tasks do
 
   let!(:london) { Location.find_by(:name => "London Office") }
-  let!(:sf) { Location.find_by(:name => "San Francisco Office") }
+  let!(:sf) { Location.find_by(:name => "San Francisco Headquarters") }
   let!(:la) { Location.find_by(:name => "Los Angeles Office") }
   let!(:mumbai) { Location.find_by(:name => "Mumbai Office") }
   let!(:melbourne) { Location.find_by(:name => "Melbourne Office") }
