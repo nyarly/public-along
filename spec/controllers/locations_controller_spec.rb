@@ -27,7 +27,9 @@ RSpec.describe LocationsController, type: :controller do
     {
       name: "OT Valid Name",
       kind: "Remote Location",
-      country: "AU"
+      country: "AU",
+      code: "AUOT",
+      status: "Active"
     }
   }
 

@@ -18,6 +18,24 @@ class AdpService
     end
   end
 
+  def populate_locations
+    str = get_json_str("https://api.adp.com/codelists/hr/v3/worker-management/locations/WFN/1")
+    json = JSON.parse(str)
+    locs = json["codeLists"].find { |l| l["codeListTitle"] == "locations"}["listItems"]
+    Location.update_all(status: "Inactive")
+    locs.each do |l|
+      code = l["codeValue"]
+      name = l["shortName"].present? ? l["shortName"] : l["longName"]
+      loc = Location.find_by(code: code)
+      if loc.present?
+        loc.update_attributes({name: name, status: "Active"})
+      else
+        Location.create({code: code, name: name, status: "Active", country: "Pending Assignment", kind: "Pending Assignment", timezone: "Pending Assignment"})
+      end
+    end
+    #TODO (Netops-763) gather all new locations and send email to P&C notifying them that these location attributes need to be assigned.
+  end
+
   private
 
   def get_bearer_token
@@ -31,8 +49,8 @@ class AdpService
     @http = Net::HTTP.new(@uri.host, @uri.port)
     @http.use_ssl = true
     @http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-    @http.cert = OpenSSL::X509::Certificate.new("#{SECRETS.adp_pem}")
-    @http.key = OpenSSL::PKey::RSA.new("#{SECRETS.adp_key}")
+    @http.cert = OpenSSL::X509::Certificate.new(SECRETS.adp_pem)
+    @http.key = OpenSSL::PKey::RSA.new(SECRETS.adp_key)
   end
 
   def get_json_str(url)

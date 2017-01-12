@@ -16,12 +16,24 @@
     <%= f.text_field :name %>
   </div>
   <div class="field">
+    <%= f.label :code %><br>
+    <%= f.text_field :code %>
+  </div>
+  <div class="field">
+    <%= f.label :status %><br>
+    <%= f.select :status, Location::STATUS %>
+  </div>
+  <div class="field">
     <%= f.label "Type" %><br>
     <%= f.select :kind, Location::KINDS %>
   </div>
   <div class="field">
     <%= f.label :country %><br>
     <%= f.select :country, Location::COUNTRIES %>
+  </div>
+  <div class="field">
+    <%= f.label :timezone %><br>
+    <%= f.select :timezone, Location::TIMEZONES %>
   </div>
   <div class="actions">
     <%= link_to 'Back to List', locations_path, :class => "button secondary" %>

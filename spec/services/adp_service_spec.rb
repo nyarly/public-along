@@ -86,4 +86,61 @@ describe AdpService, type: :service do
       expect(JobTitle.find_by(code: "ACCNASST").status).to eq("Active")
     end
   end
+
+  describe "populate locations table" do
+
+    before :each do
+      Location.destroy_all
+      expect(URI).to receive(:parse).with("https://api.adp.com/codelists/hr/v3/worker-management/locations/WFN/1").and_return(uri)
+      expect(http).to receive(:get).with(
+        request_uri,
+        { "Accept"=>"application/json",
+          "Authorization"=>"Bearer a-token-value",
+        }).and_return(response)
+    end
+
+    it "should find or create locations" do
+      expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"locations","listItems":[{"valueDescription":"AB - Alberta", "codeValue":"AB", "shortName":"Alberta"}, {"valueDescription":"AZ - Arizona", "codeValue":"AZ", "shortName":"Arizona"}, {"valueDescription":"BC - British Columbia", "codeValue":"BC", "shortName":"British Columbia"}, {"valueDescription":"BER - Berlin", "codeValue":"BER", "shortName":"Berlin"}, {"valueDescription":"BM - Birmingham", "codeValue":"BM", "shortName":"Birmingham"}]}]}')
+
+      adp = AdpService.new
+      adp.token = "a-token-value"
+
+      expect{
+        adp.populate_locations
+      }.to change{Location.count}.from(0).to(5)
+    end
+
+    it "should update changes in existing job titles" do
+      existing = FactoryGirl.create(:location, code: "AB", name: "Alberta", status: "Active", country: "CA", kind: "Remote Location", timezone: "(GMT-07:00) Mountain Time (US & Canada)")
+      expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"locations","listItems":[{"valueDescription":"AB - Alberta", "codeValue":"AB", "shortName":"New Alberta"}, {"valueDescription":"AZ - Arizona", "codeValue":"AZ", "shortName":"Arizona"}, {"valueDescription":"BC - British Columbia", "codeValue":"BC", "shortName":"British Columbia"}, {"valueDescription":"BER - Berlin", "codeValue":"BER", "shortName":"Berlin"}, {"valueDescription":"BM - Birmingham", "codeValue":"BM", "shortName":"Birmingham"}]}]}')
+
+      adp = AdpService.new
+      adp.token = "a-token-value"
+
+      expect{
+        adp.populate_locations
+      }.to change{Location.find_by(code: "AB").name}.from("Alberta").to("New Alberta")
+      expect(Location.find_by(code: "AB").country).to eq("CA")
+      expect(Location.find_by(code: "AB").kind).to eq("Remote Location")
+      expect(Location.find_by(code: "AB").timezone).to eq("(GMT-07:00) Mountain Time (US & Canada)")
+      expect(Location.find_by(code: "AZ").country).to eq("Pending Assignment")
+      expect(Location.find_by(code: "AZ").kind).to eq("Pending Assignment")
+      expect(Location.find_by(code: "AZ").timezone).to eq("Pending Assignment")
+    end
+
+    it "should assign status dependent on presence in response body" do
+      inactive = FactoryGirl.create(:location, code: "CHA", name: "Chattanooga", status: "Active")
+
+      expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"locations","listItems":[{"valueDescription":"AB - Alberta", "codeValue":"AB", "shortName":"New Alberta"}, {"valueDescription":"AZ - Arizona", "codeValue":"AZ", "shortName":"Arizona"}, {"valueDescription":"BC - British Columbia", "codeValue":"BC", "shortName":"British Columbia"}, {"valueDescription":"BER - Berlin", "codeValue":"BER", "shortName":"Berlin"}, {"valueDescription":"BM - Birmingham", "codeValue":"BM", "shortName":"Birmingham"}]}]}')
+
+      adp = AdpService.new
+      adp.token = "a-token-value"
+
+      expect{
+        adp.populate_locations
+      }.to change{Location.find_by(code: "CHA").status}.from("Active").to("Inactive")
+      expect(Location.find_by(code: "AB").status).to eq("Active")
+      expect(Location.find_by(code: "AZ").status).to eq("Active")
+    end
+  end
 end

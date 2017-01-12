@@ -151,7 +151,7 @@ describe ActiveDirectoryService, type: :service do
       :manager_id => manager.employee_id,
       :sam_account_name => "jlebowski",
       :department_id => Department.find_by(:name => "People & Culture").id ,
-      :location_id => Location.find_by(:name => "San Francisco Office").id
+      :location_id => Location.find_by(:name => "San Francisco Headquarters").id
     )}
 
     before :each do
