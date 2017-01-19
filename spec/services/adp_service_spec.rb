@@ -179,4 +179,21 @@ describe AdpService, type: :service do
       }.to change{Department.find_by(code: "010000").name}.from("Facilities").to("New Facilities")
     end
   end
+
+  describe "populate employees table" do
+
+    before :each do
+      Employee.destroy_all
+      expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers?count=true").and_return(uri)
+      expect(http).to receive(:get).with(
+        request_uri,
+        { "Accept"=>"application/json",
+          "Authorization"=>"Bearer a-token-value",
+        }).and_return(response)
+    end
+
+    it "should find a worker count" do
+
+    end
+  end
 end
