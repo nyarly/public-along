@@ -10,9 +10,9 @@ class Employee < ActiveRecord::Base
             presence: true
   validates :hire_date,
             presence: true
-  validates :department_id,
+  validates :department_id, #this validation breaks for some terminated workers from ADP
             presence: true
-  validates :location_id,
+  validates :location_id, #this validation breaks for some terminated workers from ADP
             presence: true
   validates :email,
             allow_nil: true,

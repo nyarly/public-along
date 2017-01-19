@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170118005328) do
+ActiveRecord::Schema.define(version: 20170119035936) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -40,6 +40,7 @@ ActiveRecord::Schema.define(version: 20170118005328) do
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
     t.integer  "parent_org_id"
+    t.string   "status"
   end
 
   create_table "dept_mach_bundles", force: :cascade do |t|
@@ -126,6 +127,7 @@ ActiveRecord::Schema.define(version: 20170118005328) do
     t.string   "sam_account_name"
     t.string   "company"
     t.string   "status"
+    t.string   "adp_assoc_oid"
   end
 
   create_table "job_titles", force: :cascade do |t|
@@ -138,13 +140,13 @@ ActiveRecord::Schema.define(version: 20170118005328) do
 
   create_table "locations", force: :cascade do |t|
     t.string   "name"
-    t.string   "kind"
-    t.string   "country"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.string   "kind",       default: "Pending Assignment"
+    t.string   "country",    default: "Pending Assignment"
+    t.datetime "created_at",                                null: false
+    t.datetime "updated_at",                                null: false
     t.string   "status"
     t.string   "code"
-    t.string   "timezone"
+    t.string   "timezone",   default: "Pending Assignment"
   end
 
   create_table "machine_bundles", force: :cascade do |t|

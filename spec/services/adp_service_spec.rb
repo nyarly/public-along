@@ -178,6 +178,21 @@ describe AdpService, type: :service do
         adp.populate_departments
       }.to change{Department.find_by(code: "010000").name}.from("Facilities").to("New Facilities")
     end
+
+    it "should assign status dependent on presence in response body" do
+      inactive = FactoryGirl.create(:department, code:"014000", name:"Risk Management", status: "Active")
+
+      expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"departments","listItems":[{"valueDescription":"010000 - Facilities", "foreignKey":"WP8", "codeValue":"010000", "shortName":"New Facilities"},{"valueDescription":"011000 - People & Culture-HR & Total Rewards", "foreignKey":"WP8", "codeValue":"011000", "longName":"People & Culture-HR & Total Rewards"},{"valueDescription":"012000 - Legal", "foreignKey":"WP8", "codeValue":"012000", "shortName":"Legal"},{"valueDescription":"013000 - Finance", "foreignKey":"WP8", "codeValue":"013000", "shortName":"Finance"}]}]}')
+
+      adp = AdpService.new
+      adp.token = "a-token-value"
+
+      expect{
+        adp.populate_departments
+      }.to change{Department.find_by(code: "014000").status}.from("Active").to("Inactive")
+      expect(Department.find_by(code: "010000").status).to eq("Active")
+      expect(Department.find_by(code: "011000").status).to eq("Active")
+    end
   end
 
   describe "populate employees table" do
