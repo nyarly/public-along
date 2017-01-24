@@ -1,8 +1,6 @@
 class Department < ActiveRecord::Base
   validates :name,
-            presence: true,
-            uniqueness: true,
-            case_sensitive: false
+            presence: true
   validates :code,
             uniqueness: true,
             case_sensitive: false

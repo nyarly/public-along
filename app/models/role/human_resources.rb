@@ -8,5 +8,6 @@ class Role::HumanResources < Role
     ability.can :manage, Department
     ability.can :manage, Location
     ability.can :manage, ParentOrg
+    ability.can :manage, WorkerType
   end
 end
