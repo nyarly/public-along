@@ -214,9 +214,9 @@ class AdpService
   def del_event(num)
     set_http("https://#{@domain}api.adp.com/core/v1/event-notification-messages#{num}")
     puts @uri.request_uri
-    # res = @http.delete(@uri.request_uri, {'Authorization' => "Bearer #{@token}"})
-    req = Net::HTTP::Delete.new(@uri.request_uri, {'Authorization' => "Bearer #{@token}"})
-    res = @http.request(req)
+    res = @http.delete(@uri.request_uri, {'Authorization' => "Bearer #{@token}"})
+    # req = Net::HTTP::Delete.new(@uri.request_uri, {'Authorization' => "Bearer #{@token}"})
+    # res = @http.request(req)
     puts res: res
   end
 
