@@ -15,17 +15,10 @@ class EmpTransactionsController < ApplicationController
   def show
     authorize! :show, EmpTransaction
 
-    case @emp_transaction.kind
-    when "Onboarding"
-      emp_id = @emp_transaction.onboarding_infos.first.employee_id
+    emp_id = params[:emp_id]
+
+    if @emp_transaction.kind == "Onboarding"
       buddy_id = @emp_transaction.onboarding_infos.first.buddy_id
-    when "Offboarding"
-      emp_id = @emp_transaction.offboarding_infos.first.employee_id
-    when "Equipment"
-      emp_id = @emp_transaction.emp_mach_bundles.first.employee_id
-    when "Security Access"
-      emp_id = @emp_transaction.emp_sec_profiles.first.employee_id unless @emp_transaction.emp_sec_profiles.blank?
-      emp_id = @emp_transaction.revoked_emp_sec_profiles.first.employee_id if emp_id.blank?
     end
 
     mgr_id = @emp_transaction.user_id
@@ -65,7 +58,7 @@ class EmpTransactionsController < ApplicationController
     respond_to do |format|
       if @manager_entry.save
         TechTableMailer.permissions(@emp_transaction, @employee).deliver_now
-        format.html { redirect_to @emp_transaction, notice: 'Success! TechTable will be notified with the details of your request.' }
+        format.html { redirect_to emp_transaction_path(@emp_transaction, emp_id: @employee.id), notice: 'Success! TechTable will be notified with the details of your request.' }
         format.json { render :show, status: :created, location: @emp_transaction }
       else
         format.html { redirect_to new_emp_transaction_path(manager_entry_params) }

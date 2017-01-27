@@ -89,8 +89,8 @@ Machine Bundle:
     City: <%= @employee.home_city if @employee.home_city.present? %>
     State: <%= @employee.home_state if @employee.home_state.present? %>
     Zip: <%= @employee.home_zip if @employee.home_zip.present? %>
-    Personal Mobile: <%= @employee.personal_mobile_phone if @employee.personal_mobile_phone.present? %>
 <% end %>
+  Personal Mobile: <%= @employee.personal_mobile_phone if @employee.personal_mobile_phone.present? %>
 <% end %>
 
 <% if @emp_transaction.kind == "Offboarding" %>

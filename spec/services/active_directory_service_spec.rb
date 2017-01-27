@@ -150,7 +150,7 @@ describe ActiveDirectoryService, type: :service do
       :last_name => "Lebowski",
       :manager_id => manager.employee_id,
       :sam_account_name => "jlebowski",
-      :department_id => Department.find_by(:name => "People & Culture").id ,
+      :department_id => Department.find_by(:name => "People & Culture-HR & Total Rewards").id ,
       :location_id => Location.find_by(:name => "San Francisco Headquarters").id
     )}
 
