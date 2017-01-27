@@ -14,5 +14,6 @@ class Role::Admin < Role
     ability.can :manage, EmpTransaction
     ability.can :manage, EmpSecProfile
     ability.can :manage, ParentOrg
+    ability.can :manage, WorkerType
   end
 end

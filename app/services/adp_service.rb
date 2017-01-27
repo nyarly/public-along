@@ -52,6 +52,24 @@ class AdpService
     #TODO (Netops-763) gather all depts without parent orgs and send email to P&C notifying them that these attributes need to be assigned.
   end
 
+  def populate_worker_types
+    str = get_json_str("https://#{@domain}api.adp.com/hr/v2/workers/meta")
+    json = JSON.parse(str)
+    w_types = json["meta"]["/workers/workAssignments/workerTypeCode"]["codeList"]["listItems"]
+    WorkerType.update_all(status: "Inactive")
+    w_types.each do |wt|
+      code = wt["codeValue"]
+      name = wt["shortName"].present? ? wt["shortName"] : wt["longName"]
+      w_type = WorkerType.find_by(code: code)
+      if w_type.present?
+        w_type.update_attributes({name: name, status: "Active"})
+      else
+        WorkerType.create({code: code, name: name, status: "Active", kind: "Pending Assignment"})
+      end
+    end
+    #TODO (Netops-763) gather all worker types without :kind attr and send email to P&C notifying them that these attributes need to be assigned.
+  end
+
   def populate_workers
     # str = get_json_str("https://#{@domain}api.adp.com/hr/v2/workers?count=true")
     # str = get_json_str("https://#{@domain}api.adp.com/hr/v2/workers?$top=1&$skip=1807")

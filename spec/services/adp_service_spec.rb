@@ -211,4 +211,55 @@ describe AdpService, type: :service do
 
     end
   end
+
+  describe "populate worker types table" do
+
+    before :each do
+      WorkerType.destroy_all
+      expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers/meta").and_return(uri)
+      expect(http).to receive(:get).with(
+        request_uri,
+        { "Accept"=>"application/json",
+          "Authorization"=>"Bearer a-token-value",
+        }).and_return(response)
+    end
+
+    it "should find or create worker types" do
+      expect(response).to receive(:body).and_return('{"meta":{"/workers/workAssignments/workerTypeCode":{"codeList":{"listItems":[{"codeValue":"", "shortName":""}, {"codeValue":"ACW", "shortName":"Agency Worker"}, {"codeValue":"CONT", "shortName":"Contractor"}, {"codeValue":"CT3P", "longName":"Contractor - 3rd Party"}, {"codeValue":"F", "shortName":"Full Time"}, {"codeValue":"FTC", "shortName":"Contractor Full-Time"}, {"codeValue":"FTF", "shortName":"Fixed Term Full Time"}, {"codeValue":"FTR", "shortName":"Regular Full-Time"}, {"codeValue":"FTT", "shortName":"Temporary Full-Time"}, {"codeValue":"OLFR", "shortName":"Regular Full-Time"}]}, "readOnly":true, "optional":true, "hidden":false, "shortLabelName":"Worker Category"}}}')
+
+      adp = AdpService.new
+      adp.token = "a-token-value"
+
+      expect{
+        adp.populate_worker_types
+      }.to change{WorkerType.count}.from(0).to(9)
+    end
+
+    it "should update changes in existing worker types" do
+      existing = FactoryGirl.create(:worker_type, code: "ACW", name: "Agency Worker")
+      expect(response).to receive(:body).and_return('{"meta":{"/workers/workAssignments/workerTypeCode":{"codeList":{"listItems":[{"codeValue":"", "shortName":""}, {"codeValue":"ACW", "shortName":"New Agency Worker"}, {"codeValue":"CONT", "shortName":"Contractor"}, {"codeValue":"CT3P", "longName":"Contractor - 3rd Party"}, {"codeValue":"F", "shortName":"Full Time"}, {"codeValue":"FTC", "shortName":"Contractor Full-Time"}, {"codeValue":"FTF", "shortName":"Fixed Term Full Time"}, {"codeValue":"FTR", "shortName":"Regular Full-Time"}, {"codeValue":"FTT", "shortName":"Temporary Full-Time"}, {"codeValue":"OLFR", "shortName":"Regular Full-Time"}]}, "readOnly":true, "optional":true, "hidden":false, "shortLabelName":"Worker Category"}}}')
+
+      adp = AdpService.new
+      adp.token = "a-token-value"
+
+      expect{
+        adp.populate_worker_types
+      }.to change{WorkerType.find_by(code: "ACW").name}.from("Agency Worker").to("New Agency Worker")
+    end
+
+    it "should assign status dependent on presence in response body" do
+      inactive = FactoryGirl.create(:worker_type, code: "SRP", name: "SRP Worker", status: "Active")
+
+      expect(response).to receive(:body).and_return('{"meta":{"/workers/workAssignments/workerTypeCode":{"codeList":{"listItems":[{"codeValue":"", "shortName":""}, {"codeValue":"ACW", "shortName":"Agency Worker"}, {"codeValue":"CONT", "shortName":"Contractor"}, {"codeValue":"CT3P", "longName":"Contractor - 3rd Party"}, {"codeValue":"F", "shortName":"Full Time"}, {"codeValue":"FTC", "shortName":"Contractor Full-Time"}, {"codeValue":"FTF", "shortName":"Fixed Term Full Time"}, {"codeValue":"FTR", "shortName":"Regular Full-Time"}, {"codeValue":"FTT", "shortName":"Temporary Full-Time"}, {"codeValue":"OLFR", "shortName":"Regular Full-Time"}]}, "readOnly":true, "optional":true, "hidden":false, "shortLabelName":"Worker Category"}}}')
+
+      adp = AdpService.new
+      adp.token = "a-token-value"
+
+      expect{
+        adp.populate_worker_types
+      }.to change{WorkerType.find_by(code: "SRP").status}.from("Active").to("Inactive")
+      expect(WorkerType.find_by(code: "CONT").status).to eq("Active")
+      expect(WorkerType.find_by(code: "F").status).to eq("Active")
+    end
+  end
 end

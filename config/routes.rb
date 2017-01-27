@@ -1,6 +1,7 @@
 require 'sidekiq/web'
 
 Rails.application.routes.draw do
+  resources :worker_types
   resources :parent_orgs
   resources :emp_transactions, :except => [:edit, :update, :destroy]
   resources :access_levels
