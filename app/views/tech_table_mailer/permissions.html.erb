@@ -155,10 +155,13 @@
       <p style="margin-left: 2em">
         Zip: <%= @employee.home_zip if @employee.home_zip.present? %>
       </p>
-      <p style="margin-left: 2em">
-        Personal Mobile: <%= @employee.personal_mobile_phone if @employee.personal_mobile_phone.present? %>
-      </p>
     <% end %>
+    <% if @employee.personal_mobile_phone.present? %>
+      <p>
+        <strong>Personal Mobile:</strong>
+        <%= @employee.personal_mobile_phone %>
+      </p>
+      <% end %>
   <% end %>
 
   <% if @emp_transaction.kind == "Offboarding" %>
