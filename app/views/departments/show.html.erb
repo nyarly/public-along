@@ -17,13 +17,18 @@
   <strong>Security Profiles:</strong>
   <% @department.security_profiles.each do |sp| %>
     <br><%= sp.name %>
+    <ul>
+      <% sp.access_levels.find_each do |al| %>
+        <li class="indent-1"><small><%= al.name %> <%= al.application.name %></small></li>
+      <% end %>
+    </ul>
   <% end %>
 </p>
 
 <p>
   <strong>Machine Bundles:</strong>
-  <% @department.machine_bundles.each do |sp| %>
-    <br><%= sp.name %>
+  <% @department.machine_bundles.each do |mb| %>
+    <br><%= mb.name %>
   <% end %>
 </p>
 
