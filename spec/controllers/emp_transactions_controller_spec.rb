@@ -96,7 +96,7 @@ RSpec.describe EmpTransactionsController, type: :controller do
       it "redirects to the created emp_transaction" do
         allow(TechTableMailer).to receive_message_chain(:permissions, :deliver_now)
         post :create, {:manager_entry => valid_attributes}
-        expect(response).to redirect_to(EmpTransaction.last)
+        expect(response).to redirect_to( emp_transaction_path(EmpTransaction.last, emp_id: employee.id))
       end
 
       it "sends an email to Tech Table" do
