@@ -210,6 +210,12 @@ describe AdpService, type: :service do
     it "should find a worker count" do
 
     end
+
+    it "should create URL pages to call based on count" do
+    end
+
+    it "should call a sidekiq worker to run the URL and related DB updates" do
+    end
   end
 
   describe "populate worker types table" do
