@@ -147,7 +147,7 @@ class Employee < ActiveRecord::Base
 
   def encode_password
     #TODO Replace this with a randomized password that gets sent to the new hire via email/text/???
-    "\"123Opentable\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT)
+    "\"JoeSevenPack#007#\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT)
   end
 
   def manager
