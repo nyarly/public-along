@@ -135,7 +135,7 @@ class AdpService
       contract_end_date: work_assignment["terminationDate"],
       termination_date: work_assignment["terminationDate"],
       business_title: find_job_title_id(work_assignment["jobCode"]), #should change db name to job_title_id
-      employee_type: find_employee_type(work_assignment), #should later look up worker type object
+      employee_type: find_worker_type_id(work_assignment), #should change db name to worker_type_id
       manager_id: find_manager_emp_id(work_assignment),
       department_id: find_dept_id(dept),
       location_id: find_location_id(work_assignment["homeWorkLocation"]),
@@ -158,8 +158,10 @@ class AdpService
     json["nameCode"]["codeValue"] if json
   end
 
-  def find_employee_type(json)
-    json["workerTypeCode"]["shortName"] if json["workerTypeCode"]
+  def find_worker_type_id(json)
+    code = json["workerTypeCode"]["codeValue"] if json["workerTypeCode"]
+    wt = WorkerType.find_by(code: code)
+    wt.id
   end
 
   def find_manager_emp_id(json)
