@@ -317,6 +317,29 @@ describe AdpService, type: :service do
   end
 
   describe "populate_workers" do
+    let!(:employee) { FactoryGirl.create(:employee, employee_id: "101455")}
+    let(:json) { JSON.parse(File.read(Rails.root.to_s+"/spec/fixtures/adp_workers.json")) }
+    let(:sorted) {
+      [{
+        status: "Active",
+        adp_assoc_oid: "G32B8JAXA1W398Z8",
+        first_name: "Sally",
+        last_name: "Allansberg",
+        employee_id: "101455",
+        hire_date: "2013-08-05",
+        contract_end_date: nil,
+        termination_date: nil,
+        company: "OTUS",
+        job_title_id: 1,
+        worker_type_id: 2,
+        manager_id: "101734",
+        department_id: 3,
+        location_id: 4,
+        office_phone: "(212) 555-4411",
+        personal_mobile_phone: "(212) 555-4411"
+      }]
+    }
+
     before :each do
       expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers?$top=25&$skip=25").and_return(uri)
       expect(http).to receive(:get).with(
@@ -326,16 +349,17 @@ describe AdpService, type: :service do
         }).and_return(response)
     end
 
-    it "should call parse json response and call #sort_workers" do
-      expect(response).to receive(:body).and_return('{"some":{"json": "values"}}')
+    it "should call parse json response, call #sort_workers and update employees" do
+      expect(response).to receive(:body).and_return(json)
 
       adp = AdpService.new("prod")
       adp.token = "a-token-value"
 
-      expect(JSON).to receive(:parse).with('{"some":{"json": "values"}}').and_return("json parsed values")
-      expect(adp).to receive(:sort_workers).with("json parsed values")
+      expect(JSON).to receive(:parse).with(json)
+      expect(adp).to receive(:sort_workers).and_return(sorted)
 
       adp.populate_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
+      expect(employee.reload.first_name).to eq("Sally")
     end
   end
 

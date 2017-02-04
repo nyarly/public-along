@@ -78,7 +78,12 @@ class AdpService
 
     json = JSON.parse(str)
 
-    sort_workers(json)
+    workers = sort_workers(json)
+
+    workers.each do |w|
+      e = Employee.find_by(employee_id: w[:employee_id])
+      e.update_attributes(w) if e
+    end
   end
 
   def worker_count
