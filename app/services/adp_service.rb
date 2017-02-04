@@ -71,22 +71,14 @@ class AdpService
   end
 
   def populate_workers(url)
-    workers = []
     begin
     ensure
       str = get_json_str(url)
     end
 
     json = JSON.parse(str)
-    json["workers"].each do |w|
-      status = w["workerStatus"]["statusCode"]["codeValue"]
-      unless status == "Terminated"
-        workers << gen_worker_hash(w)
-      end
-    end
-    puts workers: workers
-    puts count: workers.count
-    return workers
+
+    sort_workers(json)
   end
 
   def worker_count
@@ -116,60 +108,128 @@ class AdpService
     end
   end
 
+  def sort_workers(json)
+    workers = []
+
+    json["workers"].each do |w|
+      status = w["workerStatus"]["statusCode"]["codeValue"]
+      unless status == "Terminated"
+        workers << gen_worker_hash(w)
+      end
+    end
+
+    workers
+  end
+
   def gen_worker_hash(w)
+    status = w["workerStatus"]["statusCode"]["codeValue"]
     adp_assoc_oid = w["associateOID"]
-    first_name = w["person"]["legalName"]["nickName"].present? ? w["person"]["legalName"]["nickName"] : w["person"]["legalName"]["givenName"]
+    first_name = w["person"]["legalName"]["nickName"].present? ? w["person"]["legalName"]["nickName"].split(" ")[0] : w["person"]["legalName"]["givenName"]
     last_name = w["person"]["legalName"]["familyName1"]
     employee_id = w["workerID"]["idValue"]
-    work_assignment = w["workAssignments"].find { |wa| wa["primaryIndicator"] == true}
-    dept = work_assignment["homeOrganizationalUnits"].find { |ou| ou["typeCode"]["codeValue"] == "Department"}
-    biz_unit = work_assignment["homeOrganizationalUnits"].find { |ou| ou["typeCode"]["codeValue"] == "Business Unit"}
-    status = w["workerStatus"]["statusCode"]["codeValue"]
+    personal_mobile_phone = find_mobile(w["person"])
+    office_phone = find_office_phone(w["businessCommunication"])
 
-    {
+    work_assignment = w["workAssignments"].find { |wa| wa["primaryIndicator"] == true}
+
+    hire_date = work_assignment["hireDate"]
+    w_end_date_json = w["customFieldGroup"]["dateFields"].find { |f| f["nameCode"]["codeValue"] == "Worker End Date"}
+    worker_end_date = find_worker_end_date(w_end_date_json)
+    termination_date = work_assignment["terminationDate"]
+
+    biz_unit = work_assignment["homeOrganizationalUnits"].find { |ou| ou["typeCode"]["codeValue"] == "Business Unit"}
+    company = find_biz_unit(biz_unit)
+
+    job_title = find_job_title(work_assignment["jobCode"])
+    worker_type = find_worker_type(work_assignment)
+    manager_id = find_manager_emp_id(work_assignment)
+    location = find_location(work_assignment["homeWorkLocation"])
+
+    dept_str = work_assignment["homeOrganizationalUnits"].find { |ou| ou["typeCode"]["codeValue"] == "Department"}
+    dept = find_dept(dept_str)
+
+    home_address_1 = w["person"]["legalAddress"]["lineOne"]
+    home_address_2 = w["person"]["legalAddress"]["lineTwo"]
+    home_city = w["person"]["legalAddress"]["cityName"]
+    home_state = w["person"]["legalAddress"]["countrySubdivisionLevel1"]["codeValue"]
+    home_zip = w["person"]["legalAddress"]["postalCode"]
+
+
+    worker = {
+      status: status,
       adp_assoc_oid: adp_assoc_oid,
       first_name: first_name,
       last_name: last_name,
       employee_id: employee_id,
-      hire_date: work_assignment["hireDate"],
-      contract_end_date: work_assignment["terminationDate"],
-      termination_date: work_assignment["terminationDate"],
-      business_title: find_job_title_id(work_assignment["jobCode"]), #should change db name to job_title_id
-      employee_type: find_worker_type_id(work_assignment), #should change db name to worker_type_id
-      manager_id: find_manager_emp_id(work_assignment),
-      department_id: find_dept_id(dept),
-      location_id: find_location_id(work_assignment["homeWorkLocation"]),
-      company: find_biz_unit(biz_unit),
-      status: status
-      # personal_mobile_phone: ,
-      # office_phone: ,
-      # home_address_1: ,
-      # home_address_2: ,
-      # home_city: ,
-      # home_state: ,
-      # home_zip: ,
-      # image_code: ,
-      # leave_start_date: ,
-      # leave_return_date: ,
+      hire_date: hire_date,
+      contract_end_date: worker_end_date,
+      termination_date: termination_date,
+      company: company,
+      job_title_id: job_title.id,
+      worker_type_id: worker_type.id,
+      manager_id: manager_id,
+      department_id: dept.id,
+      location_id: location.id,
+      office_phone: office_phone,
+      personal_mobile_phone: personal_mobile_phone,
+      # image_code: , (eventually)
     }
+
+    if location.kind == "Remote Location"
+      contact_info = {
+        home_address_1: home_address_1,
+        home_address_2: home_address_2,
+        home_city: home_city,
+        home_state: home_state,
+        home_zip: home_zip,
+      }
+
+      worker.merge!(contact_info)
+    end
+    worker
+  end
+
+  def find_office_phone(json)
+    unless json == nil
+      if json["mobiles"]
+        num = json["mobiles"][0]["formattedNumber"]
+      elsif json["landlines"]
+        num = json["landlines"][0]["formattedNumber"]
+      else
+        num = nil
+      end
+    end
+    num
+  end
+
+  def find_mobile(json)
+    if json["communication"].present? && json["communication"]["mobiles"].present?
+      num_json = json["communication"]["mobiles"].find { |num| num["nameCode"]["codeValue"] == "Personal Cell"}
+      num = num_json["formattedNumber"] if num_json
+      num
+    end
+  end
+
+  def find_worker_end_date(json)
+    json["dateValue"] if json
   end
 
   def find_biz_unit(json)
     json["nameCode"]["codeValue"] if json
   end
 
-  def find_worker_type_id(json)
-    code = json["workerTypeCode"]["codeValue"] if json["workerTypeCode"]
-    wt = WorkerType.find_by(code: code)
-    wt.id
-  end
-
   def find_manager_emp_id(json)
     json["reportsTo"][0]["workerID"]["idValue"] if json["reportsTo"]
   end
 
+  def find_worker_type(json)
+    code = json["workerTypeCode"]["codeValue"] if json["workerTypeCode"]
+    wt = WorkerType.find_by(code: code)
+    wt
+  end
 
-  def find_job_title_id(json)
+
+  def find_job_title(json)
     if json == nil
       return nil
     else
@@ -179,11 +239,11 @@ class AdpService
         name = json["shortName"].present? ? json["shortName"] : json["longName"]
         jt = JobTitle.create(name: name, code: code, status: "Inactive")
       end
-      jt.id
+      jt
     end
   end
 
-  def find_location_id(json)
+  def find_location(json)
     if json == nil
       return nil
     else
@@ -194,21 +254,21 @@ class AdpService
         name = json["shortName"].present? ? json["shortName"] : json["longName"]
         loc = Location.create({code: code, name: name, status: "Inactive"})
       end
-      loc.id
+      loc
     end
   end
 
-  def find_dept_id(json)
+  def find_dept(json)
     if json["nameCode"] == nil
       return nil
     else
       code = json["nameCode"]["codeValue"]
       dept = Department.find_by(code: code)
       unless dept.present?
-        name = json["shortName"].present? ? json["shortName"] : json["longName"]
+        name = json["nameCode"]["shortName"].present? ? json["nameCode"]["shortName"] : json["nameCode"]["longName"]
         dept = Department.create({code: code, name: name, status: "Inactive"})
       end
-      dept.id
+      dept
     end
   end
 
