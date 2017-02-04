@@ -220,7 +220,6 @@ class Employee < ActiveRecord::Base
       physicalDeliveryOfficeName: location.name,
       department: department.name,
       employeeID: employee_id,
-      mobile: personal_mobile_phone,
       telephoneNumber: office_phone,
       streetAddress: generated_address,
       l: home_city,
