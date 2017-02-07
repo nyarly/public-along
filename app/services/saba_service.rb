@@ -17,9 +17,9 @@ class SabaService
 
       Department.find_each do |dept|
         if dept.parent_org_id.present?
-          parent = ParentOrg.find(dept.parent_org_id).name
+          parent = ParentOrg.find(dept.parent_org_id).code
         else
-          parent = "OpenTable"
+          parent = "OPENTABLE"
         end
 
         csv << [

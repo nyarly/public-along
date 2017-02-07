@@ -16,9 +16,9 @@ describe SabaService, type: :service do
     let(:org_csv) {
       <<-EOS.strip_heredoc
       NAME|SPLIT|PARENT_ORG|NAME2|DEFAULT CURRENCY
-      #{dept1.code}|OpenTable|#{parent_org1.name}|#{dept1.name}|USD
-      #{dept2.code}|OpenTable|#{parent_org2.name}|#{dept2.name}|USD
-      #{dept3.code}|OpenTable|OpenTable|#{dept3.name}|USD
+      #{dept1.code}|OpenTable|#{parent_org1.code}|#{dept1.name}|USD
+      #{dept2.code}|OpenTable|#{parent_org2.code}|#{dept2.name}|USD
+      #{dept3.code}|OpenTable|OPENTABLE|#{dept3.name}|USD
       EOS
     }
 
@@ -26,8 +26,8 @@ describe SabaService, type: :service do
       expect(service.create_org_csv).to eq(org_csv)
     end
 
-    it "should put OpenTable for parent org when a dept has no parent org id" do
-      expect(service.create_org_csv).to eq(org_csv)
+    it "should put OPENTABLE for parent org when a dept has no parent org id" do
+      expect(service.create_org_csv).to include("#{dept3.code}|OpenTable|OPENTABLE|#{dept3.name}|USD")
     end
   end
 
