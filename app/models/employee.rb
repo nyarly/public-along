@@ -10,9 +10,9 @@ class Employee < ActiveRecord::Base
             presence: true
   validates :hire_date,
             presence: true
-  validates :department_id,
+  validates :department_id, #this validation breaks for some terminated workers from ADP
             presence: true
-  validates :location_id,
+  validates :location_id, #this validation breaks for some terminated workers from ADP
             presence: true
   validates :email,
             allow_nil: true,
@@ -220,7 +220,6 @@ class Employee < ActiveRecord::Base
       physicalDeliveryOfficeName: location.name,
       department: department.name,
       employeeID: employee_id,
-      mobile: personal_mobile_phone,
       telephoneNumber: office_phone,
       streetAddress: generated_address,
       l: home_city,

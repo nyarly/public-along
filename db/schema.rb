@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170112011420) do
+ActiveRecord::Schema.define(version: 20170204023615) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -40,6 +40,7 @@ ActiveRecord::Schema.define(version: 20170112011420) do
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
     t.integer  "parent_org_id"
+    t.string   "status"
   end
 
   create_table "dept_mach_bundles", force: :cascade do |t|
@@ -124,6 +125,11 @@ ActiveRecord::Schema.define(version: 20170112011420) do
     t.integer  "department_id"
     t.integer  "location_id"
     t.string   "sam_account_name"
+    t.string   "company"
+    t.string   "status"
+    t.string   "adp_assoc_oid"
+    t.integer  "worker_type_id"
+    t.integer  "job_title_id"
   end
 
   create_table "job_titles", force: :cascade do |t|
@@ -136,13 +142,13 @@ ActiveRecord::Schema.define(version: 20170112011420) do
 
   create_table "locations", force: :cascade do |t|
     t.string   "name"
-    t.string   "kind"
-    t.string   "country"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.string   "kind",       default: "Pending Assignment"
+    t.string   "country",    default: "Pending Assignment"
+    t.datetime "created_at",                                null: false
+    t.datetime "updated_at",                                null: false
     t.string   "status"
     t.string   "code"
-    t.string   "timezone"
+    t.string   "timezone",   default: "Pending Assignment"
   end
 
   create_table "machine_bundles", force: :cascade do |t|
@@ -217,6 +223,15 @@ ActiveRecord::Schema.define(version: 20170112011420) do
 
   add_index "users", ["ldap_user"], name: "index_users_on_ldap_user", unique: true, using: :btree
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
+
+  create_table "worker_types", force: :cascade do |t|
+    t.string   "name"
+    t.string   "code"
+    t.string   "kind",       default: "Pending Assignment"
+    t.string   "status"
+    t.datetime "created_at",                                null: false
+    t.datetime "updated_at",                                null: false
+  end
 
   create_table "xml_transactions", force: :cascade do |t|
     t.string   "name"

@@ -17,7 +17,7 @@ OUS = {
   "ou=Engineering,ou=EU,ou=Users," => { :department => ["Technology/CTO Admin", "Product Engineering - Front End Diner", "Product Engineering - Front End Restaurant", "Product Engineering - Back End", "BizOpti/Internal Systems Engineering", "Data Analytics & Experimentation", "Data Science"], :country => ["GB"] },
   "ou=People and Culture,ou=Users," => { :department => ["People & Culture-HR & Total Rewards", "People & Culture-Talent Acquisition", "Facilities"], :country => ["US", "AU"] },
   "ou=HR,ou=EU,ou=Users," => { :department => ["People & Culture-HR & Total Rewards", "People & Culture-Talent Acquisition", "Facilities"], :country => ["GB"] },
-  "ou=Legal,ou=Users," => { :department => ["Legal", "Risk Management"], :country => ["US"] },
+  "ou=Legal,ou=Users," => { :department => ["Legal", "Risk Management", "Internal Audit"], :country => ["US"] },
   "ou=Product,ou=Users," => { :department => ["Consumer Product Management", "Design", "Restaurant Product Management", "Business Development"], :country => ["US", "GB", "DE", "AU", "IN"] },
   "ou=SRP,ou=Users," => { :department => ["Tier 1 Support - SRP"], :country => ["US", "CA", "MX"] },
   "ou=Apollo Blake,ou=Users," => { :department => ["Tier 1 Support - Apollo Blake"], :country => ["US", "DE", "IE"] },

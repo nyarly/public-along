@@ -1,0 +1,1075 @@
+{
+  "workers": [
+    {
+      "associateOID": "G3NQ59W7QETA080N",
+      "workerID": {
+        "idValue": "100015"
+      },
+      "person": {
+        "legalName": {
+          "nickName": "Sally Jesse",
+          "givenName": "Idina",
+          "familyName1": "Anderson Allan",
+          "formattedName": "Anderson Allan, Idina"
+        },
+        "birthDate": "0000-00-00",
+        "legalAddress": {
+          "nameCode": {
+            "codeValue": "Personal Address 1",
+            "shortName": "Personal Address 1"
+          },
+          "lineOne": "Zeukerstrasse 123",
+          "cityName": "Frankfurt",
+          "countrySubdivisionLevel1": {
+            "subdivisionType": "StateTerritory",
+            "codeValue": "Hessen",
+            "shortName": "Hessen"
+          },
+          "countryCode": "DE",
+          "postalCode": "5384980"
+        },
+        "genderCode": {
+          "codeValue": "F",
+          "shortName": "Female"
+        }
+      },
+      "workerDates": {
+        "originalHireDate": "2010-07-12",
+        "terminationDate": "2012-12-22"
+      },
+      "workerStatus": {
+        "statusCode": {
+          "codeValue": "Terminated"
+        }
+      },
+      "businessCommunication": {
+        "landlines": [
+          {
+            "nameCode": {
+              "codeValue": "Work Phone",
+              "shortName": "Work Phone"
+            },
+            "countryDialing": "1",
+            "areaDialing": "212",
+            "dialNumber": "5554870",
+            "access": "1",
+            "formattedNumber": "(212) 555-4870",
+            "itemID": "HRB:7178:8181743:WP"
+          }
+        ]
+      },
+      "workAssignments": [
+        {
+          "itemID": "HRB:7178:8181743",
+          "primaryIndicator": true,
+          "hireDate": "2010-07-12",
+          "actualStartDate": "2011-06-01",
+          "terminationDate": "2012-12-22",
+          "assignmentStatus": {
+            "statusCode": {
+              "codeValue": "T",
+              "shortName": "Terminated"
+            }
+          },
+          "workerTypeCode": {
+            "codeValue": "TVOL",
+            "shortName": "Voluntary"
+          },
+          "workerGroups": [
+            {
+              "nameCode": {
+                "codeValue": "Benefits Eligibility Class",
+                "longName": "Benefits Eligibility Class"
+              },
+              "groupCode": {
+                "codeValue": "FULLT",
+                "shortName": "Full-time"
+              }
+            }
+          ],
+          "jobCode": {
+            "codeValue": "SROTC",
+            "longName": "Sales Representative, OTC"
+          },
+          "occupationalClassifications": [
+            {
+              "nameCode": {
+                "codeValue": "EEOC",
+                "shortName": "EEOC"
+              },
+              "classificationCode": {
+                "codeValue": "4",
+                "shortName": "Sales Workers"
+              }
+            }
+          ],
+          "wageLawCoverage": {
+            "wageLawNameCode": {
+              "codeValue": "FLSA",
+              "shortName": "FLSA"
+            },
+            "coverageCode": {
+              "codeValue": "E",
+              "shortName": "Exempt"
+            }
+          },
+          "positionID": "HR100015N",
+          "laborUnion": {
+            "laborUnionCode": {
+              "codeValue": "NA",
+              "shortName": "N/A"
+            }
+          },
+          "standardHours": {
+            "hoursQuantity": 40.0,
+            "unitCode": {
+              "codeValue": "1",
+              "shortName": "Weekly"
+            }
+          },
+          "homeOrganizationalUnits": [
+            {
+              "nameCode": {
+                "codeValue": "OTEU",
+                "shortName": "OpenTable Europe"
+              },
+              "typeCode": {
+                "codeValue": "Business Unit",
+                "shortName": "Business Unit"
+              }
+            },
+            {
+              "nameCode": {
+                "codeValue": "020710",
+                "longName": "Sales - General - Germany"
+              },
+              "typeCode": {
+                "codeValue": "Department",
+                "shortName": "Department"
+              }
+            }
+          ],
+          "homeWorkLocation": {
+            "nameCode": {
+              "codeValue": "GERMA",
+              "shortName": "Germany"
+            }
+          },
+          "reportsTo": [
+            {
+              "associateOID": "G3NQ59W7QETA4H6D",
+              "workerID": {
+                "idValue": "100345",
+                "schemeCode": {
+                  "codeValue": "Associate ID",
+                  "shortName": "Associate ID"
+                }
+              },
+              "reportsToWorkerName": {
+                "formattedName": "Thomas Moore"
+              },
+              "positionID": "WP8100345"
+            }
+          ]
+        }
+      ],
+      "customFieldGroup": {
+        "dateFields": [
+          {
+            "itemID": "HRB:7178:EMPDATE:727336",
+            "dateValue": "2010-07-12",
+            "nameCode": {
+              "codeValue": "2011 German Vacation Policy:Priority Date",
+              "longName": "2011 German Vacation Policy:Priority Date"
+            }
+          },
+          {
+            "itemID": "HRB:7178:EMPDATE:2213771",
+            "dateValue": "2010-07-12",
+            "nameCode": {
+              "codeValue": "Germany Sick Leave Plan:Priority Date",
+              "longName": "Germany Sick Leave Plan:Priority Date"
+            }
+          },
+          {
+            "itemID": "HRB:7178:EMPDATE:213389",
+            "dateValue": "2010-06-12",
+            "nameCode": {
+              "codeValue": "2010 German Vacation Plan:Priority Date",
+              "longName": "2010 German Vacation Plan:Priority Date"
+            }
+          },
+          {
+            "itemID": "HRB:7178:EMPDATE:2897721",
+            "dateValue": "2010-07-12",
+            "nameCode": {
+              "codeValue": "2012 Germany Vacation Policy:Priority Date",
+              "longName": "2012 Germany Vacation Policy:Priority Date"
+            }
+          }
+        ],
+        "numberFields": [
+          {
+            "itemID": "HRB:7178:47741",
+            "numberValue": 600,
+            "nameCode": {
+              "codeValue": "New Hire RSU Grant %",
+              "shortName": "New Hire RSU Grant %"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "associateOID": "G32B8JAXA1W35C6P",
+      "workerID": {
+        "idValue": "101298"
+      },
+      "person": {
+        "governmentIDs": [
+          {
+            "itemID": "1715607179_30672",
+            "idValue": "XXX-XX-XXXX",
+            "nameCode": {
+              "codeValue": "SSN",
+              "longName": "Social Security Number"
+            },
+            "countryCode": "US"
+          }
+        ],
+        "legalName": {
+          "givenName": "John",
+          "familyName1": "Roussimoff",
+          "formattedName": "Roussimoff, John"
+        },
+        "birthDate": "0000-00-00",
+        "legalAddress": {
+          "nameCode": {
+            "codeValue": "Personal Address 1",
+            "shortName": "Personal Address 1"
+          },
+          "lineOne": "2890 Beach Blvd",
+          "lineTwo": "Apt 222",
+          "cityName": "Denver",
+          "countrySubdivisionLevel1": {
+            "subdivisionType": "StateTerritory",
+            "codeValue": "CO",
+            "shortName": "Colorado"
+          },
+          "countryCode": "US",
+          "postalCode": "63748"
+        },
+        "communication": {
+          "landlines": [
+            {
+              "nameCode": {
+                "codeValue": "Home Phone",
+                "shortName": "Home Phone"
+              },
+              "countryDialing": "1",
+              "areaDialing": "212",
+              "dialNumber": "5559984",
+              "access": "1",
+              "formattedNumber": "(212) 555-9984",
+              "itemID": "5994989:234:HP"
+            }
+          ],
+          "mobiles": [
+            {
+              "nameCode": {
+                "codeValue": "Personal Cell",
+                "shortName": "Personal Cell"
+              },
+              "countryDialing": "1",
+              "areaDialing": "212",
+              "dialNumber": "5558599",
+              "access": "1",
+              "formattedNumber": "(212) 555-8599",
+              "itemID": "5994989:234:PC"
+            }
+          ]
+        },
+        "genderCode": {
+          "codeValue": "M",
+          "shortName": "Male"
+        },
+        "socialInsurancePrograms": [
+          {
+            "nameCode": {
+              "codeValue": "Medicare",
+              "shortName": "Medicare"
+            },
+            "coveredIndicator": false
+          },
+          {
+            "nameCode": {
+              "codeValue": "Medicaid",
+              "shortName": "Medicaid"
+            },
+            "coveredIndicator": false
+          }
+        ],
+        "tobaccoUserIndicator": false,
+        "raceCode": {
+          "identificationMethodCode": {
+            "codeValue": "SID",
+            "shortName": "Self ID"
+          },
+          "codeValue": "1",
+          "shortName": "White"
+        }
+      },
+      "workerDates": {
+        "originalHireDate": "2016-06-20"
+      },
+      "workerStatus": {
+        "statusCode": {
+          "codeValue": "Inactive"
+        }
+      },
+      "workAssignments": [
+        {
+          "itemID": "1715607179_30672",
+          "primaryIndicator": true,
+          "hireDate": "2016-06-20",
+          "actualStartDate": "2017-01-04",
+          "assignmentStatus": {
+            "statusCode": {
+              "codeValue": "L",
+              "shortName": "Leave"
+            }
+          },
+          "workerTypeCode": {
+            "codeValue": "FTR",
+            "shortName": "Regular Full-Time"
+          },
+          "workerGroups": [
+            {
+              "nameCode": {
+                "codeValue": "Benefits Eligibility Class",
+                "longName": "Benefits Eligibility Class"
+              },
+              "groupCode": {
+                "codeValue": "FULLT",
+                "shortName": "Full-time"
+              }
+            }
+          ],
+          "jobCode": {
+            "codeValue": "SADEN",
+            "shortName": "Sales Associate"
+          },
+          "occupationalClassifications": [
+            {
+              "nameCode": {
+                "codeValue": "EEOC",
+                "shortName": "EEOC"
+              },
+              "classificationCode": {
+                "codeValue": "4",
+                "shortName": "Sales Workers"
+              }
+            }
+          ],
+          "wageLawCoverage": {
+            "wageLawNameCode": {
+              "codeValue": "FLSA",
+              "shortName": "FLSA"
+            },
+            "coverageCode": {
+              "codeValue": "N",
+              "shortName": "Non-Exempt"
+            }
+          },
+          "positionID": "WP8102150",
+          "standardHours": {
+            "hoursQuantity": 40.0,
+            "unitCode": {
+              "codeValue": "1",
+              "shortName": "Weekly"
+            }
+          },
+          "homeOrganizationalUnits": [
+            {
+              "nameCode": {
+                "codeValue": "OTUS",
+                "shortName": "OpenTable Inc."
+              },
+              "typeCode": {
+                "codeValue": "Business Unit",
+                "shortName": "Business Unit"
+              }
+            },
+            {
+              "nameCode": {
+                "codeValue": "025000",
+                "shortName": "Inside Sales"
+              },
+              "typeCode": {
+                "codeValue": "Department",
+                "shortName": "Department"
+              }
+            }
+          ],
+          "homeWorkLocation": {
+            "address": {
+              "lineOne": "1899 Wynnfield",
+              "lineTwo": "Suite 786",
+              "cityName": "Las Vegas",
+              "countrySubdivisionLevel1": {
+                "subdivisionType": "StateTerritory",
+                "codeValue": "NV",
+                "shortName": "Nevada"
+              },
+              "countryCode": "US",
+              "postalCode": "78906"
+            },
+            "nameCode": {
+              "codeValue": "LAS",
+              "shortName": "Las Vegas"
+            }
+          },
+          "reportsTo": [
+            {
+              "associateOID": "G3NQ59W7QETAYRTF",
+              "workerID": {
+                "idValue": "101425",
+                "schemeCode": {
+                  "codeValue": "Associate ID",
+                  "shortName": "Associate ID"
+                }
+              },
+              "reportsToWorkerName": {
+                "formattedName": "Kristin Brandt"
+              },
+              "positionID": "WP8101425"
+            }
+          ],
+          "payrollGroupCode": "WP8",
+          "payrollFileNumber": "102150",
+          "payGradeCode": {
+            "codeValue": "M00454",
+            "shortName": "2"
+          }
+        },
+        {
+          "itemID": "5994989_235",
+          "primaryIndicator": false,
+          "hireDate": "2016-06-20",
+          "actualStartDate": "2016-06-20",
+          "terminationDate": "2016-08-31",
+          "assignmentStatus": {
+            "statusCode": {
+              "codeValue": "T",
+              "shortName": "Terminated"
+            },
+            "reasonCode": {
+              "codeValue": "T",
+              "shortName": "T"
+            }
+          },
+          "workerTypeCode": {
+            "codeValue": "FTR",
+            "shortName": "Regular Full-Time"
+          },
+          "workerGroups": [
+            {
+              "nameCode": {
+                "codeValue": "Benefits Eligibility Class",
+                "longName": "Benefits Eligibility Class"
+              },
+              "groupCode": {
+                "codeValue": "TEMP",
+                "shortName": "Temporary"
+              }
+            }
+          ],
+          "jobCode": {
+            "codeValue": "TEMPSAAS",
+            "longName": "Temporary Sales Associate"
+          },
+          "occupationalClassifications": [
+            {
+              "nameCode": {
+                "codeValue": "EEOC",
+                "shortName": "EEOC"
+              },
+              "classificationCode": {
+                "codeValue": "N",
+                "shortName": "Not Reported"
+              }
+            }
+          ],
+          "wageLawCoverage": {
+            "wageLawNameCode": {
+              "codeValue": "FLSA",
+              "shortName": "FLSA"
+            },
+            "coverageCode": {
+              "codeValue": "N",
+              "shortName": "Non-Exempt"
+            }
+          },
+          "positionID": "WP8101298",
+          "laborUnion": {
+            "laborUnionCode": {
+              "codeValue": "NA",
+              "shortName": "N/A"
+            }
+          },
+          "standardHours": {
+            "hoursQuantity": 40.0,
+            "unitCode": {
+              "codeValue": "1",
+              "shortName": "Weekly"
+            }
+          },
+          "homeOrganizationalUnits": [
+            {
+              "nameCode": {
+                "codeValue": "OTNA",
+                "longName": "OpenTable North America"
+              },
+              "typeCode": {
+                "codeValue": "Business Unit",
+                "shortName": "Business Unit"
+              }
+            },
+            {
+              "nameCode": {
+                "codeValue": "025060",
+                "shortName": "Inside Sales - CO"
+              },
+              "typeCode": {
+                "codeValue": "Department",
+                "shortName": "Department"
+              }
+            }
+          ],
+          "homeWorkLocation": {
+            "nameCode": {
+              "codeValue": "CO",
+              "shortName": "Colorado"
+            }
+          },
+          "payrollGroupCode": "WP8",
+          "payrollFileNumber": "101298"
+        }
+      ],
+      "customFieldGroup": {
+        "codeFields": [
+          {
+            "itemID": "HRB:7178:162207581",
+            "codeValue": "CO - Colorado",
+            "shortName": "CO - Colorado",
+            "nameCode": {
+              "codeValue": "Worked State Tax Code",
+              "longName": "Worked State Tax Code"
+            }
+          },
+          {
+            "itemID": "HRB:7178:162207571",
+            "codeValue": "CO - Colorado",
+            "shortName": "CO - Colorado",
+            "nameCode": {
+              "codeValue": "Lived in State Tax Code",
+              "longName": "Lived in State Tax Code"
+            }
+          },
+          {
+            "itemID": "HRB:7178:45259",
+            "codeValue": "CO",
+            "shortName": "CO",
+            "nameCode": {
+              "codeValue": "ADP Lived In State",
+              "shortName": "ADP Lived In State"
+            }
+          },
+          {
+            "itemID": "HRB:7178:44118",
+            "codeValue": "15 - CO",
+            "shortName": "15 - CO",
+            "nameCode": {
+              "codeValue": "SUI Code/Work State",
+              "shortName": "SUI Code/Work State"
+            }
+          },
+          {
+            "itemID": "HRB:7178:44119",
+            "codeValue": "CO",
+            "shortName": "CO",
+            "nameCode": {
+              "codeValue": "ADP Worked In State",
+              "shortName": "ADP Worked In State"
+            }
+          }
+        ],
+        "dateFields": [
+          {
+            "itemID": "HRB:7178:82897501",
+            "dateValue": "2017-01-04",
+            "nameCode": {
+              "codeValue": "Benefit Eligibility Date",
+              "longName": "Benefit Eligibility Date"
+            }
+          },
+          {
+            "itemID": "1044531_20",
+            "dateValue": "2017-01-20",
+            "nameCode": {
+              "codeValue": "Worker End Date",
+              "shortName": "Worker End Date"
+            }
+          }
+        ],
+        "numberFields": [
+          {
+            "itemID": "HRB:7178:47741",
+            "numberValue": 0,
+            "nameCode": {
+              "codeValue": "New Hire RSU Grant %",
+              "shortName": "New Hire RSU Grant %"
+            }
+          }
+        ],
+        "stringFields": [
+          {
+            "itemID": "HRB:7178:51667",
+            "stringValue": "OpenTable",
+            "nameCode": {
+              "codeValue": "Hire Source",
+              "shortName": "Hire Source"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "associateOID": "G32B8JAXA1W398Z8",
+      "workerID": {
+        "idValue": "101455"
+      },
+      "person": {
+        "governmentIDs": [
+          {
+            "itemID": "3540583_877",
+            "idValue": "XXX-XX-XXXX",
+            "nameCode": {
+              "codeValue": "SSN",
+              "longName": "Social Security Number"
+            },
+            "countryCode": "US"
+          }
+        ],
+        "legalName": {
+          "givenName": "Sally",
+          "familyName1": "Allansberg",
+          "formattedName": "Allansberg, Sally"
+        },
+        "birthDate": "0000-00-00",
+        "legalAddress": {
+          "nameCode": {
+            "codeValue": "Personal Address 1",
+            "shortName": "Personal Address 1"
+          },
+          "lineOne": "24564 Raphael Lane",
+          "cityName": "Redondo Beach",
+          "countrySubdivisionLevel1": {
+            "subdivisionType": "StateTerritory",
+            "codeValue": "CA",
+            "shortName": "California"
+          },
+          "countryCode": "US",
+          "postalCode": "90238"
+        },
+        "communication": {
+          "landlines": [
+            {
+              "nameCode": {
+                "codeValue": "Home Phone",
+                "shortName": "Home Phone"
+              },
+              "countryDialing": "1",
+              "areaDialing": "212",
+              "dialNumber": "5554411",
+              "access": "1",
+              "formattedNumber": "(212) 555-4411",
+              "itemID": "3540583:876:HP"
+            }
+          ],
+          "mobiles": [
+            {
+              "nameCode": {
+                "codeValue": "Personal Cell",
+                "shortName": "Personal Cell"
+              },
+              "countryDialing": "1",
+              "areaDialing": "212",
+              "dialNumber": "5554411",
+              "access": "1",
+              "formattedNumber": "(212) 555-4411",
+              "itemID": "3540583:876:PC"
+            }
+          ]
+        },
+        "genderCode": {
+          "codeValue": "F",
+          "shortName": "Female"
+        },
+        "maritalStatusCode": {
+          "effectiveDate": "2013-03-16",
+          "codeValue": "M",
+          "shortName": "**"
+        },
+        "socialInsurancePrograms": [
+          {
+            "nameCode": {
+              "codeValue": "Medicare",
+              "shortName": "Medicare"
+            },
+            "coveredIndicator": false
+          },
+          {
+            "nameCode": {
+              "codeValue": "Medicaid",
+              "shortName": "Medicaid"
+            },
+            "coveredIndicator": false
+          }
+        ],
+        "tobaccoUserIndicator": false,
+        "raceCode": {
+          "identificationMethodCode": {
+            "codeValue": "SID",
+            "shortName": "Self ID"
+          },
+          "codeValue": "4",
+          "shortName": "Asian"
+        }
+      },
+      "workerDates": {
+        "originalHireDate": "2013-08-05"
+      },
+      "workerStatus": {
+        "statusCode": {
+          "codeValue": "Active"
+        }
+      },
+      "photos": [
+        {
+          "links": [
+            {
+              "href": "/staticContent/wfn/hr/associates/G32B8JAXA1W398Z8/photos/1",
+              "mediaType": "image/png",
+              "method": "GET"
+            }
+          ]
+        }
+      ],
+      "businessCommunication": {
+        "landlines": [
+          {
+            "nameCode": {
+              "codeValue": "Work Phone",
+              "shortName": "Work Phone"
+            },
+            "countryDialing": "1",
+            "areaDialing": "212",
+            "dialNumber": "5554212",
+            "access": "1",
+            "formattedNumber": "(212) 555-4212",
+            "itemID": "3540583:876:WP"
+          }
+        ],
+        "mobiles": [
+          {
+            "nameCode": {
+              "codeValue": "Work Cell",
+              "shortName": "Work Cell"
+            },
+            "countryDialing": "1",
+            "areaDialing": "212",
+            "dialNumber": "5554411",
+            "access": "1",
+            "formattedNumber": "(212) 555-4411",
+            "itemID": "3540583:876:WC"
+          }
+        ]
+      },
+      "workAssignments": [
+        {
+          "itemID": "3540583_877",
+          "primaryIndicator": true,
+          "hireDate": "2013-08-05",
+          "actualStartDate": "2013-08-05",
+          "assignmentStatus": {
+            "statusCode": {
+              "codeValue": "A",
+              "shortName": "Active"
+            }
+          },
+          "workerTypeCode": {
+            "codeValue": "FTR",
+            "shortName": "Regular Full-Time"
+          },
+          "workerGroups": [
+            {
+              "nameCode": {
+                "codeValue": "Benefits Eligibility Class",
+                "longName": "Benefits Eligibility Class"
+              },
+              "groupCode": {
+                "codeValue": "FULLT",
+                "shortName": "Full-time"
+              }
+            }
+          ],
+          "jobCode": {
+            "codeValue": "SRBP",
+            "longName": "Sr. People Business Partner"
+          },
+          "occupationalClassifications": [
+            {
+              "nameCode": {
+                "codeValue": "EEOC",
+                "shortName": "EEOC"
+              },
+              "classificationCode": {
+                "codeValue": "1",
+                "longName": "First/Mid-Level Officials and Managers"
+              }
+            }
+          ],
+          "wageLawCoverage": {
+            "wageLawNameCode": {
+              "codeValue": "FLSA",
+              "shortName": "FLSA"
+            },
+            "coverageCode": {
+              "codeValue": "E",
+              "shortName": "Exempt"
+            }
+          },
+          "positionID": "WP8101455",
+          "laborUnion": {
+            "laborUnionCode": {
+              "codeValue": "NA",
+              "shortName": "N/A"
+            }
+          },
+          "standardHours": {
+            "hoursQuantity": 40.0,
+            "unitCode": {
+              "codeValue": "1",
+              "shortName": "Weekly"
+            }
+          },
+          "homeOrganizationalUnits": [
+            {
+              "nameCode": {
+                "codeValue": "OTUS",
+                "shortName": "OpenTable Inc."
+              },
+              "typeCode": {
+                "codeValue": "Business Unit",
+                "shortName": "Business Unit"
+              }
+            },
+            {
+              "nameCode": {
+                "codeValue": "011000",
+                "longName": "People & Culture-HR & Total Rewards"
+              },
+              "typeCode": {
+                "codeValue": "Department",
+                "shortName": "Department"
+              }
+            }
+          ],
+          "homeWorkLocation": {
+            "address": {
+              "lineOne": "6255 W. Sunset Blvd.",
+              "lineTwo": "Suite 1000",
+              "cityName": "Los Angeles",
+              "countrySubdivisionLevel1": {
+                "subdivisionType": "StateTerritory",
+                "codeValue": "CA",
+                "shortName": "California"
+              },
+              "countryCode": "US",
+              "postalCode": "90028"
+            },
+            "nameCode": {
+              "codeValue": "LAS",
+              "shortName": "Las Vegas"
+            }
+          },
+          "reportsTo": [
+            {
+              "associateOID": "G32B8JAXA1W3E364",
+              "workerID": {
+                "idValue": "101734",
+                "schemeCode": {
+                  "codeValue": "Associate ID",
+                  "shortName": "Associate ID"
+                }
+              },
+              "reportsToWorkerName": {
+                "formattedName": "Elan Pier"
+              },
+              "positionID": "WP8101734"
+            }
+          ],
+          "payrollGroupCode": "WP8",
+          "payrollFileNumber": "101455"
+        }
+      ],
+      "customFieldGroup": {
+        "codeFields": [
+          {
+            "itemID": "HRB:7178:45259",
+            "codeValue": "CA",
+            "shortName": "CA",
+            "nameCode": {
+              "codeValue": "ADP Lived In State",
+              "shortName": "ADP Lived In State"
+            }
+          },
+          {
+            "itemID": "HRB:7178:44118",
+            "codeValue": "75 - CA",
+            "shortName": "75 - CA",
+            "nameCode": {
+              "codeValue": "SUI Code/Work State",
+              "shortName": "SUI Code/Work State"
+            }
+          },
+          {
+            "itemID": "HRB:7178:44119",
+            "codeValue": "CA",
+            "shortName": "CA",
+            "nameCode": {
+              "codeValue": "ADP Worked In State",
+              "shortName": "ADP Worked In State"
+            }
+          },
+          {
+            "itemID": "HRB:7178:162207581",
+            "codeValue": "CA - California",
+            "shortName": "CA - California",
+            "nameCode": {
+              "codeValue": "Worked State Tax Code",
+              "longName": "Worked State Tax Code"
+            }
+          },
+          {
+            "itemID": "HRB:7178:162207571",
+            "codeValue": "CA - California",
+            "shortName": "CA - California",
+            "nameCode": {
+              "codeValue": "Lived in State Tax Code",
+              "longName": "Lived in State Tax Code"
+            }
+          }
+        ],
+        "dateFields": [
+          {
+            "itemID": "HRB:7178:EMPDATE:9146471",
+            "dateValue": "2013-08-05",
+            "nameCode": {
+              "codeValue": "Bereavement Leave:Priority Date",
+              "longName": "Bereavement Leave:Priority Date"
+            }
+          },
+          {
+            "itemID": "HRB:7178:EMPDATE:6268211",
+            "dateValue": "2013-08-05",
+            "nameCode": {
+              "codeValue": "US Jury Duty Policy:Priority Date",
+              "longName": "US Jury Duty Policy:Priority Date"
+            }
+          },
+          {
+            "itemID": "HRB:7178:82897501",
+            "dateValue": "2013-09-01",
+            "nameCode": {
+              "codeValue": "Benefit Eligibility Date",
+              "longName": "Benefit Eligibility Date"
+            }
+          },
+          {
+            "itemID": "HRB:7178:EMPDATE:13668431",
+            "dateValue": "2013-08-05",
+            "nameCode": {
+              "codeValue": "Unpaid Time Off:Priority Date",
+              "longName": "Unpaid Time Off:Priority Date"
+            }
+          },
+          {
+            "itemID": "HRB:7178:EMPDATE:10156681",
+            "dateValue": "2013-08-05",
+            "nameCode": {
+              "codeValue": "Bereavement:Priority Date",
+              "longName": "Bereavement:Priority Date"
+            }
+          },
+          {
+            "itemID": "HRB:7178:EMPDATE:14573251",
+            "dateValue": "2013-08-05",
+            "nameCode": {
+              "codeValue": "Unpaid Time Off - 80:Priority Date",
+              "longName": "Unpaid Time Off - 80:Priority Date"
+            }
+          },
+          {
+            "itemID": "HRB:7178:EMPDATE:2213771",
+            "dateValue": "2013-08-05",
+            "nameCode": {
+              "codeValue": "Germany Sick Leave Plan:Priority Date",
+              "longName": "Germany Sick Leave Plan:Priority Date"
+            }
+          },
+          {
+            "itemID": "HRB:7178:EMPDATE:25972",
+            "dateValue": "2013-08-05",
+            "nameCode": {
+              "codeValue": "US/Canada PTO Exempt:Priority Date",
+              "longName": "US/Canada PTO Exempt:Priority Date"
+            }
+          },
+          {
+            "itemID": "HRB:7178:EMPDATE:66542",
+            "dateValue": "2013-08-05",
+            "nameCode": {
+              "codeValue": "Unpaid Time Off Old:Priority Date",
+              "longName": "Unpaid Time Off Old:Priority Date"
+            }
+          }
+        ],
+        "numberFields": [
+          {
+            "itemID": "HRB:7178:47741",
+            "numberValue": 8,
+            "nameCode": {
+              "codeValue": "New Hire RSU Grant %",
+              "shortName": "New Hire RSU Grant %"
+            }
+          }
+        ],
+        "stringFields": [
+          {
+            "itemID": "HRB:7178:51667",
+            "stringValue": "?",
+            "nameCode": {
+              "codeValue": "Hire Source",
+              "shortName": "Hire Source"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "meta": {
+    "totalNumber": 1814
+  }
+}

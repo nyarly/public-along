@@ -17,5 +17,6 @@ describe Role::Admin, :type => :model do
     it_should_behave_like "role abilities", EmpTransaction, [:manage]
     it_should_behave_like "role abilities", EmpSecProfile, [:manage]
     it_should_behave_like "role abilities", ParentOrg, [:manage]
+    it_should_behave_like "role abilities", WorkerType, [:manage]
   end
 end
