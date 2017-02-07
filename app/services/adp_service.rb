@@ -315,7 +315,7 @@ class AdpService
   private
 
   def creds
-    Rails.env.development? ? SECRETS.adp_test_creds : SECRETS.adp_prod_creds
+    Rails.env.development? ? SECRETS.adp_test_creds : SECRETS.adp_creds
   end
 
   def get_bearer_token
