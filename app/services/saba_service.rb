@@ -12,7 +12,7 @@ class SabaService
       "NAME2",
       "DEFAULT CURRENCY"
     ]
-    CSV.generate(headers: true, col_sep: "|") do |csv|
+    str = CSV.generate(headers: true, col_sep: "|") do |csv|
       csv << headers
 
       Department.find_each do |dept|
@@ -31,6 +31,7 @@ class SabaService
         ]
       end
     end
+    puts str
   end
 
   def create_loc_csv
@@ -48,7 +49,7 @@ class SabaService
       "ZIP",
       "COUNTRY"
     ]
-    CSV.generate(headers: true, col_sep: "|") do |csv|
+    str = CSV.generate(headers: true, col_sep: "|") do |csv|
       csv << headers
 
       Location.find_each do |loc|
@@ -70,6 +71,7 @@ class SabaService
         ]
       end
     end
+    puts str
   end
 
   def create_job_type_csv
@@ -124,13 +126,13 @@ class SabaService
       "HOME_COMPANY",
       "CUSTOM0"
     ]
-    CSV.generate(headers: true, col_sep: "|") do |csv|
+    str = CSV.generate(headers: true, col_sep: "|") do |csv|
       csv << headers
 
       Employee.find_each do |e|
         status = (e.status == "Inactive" ? "Leave" : e.status)
         domain = e.worker_type.kind == "Contractor" ? "OpenTable_Contractor" : "OpenTable"
-
+        puts e.inspect
         csv << [
           e.employee_id,
           status,
@@ -157,5 +159,6 @@ class SabaService
         ]
       end
     end
+    puts str
   end
 end

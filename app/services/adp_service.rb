@@ -74,13 +74,15 @@ class AdpService
       str = get_json_str(url)
     end
 
-    json = JSON.parse(str)
+    unless str == nil
+      json = JSON.parse(str)
 
-    workers = sort_workers(json)
+      workers = sort_workers(json)
 
-    workers.each do |w|
-      e = Employee.find_by(employee_id: w[:employee_id])
-      e.update_attributes(w) if e
+      workers.each do |w|
+        e = Employee.find_or_create_by(employee_id: w[:employee_id])
+        e.update_attributes(w) if e
+      end
     end
   end
 
@@ -115,8 +117,8 @@ class AdpService
     workers = []
 
     json["workers"].each do |w|
-      status = w["workerStatus"]["statusCode"]["codeValue"]
-      unless status == "Terminated"
+      status = w.dig("workerStatus","statusCode","codeValue")
+      if status == "Active" || status == "Inactive"
         workers << gen_worker_hash(w)
       end
     end
@@ -136,8 +138,11 @@ class AdpService
     work_assignment = w["workAssignments"].find { |wa| wa["primaryIndicator"] == true}
 
     hire_date = work_assignment["hireDate"]
-    w_end_date_json = w["customFieldGroup"]["dateFields"].find { |f| f["nameCode"]["codeValue"] == "Worker End Date"}
-    worker_end_date = w_end_date_json.try(:dig, "dateValue")
+    custom_dates = w.dig("customFieldGroup","dateFields")
+    if custom_dates
+      w_end_date_json = custom_dates.find { |f| f["nameCode"]["codeValue"] == "Worker End Date"}
+      worker_end_date = w_end_date_json.try(:dig, "dateValue")
+    end
     termination_date = work_assignment["terminationDate"]
 
     biz_unit = work_assignment["homeOrganizationalUnits"].find { |ou| ou["typeCode"]["codeValue"] == "Business Unit"}
@@ -151,12 +156,11 @@ class AdpService
     dept_str = work_assignment["homeOrganizationalUnits"].find { |ou| ou["typeCode"]["codeValue"] == "Department"}
     dept = find_dept(dept_str)
 
-    home_address_1 = w["person"]["legalAddress"]["lineOne"]
-    home_address_2 = w["person"]["legalAddress"]["lineTwo"]
-    home_city = w["person"]["legalAddress"]["cityName"]
-    home_state = w["person"]["legalAddress"]["countrySubdivisionLevel1"]["codeValue"]
-    home_zip = w["person"]["legalAddress"]["postalCode"]
-
+    home_address_1 = w.dig("person","legalAddress","lineOne")
+    home_address_2 = w.dig("person","legalAddress","lineTwo")
+    home_city = w.dig("person","legalAddress","cityName")
+    home_state = w.dig("person","legalAddress","countrySubdivisionLevel1","codeValue")
+    home_zip = w.dig("person","legalAddress","postalCode")
 
     worker = {
       status: status,
@@ -255,8 +259,8 @@ class AdpService
   end
 
   def find_dept(json)
-    if json["nameCode"] == nil
-      return nil
+    if json.try(:dig, "nameCode") == nil
+      return Department.find_or_create_by(name: "No Department Found", code: "XXXXXXX")
     else
       code = json["nameCode"]["codeValue"]
       dept = Department.find_by(code: code)
@@ -268,49 +272,49 @@ class AdpService
     end
   end
 
-  # def meta
-  #   str = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers/meta")
-  #   json = JSON.parse(str)
-  #   puts JSON.pretty_generate(json)
-  #   json
-  # end
+  def meta
+    str = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers/meta")
+    json = JSON.parse(str)
+    puts JSON.pretty_generate(json)
+    json
+  end
 
-  # def list(qty, pos)
-  #   str = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers?$top=#{qty}&$skip=#{pos}&count=true")
-  #   json = JSON.parse(str)
-  #   puts JSON.pretty_generate(json)
-  #   emps = json["workers"]
-  #   puts actual_count: emps.count
-  #   count = json["meta"]["totalNumber"]
-  #   puts worker_count: count
-  #   json
-  # end
+  def list(qty, pos)
+    str = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers?$top=#{qty}&$skip=#{pos}&count=true")
+    json = JSON.parse(str)
+    puts JSON.pretty_generate(json)
+    emps = json["workers"]
+    puts actual_count: emps.count
+    count = json["meta"]["totalNumber"]
+    puts worker_count: count
+    json
+  end
 
-  # def worker(uri)
-  #   str = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers#{uri}")
-  #   json = JSON.parse(str)
-  #   puts JSON.pretty_generate(json)
-  #   json
-  # end
+  def worker(uri)
+    str = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers#{uri}")
+    json = JSON.parse(str)
+    puts JSON.pretty_generate(json)
+    json
+  end
 
-  # def events
-  #   str = get_json_str("https://#{SECRETS.adp_api_domain}/core/v1/event-notification-messages")
-  #   json = JSON.parse(str)
-  #   puts JSON.pretty_generate(json)
-  #   json
-  # end
+  def events
+    str = get_json_str("https://#{SECRETS.adp_api_domain}/core/v1/event-notification-messages")
+    json = JSON.parse(str)
+    puts JSON.pretty_generate(json)
+    json
+  end
 
-  # def del_event(num)
-  #   set_http("https://#{SECRETS.adp_api_domain}/core/v1/event-notification-messages#{num}")
-  #   res = @http.delete(@uri.request_uri, {'Authorization' => "Bearer #{@token}"})
-  # end
+  def del_event(num)
+    set_http("https://#{SECRETS.adp_api_domain}/core/v1/event-notification-messages#{num}")
+    res = @http.delete(@uri.request_uri, {'Authorization' => "Bearer #{@token}"})
+  end
 
-  # def url(url)
-  #   str = get_json_str("#{url}")
-  #   json = JSON.parse(str)
-  #   puts JSON.pretty_generate(json)
-  #   json
-  # end
+  def url(url)
+    str = get_json_str("#{url}")
+    json = JSON.parse(str)
+    puts JSON.pretty_generate(json)
+    json
+  end
 
   private
 
