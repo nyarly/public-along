@@ -340,8 +340,10 @@ class AdpService
     @http.read_timeout = 200
     @http.use_ssl = true
     @http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-    @http.cert = OpenSSL::X509::Certificate.new(SECRETS.adp_pem)
-    @http.key = OpenSSL::PKey::RSA.new(SECRETS.adp_key)
+    pem = File.read(SECRETS.adp_pem_path)
+    key = File.read(SECRETS.adp_key_path)
+    @http.cert = OpenSSL::X509::Certificate.new(pem)
+    @http.key = OpenSSL::PKey::RSA.new(key)
   end
 
   def get_json_str(url)
