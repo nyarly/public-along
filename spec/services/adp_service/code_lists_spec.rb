@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe AdpService, type: :service do
+describe AdpService::CodeLists, type: :service do
   let(:url)         { "https://accounts.adp.com/auth/oauth/v2/token?grant_type=client_credentials" }
   let(:uri)         { double(URI) }
   let(:host)        { "accounts.adp.com" }
@@ -18,12 +18,12 @@ describe AdpService, type: :service do
     allow(OpenSSL::X509::Certificate).to receive(:new)
     allow(OpenSSL::PKey::RSA).to receive(:new)
 
-    expect(URI).to receive(:parse).with(url).and_return(uri)
-    expect(Net::HTTP).to receive(:new).with(host, port).and_return(http).at_least(:once)
-    expect(http).to receive(:read_timeout=).with(200).at_least(:once)
-    expect(http).to receive(:use_ssl=).with(true).at_least(:once)
-    expect(http).to receive(:verify_mode=).with(OpenSSL::SSL::VERIFY_PEER).at_least(:once)
-    expect(http).to receive(:post).with(
+    allow(URI).to receive(:parse).with(url).and_return(uri)
+    allow(Net::HTTP).to receive(:new).with(host, port).and_return(http).at_least(:once)
+    allow(http).to receive(:read_timeout=).with(200).at_least(:once)
+    allow(http).to receive(:use_ssl=).with(true).at_least(:once)
+    allow(http).to receive(:verify_mode=).with(OpenSSL::SSL::VERIFY_PEER).at_least(:once)
+    allow(http).to receive(:post).with(
       request_uri,
       '',
       { "Accept"=>"application/json",
@@ -32,18 +32,16 @@ describe AdpService, type: :service do
     expect(response).to receive(:body).and_return('{"access_token": "7890f85c-43ef-4ebc-acb7-f98f2c0581d0"}')
   end
 
-  describe "get_bearer_token" do
-    it "should get a bearer token from ADP" do
-      expect(AdpService.new.token).to eq("7890f85c-43ef-4ebc-acb7-f98f2c0581d0")
-    end
+  it "should get a bearer token from ADP" do
+    expect(AdpService::CodeLists.new.token).to eq("7890f85c-43ef-4ebc-acb7-f98f2c0581d0")
   end
 
   describe "populate job titles table" do
     let!(:existing) { FactoryGirl.create(:job_title, code: "ACCNASST", name: "Accounting Assistant", status: "Active")}
 
     before :each do
-      expect(URI).to receive(:parse).with("https://api.adp.com/codelists/hr/v3/worker-management/job-titles/WFN/1").and_return(uri)
-      expect(http).to receive(:get).with(
+      allow(URI).to receive(:parse).with("https://api.adp.com/codelists/hr/v3/worker-management/job-titles/WFN/1").and_return(uri)
+      allow(http).to receive(:get).with(
         request_uri,
         { "Accept"=>"application/json",
           "Authorization"=>"Bearer a-token-value",
@@ -53,7 +51,7 @@ describe AdpService, type: :service do
     it "should find or create job titles" do
       expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"job-titles","listItems":[{"valueDescription":"AASFE - Administrative Assistant","codeValue":"AASFE","longName":"Administrative Assistant"},{"valueDescription":"ACCNASST - Accounting Assistant","codeValue":"ACCNASST","shortName":"Accounting Assistant"},{"valueDescription":"ACCPAYSU - Accounts Payable Supervisor","codeValue":"ACCPAYSU","longName":"Accounts Payable Supervisor"}]}]}')
 
-      adp = AdpService.new
+      adp = AdpService::CodeLists.new
       adp.token = "a-token-value"
 
       expect{
@@ -64,7 +62,7 @@ describe AdpService, type: :service do
     it "should update changes in existing job titles" do
       expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"job-titles","listItems":[{"valueDescription":"AASFE - Administrative Assistant","codeValue":"AASFE","longName":"Administrative Assistant"},{"valueDescription":"ACCNASST - Accounting Assistant","codeValue":"ACCNASST","shortName":"New Accounting Assistant"},{"valueDescription":"ACCPAYSU - Accounts Payable Supervisor","codeValue":"ACCPAYSU","longName":"Accounts Payable Supervisor"}]}]}')
 
-      adp = AdpService.new
+      adp = AdpService::CodeLists.new
       adp.token = "a-token-value"
 
       expect{
@@ -77,7 +75,7 @@ describe AdpService, type: :service do
 
       expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"job-titles","listItems":[{"valueDescription":"AASFE - Administrative Assistant","codeValue":"AASFE","longName":"Administrative Assistant"},{"valueDescription":"ACCNASST - Accounting Assistant","codeValue":"ACCNASST","shortName":"New Accounting Assistant"}]}]}')
 
-      adp = AdpService.new
+      adp = AdpService::CodeLists.new
       adp.token = "a-token-value"
 
       expect{
@@ -92,8 +90,8 @@ describe AdpService, type: :service do
 
     before :each do
       Location.destroy_all
-      expect(URI).to receive(:parse).with("https://api.adp.com/codelists/hr/v3/worker-management/locations/WFN/1").and_return(uri)
-      expect(http).to receive(:get).with(
+      allow(URI).to receive(:parse).with("https://api.adp.com/codelists/hr/v3/worker-management/locations/WFN/1").and_return(uri)
+      allow(http).to receive(:get).with(
         request_uri,
         { "Accept"=>"application/json",
           "Authorization"=>"Bearer a-token-value",
@@ -103,7 +101,7 @@ describe AdpService, type: :service do
     it "should find or create locations" do
       expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"locations","listItems":[{"valueDescription":"AB - Alberta", "codeValue":"AB", "shortName":"Alberta"}, {"valueDescription":"AZ - Arizona", "codeValue":"AZ", "shortName":"Arizona"}, {"valueDescription":"BC - British Columbia", "codeValue":"BC", "shortName":"British Columbia"}, {"valueDescription":"BER - Berlin", "codeValue":"BER", "shortName":"Berlin"}, {"valueDescription":"BM - Birmingham", "codeValue":"BM", "shortName":"Birmingham"}]}]}')
 
-      adp = AdpService.new
+      adp = AdpService::CodeLists.new
       adp.token = "a-token-value"
 
       expect{
@@ -115,7 +113,7 @@ describe AdpService, type: :service do
       existing = FactoryGirl.create(:location, code: "AB", name: "Alberta", status: "Active", country: "CA", kind: "Remote Location", timezone: "(GMT-07:00) Mountain Time (US & Canada)")
       expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"locations","listItems":[{"valueDescription":"AB - Alberta", "codeValue":"AB", "shortName":"New Alberta"}, {"valueDescription":"AZ - Arizona", "codeValue":"AZ", "shortName":"Arizona"}, {"valueDescription":"BC - British Columbia", "codeValue":"BC", "shortName":"British Columbia"}, {"valueDescription":"BER - Berlin", "codeValue":"BER", "shortName":"Berlin"}, {"valueDescription":"BM - Birmingham", "codeValue":"BM", "shortName":"Birmingham"}]}]}')
 
-      adp = AdpService.new
+      adp = AdpService::CodeLists.new
       adp.token = "a-token-value"
 
       expect{
@@ -134,7 +132,7 @@ describe AdpService, type: :service do
 
       expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"locations","listItems":[{"valueDescription":"AB - Alberta", "codeValue":"AB", "shortName":"New Alberta"}, {"valueDescription":"AZ - Arizona", "codeValue":"AZ", "shortName":"Arizona"}, {"valueDescription":"BC - British Columbia", "codeValue":"BC", "shortName":"British Columbia"}, {"valueDescription":"BER - Berlin", "codeValue":"BER", "shortName":"Berlin"}, {"valueDescription":"BM - Birmingham", "codeValue":"BM", "shortName":"Birmingham"}]}]}')
 
-      adp = AdpService.new
+      adp = AdpService::CodeLists.new
       adp.token = "a-token-value"
 
       expect{
@@ -149,8 +147,8 @@ describe AdpService, type: :service do
 
     before :each do
       Department.destroy_all
-      expect(URI).to receive(:parse).with("https://api.adp.com/codelists/hr/v3/worker-management/departments/WFN/1").and_return(uri)
-      expect(http).to receive(:get).with(
+      allow(URI).to receive(:parse).with("https://api.adp.com/codelists/hr/v3/worker-management/departments/WFN/1").and_return(uri)
+      allow(http).to receive(:get).with(
         request_uri,
         { "Accept"=>"application/json",
           "Authorization"=>"Bearer a-token-value",
@@ -160,7 +158,7 @@ describe AdpService, type: :service do
     it "should find or create departments" do
       expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"departments","listItems":[{"valueDescription":"010000 - Facilities", "foreignKey":"WP8", "codeValue":"010000", "shortName":"Facilities"},{"valueDescription":"011000 - People & Culture-HR & Total Rewards", "foreignKey":"WP8", "codeValue":"011000", "longName":"People & Culture-HR & Total Rewards"},{"valueDescription":"012000 - Legal", "foreignKey":"WP8", "codeValue":"012000", "shortName":"Legal"},{"valueDescription":"013000 - Finance", "foreignKey":"WP8", "codeValue":"013000", "shortName":"Finance"},{"valueDescription":"014000 - Risk Management", "foreignKey":"WP8", "codeValue":"014000", "shortName":"Risk Management"}]}]}')
 
-      adp = AdpService.new
+      adp = AdpService::CodeLists.new
       adp.token = "a-token-value"
 
       expect{
@@ -172,7 +170,7 @@ describe AdpService, type: :service do
       existing = FactoryGirl.create(:department, code: "010000", name: "Facilities")
       expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"departments","listItems":[{"valueDescription":"010000 - Facilities", "foreignKey":"WP8", "codeValue":"010000", "shortName":"New Facilities"},{"valueDescription":"011000 - People & Culture-HR & Total Rewards", "foreignKey":"WP8", "codeValue":"011000", "longName":"People & Culture-HR & Total Rewards"},{"valueDescription":"012000 - Legal", "foreignKey":"WP8", "codeValue":"012000", "shortName":"Legal"},{"valueDescription":"013000 - Finance", "foreignKey":"WP8", "codeValue":"013000", "shortName":"Finance"},{"valueDescription":"014000 - Risk Management", "foreignKey":"WP8", "codeValue":"014000", "shortName":"Risk Management"}]}]}')
 
-      adp = AdpService.new
+      adp = AdpService::CodeLists.new
       adp.token = "a-token-value"
 
       expect{
@@ -185,7 +183,7 @@ describe AdpService, type: :service do
 
       expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"departments","listItems":[{"valueDescription":"010000 - Facilities", "foreignKey":"WP8", "codeValue":"010000", "shortName":"New Facilities"},{"valueDescription":"011000 - People & Culture-HR & Total Rewards", "foreignKey":"WP8", "codeValue":"011000", "longName":"People & Culture-HR & Total Rewards"},{"valueDescription":"012000 - Legal", "foreignKey":"WP8", "codeValue":"012000", "shortName":"Legal"},{"valueDescription":"013000 - Finance", "foreignKey":"WP8", "codeValue":"013000", "shortName":"Finance"}]}]}')
 
-      adp = AdpService.new
+      adp = AdpService::CodeLists.new
       adp.token = "a-token-value"
 
       expect{
@@ -200,8 +198,8 @@ describe AdpService, type: :service do
 
     before :each do
       WorkerType.destroy_all
-      expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers/meta").and_return(uri)
-      expect(http).to receive(:get).with(
+      allow(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers/meta").and_return(uri)
+      allow(http).to receive(:get).with(
         request_uri,
         { "Accept"=>"application/json",
           "Authorization"=>"Bearer a-token-value",
@@ -211,7 +209,7 @@ describe AdpService, type: :service do
     it "should find or create worker types" do
       expect(response).to receive(:body).and_return('{"meta":{"/workers/workAssignments/workerTypeCode":{"codeList":{"listItems":[{"codeValue":"", "shortName":""}, {"codeValue":"ACW", "shortName":"Agency Worker"}, {"codeValue":"CONT", "shortName":"Contractor"}, {"codeValue":"CT3P", "longName":"Contractor - 3rd Party"}, {"codeValue":"F", "shortName":"Full Time"}, {"codeValue":"FTC", "shortName":"Contractor Full-Time"}, {"codeValue":"FTF", "shortName":"Fixed Term Full Time"}, {"codeValue":"FTR", "shortName":"Regular Full-Time"}, {"codeValue":"FTT", "shortName":"Temporary Full-Time"}, {"codeValue":"OLFR", "shortName":"Regular Full-Time"}]}, "readOnly":true, "optional":true, "hidden":false, "shortLabelName":"Worker Category"}}}')
 
-      adp = AdpService.new
+      adp = AdpService::CodeLists.new
       adp.token = "a-token-value"
 
       expect{
@@ -223,7 +221,7 @@ describe AdpService, type: :service do
       existing = FactoryGirl.create(:worker_type, code: "ACW", name: "Agency Worker")
       expect(response).to receive(:body).and_return('{"meta":{"/workers/workAssignments/workerTypeCode":{"codeList":{"listItems":[{"codeValue":"", "shortName":""}, {"codeValue":"ACW", "shortName":"New Agency Worker"}, {"codeValue":"CONT", "shortName":"Contractor"}, {"codeValue":"CT3P", "longName":"Contractor - 3rd Party"}, {"codeValue":"F", "shortName":"Full Time"}, {"codeValue":"FTC", "shortName":"Contractor Full-Time"}, {"codeValue":"FTF", "shortName":"Fixed Term Full Time"}, {"codeValue":"FTR", "shortName":"Regular Full-Time"}, {"codeValue":"FTT", "shortName":"Temporary Full-Time"}, {"codeValue":"OLFR", "shortName":"Regular Full-Time"}]}, "readOnly":true, "optional":true, "hidden":false, "shortLabelName":"Worker Category"}}}')
 
-      adp = AdpService.new
+      adp = AdpService::CodeLists.new
       adp.token = "a-token-value"
 
       expect{
@@ -236,7 +234,7 @@ describe AdpService, type: :service do
 
       expect(response).to receive(:body).and_return('{"meta":{"/workers/workAssignments/workerTypeCode":{"codeList":{"listItems":[{"codeValue":"", "shortName":""}, {"codeValue":"ACW", "shortName":"Agency Worker"}, {"codeValue":"CONT", "shortName":"Contractor"}, {"codeValue":"CT3P", "longName":"Contractor - 3rd Party"}, {"codeValue":"F", "shortName":"Full Time"}, {"codeValue":"FTC", "shortName":"Contractor Full-Time"}, {"codeValue":"FTF", "shortName":"Fixed Term Full Time"}, {"codeValue":"FTR", "shortName":"Regular Full-Time"}, {"codeValue":"FTT", "shortName":"Temporary Full-Time"}, {"codeValue":"OLFR", "shortName":"Regular Full-Time"}]}, "readOnly":true, "optional":true, "hidden":false, "shortLabelName":"Worker Category"}}}')
 
-      adp = AdpService.new
+      adp = AdpService::CodeLists.new
       adp.token = "a-token-value"
 
       expect{
@@ -244,247 +242,6 @@ describe AdpService, type: :service do
       }.to change{WorkerType.find_by(code: "SRP").status}.from("Active").to("Inactive")
       expect(WorkerType.find_by(code: "CONT").status).to eq("Active")
       expect(WorkerType.find_by(code: "F").status).to eq("Active")
-    end
-  end
-
-  describe "worker_count" do
-    before :each do
-      expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers?$select=workers/workerStatus&$top=1&count=true").and_return(uri)
-      expect(http).to receive(:get).with(
-        request_uri,
-        { "Accept"=>"application/json",
-          "Authorization"=>"Bearer a-token-value",
-        }).and_return(response)
-    end
-
-    it "should find a worker count" do
-      expect(response).to receive(:body).and_return('{"meta":{"totalNumber": 1800}}')
-
-      adp = AdpService.new
-      adp.token = "a-token-value"
-
-      expect(adp.worker_count).to eq(1800)
-    end
-  end
-
-  describe "create_worker_urls" do
-    it "should create URL pages to call based on count" do
-
-      adp = AdpService.new
-      adp.token = "a-token-value"
-
-      expect(adp).to receive(:worker_count).and_return(375)
-
-      expect(adp.create_worker_urls).to eq([
-       "https://api.adp.com/hr/v2/workers?$top=25&$skip=0",
-       "https://api.adp.com/hr/v2/workers?$top=25&$skip=25",
-       "https://api.adp.com/hr/v2/workers?$top=25&$skip=50",
-       "https://api.adp.com/hr/v2/workers?$top=25&$skip=75",
-       "https://api.adp.com/hr/v2/workers?$top=25&$skip=100",
-       "https://api.adp.com/hr/v2/workers?$top=25&$skip=125",
-       "https://api.adp.com/hr/v2/workers?$top=25&$skip=150",
-       "https://api.adp.com/hr/v2/workers?$top=25&$skip=175",
-       "https://api.adp.com/hr/v2/workers?$top=25&$skip=200",
-       "https://api.adp.com/hr/v2/workers?$top=25&$skip=225",
-       "https://api.adp.com/hr/v2/workers?$top=25&$skip=250",
-       "https://api.adp.com/hr/v2/workers?$top=25&$skip=275",
-       "https://api.adp.com/hr/v2/workers?$top=25&$skip=300",
-       "https://api.adp.com/hr/v2/workers?$top=25&$skip=325",
-       "https://api.adp.com/hr/v2/workers?$top=25&$skip=350",
-       "https://api.adp.com/hr/v2/workers?$top=25&$skip=375"
-      ])
-    end
-  end
-
-  describe "create_sidekiq_workers" do
-    it "should call sidekiq workers" do
-      adp = AdpService.new
-      adp.token = "a-token-value"
-
-      expect(adp).to receive(:worker_count).and_return(175)
-
-      expect(AdpWorker).to receive(:perform_async).with("https://api.adp.com/hr/v2/workers?$top=25&$skip=0")
-      expect(AdpWorker).to receive(:perform_async).with("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
-      expect(AdpWorker).to receive(:perform_async).with("https://api.adp.com/hr/v2/workers?$top=25&$skip=50")
-      expect(AdpWorker).to receive(:perform_async).with("https://api.adp.com/hr/v2/workers?$top=25&$skip=75")
-      expect(AdpWorker).to receive(:perform_async).with("https://api.adp.com/hr/v2/workers?$top=25&$skip=100")
-      expect(AdpWorker).to receive(:perform_async).with("https://api.adp.com/hr/v2/workers?$top=25&$skip=125")
-      expect(AdpWorker).to receive(:perform_async).with("https://api.adp.com/hr/v2/workers?$top=25&$skip=150")
-      expect(AdpWorker).to receive(:perform_async).with("https://api.adp.com/hr/v2/workers?$top=25&$skip=175")
-
-      adp.create_sidekiq_workers
-    end
-  end
-
-  describe "populate_workers" do
-    let!(:employee) { FactoryGirl.create(:employee, employee_id: "101455")}
-    let(:json) { JSON.parse(File.read(Rails.root.to_s+"/spec/fixtures/adp_workers.json")) }
-    let(:sorted) {
-      [{
-        status: "Active",
-        adp_assoc_oid: "G32B8JAXA1W398Z8",
-        first_name: "Sally Jesse",
-        last_name: "Allansberg",
-        employee_id: "101455",
-        hire_date: "2013-08-05",
-        contract_end_date: nil,
-        termination_date: nil,
-        company: "OpenTable Inc.",
-        job_title_id: 1,
-        worker_type_id: 2,
-        manager_id: "101734",
-        department_id: 3,
-        location_id: 4,
-        office_phone: "(212) 555-4411",
-        personal_mobile_phone: "(212) 555-4411"
-      }]
-    }
-
-    before :each do
-      expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers?$top=25&$skip=25").and_return(uri)
-      expect(http).to receive(:get).with(
-        request_uri,
-        { "Accept"=>"application/json",
-          "Authorization"=>"Bearer a-token-value",
-        }).and_return(response)
-    end
-
-    it "should call parse json response, call #sort_workers and update employees" do
-      expect(response).to receive(:body).and_return(json)
-
-      adp = AdpService.new
-      adp.token = "a-token-value"
-
-      expect(JSON).to receive(:parse).with(json)
-      expect(adp).to receive(:sort_workers).and_return(sorted)
-
-      adp.populate_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
-      expect(employee.reload.first_name).to eq("Sally Jesse")
-    end
-  end
-
-  describe "sort_workers" do
-    let(:json) { JSON.parse(File.read(Rails.root.to_s+"/spec/fixtures/adp_workers.json")) }
-
-    it "should call gen_worker_hash if not terminated status" do
-      # There are 3 workers indicated in the json file, one is terminated
-
-      adp = AdpService.new
-      adp.token = "a-token-value"
-
-      expect(adp).to receive(:gen_worker_hash).exactly(2).times
-      adp.sort_workers(json)
-    end
-
-    it "should return worker array" do
-      adp = AdpService.new
-      adp.token = "a-token-value"
-
-      expect(adp).to receive(:gen_worker_hash).twice.and_return({worker: "info"})
-      expect(adp.sort_workers(json)).to eq([{worker: "info"}, {worker: "info"}])
-    end
-  end
-
-  describe "gen_worker_hash" do
-    let(:json) { JSON.parse(File.read(Rails.root.to_s+"/spec/fixtures/adp_workers.json")) }
-    let!(:worker_type) { FactoryGirl.create(:worker_type, name: "Regular Full-Time", code: "FTR") }
-    let!(:worker_type_2) { FactoryGirl.create(:worker_type, name: "Voluntary", code: "TVOL") }
-    let!(:department) { FactoryGirl.create(:department, name: "People & Culture-HR & Total Rewards", code: "111000") }
-    let!(:department_2) { FactoryGirl.create(:department, name: "Sales - General - Germany", code: "120710") }
-    let!(:department_3) { FactoryGirl.create(:department, name: "Inside Sales", code: "125000") }
-    let!(:location) { FactoryGirl.create(:location, name: "Las Vegas", code: "LAS") }
-    let!(:location_2) { FactoryGirl.create(:location, name: "Germany", code: "GERMA", kind: "Remote Location") }
-    let!(:job_title) { FactoryGirl.create(:job_title, name: "Sr. People Business Partner", code: "SRBP") }
-    let!(:job_title_2) { FactoryGirl.create(:job_title, name: "Sales Representative, OTC", code: "SROTC") }
-    let!(:job_title_3) { FactoryGirl.create(:job_title, name: "Sales Associate", code: "SADEN") }
-
-    it "should create the hash from json" do
-      w_json = json["workers"][2]
-
-      adp = AdpService.new
-      adp.token = "a-token-value"
-
-      expect(adp.gen_worker_hash(w_json)).to eq({
-        status: "Active",
-        adp_assoc_oid: "G32B8JAXA1W398Z8",
-        first_name: "Shirley",
-        last_name: "Allansberg",
-        employee_id: "101455",
-        hire_date: "2013-08-05",
-        contract_end_date: nil,
-        termination_date: nil,
-        company: "OpenTable Inc.",
-        job_title_id: job_title.id,
-        worker_type_id: worker_type.id,
-        manager_id: "101734",
-        department_id: department.id,
-        location_id: location.id,
-        office_phone: "(212) 555-4411",
-        personal_mobile_phone: "(212) 555-4411"
-      })
-    end
-
-    it "should pick nickname if exists" do
-      w_json = json["workers"][0]
-
-      adp = AdpService.new
-      adp.token = "a-token-value"
-
-      expect(adp.gen_worker_hash(w_json)).to include({
-        first_name: "Sally Jesse",
-      })
-    end
-
-    it "should pick preferred last_name if exists" do
-      w_json = json["workers"][0]
-
-      adp = AdpService.new
-      adp.token = "a-token-value"
-
-      expect(adp.gen_worker_hash(w_json)).to include({
-        last_name: "Smith",
-      })
-    end
-
-    it "should find worker end date if exists" do
-      w_json = json["workers"][1]
-
-      adp = AdpService.new
-      adp.token = "a-token-value"
-
-      expect(adp.gen_worker_hash(w_json)).to include({
-        contract_end_date: "2017-01-20"
-      })
-    end
-
-    it "should pull address info if the worker is Remote" do
-      w_json = json["workers"][0]
-
-      adp = AdpService.new
-      adp.token = "a-token-value"
-
-      expect(adp.gen_worker_hash(w_json)).to include({
-        home_address_1: "Zeukerstrasse 123",
-        home_address_2: nil,
-        home_city: "Frankfurt",
-        home_state: "Hessen",
-        home_zip: "5384980"
-      })
-    end
-
-    it "should not pull address info if the worker is Remote" do
-      w_json = json["workers"][1]
-
-      adp = AdpService.new
-      adp.token = "a-token-value"
-
-      expect(adp.gen_worker_hash(w_json)).to_not include({
-        home_address_1: "2890 Beach Blvd",
-        home_address_2: "Apt 222",
-        home_city: "Denver",
-        home_state: "CO",
-        home_zip: "63748"
-      })
     end
   end
 end
