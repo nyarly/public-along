@@ -1,14 +1,12 @@
 class AdpService
   attr_accessor :token
 
-  def initialize(env="test")
-    @env ||= env
-    @domain ||= @env == "prod" ? nil : "uat-"
+  def initialize
     @token ||= get_bearer_token
   end
 
   def populate_job_titles
-    str = get_json_str("https://#{@domain}api.adp.com/codelists/hr/v3/worker-management/job-titles/WFN/1")
+    str = get_json_str("https://#{SECRETS.adp_api_domain}/codelists/hr/v3/worker-management/job-titles/WFN/1")
     json = JSON.parse(str)
     titles = json["codeLists"].find { |l| l["codeListTitle"] == "job-titles"}["listItems"]
     JobTitle.update_all(status: "Inactive")
@@ -21,7 +19,7 @@ class AdpService
   end
 
   def populate_locations
-    str = get_json_str("https://#{@domain}api.adp.com/codelists/hr/v3/worker-management/locations/WFN/1")
+    str = get_json_str("https://#{SECRETS.adp_api_domain}/codelists/hr/v3/worker-management/locations/WFN/1")
     json = JSON.parse(str)
     locs = json["codeLists"].find { |l| l["codeListTitle"] == "locations"}["listItems"]
     Location.update_all(status: "Inactive")
@@ -39,7 +37,7 @@ class AdpService
   end
 
   def populate_departments
-    str = get_json_str("https://#{@domain}api.adp.com/codelists/hr/v3/worker-management/departments/WFN/1")
+    str = get_json_str("https://#{SECRETS.adp_api_domain}/codelists/hr/v3/worker-management/departments/WFN/1")
     json = JSON.parse(str)
     depts = json["codeLists"].find { |d| d["codeListTitle"] == "departments"}["listItems"]
     Department.update_all(status: "Inactive")
@@ -53,7 +51,7 @@ class AdpService
   end
 
   def populate_worker_types
-    str = get_json_str("https://#{@domain}api.adp.com/hr/v2/workers/meta")
+    str = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers/meta")
     json = JSON.parse(str)
     w_types = json["meta"]["/workers/workAssignments/workerTypeCode"]["codeList"]["listItems"]
     WorkerType.update_all(status: "Inactive")
@@ -76,20 +74,22 @@ class AdpService
       str = get_json_str(url)
     end
 
-    json = JSON.parse(str)
+    unless str == nil
+      json = JSON.parse(str)
 
-    workers = sort_workers(json)
+      workers = sort_workers(json)
 
-    workers.each do |w|
-      e = Employee.find_by(employee_id: w[:employee_id])
-      e.update_attributes(w) if e
+      workers.each do |w|
+        e = Employee.find_or_create_by(employee_id: w[:employee_id])
+        e.update_attributes(w) if e
+      end
     end
   end
 
   def worker_count
     begin
     ensure
-      str = get_json_str("https://#{@domain}api.adp.com/hr/v2/workers?$select=workers/workerStatus&$top=1&count=true")
+      str = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers?$select=workers/workerStatus&$top=1&count=true")
       json = JSON.parse(str)
       count = json["meta"]["totalNumber"]
     end
@@ -101,7 +101,7 @@ class AdpService
     pos = 0
     urls = []
     while pos <= count
-      urls << "https://#{@domain}api.adp.com/hr/v2/workers?$top=25&$skip=#{pos}"
+      urls << "https://#{SECRETS.adp_api_domain}/hr/v2/workers?$top=25&$skip=#{pos}"
       pos += 25
     end
     urls
@@ -117,8 +117,8 @@ class AdpService
     workers = []
 
     json["workers"].each do |w|
-      status = w["workerStatus"]["statusCode"]["codeValue"]
-      unless status == "Terminated"
+      status = w.dig("workerStatus","statusCode","codeValue")
+      if status == "Active" || status == "Inactive"
         workers << gen_worker_hash(w)
       end
     end
@@ -129,8 +129,8 @@ class AdpService
   def gen_worker_hash(w)
     status = w["workerStatus"]["statusCode"]["codeValue"]
     adp_assoc_oid = w["associateOID"]
-    first_name = w["person"]["legalName"]["nickName"].present? ? w["person"]["legalName"]["nickName"].split(" ")[0] : w["person"]["legalName"]["givenName"]
-    last_name = w["person"]["legalName"]["familyName1"]
+    first_name = w["person"]["legalName"]["nickName"].present? ? w["person"]["legalName"]["nickName"] : w["person"]["legalName"]["givenName"]
+    last_name = find_last_name(w)
     employee_id = w["workerID"]["idValue"]
     personal_mobile_phone = find_mobile(w["person"])
     office_phone = find_office_phone(w["businessCommunication"])
@@ -138,8 +138,11 @@ class AdpService
     work_assignment = w["workAssignments"].find { |wa| wa["primaryIndicator"] == true}
 
     hire_date = work_assignment["hireDate"]
-    w_end_date_json = w["customFieldGroup"]["dateFields"].find { |f| f["nameCode"]["codeValue"] == "Worker End Date"}
-    worker_end_date = find_worker_end_date(w_end_date_json)
+    custom_dates = w.dig("customFieldGroup","dateFields")
+    if custom_dates
+      w_end_date_json = custom_dates.find { |f| f["nameCode"]["codeValue"] == "Worker End Date"}
+      worker_end_date = w_end_date_json.try(:dig, "dateValue")
+    end
     termination_date = work_assignment["terminationDate"]
 
     biz_unit = work_assignment["homeOrganizationalUnits"].find { |ou| ou["typeCode"]["codeValue"] == "Business Unit"}
@@ -147,18 +150,17 @@ class AdpService
 
     job_title = find_job_title(work_assignment["jobCode"])
     worker_type = find_worker_type(work_assignment)
-    manager_id = find_manager_emp_id(work_assignment)
+    manager_id = work_assignment.dig("reportsTo",0,"workerID","idValue")
     location = find_location(work_assignment["homeWorkLocation"])
 
     dept_str = work_assignment["homeOrganizationalUnits"].find { |ou| ou["typeCode"]["codeValue"] == "Department"}
     dept = find_dept(dept_str)
 
-    home_address_1 = w["person"]["legalAddress"]["lineOne"]
-    home_address_2 = w["person"]["legalAddress"]["lineTwo"]
-    home_city = w["person"]["legalAddress"]["cityName"]
-    home_state = w["person"]["legalAddress"]["countrySubdivisionLevel1"]["codeValue"]
-    home_zip = w["person"]["legalAddress"]["postalCode"]
-
+    home_address_1 = w.dig("person","legalAddress","lineOne")
+    home_address_2 = w.dig("person","legalAddress","lineTwo")
+    home_city = w.dig("person","legalAddress","cityName")
+    home_state = w.dig("person","legalAddress","countrySubdivisionLevel1","codeValue")
+    home_zip = w.dig("person","legalAddress","postalCode")
 
     worker = {
       status: status,
@@ -194,41 +196,47 @@ class AdpService
     worker
   end
 
+  def find_last_name(json)
+    custom = json.dig("person", "customFieldGroup", "stringFields")
+    if custom
+      pref_blob = custom.find {|field| field["nameCode"]["codeValue"] == "Preferred Last Name"}
+      pref_name = pref_blob.try(:dig, "stringValue")
+    end
+    if pref_name.present?
+      pref_name
+    else
+      json.dig("person","legalName","familyName1")
+    end
+  end
+
   def find_office_phone(json)
-    unless json == nil
-      if json["mobiles"]
-        num = json["mobiles"][0]["formattedNumber"]
-      elsif json["landlines"]
-        num = json["landlines"][0]["formattedNumber"]
-      else
-        num = nil
-      end
+    if json.try(:dig, "mobiles")
+      num = json["mobiles"][0]["formattedNumber"]
+    elsif json.try(:dig, "landlines")
+      num = json["landlines"][0]["formattedNumber"]
+    else
+      num = nil
     end
     num
   end
 
   def find_mobile(json)
-    if json["communication"].present? && json["communication"]["mobiles"].present?
-      num_json = json["communication"]["mobiles"].find { |num| num["nameCode"]["codeValue"] == "Personal Cell"}
+    if json.dig("communication","mobiles").present?
+      num_json = json.dig("communication","mobiles").find { |num| num["nameCode"]["codeValue"] == "Personal Cell"}
       num = num_json["formattedNumber"] if num_json
       num
     end
   end
 
-  def find_worker_end_date(json)
-    json["dateValue"] if json
-  end
-
   def find_biz_unit(json)
-    json["nameCode"]["codeValue"] if json
-  end
-
-  def find_manager_emp_id(json)
-    json["reportsTo"][0]["workerID"]["idValue"] if json["reportsTo"]
+    if json
+      biz_unit = json["nameCode"]
+      biz_unit["shortName"].present? ? biz_unit["shortName"] : biz_unit["longName"]
+    end
   end
 
   def find_worker_type(json)
-    code = json["workerTypeCode"]["codeValue"] if json["workerTypeCode"]
+    code = json.dig("workerTypeCode","codeValue")
     wt = WorkerType.find_by(code: code)
     wt
   end
@@ -264,8 +272,8 @@ class AdpService
   end
 
   def find_dept(json)
-    if json["nameCode"] == nil
-      return nil
+    if json.try(:dig, "nameCode") == nil
+      return Department.find_or_create_by(name: "No Department Found", code: "XXXXXXX")
     else
       code = json["nameCode"]["codeValue"]
       dept = Department.find_by(code: code)
@@ -278,14 +286,14 @@ class AdpService
   end
 
   def meta
-    str = get_json_str("https://#{@domain}api.adp.com/hr/v2/workers/meta")
+    str = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers/meta")
     json = JSON.parse(str)
     puts JSON.pretty_generate(json)
     json
   end
 
   def list(qty, pos)
-    str = get_json_str("https://#{@domain}api.adp.com/hr/v2/workers?$top=#{qty}&$skip=#{pos}&count=true")
+    str = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers?$top=#{qty}&$skip=#{pos}&count=true")
     json = JSON.parse(str)
     puts JSON.pretty_generate(json)
     emps = json["workers"]
@@ -296,21 +304,21 @@ class AdpService
   end
 
   def worker(uri)
-    str = get_json_str("https://#{@domain}api.adp.com/hr/v2/workers#{uri}")
+    str = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers#{uri}")
     json = JSON.parse(str)
     puts JSON.pretty_generate(json)
     json
   end
 
   def events
-    str = get_json_str("https://#{@domain}api.adp.com/core/v1/event-notification-messages")
+    str = get_json_str("https://#{SECRETS.adp_api_domain}/core/v1/event-notification-messages")
     json = JSON.parse(str)
     puts JSON.pretty_generate(json)
     json
   end
 
   def del_event(num)
-    set_http("https://#{@domain}api.adp.com/core/v1/event-notification-messages#{num}")
+    set_http("https://#{SECRETS.adp_api_domain}/core/v1/event-notification-messages#{num}")
     res = @http.delete(@uri.request_uri, {'Authorization' => "Bearer #{@token}"})
   end
 
@@ -323,13 +331,9 @@ class AdpService
 
   private
 
-  def creds
-    @env == "prod" ? SECRETS.adp_prod_creds : SECRETS.adp_test_creds
-  end
-
   def get_bearer_token
-    set_http("https://#{@domain}accounts.adp.com/auth/oauth/v2/token?grant_type=client_credentials")
-    res = @http.post(@uri.request_uri,'', {'Accept' => 'application/json', 'Authorization' => "Basic #{creds}"})
+    set_http("https://#{SECRETS.adp_token_domain}/auth/oauth/v2/token?grant_type=client_credentials")
+    res = @http.post(@uri.request_uri,'', {'Accept' => 'application/json', 'Authorization' => "Basic #{SECRETS.adp_creds}"})
 
     JSON.parse(res.body)["access_token"]
   end

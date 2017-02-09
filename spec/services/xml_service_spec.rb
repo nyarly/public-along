@@ -263,7 +263,7 @@ describe XmlService, type: :service do
       allow(ads).to receive(:create_disabled_accounts)
       allow(ads).to receive(:update)
 
-      expect(XmlTransaction).to receive(:create).with({:name=>"new_hire.xml", :checksum=>"631263e820cce53399b03526c4642469"})
+      expect(XmlTransaction).to receive(:create).with({:name=>"new_hire.xml", :checksum=>"41f9e50406869cf64cc2ec4b45f05e6a"})
 
       xml.parse_to_ad
     end

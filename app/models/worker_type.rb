@@ -1,5 +1,5 @@
 class WorkerType < ActiveRecord::Base
-  KINDS = ["Regular", "Contingent"]
+  KINDS = ["Regular", "Contingent", "Contractor"]
   STATUS = ["Active", "Inactive"]
 
   validates :name,
@@ -13,4 +13,6 @@ class WorkerType < ActiveRecord::Base
             inclusion: { in: KINDS + ["Pending Assignment"] }
   validates :status,
             inclusion: { in: STATUS }
+
+  has_many :employees
 end

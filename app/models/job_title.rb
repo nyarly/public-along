@@ -10,4 +10,6 @@ class JobTitle < ActiveRecord::Base
   validates :status,
             presence: true,
             inclusion: { in: STATUS }
+
+  has_many :employees
 end

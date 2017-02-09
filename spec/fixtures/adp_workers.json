@@ -31,6 +31,18 @@
         "genderCode": {
           "codeValue": "F",
           "shortName": "Female"
+        },
+        "customFieldGroup": {
+          "stringFields": [
+            {
+              "itemID": "1257366_183",
+              "stringValue": "Smith",
+              "nameCode": {
+                "codeValue": "Preferred Last Name",
+                "shortName": "Preferred Last Name"
+              }
+            }
+          ]
         }
       },
       "workerDates": {
@@ -140,7 +152,7 @@
             },
             {
               "nameCode": {
-                "codeValue": "020710",
+                "codeValue": "120710",
                 "longName": "Sales - General - Germany"
               },
               "typeCode": {
@@ -402,7 +414,7 @@
             },
             {
               "nameCode": {
-                "codeValue": "025000",
+                "codeValue": "125000",
                 "shortName": "Inside Sales"
               },
               "typeCode": {
@@ -662,9 +674,9 @@
           }
         ],
         "legalName": {
-          "givenName": "Sally",
+          "givenName": "Shirley",
           "familyName1": "Allansberg",
-          "formattedName": "Allansberg, Sally"
+          "formattedName": "Allansberg, Shirley"
         },
         "birthDate": "0000-00-00",
         "legalAddress": {
@@ -877,7 +889,7 @@
             },
             {
               "nameCode": {
-                "codeValue": "011000",
+                "codeValue": "111000",
                 "longName": "People & Culture-HR & Total Rewards"
               },
               "typeCode": {

@@ -123,7 +123,7 @@
       <ws:WID ws:PriorValue="">7d05cb19082210903e0d03b70cb41629</ws:WID>
       <ws:SAP_ID ws:PriorValue="">12100401</ws:SAP_ID>
       <ws:Username ws:PriorValue="">jefflebowski</ws:Username>
-      <ws:Cost_Center_Code ws:PriorValue="">000044</ws:Cost_Center_Code>
+      <ws:Cost_Center_Code ws:PriorValue="">044000</ws:Cost_Center_Code>
       <ws:Supervisory_Org_Name ws:PriorValue="">Internal Systems</ws:Supervisory_Org_Name>
       <ws:Managers_Username ws:PriorValue="">12100123</ws:Managers_Username>
       <ws:Primary_Work_Phone ws:PriorValue="">(213) 555-4321</ws:Primary_Work_Phone>
@@ -219,7 +219,7 @@
       <ws:WID ws:PriorValue="">a5d429bc16fc109319e155c7a37d2278</ws:WID>
       <ws:SAP_ID ws:PriorValue="">109640</ws:SAP_ID>
       <ws:Username ws:PriorValue="">walters</ws:Username>
-      <ws:Cost_Center_Code ws:PriorValue="">WP8OT_London000062</ws:Cost_Center_Code>
+      <ws:Cost_Center_Code ws:PriorValue="">WP8OT_London062000</ws:Cost_Center_Code>
       <ws:Supervisory_Org_Name ws:PriorValue="">Product Management, Data Science</ws:Supervisory_Org_Name>
       <ws:Managers_Username ws:PriorValue="">12101502</ws:Managers_Username>
       <ws:Office_ID ws:PriorValue="">32706</ws:Office_ID>
@@ -342,7 +342,7 @@
       <ws:WID ws:PriorValue="">7d05cb19082210903e25340bf5f45c0f</ws:WID>
       <ws:SAP_ID ws:PriorValue="">12101234</ws:SAP_ID>
       <ws:Username ws:PriorValue="">12101234</ws:Username>
-      <ws:Cost_Center_Code ws:PriorValue="">WP8OT_Illinois000020</ws:Cost_Center_Code>
+      <ws:Cost_Center_Code ws:PriorValue="">WP8OT_Illinois020000</ws:Cost_Center_Code>
       <ws:Supervisory_Org_Name ws:PriorValue="">North Central Region Sales &amp; Services</ws:Supervisory_Org_Name>
       <ws:Managers_Username ws:PriorValue="">12100567</ws:Managers_Username>
       <ws:Primary_Work_Phone ws:PriorValue="">(213) 555-4321</ws:Primary_Work_Phone>
@@ -503,7 +503,7 @@
       <ws:WID ws:PriorValue="">7d05cb19082210903e0d03b70cb41629</ws:WID>
       <ws:SAP_ID ws:PriorValue="">1234567</ws:SAP_ID>
       <ws:Username ws:PriorValue="">biglebowski</ws:Username>
-      <ws:Cost_Center_Code ws:PriorValue="">000044</ws:Cost_Center_Code>
+      <ws:Cost_Center_Code ws:PriorValue="">044000</ws:Cost_Center_Code>
       <ws:Supervisory_Org_Name ws:PriorValue="">Internal Systems</ws:Supervisory_Org_Name>
       <ws:Managers_Username ws:PriorValue="">12100123</ws:Managers_Username>
       <ws:Primary_Work_Phone ws:PriorValue="">(213) 555-4321</ws:Primary_Work_Phone>
@@ -611,7 +611,7 @@
       <ws:WID ws:PriorValue="">0e9c2c75a544109c5cb2ef791d0317eb</ws:WID>
       <ws:SAP_ID ws:PriorValue="">109843</ws:SAP_ID>
       <ws:Username ws:PriorValue="">kkylie</ws:Username>
-      <ws:Cost_Center_Code ws:PriorValue="">OT_Melbourne000012</ws:Cost_Center_Code>
+      <ws:Cost_Center_Code ws:PriorValue="">OT_Melbourne012000</ws:Cost_Center_Code>
       <ws:Office_ID ws:PriorValue="">32907</ws:Office_ID>
       <ws:Primary_Work_Phone ws:PriorValue="">(213) 555-1234</ws:Primary_Work_Phone>
       <ws:OT_Job_Family ws:PriorValue="">OT Legal</ws:OT_Job_Family>
