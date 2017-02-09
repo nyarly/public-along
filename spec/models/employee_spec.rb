@@ -490,7 +490,6 @@ describe Employee, type: :model do
       home_address_1: "123 Fake St.",
       home_city: "Beverly Hills",
       home_state: "CA",
-      home_state: "CA",
       home_zip: "90210"
     )}
 

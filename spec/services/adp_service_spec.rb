@@ -389,9 +389,9 @@ describe AdpService, type: :service do
     let(:json) { JSON.parse(File.read(Rails.root.to_s+"/spec/fixtures/adp_workers.json")) }
     let!(:worker_type) { FactoryGirl.create(:worker_type, name: "Regular Full-Time", code: "FTR") }
     let!(:worker_type_2) { FactoryGirl.create(:worker_type, name: "Voluntary", code: "TVOL") }
-    let!(:department) { FactoryGirl.create(:department, name: "People & Culture-HR & Total Rewards", code: "011000") }
-    let!(:department_2) { FactoryGirl.create(:department, name: "Sales - General - Germany", code: "020710") }
-    let!(:department_3) { FactoryGirl.create(:department, name: "Inside Sales", code: "025000") }
+    let!(:department) { FactoryGirl.create(:department, name: "People & Culture-HR & Total Rewards", code: "111000") }
+    let!(:department_2) { FactoryGirl.create(:department, name: "Sales - General - Germany", code: "120710") }
+    let!(:department_3) { FactoryGirl.create(:department, name: "Inside Sales", code: "125000") }
     let!(:location) { FactoryGirl.create(:location, name: "Las Vegas", code: "LAS") }
     let!(:location_2) { FactoryGirl.create(:location, name: "Germany", code: "GERMA", kind: "Remote Location") }
     let!(:job_title) { FactoryGirl.create(:job_title, name: "Sr. People Business Partner", code: "SRBP") }
@@ -432,6 +432,17 @@ describe AdpService, type: :service do
 
       expect(adp.gen_worker_hash(w_json)).to include({
         first_name: "Sally Jesse",
+      })
+    end
+
+    it "should pick preferred last_name if exists" do
+      w_json = json["workers"][0]
+
+      adp = AdpService.new
+      adp.token = "a-token-value"
+
+      expect(adp.gen_worker_hash(w_json)).to include({
+        last_name: "Smith",
       })
     end
 

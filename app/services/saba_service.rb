@@ -1,8 +1,32 @@
 # For generating pipe delimited csv files to send to SABA
 
 require 'csv'
+require 'net/sftp'
 
 class SabaService
+
+  def generate_csvs
+    # delete old files
+    Dir["tmp/saba/*"].each do |f|
+      File.delete(f)
+    end
+
+    dirname = 'tmp/saba'
+    unless File.directory?(dirname)
+      FileUtils.mkdir_p(dirname)
+    end
+
+    create_org_csv
+    create_loc_csv
+    create_job_type_csv
+    create_person_csv
+  end
+
+  def sftp_drop
+    Net::SFTP.start(SECRETS.saba_sftp_host, SECRETS.saba_sftp_user, password: SECRETS.saba_sftp_pass) do |sftp|
+      sftp.upload!("tmp/saba", SECRETS.saba_sftp_path)
+    end
+  end
 
   def create_org_csv
     headers = [
@@ -10,9 +34,11 @@ class SabaService
       "SPLIT",
       "PARENT_ORG",
       "NAME2",
-      "DEFAULT CURRENCY"
+      "DEFAULT_CURRENCY"
     ]
-    str = CSV.generate(headers: true, col_sep: "|") do |csv|
+
+    filename = "tmp/saba/organization_" + DateTime.now.strftime('%Y%m%d') + ".csv"
+    CSV.open(filename, "w+", {headers: true, col_sep: "|"}) do |csv|
       csv << headers
 
       Department.find_each do |dept|
@@ -30,8 +56,17 @@ class SabaService
           "USD"
         ]
       end
+
+      ParentOrg.find_each do |po|
+        csv << [
+          po.code,
+          "OpenTable",
+          "OPENTABLE",
+          po.name,
+          "USD"
+        ]
+      end
     end
-    puts str
   end
 
   def create_loc_csv
@@ -49,7 +84,8 @@ class SabaService
       "ZIP",
       "COUNTRY"
     ]
-    str = CSV.generate(headers: true, col_sep: "|") do |csv|
+    filename = "tmp/saba/location_" + DateTime.now.strftime('%Y%m%d') + ".csv"
+    CSV.open(filename, "w+", {headers: true, col_sep: "|"}) do |csv|
       csv << headers
 
       Location.find_each do |loc|
@@ -71,7 +107,6 @@ class SabaService
         ]
       end
     end
-    puts str
   end
 
   def create_job_type_csv
@@ -83,7 +118,8 @@ class SabaService
       "STATUS",
       "LOCALE"
     ]
-    CSV.generate(headers: true, col_sep: "|") do |csv|
+    filename = "tmp/saba/jobtype_" + DateTime.now.strftime('%Y%m%d') + ".csv"
+    CSV.open(filename, "w+", {headers: true, col_sep: "|"}) do |csv|
       csv << headers
 
       JobTitle.find_each do |jt|
@@ -126,13 +162,13 @@ class SabaService
       "HOME_COMPANY",
       "CUSTOM0"
     ]
-    str = CSV.generate(headers: true, col_sep: "|") do |csv|
+    filename = "tmp/saba/person_" + DateTime.now.strftime('%Y%m%d') + ".csv"
+    CSV.open(filename, "w+", {headers: true, col_sep: "|"}) do |csv|
       csv << headers
 
       Employee.find_each do |e|
         status = (e.status == "Inactive" ? "Leave" : e.status)
         domain = e.worker_type.kind == "Contractor" ? "OpenTable_Contractor" : "OpenTable"
-        puts e.inspect
         csv << [
           e.employee_id,
           status,
@@ -159,6 +195,5 @@ class SabaService
         ]
       end
     end
-    puts str
   end
 end

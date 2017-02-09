@@ -1,6 +1,23 @@
 require 'rails_helper'
 
 describe SabaService, type: :service do
+  before :each do
+    Dir["tmp/saba/*"].each do |f|
+      File.delete(f)
+    end
+
+    dirname = 'tmp/saba'
+    unless File.directory?(dirname)
+      FileUtils.mkdir_p(dirname)
+    end
+  end
+
+  after :each do
+    Dir["tmp/saba/*"].each do |f|
+      File.delete(f)
+    end
+  end
+
 
   describe "create_org_csv" do
     before :each do
@@ -15,19 +32,26 @@ describe SabaService, type: :service do
     let!(:dept3) { FactoryGirl.create(:department, parent_org: nil)}
     let(:org_csv) {
       <<-EOS.strip_heredoc
-      NAME|SPLIT|PARENT_ORG|NAME2|DEFAULT CURRENCY
+      NAME|SPLIT|PARENT_ORG|NAME2|DEFAULT_CURRENCY
       #{dept1.code}|OpenTable|#{parent_org1.code}|#{dept1.name}|USD
       #{dept2.code}|OpenTable|#{parent_org2.code}|#{dept2.name}|USD
       #{dept3.code}|OpenTable|OPENTABLE|#{dept3.name}|USD
+      #{parent_org1.code}|OpenTable|OPENTABLE|#{parent_org1.name}|USD
+      #{parent_org2.code}|OpenTable|OPENTABLE|#{parent_org2.name}|USD
       EOS
     }
+    let(:filepath) { Rails.root.to_s+"/tmp/saba/organization_#{DateTime.now.strftime('%Y%m%d')}.csv" }
 
     it "should output csv string" do
-      expect(service.create_org_csv).to eq(org_csv)
+      service.create_org_csv
+
+      expect(File.read(filepath)).to eq(org_csv)
     end
 
     it "should put OPENTABLE for parent org when a dept has no parent org id" do
-      expect(service.create_org_csv).to include("#{dept3.code}|OpenTable|OPENTABLE|#{dept3.name}|USD")
+      service.create_org_csv
+
+      expect(File.read(filepath)).to include("#{dept3.code}|OpenTable|OPENTABLE|#{dept3.name}|USD")
     end
   end
 
@@ -52,19 +76,26 @@ describe SabaService, type: :service do
       #{loc2.code}|OpenTable|#{loc2.name}|FALSE|#{loc2.timezone}|||||||
       EOS
     }
+    let(:filepath) { Rails.root.to_s+"/tmp/saba/location_#{DateTime.now.strftime('%Y%m%d')}.csv" }
 
     it "should output csv string" do
-      expect(service.create_loc_csv).to eq(loc_csv)
+      service.create_loc_csv
+
+      expect(File.read(filepath)).to eq(loc_csv)
     end
 
     it "should put TRUE for Active location" do
-      expect(service.create_loc_csv).to include(
+      service.create_loc_csv
+
+      expect(File.read(filepath)).to include(
         "#{loc1.code}|OpenTable|#{loc1.name}|TRUE|#{loc1.timezone}|||||||"
       )
     end
 
     it "should put FALSE for Inactive location" do
-      expect(service.create_loc_csv).to include(
+      service.create_loc_csv
+
+      expect(File.read(filepath)).to include(
         "#{loc2.code}|OpenTable|#{loc2.name}|FALSE|#{loc1.timezone}|||||||"
       )
     end
@@ -85,20 +116,24 @@ describe SabaService, type: :service do
       #{job_title2.code} - #{job_title2.name}|OpenTable|#{job_title2.code}|All Jobs|200|English
       EOS
     }
+    let(:filepath) { Rails.root.to_s+"/tmp/saba/jobtype_#{DateTime.now.strftime('%Y%m%d')}.csv" }
 
     it "should output csv string" do
-      expect(service.create_job_type_csv).to eq(jt_csv)
+      service.create_job_type_csv
+      expect(File.read(filepath)).to eq(jt_csv)
     end
 
     it "should concatenate code and name for NAME column" do
-      expect(service.create_job_type_csv).to include("#{job_title1.code} - #{job_title1.name}")
+      service.create_job_type_csv
+      expect(File.read(filepath)).to include("#{job_title1.code} - #{job_title1.name}")
     end
 
     it "should put 100 for Active, 200 for Inactive" do
-      expect(service.create_job_type_csv).to include(
+      service.create_job_type_csv
+      expect(File.read(filepath)).to include(
         "#{job_title1.code} - #{job_title1.name}|OpenTable|#{job_title1.code}|All Jobs|100|English"
       )
-      expect(service.create_job_type_csv).to include(
+      expect(File.read(filepath)).to include(
         "#{job_title2.code} - #{job_title2.name}|OpenTable|#{job_title2.code}|All Jobs|200|English"
       )
     end
@@ -147,33 +182,53 @@ describe SabaService, type: :service do
       #{emp3.employee_id}|Terminated|#{emp3.manager_id}|#{contractor_type.name}|#{emp3.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp3.first_name}|#{emp3.last_name}|#{emp3.email}|#{emp3.email}|#{job_title.name}|#{dept.code}|#{emp3.company}
       EOS
     }
+    let(:filepath) { Rails.root.to_s+"/tmp/saba/person_#{DateTime.now.strftime('%Y%m%d')}.csv" }
+
 
     it "should output csv string" do
-      expect(service.create_person_csv).to eq(person_csv)
+      service.create_person_csv
+
+      expect(File.read(filepath)).to eq(person_csv)
     end
 
     it "should put Leave if status is Inactive otherwise use status value" do
-      expect(service.create_person_csv).to include(
+      service.create_person_csv
+
+      expect(File.read(filepath)).to include(
         "#{emp2.employee_id}|Leave|#{emp2.manager_id}|#{contractor_type.name}|#{emp2.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp2.first_name}|#{emp2.last_name}|#{emp2.email}|#{emp2.email}|#{job_title.name}|#{dept.code}|#{emp2.company}"
       )
-      expect(service.create_person_csv).to include(
+      expect(File.read(filepath)).to include(
         "#{emp1.employee_id}|Active|#{emp1.manager_id}|#{contractor_type.name}|#{emp1.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable_Contractor|0|#{loc.code}|3|OpenTable_Contractor|English||#{dept.code}|#{emp1.first_name}|#{emp1.last_name}|#{emp1.email}|#{emp1.email}|#{job_title.name}|#{dept.code}|#{emp1.company}"
       )
-      expect(service.create_person_csv).to include(
+      expect(File.read(filepath)).to include(
         "#{emp3.employee_id}|Terminated|#{emp3.manager_id}|#{contractor_type.name}|#{emp3.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp3.first_name}|#{emp3.last_name}|#{emp3.email}|#{emp3.email}|#{job_title.name}|#{dept.code}|#{emp3.company}"
       )
     end
 
     it "should assign OpenTable_Contractor for HOME/SECURITY DOMAIN if contractor type" do
-      expect(service.create_person_csv).to include(
+      service.create_person_csv
+
+      expect(File.read(filepath)).to include(
         "#{emp1.employee_id}|Active|#{emp1.manager_id}|#{contractor_type.name}|#{emp1.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable_Contractor|0|#{loc.code}|3|OpenTable_Contractor|English||#{dept.code}|#{emp1.first_name}|#{emp1.last_name}|#{emp1.email}|#{emp1.email}|#{job_title.name}|#{dept.code}|#{emp1.company}"
       )
     end
 
     it "should assign OpenTable for HOME/SECURITY DOMAIN if not contractor type" do
-      expect(service.create_person_csv).to include(
+      service.create_person_csv
+
+      expect(File.read(filepath)).to include(
         "#{emp2.employee_id}|Leave|#{emp2.manager_id}|#{contractor_type.name}|#{emp2.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp2.first_name}|#{emp2.last_name}|#{emp2.email}|#{emp2.email}|#{job_title.name}|#{dept.code}|#{emp2.company}"
       )
+    end
+  end
+
+  describe "generate_csvs" do
+    let(:service) { SabaService.new }
+
+    it "makes the correct number of csvs" do
+      expect{
+        service.generate_csvs
+      }.to change{Dir["tmp/saba/*"].count}.from(0).to(4)
     end
   end
 end

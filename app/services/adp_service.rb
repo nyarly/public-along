@@ -130,7 +130,7 @@ class AdpService
     status = w["workerStatus"]["statusCode"]["codeValue"]
     adp_assoc_oid = w["associateOID"]
     first_name = w["person"]["legalName"]["nickName"].present? ? w["person"]["legalName"]["nickName"] : w["person"]["legalName"]["givenName"]
-    last_name = w["person"]["legalName"]["familyName1"]
+    last_name = find_last_name(w)
     employee_id = w["workerID"]["idValue"]
     personal_mobile_phone = find_mobile(w["person"])
     office_phone = find_office_phone(w["businessCommunication"])
@@ -194,6 +194,19 @@ class AdpService
       worker.merge!(contact_info)
     end
     worker
+  end
+
+  def find_last_name(json)
+    custom = json.dig("person", "customFieldGroup", "stringFields")
+    if custom
+      pref_blob = custom.find {|field| field["nameCode"]["codeValue"] == "Preferred Last Name"}
+      pref_name = pref_blob.try(:dig, "stringValue")
+    end
+    if pref_name.present?
+      pref_name
+    else
+      json.dig("person","legalName","familyName1")
+    end
   end
 
   def find_office_phone(json)
@@ -318,13 +331,9 @@ class AdpService
 
   private
 
-  def creds
-    Rails.env.development? ? SECRETS.adp_test_creds : SECRETS.adp_creds
-  end
-
   def get_bearer_token
     set_http("https://#{SECRETS.adp_token_domain}/auth/oauth/v2/token?grant_type=client_credentials")
-    res = @http.post(@uri.request_uri,'', {'Accept' => 'application/json', 'Authorization' => "Basic #{creds}"})
+    res = @http.post(@uri.request_uri,'', {'Accept' => 'application/json', 'Authorization' => "Basic #{SECRETS.adp_creds}"})
 
     JSON.parse(res.body)["access_token"]
   end

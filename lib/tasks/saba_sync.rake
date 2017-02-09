@@ -14,7 +14,7 @@ namespace :db do
           {name:"Global Sales & Services", code: "SALE"}
       ]
       orgs.each do |attrs|
-        po = ParentOrg.find_or_create_by(name: attrs[:name])
+        po = ParentOrg.find_or_create_by(code: attrs[:code])
         po.update_attributes(attrs)
       end
 
@@ -32,6 +32,7 @@ namespace :db do
                {:name=>"Inside Sales", :code=>"025000", :parent_org_id=>ParentOrg.find_by(code: "SALE").id},
                {:name=>"Field Operations", :code=>"031000", :parent_org_id=>ParentOrg.find_by(code: "SALE").id},
                {:name=>"Customer Support", :code=>"032000", :parent_org_id=>ParentOrg.find_by(code: "SALE").id},
+               {:name=>"Customer Support - Contact Center", :code=>"037000", :parent_org_id=>ParentOrg.find_by(code: "SALE").id},
                {:name=>"Restaurant Relations Management", :code=>"033000", :parent_org_id=>ParentOrg.find_by(code: "ENGI").id},
                {:name=>"Tech Table", :code=>"035000", :parent_org_id=>ParentOrg.find_by(code: "ENGI").id},
                {:name=>"Infrastructure Engineering", :code=>"036000", :parent_org_id=>ParentOrg.find_by(code: "ENGI").id},
@@ -54,7 +55,7 @@ namespace :db do
 
       ActiveRecord::Base.transaction do
         depts.each { |attrs|
-          dept = Department.find_or_create_by(name: attrs[:name])
+          dept = Department.find_or_create_by(code: attrs[:code])
           dept.update_attributes(attrs)
         }
       end
