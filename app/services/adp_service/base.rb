@@ -33,18 +33,6 @@ module AdpService
       json
     end
 
-    def events
-      str = get_json_str("https://#{SECRETS.adp_api_domain}/core/v1/event-notification-messages")
-      json = JSON.parse(str)
-      puts JSON.pretty_generate(json)
-      json
-    end
-
-    def del_event(num)
-      set_http("https://#{SECRETS.adp_api_domain}/core/v1/event-notification-messages#{num}")
-      res = @http.delete(@uri.request_uri, {'Authorization' => "Bearer #{@token}"})
-    end
-
     def url(url)
       str = get_json_str("#{url}")
       json = JSON.parse(str)
