@@ -174,8 +174,6 @@ describe AdpService::Events, type: :service do
       let(:parsed_contract_json) { JSON.parse(contract_hire_json) }
 
       it "should create Employee if regular hire event" do
-        # expect(response).to receive(:body).and_return(hire_json)
-        # expect(response).to receive(:to_hash).and_return(header_hash)
         expect(ActiveDirectoryService).to receive(:new).and_return(ads)
         expect(ads).to receive(:create_disabled_accounts)
 
@@ -183,26 +181,21 @@ describe AdpService::Events, type: :service do
         adp.token = "a-token-value"
 
         expect(adp).to receive(:check_manager)
-        # expect(adp).to receive(:del_event)
         expect{
           adp.process_hire(parsed_reg_json)
         }.to change{Employee.count}.from(0).to(1)
-        # expect(AdpEvent.last.status).to eq("Processed")
       end
 
       it "should make indicated manager if not already a manager" do
         manager_to_be = FactoryGirl.create(:employee, employee_id: "100449")
         sp = FactoryGirl.create(:security_profile, name: "Basic Manager")
 
-        # expect(response).to receive(:body).and_return(hire_json)
-        # expect(response).to receive(:to_hash).and_return(header_hash)
         expect(ActiveDirectoryService).to receive(:new).and_return(ads)
         expect(ads).to receive(:create_disabled_accounts)
 
         adp = AdpService::Events.new
         adp.token = "a-token-value"
 
-        # expect(adp).to receive(:del_event)
         expect{
           adp.process_hire(parsed_reg_json)
         }.to change{Employee.managers.include?(manager_to_be)}.from(false).to(true)
@@ -213,8 +206,6 @@ describe AdpService::Events, type: :service do
         sp = FactoryGirl.create(:security_profile, name: "Basic Manager")
         manager.security_profiles << sp
 
-        # expect(response).to receive(:body).and_return(hire_json)
-        # expect(response).to receive(:to_hash).and_return(header_hash)
         expect(ActiveDirectoryService).to receive(:new).and_return(ads)
         expect(ads).to receive(:create_disabled_accounts)
 
@@ -222,15 +213,12 @@ describe AdpService::Events, type: :service do
         adp.token = "a-token-value"
 
         expect(Employee.managers.include?(manager)).to eq(true)
-        # expect(adp).to receive(:del_event)
         expect{
           adp.process_hire(parsed_reg_json)
         }.to_not change{Employee.managers.include?(manager)}
       end
 
       it "should have worker end date if contract hire event" do
-        # expect(response).to receive(:body).and_return(contract_hire_json)
-        # expect(response).to receive(:to_hash).and_return(header_hash)
         expect(ActiveDirectoryService).to receive(:new).and_return(ads)
         expect(ads).to receive(:create_disabled_accounts)
 
@@ -238,12 +226,10 @@ describe AdpService::Events, type: :service do
         adp.token = "a-token-value"
 
         expect(adp).to receive(:check_manager)
-        # expect(adp).to receive(:del_event)
         expect{
           adp.process_hire(parsed_contract_json)
         }.to change{Employee.count}.from(0).to(1)
         expect(Employee.last.contract_end_date).to eq("2017-12-01")
-        # expect(AdpEvent.last.status).to eq("Processed")
       end
     end
 
@@ -252,8 +238,6 @@ describe AdpService::Events, type: :service do
       let(:parsed_json) { JSON.parse(term_json) }
 
       it "should update termination date" do
-        # expect(response).to receive(:body).and_return(term_json)
-        # expect(response).to receive(:to_hash).and_return(header_hash)
         expect(ActiveDirectoryService).to receive(:new).and_return(ads)
         expect(ads).to receive(:update)
         expect(EmployeeWorker).to receive(:perform_async)
@@ -261,12 +245,10 @@ describe AdpService::Events, type: :service do
         adp = AdpService::Events.new
         adp.token = "a-token-value"
 
-        # expect(adp).to receive(:del_event)
         expect{
           adp.process_term(parsed_json)
         }.to_not change{Employee.count}
         expect(term_emp.reload.termination_date).to eq("2017-01-24")
-        # expect(AdpEvent.last.status).to eq("Processed")
       end
     end
 
@@ -275,20 +257,16 @@ describe AdpService::Events, type: :service do
       let(:parsed_json) { JSON.parse(leave_json) }
 
       it "should update leave date" do
-        # expect(response).to receive(:body).and_return(leave_json)
-        # expect(response).to receive(:to_hash).and_return(header_hash)
         expect(ActiveDirectoryService).to receive(:new).and_return(ads)
         expect(ads).to receive(:update)
 
         adp = AdpService::Events.new
         adp.token = "a-token-value"
 
-        # expect(adp).to receive(:del_event)
         expect{
           adp.process_leave(parsed_json)
         }.to_not change{Employee.count}
         expect(leave_emp.reload.leave_start_date).to eq("2017-01-23")
-        # expect(AdpEvent.last.status).to eq("Processed")
       end
     end
   end
