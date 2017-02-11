@@ -15,7 +15,6 @@ module AdpService
     end
 
     def gen_worker_hash(w)
-      puts "INHERE"
       status = w["workerStatus"]["statusCode"]["codeValue"]
       adp_assoc_oid = w["associateOID"]
       first_name = w["person"]["legalName"]["nickName"].present? ? w["person"]["legalName"]["nickName"] : w["person"]["legalName"]["givenName"]
