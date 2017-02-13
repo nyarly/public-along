@@ -1,0 +1,49 @@
+module AdpService
+  class Workers < Base
+
+    def create_sidekiq_workers
+      create_worker_urls.each do |url|
+        AdpWorker.perform_async(url)
+      end
+    end
+
+    def create_worker_urls
+      count = worker_count
+      pos = 0
+      urls = []
+      while pos <= count
+        urls << "https://#{SECRETS.adp_api_domain}/hr/v2/workers?$top=25&$skip=#{pos}"
+        pos += 25
+      end
+      urls
+    end
+
+    def worker_count
+      begin
+      ensure
+        str = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers?$select=workers/workerStatus&$top=1&count=true")
+        json = JSON.parse(str)
+        count = json["meta"]["totalNumber"]
+      end
+      count
+    end
+
+    def populate_workers(url)
+      begin
+      ensure
+        str = get_json_str(url)
+      end
+
+      unless str == nil
+        json = JSON.parse(str)
+        parser = AdpService::WorkerJsonParser.new
+        workers = parser.sort_workers(json)
+
+        workers.each do |w|
+          e = Employee.find_or_create_by(employee_id: w[:employee_id])
+          e.update_attributes(w) if e
+        end
+      end
+    end
+  end
+end

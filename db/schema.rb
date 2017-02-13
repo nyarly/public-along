@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170204023615) do
+ActiveRecord::Schema.define(version: 20170210005501) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -23,6 +23,14 @@ ActiveRecord::Schema.define(version: 20170204023615) do
     t.datetime "created_at",        null: false
     t.datetime "updated_at",        null: false
     t.string   "ad_security_group"
+  end
+
+  create_table "adp_events", force: :cascade do |t|
+    t.text     "json"
+    t.text     "msg_id"
+    t.text     "status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "applications", force: :cascade do |t|

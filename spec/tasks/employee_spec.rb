@@ -215,6 +215,8 @@ describe "employee rake tasks", type: :tasks do
     let!(:manager_2) { FactoryGirl.create(:employee, employee_id: "12101502", sam_account_name: "samaccountname2")}
     let!(:manager_3) { FactoryGirl.create(:employee, employee_id: "12100567", sam_account_name: "samaccountname3")}
     let!(:manager_4) { FactoryGirl.create(:employee, employee_id: "12101034", sam_account_name: "samaccountname4")}
+    let(:job_title_1) { FactoryGirl.create(:job_title, name: "Rich Guy") }
+    let(:job_title_2) { FactoryGirl.create(:job_title, name: "Fraud Analyst") }
 
     before :each do
       Rake.application = Rake::Application.new
@@ -247,6 +249,7 @@ describe "employee rake tasks", type: :tasks do
       :employee_type => "Regular",
       :contingent_worker_type => nil,
       :location_id => la.id,
+      :job_title_id => job_title_1.id,
       :manager_id => "12100123",
       :department_id => Department.find_by(:name => "BizOpti/Internal Systems Engineering").id,
       :office_phone => nil,
@@ -268,6 +271,7 @@ describe "employee rake tasks", type: :tasks do
       :employee_type => "Regular",
       :contingent_worker_type => nil,
       :location_id => melbourne.id,
+      :job_title_id => job_title_2.id,
       :manager_id => "12101034",
       :department_id => Department.find_by(:name => "Legal").id,
       :office_phone => "(213) 555-1234",
@@ -283,7 +287,6 @@ describe "employee rake tasks", type: :tasks do
         sAMAccountName: "tlebowski",
         displayName: "The Big Lebowski",
         userPrincipalName: "tlebowski@opentable.com",
-        sAMAccountName: "tlebowski",
         manager: manager_1.dn,
         workdayUsername: "biglebowski",
         co: "US",
@@ -361,8 +364,8 @@ describe "employee rake tasks", type: :tasks do
           :workdayUsername=>"jefflebowski",
           :co=>"US",
           :accountExpires=>"9223372036854775807",
-          :title=>"Software Development Team Lead",
-          :description=>"Software Development Team Lead",
+          # :title=>"Software Development Team Lead", JOB TITLE can't be generated from xml load since we are getting those from ADP
+          # :description=>"Software Development Team Lead",
           :employeeType=>"Regular",
           :physicalDeliveryOfficeName=>"Los Angeles Office",
           :department=>"BizOpti/Internal Systems Engineering",
@@ -385,8 +388,8 @@ describe "employee rake tasks", type: :tasks do
           :workdayUsername=>"walters",
           :co=>"GB",
           :accountExpires=>"131117904000000000",
-          :title=>"Contingent Position - Product Management",
-          :description=>"Contingent Position - Product Management",
+          # :title=>"Contingent Position - Product Management",
+          # :description=>"Contingent Position - Product Management",
           :employeeType=>"Vendor",
           :physicalDeliveryOfficeName=>"London Office",
           :department=>"Consumer Product Management",
@@ -407,8 +410,8 @@ describe "employee rake tasks", type: :tasks do
           :workdayUsername=>"12101234",
           :co=>"US",
           :accountExpires=>"9223372036854775807",
-          :title=>"Account Executive",
-          :description=>"Account Executive",
+          # :title=>"Account Executive",
+          # :description=>"Account Executive",
           :employeeType=>"Regular",
           :physicalDeliveryOfficeName=>"Illinois",
           :department=>"Sales",
