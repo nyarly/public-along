@@ -1,0 +1,314 @@
+{
+  "events": [
+    {
+      "data": {
+        "output": {
+          "worker": {
+            "associateOID": "G3WWZ4440J13A1BD",
+            "workerID": {
+              "idValue": "IF0RCDIG4"
+            },
+            "person": {
+              "birthDate": "0000-01-22",
+              "genderCode": {
+                "codeValue": "M",
+                "shortName": "Male"
+              },
+              "customFieldGroup": {
+                "stringFields": [
+                  {
+                    "itemID": "HRB:7178:14242415",
+                    "nameCode": {
+                      "codeValue": "Maiden Name",
+                      "shortName": "Maiden Name"
+                    }
+                  }
+                ]
+              },
+              "governmentIDs": [
+                {
+                  "itemID": "60519120N",
+                  "idValue": "000-00-0023",
+                  "nameCode": {
+                    "codeValue": "SSN",
+                    "longName": "Social Security Number"
+                  },
+                  "countryCode": "US",
+                  "statusCode": {
+                    "codeValue": "Applied For",
+                    "shortName": "Applied For"
+                  }
+                }
+              ],
+              "legalName": {
+                "givenName": "Hire",
+                "familyName1": "Testone",
+                "formattedName": "Testone, Hire"
+              },
+              "legalAddress": {
+                "nameCode": {
+                  "codeValue": "Personal Address 1",
+                  "shortName": "Personal Address 1"
+                },
+                "lineOne": "23 Main St",
+                "cityName": "Amherst",
+                "countrySubdivisionLevel1": {
+                  "subdivisionType": "StateTerritory",
+                  "codeValue": "MA",
+                  "shortName": "Massachusetts"
+                },
+                "countryCode": "US",
+                "postalCode": "01002"
+              },
+              "communication": {
+                "mobiles": [
+                  {
+                    "itemID": "CC1_1051606_25",
+                    "nameCode": {
+                      "codeValue": "Personal Cell",
+                      "shortName": "Personal Cell"
+                    },
+                    "countryDialing": "1",
+                    "areaDialing": "555",
+                    "dialNumber": "2225555",
+                    "access": "1",
+                    "formattedNumber": "(555) 222-5555"
+                  }
+                ]
+              }
+            },
+            "workerDates": {
+              "originalHireDate": "2017-01-23"
+            },
+            "workerStatus": {
+              "statusCode": {
+                "codeValue": "Active"
+              }
+            },
+            "workAssignment": {
+              "primaryIndicator": true,
+              "hireDate": "2017-01-23",
+              "actualStartDate": "2017-01-23",
+              "assignmentStatus": {
+                "statusCode": {
+                  "codeValue": "A",
+                  "shortName": "Active"
+                }
+              },
+              "workerTypeCode": {
+                "codeValue": "OLFR",
+                "shortName": "Regular Full-Time"
+              },
+              "workerGroups": [
+                {
+                  "nameCode": {
+                    "codeValue": "Benefits Eligibility Class",
+                    "longName": "Benefits Eligibility Class"
+                  },
+                  "groupCode": {
+                    "codeValue": "FULLT",
+                    "shortName": "Full-time"
+                  }
+                }
+              ],
+              "jobCode": {
+                "codeValue": "ACCTEXEC",
+                "shortName": "Account Executive"
+              },
+              "occupationalClassifications": [
+                {
+                  "nameCode": {
+                    "codeValue": "EEOC",
+                    "shortName": "EEOC"
+                  },
+                  "classificationCode": {
+                    "codeValue": "N",
+                    "shortName": "Not reported"
+                  }
+                }
+              ],
+              "wageLawCoverage": {
+                "wageLawNameCode": {
+                  "codeValue": "FLSA",
+                  "shortName": "FLSA"
+                },
+                "coverageCode": {
+                  "codeValue": "E",
+                  "shortName": "Exempt"
+                }
+              },
+              "positionID": "WP8000085",
+              "homeOrganizationalUnits": [
+                {
+                  "nameCode": {
+                    "codeValue": "OTUS",
+                    "shortName": "OpenTable Inc."
+                  },
+                  "typeCode": {
+                    "codeValue": "Business Unit",
+                    "shortName": "Business Unit"
+                  }
+                },
+                {
+                  "nameCode": {
+                    "codeValue": "020000",
+                    "shortName": "Sales"
+                  },
+                  "typeCode": {
+                    "codeValue": "Department",
+                    "shortName": "Department"
+                  }
+                }
+              ],
+              "homeWorkLocation": {
+                "nameCode": {
+                  "codeValue": "MA",
+                  "shortName": "Massachusetts"
+                }
+              },
+              "payCycleCode": {
+                "codeValue": "S",
+                "shortName": "SemiMonthly"
+              },
+              "standardPayPeriodHours": {
+                "hoursQuantity": 38
+              },
+              "baseRemuneration": {
+                "payPeriodRateAmount": {
+                  "nameCode": {
+                    "codeValue": "Salary",
+                    "shortName": "Salary"
+                  },
+                  "amountValue": 500,
+                  "currencyCode": "USD"
+                },
+                "effectiveDate": "2017-01-23"
+              },
+              "additionalRemunerations": [
+                {
+                  "itemID": "Rate 2",
+                  "effectiveDate": "2017-01-23",
+                  "nameCode": {
+                    "codeValue": "Rate 2",
+                    "shortName": "Rate 2"
+                  },
+                  "rate": {
+                    "amountValue": 13.1579,
+                    "currencyCode": "USD"
+                  }
+                }
+              ],
+              "reportsTo": [
+                {
+                  "associateOID": "0RH6B1BYCZQ02049",
+                  "workerID": {
+                    "idValue": "100449",
+                    "schemeCode": {
+                      "codeValue": "Associate ID",
+                      "shortName": "Associate ID"
+                    }
+                  },
+                  "reportsToWorkerName": {
+                    "formattedName": "Greta Garbo"
+                  },
+                  "positionID": "WP8100449"
+                }
+              ],
+              "payrollGroupCode": "WP8",
+              "payrollFileNumber": "000085"
+            },
+            "customFieldGroup": {
+              "codeFields": [
+                {
+                  "itemID": "HRB:7178:162207581",
+                  "codeValue": "GA - Georgia",
+                  "shortName": "GA - Georgia",
+                  "nameCode": {
+                    "codeValue": "Worked State Tax Code",
+                    "longName": "Worked State Tax Code"
+                  }
+                },
+                {
+                  "itemID": "HRB:7178:162207571",
+                  "codeValue": "GA - Georgia",
+                  "shortName": "GA - Georgia",
+                  "nameCode": {
+                    "codeValue": "Lived in State Tax Code",
+                    "longName": "Lived in State Tax Code"
+                  }
+                },
+                {
+                  "itemID": "HRB:7178:45259",
+                  "codeValue": "FL",
+                  "shortName": "FL",
+                  "nameCode": {
+                    "codeValue": "ADP Lived In State",
+                    "shortName": "ADP Lived In State"
+                  }
+                },
+                {
+                  "itemID": "HRB:7178:44118",
+                  "codeValue": "88 - HI",
+                  "shortName": "88 - HI",
+                  "nameCode": {
+                    "codeValue": "SUI Code/Work State",
+                    "shortName": "SUI Code/Work State"
+                  }
+                },
+                {
+                  "itemID": "HRB:7178:44119",
+                  "codeValue": "GA",
+                  "shortName": "GA",
+                  "nameCode": {
+                    "codeValue": "ADP Worked In State",
+                    "shortName": "ADP Worked In State"
+                  }
+                }
+              ],
+              "dateFields": [
+                {
+                  "itemID": "HRB:7178:82897501",
+                  "dateValue": "2017-01-26",
+                  "nameCode": {
+                    "codeValue": "Benefit Eligibility Date",
+                    "longName": "Benefit Eligibility Date"
+                  }
+                }
+              ],
+              "numberFields": [
+                {
+                  "itemID": "HRB:7178:47741",
+                  "numberValue": 3,
+                  "nameCode": {
+                    "codeValue": "New Hire RSU Grant %",
+                    "shortName": "New Hire RSU Grant %"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "eventID": "14ae43bb-b567-4efd-892c-232ca0269bd2",
+      "serviceCategoryCode": {
+        "codeValue": "HR"
+      },
+      "eventNameCode": {
+        "codeValue": "worker.hire"
+      },
+      "eventStatusCode": {
+        "codeValue": "COMPLETED",
+        "shortName": "Completed"
+      },
+      "recordDateTime": "2017-01-23T18:54:22.437+0000",
+      "creationDateTime": "2017-01-23T18:54:22.437+0000",
+      "effectiveDateTime": "2017-01-23T05:00:00.000+0000",
+      "originator": {
+        "associateOID": "G32B8JAXA1W35MVX"
+      },
+      "actor": {
+        "associateOID": "G32B8JAXA1W35MVX"
+      }
+    }
+  ]
+}

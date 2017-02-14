@@ -7,8 +7,9 @@ RSpec.describe Location, type: :model do
     expect(location).to be_valid
 
     expect(location).to_not allow_value(nil).for(:name)
+    expect(location).to_not allow_value(nil).for(:code)
     expect(location).to_not allow_value(nil).for(:kind)
     expect(location).to_not allow_value(nil).for(:country)
-    expect(location).to     validate_uniqueness_of(:name)
+    expect(location).to     validate_uniqueness_of(:code)
   end
 end

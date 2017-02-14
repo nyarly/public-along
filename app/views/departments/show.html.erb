@@ -9,6 +9,11 @@
 </p>
 
 <p>
+  <strong>Parent Org:</strong>
+  <%= @department.parent_org.try(:name) %>
+</p>
+
+<p>
   <strong>Security Profiles:</strong>
   <% @department.security_profiles.each do |sp| %>
     <br><%= sp.name %>

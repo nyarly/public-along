@@ -17,7 +17,7 @@ namespace :db do
         employee_id: 'jlebowski123',
         business_title: 'The Dude Sr.',
         department_id: Department.find_by(name: "People & Culture-HR & Total Rewards").id,
-        location_id: Location.find_by(name: "San Francisco Office").id,
+        location_id: Location.find_by(name: "San Francisco Headquarters").id,
         hire_date: 10.years.ago
       )
     end

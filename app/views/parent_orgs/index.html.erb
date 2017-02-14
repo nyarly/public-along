@@ -1,0 +1,29 @@
+<h1>Listing Parent Orgs</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Code</th>
+      <th>Departments</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @parent_orgs.each do |parent_org| %>
+      <tr>
+        <td><%= parent_org.name %></td>
+        <td><%= parent_org.code %></td>
+        <td><%= raw(parent_org.departments.map(&:name).join('<br/>')) %></td>
+        <td><%= link_to 'Show', parent_org %></td>
+        <td><%= link_to 'Edit', edit_parent_org_path(parent_org) %></td>
+        <td><%= link_to 'Destroy', parent_org, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Parent org', new_parent_org_path %>

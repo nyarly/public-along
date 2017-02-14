@@ -5,6 +5,8 @@ describe Employee, type: :model do
 
   let!(:location) { Location.find_by(:name => "London Office") }
 
+  let!(:job_title) { FactoryGirl.create(:job_title)}
+
   let!(:manager) { FactoryGirl.create(:employee,
     first_name: "Alex",
     last_name: "Trebek",
@@ -22,7 +24,8 @@ describe Employee, type: :model do
       department_id: dept.id,
       sam_account_name: "bbarker",
       manager_id: manager.employee_id,
-      location_id: location.id
+      location_id: location.id,
+      job_title_id: job_title.id
     )}
 
     it "should meet validations" do
@@ -233,7 +236,7 @@ describe Employee, type: :model do
     it "should calculate an onboarding due date according to location" do
       emp_1 = FactoryGirl.create(:employee,
         hire_date: Date.new(2016, 7, 25, 2),
-        location: Location.find_by_name("San Francisco Office")
+        location: Location.find_by_name("San Francisco Headquarters")
       )
 
       emp_2 = FactoryGirl.create(:employee,
@@ -292,13 +295,12 @@ describe Employee, type: :model do
           workdayUsername: employee.workday_username,
           co: employee.location.country,
           accountExpires: employee.generated_account_expires,
-          title: employee.business_title,
-          description: employee.business_title,
+          title: employee.job_title.name,
+          description: employee.job_title.name,
           employeeType: employee.employee_type,
           physicalDeliveryOfficeName: employee.location.name,
           department: employee.department.name,
           employeeID: employee.employee_id,
-          mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,
           streetAddress: employee.generated_address,
           l: employee.home_city,
@@ -315,6 +317,7 @@ describe Employee, type: :model do
       first_name: "Bob",
       last_name: "Barker",
       department_id: dept.id,
+      job_title_id: job_title.id,
       manager_id: "at123",
       sam_account_name: "mrbobbarker"
     )}
@@ -340,13 +343,12 @@ describe Employee, type: :model do
           workdayUsername: employee.workday_username,
           co: employee.location.country,
           accountExpires: employee.generated_account_expires,
-          title: employee.business_title,
-          description: employee.business_title,
+          title: employee.job_title.name,
+          description: employee.job_title.name,
           employeeType: employee.employee_type,
           physicalDeliveryOfficeName: employee.location.name,
           department: employee.department.name,
           employeeID: employee.employee_id,
-          mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,
           streetAddress: employee.generated_address,
           l: employee.home_city,
@@ -365,6 +367,7 @@ describe Employee, type: :model do
       employee_type: "Vendor",
       department_id: dept.id,
       location_id: location.id,
+      job_title_id: job_title.id,
       manager_id: "at123",
       sam_account_name: "senorbob",
       contract_end_date: 1.month.from_now
@@ -401,13 +404,12 @@ describe Employee, type: :model do
           workdayUsername: employee.workday_username,
           co: employee.location.country,
           accountExpires: employee.generated_account_expires,
-          title: employee.business_title,
-          description: employee.business_title,
+          title: employee.job_title.name,
+          description: employee.job_title.name,
           employeeType: employee.employee_type,
           physicalDeliveryOfficeName: employee.location.name,
           department: employee.department.name,
           employeeID: employee.employee_id,
-          mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,
           streetAddress: employee.generated_address,
           l: employee.home_city,
@@ -439,6 +441,7 @@ describe Employee, type: :model do
       last_name: "Barker",
       department_id: dept.id,
       location_id: location.id,
+      job_title_id: job_title.id,
       manager_id: "at123",
       contract_end_date: 1.month.from_now,
       termination_date: 1.day.from_now
@@ -467,13 +470,12 @@ describe Employee, type: :model do
           workdayUsername: employee.workday_username,
           co: employee.location.country,
           accountExpires: employee.generated_account_expires,
-          title: employee.business_title,
-          description: employee.business_title,
+          title: employee.job_title.name,
+          description: employee.job_title.name,
           employeeType: employee.employee_type,
           physicalDeliveryOfficeName: employee.location.name,
           department: employee.department.name,
           employeeID: employee.employee_id,
-          mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,
           streetAddress: employee.generated_address,
           l: employee.home_city,
@@ -490,10 +492,10 @@ describe Employee, type: :model do
       first_name: "Bob",
       last_name: "Barker",
       department_id: dept.id,
+      job_title_id: job_title.id,
       manager_id: "at123",
       home_address_1: "123 Fake St.",
       home_city: "Beverly Hills",
-      home_state: "CA",
       home_state: "CA",
       home_zip: "90210"
     )}
@@ -519,13 +521,12 @@ describe Employee, type: :model do
           workdayUsername: employee.workday_username,
           co: employee.location.country,
           accountExpires: employee.generated_account_expires,
-          title: employee.business_title,
-          description: employee.business_title,
+          title: employee.job_title.name,
+          description: employee.job_title.name,
           employeeType: employee.employee_type,
           physicalDeliveryOfficeName: employee.location.name,
           department: employee.department.name,
           employeeID: employee.employee_id,
-          mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,
           streetAddress: "123 Fake St.",
           l: "Beverly Hills",
@@ -542,6 +543,7 @@ describe Employee, type: :model do
       first_name: "Bob",
       last_name: "Barker",
       department_id: dept.id,
+      job_title_id: job_title.id,
       manager_id: "at123",
       home_address_1: "123 Fake St.",
       home_address_2: "Apt 3G",
@@ -571,13 +573,12 @@ describe Employee, type: :model do
           workdayUsername: employee.workday_username,
           co: employee.location.country,
           accountExpires: employee.generated_account_expires,
-          title: employee.business_title,
-          description: employee.business_title,
+          title: employee.job_title.name,
+          description: employee.job_title.name,
           employeeType: employee.employee_type,
           physicalDeliveryOfficeName: employee.location.name,
           department: employee.department.name,
           employeeID: employee.employee_id,
-          mobile: employee.personal_mobile_phone,
           telephoneNumber: employee.office_phone,
           streetAddress: "123 Fake St., Apt 3G",
           l: "Beverly Hills",

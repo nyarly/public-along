@@ -22,6 +22,8 @@ class Employee < ActiveRecord::Base
 
   belongs_to :department
   belongs_to :location
+  belongs_to :worker_type
+  belongs_to :job_title
   has_many :emp_sec_profiles
   has_many :security_profiles, through: :emp_sec_profiles
   has_many :emp_transactions, through: :emp_sec_profiles
@@ -214,13 +216,12 @@ class Employee < ActiveRecord::Base
       workdayUsername: workday_username,
       co: location.country,
       accountExpires: generated_account_expires,
-      title: business_title,
-      description: business_title,
+      title: job_title.try(:name),
+      description: job_title.try(:name),
       employeeType: employee_type,
       physicalDeliveryOfficeName: location.name,
       department: department.name,
       employeeID: employee_id,
-      mobile: personal_mobile_phone,
       telephoneNumber: office_phone,
       streetAddress: generated_address,
       l: home_city,

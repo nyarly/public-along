@@ -45,7 +45,7 @@ class ActiveDirectoryService
     employees.each do |e|
       if e.contract_end_date_needed?
         TechTableMailer.alert_email("ERROR: #{e.first_name} #{e.last_name} is a contract worker and needs a contract_end_date. Account not activated.").deliver_now
-      elsif !e.onboarding_complete?
+      elsif !e.onboarding_complete? && e.leave_return_date.blank?
         TechTableMailer.alert_email("ERROR: #{e.first_name} #{e.last_name} requires manager to complete onboarding forms. Account not activated.").deliver_now
       else
         ldap.replace_attribute(e.dn, :userAccountControl, "512")

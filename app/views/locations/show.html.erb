@@ -6,6 +6,16 @@
 </p>
 
 <p>
+  <strong>Code:</strong>
+  <%= @location.code %>
+</p>
+
+<p>
+  <strong>Status:</strong>
+  <%= @location.status %>
+</p>
+
+<p>
   <strong>Kind:</strong>
   <%= @location.kind %>
 </p>
@@ -13,6 +23,11 @@
 <p>
   <strong>Country:</strong>
   <%= @location.country %>
+</p>
+
+<p>
+  <strong>Timezone:</strong>
+  <%= @location.timezone %>
 </p>
 
 <%= link_to 'Edit', edit_location_path(@location) %> |
