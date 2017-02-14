@@ -87,14 +87,19 @@ module AdpService
     end
 
     def check_leave_return
-      # change to inactive AND leave_return_date null?
-      month = 5.days.from_now.strftime("%m")
-      day = 5.days.from_now.strftime("%d")
-      year = 5.days.from_now.strftime("%Y")
+      future_date = 5.days.from_now.change(:usec => 0)
+
+      month = future_date.strftime("%m")
+      day = future_date.strftime("%d")
+      year = future_date.strftime("%Y")
+
       Employee.where(status: "Inactive").find_each do |e|
-        json = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers/#{e.adp_assoc_oid}?asOfDate=#{month}%2F#{day}%2F#{year}")
-        body = json.body
-        # check if the worker status is now active and if so, set leave return date to 5 days from now
+        res = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers/#{e.adp_assoc_oid}?asOfDate=#{month}%2F#{day}%2F#{year}")
+        json = JSON.parse(res.body)
+        status = json.dig("workers", 0, "workerStatus", "statusCode", "codeValue")
+        if status == "Active"
+          e.leave_return_date = future_date
+        end
       end
     end
 
