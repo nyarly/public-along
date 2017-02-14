@@ -166,7 +166,7 @@ class SabaService
     CSV.open(filename, "w+", {headers: true, col_sep: "|"}) do |csv|
       csv << headers
 
-      Employee.find_each do |e|
+      Employee.where.not(status: "Pending").find_each do |e|
         status = (e.status == "Inactive" ? "Leave" : e.status)
         domain = e.worker_type.kind == "Contractor" ? "OpenTable_Contractor" : "OpenTable"
         csv << [

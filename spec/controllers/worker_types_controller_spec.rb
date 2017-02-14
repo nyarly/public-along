@@ -26,7 +26,7 @@ RSpec.describe WorkerTypesController, type: :controller do
   let(:valid_attributes) {
     {
       name: "OT Valid Name",
-      kind: "Contingent",
+      kind: "Temporary",
       code: "OTVN",
       status: "Active"
     }

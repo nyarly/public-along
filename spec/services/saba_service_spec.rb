@@ -174,6 +174,14 @@ describe SabaService, type: :service do
                                     location_id: loc.id,
                                     department_id: dept.id,
                                     company: "OpenTable, Inc.")}
+    let!(:emp4) {FactoryGirl.create(:employee,
+                                    status: "Pending",
+                                    email: "test4@opentable.com",
+                                    job_title_id: job_title.id,
+                                    worker_type_id: reg_type.id,
+                                    location_id: loc.id,
+                                    department_id: dept.id,
+                                    company: "OpenTable, Inc.")}
     let(:person_csv) {
       <<-EOS.strip_heredoc
       PERSON_NO|STATUS|MANAGER|PERSON_TYPE|HIRED_ON|TERMINATED_ON|JOB_TYPE|SECURITY_DOMAIN|RATE|LOCATION|GENDER|HOME_DOMAIN|LOCALE|TIMEZONE|COMPANY|FNAME|LNAME|EMAIL|USERNAME|JOB_TITLE|HOME_COMPANY|CUSTOM0
@@ -218,6 +226,14 @@ describe SabaService, type: :service do
 
       expect(File.read(filepath)).to include(
         "#{emp2.employee_id}|Leave|#{emp2.manager_id}|#{contractor_type.name}|#{emp2.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp2.first_name}|#{emp2.last_name}|#{emp2.email}|#{emp2.email}|#{job_title.name}|#{dept.code}|#{emp2.company}"
+      )
+    end
+
+    it "should not include pending workers" do
+      service.create_person_csv
+
+      expect(File.read(filepath)).to_not include(
+        "#{emp4.employee_id}|Pending|#{emp4.manager_id}|#{contractor_type.name}|#{emp4.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp4.first_name}|#{emp4.last_name}|#{emp4.email}|#{emp4.email}|#{job_title.name}|#{dept.code}|#{emp4.company}"
       )
     end
   end

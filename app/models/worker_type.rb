@@ -1,5 +1,5 @@
 class WorkerType < ActiveRecord::Base
-  KINDS = ["Regular", "Contingent", "Contractor"]
+  KINDS = ["Regular", "Temporary", "Contractor"]
   STATUS = ["Active", "Inactive"]
 
   validates :name,
