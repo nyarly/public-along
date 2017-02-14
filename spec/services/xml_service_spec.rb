@@ -2,6 +2,8 @@ require 'rails_helper'
 
 describe XmlService, type: :service do
   let(:xml) { XmlService.new(file) }
+  let!(:reg_worker_type) { FactoryGirl.create(:worker_type, name: "Regular", kind: "Regular") }
+  let!(:temp_worker_type) { FactoryGirl.create(:worker_type, name: "Vendor", kind: "Temporary") }
 
   context "New Hire" do
     let(:file) { File.open(Rails.root.to_s+'/spec/fixtures/new_hire.xml') }
@@ -25,7 +27,7 @@ describe XmlService, type: :service do
       expect(Employee.find_by(:first_name => "Jeffrey").job_profile_id).to eq("50100486")
       expect(Employee.find_by(:first_name => "Jeffrey").job_profile).to eq("OT Internal Systems")
       expect(Employee.find_by(:first_name => "Jeffrey").business_title).to eq("Software Development Team Lead")
-      expect(Employee.find_by(:first_name => "Jeffrey").employee_type).to eq("Regular")
+      expect(Employee.find_by(:first_name => "Jeffrey").worker_type.name).to eq("Regular")
       expect(Employee.find_by(:first_name => "Jeffrey").location.kind).to eq("Office")
       expect(Employee.find_by(:first_name => "Jeffrey").location.name).to eq("Los Angeles Office")
       expect(Employee.find_by(:first_name => "Jeffrey").manager_id).to eq("12100123")
@@ -64,7 +66,7 @@ describe XmlService, type: :service do
       expect(Employee.find_by(:first_name => "Walter").job_profile_id).to eq("50100310")
       expect(Employee.find_by(:first_name => "Walter").job_profile).to eq("OT Contingent Worker")
       expect(Employee.find_by(:first_name => "Walter").business_title).to eq("OT Contingent Position - Product Management")
-      expect(Employee.find_by(:first_name => "Walter").employee_type).to eq("Vendor")
+      expect(Employee.find_by(:first_name => "Walter").worker_type.name).to eq("Vendor")
       expect(Employee.find_by(:first_name => "Walter").location.kind).to eq("Office")
       expect(Employee.find_by(:first_name => "Walter").location.name).to eq("London Office")
       expect(Employee.find_by(:first_name => "Walter").manager_id).to eq("12101502")
@@ -112,7 +114,8 @@ describe XmlService, type: :service do
       :first_name => "Jeffrey",
       :last_name => "Lebowski",
       :department => Department.find_by(:name =>"BizOpti/Internal Systems Engineering"),
-      :image_code => nil)
+      :image_code => nil,
+      :worker_type_id => reg_worker_type.id)
     }
     let!(:terminated_employee) { FactoryGirl.create(:employee,
       :employee_id => "109843",
@@ -263,7 +266,7 @@ describe XmlService, type: :service do
       allow(ads).to receive(:create_disabled_accounts)
       allow(ads).to receive(:update)
 
-      expect(XmlTransaction).to receive(:create).with({:name=>"new_hire.xml", :checksum=>"41f9e50406869cf64cc2ec4b45f05e6a"})
+      expect(XmlTransaction).to receive(:create).with({:name=>"new_hire.xml", :checksum=>"737bc4d16e12abfea6b640e781923074"})
 
       xml.parse_to_ad
     end

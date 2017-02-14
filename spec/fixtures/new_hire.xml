@@ -306,7 +306,7 @@
       <ws:Primary_Position ws:PriorValue="">true</ws:Primary_Position>
       <ws:Position_Title ws:PriorValue="">OT Account Executive</ws:Position_Title>
       <ws:Business_Title ws:PriorValue="">OT Account Executive</ws:Business_Title>
-      <ws:Worker_Type ws:PriorValue="">REG</ws:Worker_Type>
+      <ws:Worker_Type ws:PriorValue="">Regular</ws:Worker_Type>
       <ws:Position_Time_Type ws:PriorValue="">Full_time</ws:Position_Time_Type>
       <ws:Job_Exempt ws:PriorValue="">true</ws:Job_Exempt>
       <ws:Scheduled_Weekly_Hours ws:PriorValue="">40</ws:Scheduled_Weekly_Hours>

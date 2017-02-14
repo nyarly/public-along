@@ -29,8 +29,8 @@
 </p>
 
 <p>
-  <strong>Employee Type:</strong>
-  <%= @employee.employee_type %>
+  <strong>Worker Type:</strong>
+  <%= @employee.worker_type.try(:name) %>
 </p>
 
 <p>
@@ -50,7 +50,7 @@
 
 <p>
   <strong>Business Title:</strong>
-  <%= @employee.business_title %>
+  <%= @employee.job_title.try(:name) %>
 </p>
 
 <p>

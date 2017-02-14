@@ -32,6 +32,7 @@ class XmlService
 
       attrs[:department_id] = get_dept_id(w)
       attrs[:location_id] = get_loc_id(w)
+      attrs[:worker_type_id] = get_wt_id(w)
       sort_employee(attrs)
     end
   end
@@ -80,6 +81,11 @@ class XmlService
     Location.find_by(:name => name).try(:id) if name.present?
   end
 
+  def get_wt_id(worker_node)
+    name = get_text(worker_node, "ws:Position//ws:Worker_Type")
+    WorkerType.find_by(:name => name).try(:id) if name.present?
+  end
+
   def base_attrs(worker_node)
     {
       :first_name => get_text(worker_node, "ws:Personal//ws:Name_Data//ws:First_Name"),
@@ -94,7 +100,6 @@ class XmlService
       :job_profile_id => get_text(worker_node, "ws:Additional_Information//ws:OT_Job_Profile_ID"),
       :job_profile => get_text(worker_node, "ws:Additional_Information//ws:OT_Job_Profile"),
       :business_title => get_text(worker_node, "ws:Position//ws:Position_Title"),
-      :employee_type => get_text(worker_node, "ws:Position//ws:Worker_Type"),
       :contingent_worker_type => get_text(worker_node, "ws:Additional_Information//ws:Contingent_Worker_Type"),
       :manager_id => get_text(worker_node, "ws:Position//ws:Supervisor_ID"),
       :office_phone => get_text(worker_node, "ws:Additional_Information//ws:Primary_Work_Phone"),

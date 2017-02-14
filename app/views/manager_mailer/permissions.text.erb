@@ -3,7 +3,7 @@ You have an employee event form awaiting your action for:
 
 Name: <%= @employee.cn %>
 
-Title: <%= @employee.business_title %>
+Title: <%= @employee.job_title.try(:name) %>
 
 Department: <%= @employee.department.name %>
 

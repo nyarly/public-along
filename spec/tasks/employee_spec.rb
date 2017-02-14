@@ -9,6 +9,7 @@ describe "employee rake tasks", type: :tasks do
   let!(:mumbai) { Location.find_by(:name => "Mumbai Office") }
   let!(:melbourne) { Location.find_by(:name => "Melbourne Office") }
   let!(:illinois) { Location.find_by(:name => "Illinois") }
+  let!(:worker_type) { FactoryGirl.create(:worker_type, kind: "Regular")}
 
   let(:mailer) { double(ManagerMailer) }
 
@@ -33,12 +34,12 @@ describe "employee rake tasks", type: :tasks do
     end
 
     it "should call ldap and update only GB new hires and returning leave workers at 3am BST" do
-      new_hire_uk = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :location_id => london.id)
-      returning_uk = FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.new(2016, 7, 29), :location_id => london.id)
+      new_hire_uk = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :location_id => london.id, worker_type_id: worker_type.id)
+      returning_uk = FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.new(2016, 7, 29), :location_id => london.id, worker_type_id: worker_type.id)
 
-      new_hire_us = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :location_id => sf.id)
-      returning_us = FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.new(2016, 7, 29), :location_id => sf.id)
-      termination = FactoryGirl.create(:employee, :contract_end_date => Date.new(2016, 7, 29), :location_id => london.id)
+      new_hire_us = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :location_id => sf.id, worker_type_id: worker_type.id)
+      returning_us = FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.new(2016, 7, 29), :location_id => sf.id, worker_type_id: worker_type.id)
+      termination = FactoryGirl.create(:employee, :contract_end_date => Date.new(2016, 7, 29), :location_id => london.id, worker_type_id: worker_type.id)
 
       # 7/29/2016 at 3am BST/2am UTC
       Timecop.freeze(Time.new(2016, 7, 29, 2, 0, 0, "+00:00"))
@@ -72,12 +73,12 @@ describe "employee rake tasks", type: :tasks do
     end
 
     it "should call ldap and update only US new hires and returning leave workers at 3am PST" do
-      new_hire_us = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :location_id => sf.id)
-      returning_us = FactoryGirl.create(:employee, :hire_date => 5.years.ago, :leave_return_date => Date.new(2016, 7, 29), :location_id => sf.id)
+      new_hire_us = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :location_id => sf.id, worker_type_id: worker_type.id)
+      returning_us = FactoryGirl.create(:employee, :hire_date => 5.years.ago, :leave_return_date => Date.new(2016, 7, 29), :location_id => sf.id, worker_type_id: worker_type.id)
 
-      new_hire_uk = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :location_id => london.id)
-      returning_uk = FactoryGirl.create(:employee, :hire_date => 5.years.ago, :leave_return_date => Date.new(2016, 7, 29), :location_id => london.id)
-      termination = FactoryGirl.create(:employee, :contract_end_date => Date.new(2016, 7, 29), :location_id => sf.id)
+      new_hire_uk = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :location_id => london.id, worker_type_id: worker_type.id)
+      returning_uk = FactoryGirl.create(:employee, :hire_date => 5.years.ago, :leave_return_date => Date.new(2016, 7, 29), :location_id => london.id, worker_type_id: worker_type.id)
+      termination = FactoryGirl.create(:employee, :contract_end_date => Date.new(2016, 7, 29), :location_id => sf.id, worker_type_id: worker_type.id)
 
       # 7/29/2016 at 3am PST/10am UTC
       Timecop.freeze(Time.new(2016, 7, 29, 10, 0, 0, "+00:00"))
@@ -111,11 +112,11 @@ describe "employee rake tasks", type: :tasks do
     end
 
     it "should call ldap and update only terminations or workers on leave at 9pm in IST" do
-      contract_end = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :contract_end_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "Technology/CTO Admin").id, :location_id => mumbai.id)
-      termination = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :termination_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "Technology/CTO Admin").id, :location_id => mumbai.id)
-      leave = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :leave_start_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "Infrastructure Engineering").id, :location_id => mumbai.id)
-      new_hire_in = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "Data Analytics & Experimentation").id, :location_id => mumbai.id)
-      new_hire_us = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :location_id => sf.id)
+      contract_end = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :contract_end_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "Technology/CTO Admin").id, :location_id => mumbai.id, worker_type_id: worker_type.id)
+      termination = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :termination_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "Technology/CTO Admin").id, :location_id => mumbai.id, worker_type_id: worker_type.id)
+      leave = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :leave_start_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "Infrastructure Engineering").id, :location_id => mumbai.id, worker_type_id: worker_type.id)
+      new_hire_in = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "Data Analytics & Experimentation").id, :location_id => mumbai.id, worker_type_id: worker_type.id)
+      new_hire_us = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :location_id => sf.id, worker_type_id: worker_type.id)
 
       # 7/29/2016 at 9pm IST/3:30pm UTC
       Timecop.freeze(Time.new(2016, 7, 29, 15, 30, 0, "+00:00"))
@@ -148,8 +149,8 @@ describe "employee rake tasks", type: :tasks do
     end
 
     it "should remove worker from all security groups at 3am, 30 days after termination" do
-      termination = FactoryGirl.create(:employee, :manager_id => "12345", :hire_date => Date.new(2014, 5, 3), :termination_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "Technology/CTO Admin").id, :location_id => sf.id)
-      recent_termination = FactoryGirl.create(:employee, :manager_id => "12345", :hire_date => Date.new(2014, 5, 3), :termination_date => Date.new(2016, 8, 20), :department_id => Department.find_by(:name => "Technology/CTO Admin").id, :location_id => sf.id)
+      termination = FactoryGirl.create(:employee, :manager_id => "12345", :hire_date => Date.new(2014, 5, 3), :termination_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "Technology/CTO Admin").id, :location_id => sf.id, worker_type_id: worker_type.id)
+      recent_termination = FactoryGirl.create(:employee, :manager_id => "12345", :hire_date => Date.new(2014, 5, 3), :termination_date => Date.new(2016, 8, 20), :department_id => Department.find_by(:name => "Technology/CTO Admin").id, :location_id => sf.id, worker_type_id: worker_type.id)
       manager = FactoryGirl.create(:employee, :employee_id => "12345")
 
       app_1 = FactoryGirl.create(:application)
@@ -211,12 +212,14 @@ describe "employee rake tasks", type: :tasks do
 
   context "employee:xml_to_ad" do
     # create managers for the xml to reference
-    let!(:manager_1) { FactoryGirl.create(:employee, employee_id: "12100123", sam_account_name: "samaccountname1")}
-    let!(:manager_2) { FactoryGirl.create(:employee, employee_id: "12101502", sam_account_name: "samaccountname2")}
-    let!(:manager_3) { FactoryGirl.create(:employee, employee_id: "12100567", sam_account_name: "samaccountname3")}
-    let!(:manager_4) { FactoryGirl.create(:employee, employee_id: "12101034", sam_account_name: "samaccountname4")}
+    let!(:manager_1) { FactoryGirl.create(:employee, employee_id: "12100123", sam_account_name: "samaccountname1", worker_type_id: worker_type.id)}
+    let!(:manager_2) { FactoryGirl.create(:employee, employee_id: "12101502", sam_account_name: "samaccountname2", worker_type_id: worker_type.id)}
+    let!(:manager_3) { FactoryGirl.create(:employee, employee_id: "12100567", sam_account_name: "samaccountname3", worker_type_id: worker_type.id)}
+    let!(:manager_4) { FactoryGirl.create(:employee, employee_id: "12101034", sam_account_name: "samaccountname4", worker_type_id: worker_type.id)}
     let(:job_title_1) { FactoryGirl.create(:job_title, name: "Rich Guy") }
     let(:job_title_2) { FactoryGirl.create(:job_title, name: "Fraud Analyst") }
+    let!(:reg_worker_type) { FactoryGirl.create(:worker_type, name: "Regular", kind: "Regular") }
+    let!(:temp_worker_type) { FactoryGirl.create(:worker_type, name: "Vendor",kind: "Temporary") }
 
     before :each do
       Rake.application = Rake::Application.new
@@ -246,7 +249,7 @@ describe "employee rake tasks", type: :tasks do
       :job_profile_id => "50100486",
       :job_profile => "Internal Systems",
       :business_title => "Rich Guy",
-      :employee_type => "Regular",
+      :worker_type_id => reg_worker_type.id,
       :contingent_worker_type => nil,
       :location_id => la.id,
       :job_title_id => job_title_1.id,
@@ -268,7 +271,7 @@ describe "employee rake tasks", type: :tasks do
       :job_profile_id => "50100324",
       :job_profile => "Legal",
       :business_title => "Fraud Analyst",
-      :employee_type => "Regular",
+      :worker_type_id => reg_worker_type.id,
       :contingent_worker_type => nil,
       :location_id => melbourne.id,
       :job_title_id => job_title_2.id,

@@ -9,7 +9,7 @@
 
   <p style="margin-left: 2em">
     <strong>Title:</strong>
-    <%= @employee.business_title %>
+    <%= @employee.job_title.try(:name) %>
   </p>
 
   <p style="margin-left: 2em">

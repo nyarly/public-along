@@ -6,6 +6,8 @@ describe ActiveDirectoryService, type: :service do
 
   let(:manager) { FactoryGirl.create(:employee) }
   let(:job_title) { FactoryGirl.create(:job_title) }
+  let(:reg_worker_type) { FactoryGirl.create(:worker_type, kind: "Regular") }
+  let(:temp_worker_type) { FactoryGirl.create(:worker_type, kind: "Temporary") }
 
   before :each do
     allow(Net::LDAP).to receive(:new).and_return(ldap)
@@ -23,7 +25,7 @@ describe ActiveDirectoryService, type: :service do
   end
 
   context "create disabled employees" do
-    let!(:employees) { FactoryGirl.create_list(:employee, 1, :first_name => "Donny", :last_name => "Kerabatsos", :manager_id => manager.employee_id, :job_title_id => job_title.id) }
+    let!(:employees) { FactoryGirl.create_list(:employee, 1, :first_name => "Donny", :last_name => "Kerabatsos", :manager_id => manager.employee_id, :job_title_id => job_title.id, worker_type_id: reg_worker_type.id) }
 
     it "should call ldap.add with correct info for regular employee" do
       allow(ldap).to receive(:search).and_return([]) # Mock search not finding conflicting existing sAMAccountName
@@ -74,7 +76,7 @@ describe ActiveDirectoryService, type: :service do
     let(:mailer) { double(TechTableMailer) }
 
     it "should fail and send alert email if it is a contract worker and there is no contract end date set" do
-      invalid_contract_worker = FactoryGirl.create(:employee, employee_type: "Contract", contract_end_date: nil)
+      invalid_contract_worker = FactoryGirl.create(:employee, worker_type_id: temp_worker_type.id, contract_end_date: nil)
       emp_trans = FactoryGirl.create(:emp_transaction, kind: "Onboarding")
       sec_prof = FactoryGirl.create(:security_profile)
       emp_sec_prof = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans.id, employee_id: invalid_contract_worker.id, security_profile_id: sec_prof.id)
@@ -85,7 +87,7 @@ describe ActiveDirectoryService, type: :service do
     end
 
     it "should activate for properly set contract worker" do
-      valid_contract_worker = FactoryGirl.create(:employee, employee_type: "Contract", contract_end_date: 3.months.from_now)
+      valid_contract_worker = FactoryGirl.create(:employee, worker_type_id: temp_worker_type.id, contract_end_date: 3.months.from_now)
       emp_trans = FactoryGirl.create(:emp_transaction, kind: "Onboarding")
       onboarding_info = FactoryGirl.create(:onboarding_info, employee_id: valid_contract_worker.id, emp_transaction_id: emp_trans.id)
       sec_prof = FactoryGirl.create(:security_profile)
@@ -97,7 +99,7 @@ describe ActiveDirectoryService, type: :service do
     end
 
     it "should activate for properly set contract worker with no security profiles" do
-      valid_contract_worker = FactoryGirl.create(:employee, employee_type: "Contract", contract_end_date: 3.months.from_now)
+      valid_contract_worker = FactoryGirl.create(:employee, worker_type_id: temp_worker_type.id, contract_end_date: 3.months.from_now)
       emp_trans = FactoryGirl.create(:emp_transaction, kind: "Onboarding")
       onboarding_info = FactoryGirl.create(:onboarding_info, employee_id: valid_contract_worker.id, emp_transaction_id: emp_trans.id)
 
@@ -107,7 +109,7 @@ describe ActiveDirectoryService, type: :service do
     end
 
     it "should fail if the manager has not completed the onboarding forms" do
-      invalid_worker = FactoryGirl.create(:employee, employee_type: "Regular")
+      invalid_worker = FactoryGirl.create(:employee, worker_type_id: reg_worker_type.id)
 
       expect(TechTableMailer).to receive(:alert_email).once.and_return(mailer)
       expect(mailer).to receive(:deliver_now).once
@@ -153,7 +155,8 @@ describe ActiveDirectoryService, type: :service do
       :job_title_id => job_title.id,
       :sam_account_name => "jlebowski",
       :department_id => Department.find_by(:name => "People & Culture-HR & Total Rewards").id ,
-      :location_id => Location.find_by(:name => "San Francisco Headquarters").id
+      :location_id => Location.find_by(:name => "San Francisco Headquarters").id,
+      :worker_type_id => reg_worker_type.id
     )}
     let(:new_job_title) { FactoryGirl.create(:job_title) }
 
@@ -170,7 +173,7 @@ describe ActiveDirectoryService, type: :service do
       ldap_entry[:accountExpires] = "9223372036854775807"
       ldap_entry[:title] = employee.job_title.name,
       ldap_entry[:description] = employee.job_title.name,
-      ldap_entry[:employeeType] = employee.employee_type
+      ldap_entry[:employeeType] = employee.worker_type.name,
       ldap_entry[:physicalDeliveryOfficeName] = employee.location.name
       ldap_entry[:department] = employee.department.name
       ldap_entry[:employeeID] = employee.employee_id
@@ -261,7 +264,7 @@ describe ActiveDirectoryService, type: :service do
     end
 
     it "should update changed attributes with nil" do
-      rem_to_reg_employee = FactoryGirl.create(:employee, :remote, :manager_id => manager.employee_id, :job_title_id => job_title.id)
+      rem_to_reg_employee = FactoryGirl.create(:employee, :remote, :manager_id => manager.employee_id, :job_title_id => job_title.id, worker_type_id: reg_worker_type.id)
 
       ldap_entry_2 = Net::LDAP::Entry.new(rem_to_reg_employee.dn)
       ldap_entry_2[:cn] = rem_to_reg_employee.cn
@@ -275,7 +278,7 @@ describe ActiveDirectoryService, type: :service do
       ldap_entry_2[:accountExpires] = rem_to_reg_employee.generated_account_expires
       ldap_entry_2[:title] = rem_to_reg_employee.job_title.name
       ldap_entry_2[:description] = rem_to_reg_employee.job_title.name
-      ldap_entry_2[:employeeType] = rem_to_reg_employee.employee_type
+      ldap_entry_2[:employeeType] = rem_to_reg_employee.worker_type.name
       ldap_entry_2[:physicalDeliveryOfficeName] = rem_to_reg_employee.location.name
       ldap_entry_2[:department] = rem_to_reg_employee.department.name
       ldap_entry_2[:employeeID] = rem_to_reg_employee.employee_id

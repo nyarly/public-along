@@ -12,7 +12,7 @@ class EmpDelta < ActiveRecord::Base
         WHERE (k IN (
         'hire_date',
         'contract_end_date',
-        'business_title',
+        'job_title_id',
         'manager_id',
         'location_id')
         OR (k IN ('termination_date')
@@ -29,7 +29,7 @@ class EmpDelta < ActiveRecord::Base
       'hire_date',
       'contract_end_date',
       'termination_date',
-      'business_title',
+      'job_title_id',
       'manager_id',
       'location_id'
     ]
@@ -41,7 +41,7 @@ class EmpDelta < ActiveRecord::Base
         result << "#{k.tr("_", " ")}: #{v.present? ? Date.parse(v).strftime('%b %e, %Y') : 'nil'}" if k.include? "date"
         result << "manager: #{Employee.find_by(employee_id: v).try(:cn) || 'nil'}" if k.include? "manager"
         result << "location: #{Location.find(v).try(:name) || 'nil'}" if k.include? "location"
-        result << "#{k}: #{v}" if k.include? "business"
+       result << "business_title: #{JobTitle.find(v).try(:name) || 'nil'}" if k.include? "job_title"
       end
     }
 

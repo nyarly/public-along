@@ -14,13 +14,13 @@
   <%= f.text_field :first_name, label: "Preferred First Name*", required: true %>
   <%= f.text_field :last_name, label: "Preferred Last Name*", required: true %>
   <%= f.text_field :employee_id, label: "Worker ID - From ADP*", required: true %>
-  <%= f.select :employee_type, Employee::TYPES, {label: "Worker Type*", required: true} %>
+  <#%= f.select :employee_type, Employee::TYPES, {label: "Worker Type*", required: true} %>
   <div class="date-select">
     <%= f.date_select :hire_date, {:order => [:month, :day, :year], :include_blank => true, :default => nil, label: "Hire Date*"}, {required: true} %>
   </div>
   <%= f.collection_select :department_id, Department.all, :id, :name, {label: "Department*"}, {required: true} %>
   <%= f.collection_select :manager_id, Employee.managers, :employee_id, :cn, {label: "Manager*"}, {required: true} %>
-  <%= f.text_field :business_title, label: "Business Title*",required: true %>
+  <#%= f.text_field :business_title, label: "Business Title*",required: true %>
   <%= f.collection_select :location_id, Location.all, :id, :name, {label: "Location*"}, {required: true} %>
   <%= f.text_field :office_phone %>
   <%= f.text_field :personal_mobile_phone %>
