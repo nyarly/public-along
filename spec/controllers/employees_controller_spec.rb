@@ -2,7 +2,8 @@ require 'rails_helper'
 
 RSpec.describe EmployeesController, type: :controller do
 
-  let!(:employee) { FactoryGirl.create(:employee, first_name: "Alex", last_name: "Trebek", manager_id: manager.employee_id) }
+  let!(:employee) { FactoryGirl.create(:employee, first_name: "Alex", last_name: "Trebek", manager_id: manager.employee_id, worker_type_id: worker_type.id) }
+  let!(:worker_type) { FactoryGirl.create(:worker_type, kind: "Regular") }
   let!(:manager) { FactoryGirl.create(:employee, first_name: "Pat", last_name: "Sajak") }
   let!(:user) { FactoryGirl.create(:user, :role_names => ["Admin"], employee_id: employee.employee_id) }
   let!(:mgr_user) { FactoryGirl.create(:user, :role_names => ["Manager"], employee_id: manager.employee_id) }
@@ -15,7 +16,7 @@ RSpec.describe EmployeesController, type: :controller do
       last_name: "Barker",
       department_id: 1,
       location_id: 1,
-      employee_type: "Regular",
+      worker_type_id: worker_type.id,
       hire_date: 1.week.from_now
     }
   }

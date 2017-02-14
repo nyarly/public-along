@@ -2,6 +2,7 @@ require 'rails_helper'
 
 RSpec.describe EmpDelta, type: :model do
   let(:employee) { FactoryGirl.create(:employee)}
+  let(:job_title) { FactoryGirl.create(:job_title)}
 
   let(:emp_delta) { FactoryGirl.build(:emp_delta,
     employee_id: employee.id
@@ -32,8 +33,8 @@ RSpec.describe EmpDelta, type: :model do
         after: {"termination_date" => nil}
       ),
       FactoryGirl.create(:emp_delta,
-        before: {"business_title" => "some title"},
-        after: {"business_title" => "some title"}
+        before: {"job_title_id" => "some number"},
+        after: {"job_title_id" => "some number"}
       ),
       FactoryGirl.create(:emp_delta,
         before: {"manager_id" => "some number"},
@@ -112,19 +113,25 @@ RSpec.describe EmpDelta, type: :model do
       new_mgr = FactoryGirl.create(:employee)
       old_loc = FactoryGirl.create(:location)
       new_loc = FactoryGirl.create(:location)
+      old_jt = FactoryGirl.create(:job_title)
+      new_jt = FactoryGirl.create(:job_title)
       delta = FactoryGirl.create(:emp_delta,
         before: {
           "location_id" => old_loc.id,
-          "manager_id" => old_mgr.employee_id},
+          "manager_id" => old_mgr.employee_id,
+          "job_title_id" => old_jt.id},
         after: {
           "manager_id" => new_mgr.employee_id,
+          "job_title_id" => new_jt.id,
           "location_id" => new_loc.id}
       )
 
       expect(delta.format(delta.before)).to include("manager: #{old_mgr.cn}")
       expect(delta.format(delta.before)).to include("location: #{old_loc.name}")
+      expect(delta.format(delta.before)).to include("business_title: #{old_jt.name}")
       expect(delta.format(delta.after)).to include("manager: #{new_mgr.cn}")
       expect(delta.format(delta.after)).to include("location: #{new_loc.name}")
+      expect(delta.format(delta.after)).to include("business_title: #{new_jt.name}")
     end
 
     it "should format dates" do

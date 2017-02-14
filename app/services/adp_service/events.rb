@@ -48,6 +48,7 @@ module AdpService
       parser = WorkerJsonParser.new
       worker_json = json.dig("events", 0, "data", "output", "worker")
       w_hash = parser.gen_worker_hash(worker_json)
+      w_hash[:status] = "Pending" # put worker as "Pending" rather than "Active"
       e = Employee.new(w_hash)
       check_manager(e.manager_id)
       if e.save
@@ -83,6 +84,23 @@ module AdpService
           ads = ActiveDirectoryService.new
           ads.update([e])
         end
+    end
+
+    def check_leave_return
+      future_date = 5.days.from_now.change(:usec => 0)
+
+      month = future_date.strftime("%m")
+      day = future_date.strftime("%d")
+      year = future_date.strftime("%Y")
+
+      Employee.where(status: "Inactive").find_each do |e|
+        res = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers/#{e.adp_assoc_oid}?asOfDate=#{month}%2F#{day}%2F#{year}")
+        json = JSON.parse(res.body)
+        status = json.dig("workers", 0, "workerStatus", "statusCode", "codeValue")
+        if status == "Active"
+          e.leave_return_date = future_date
+        end
+      end
     end
 
     def check_manager(emp_id)

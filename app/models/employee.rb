@@ -66,7 +66,7 @@ class Employee < ActiveRecord::Base
   end
 
   def is_contingent_worker?
-    ["Agency Contractor", "Independent Contractor", "Service Provider"].include?(employee_type)
+    worker_type.kind == "Temporary" || worker_type.kind == "Contract"
   end
 
   def self.managers
@@ -75,7 +75,7 @@ class Employee < ActiveRecord::Base
   end
 
   def contract_end_date_needed?
-    employee_type != "Regular" && contract_end_date.blank?
+    worker_type.kind != "Regular" && contract_end_date.blank?
   end
 
   def self.direct_reports_of(manager_emp_id)
@@ -159,7 +159,7 @@ class Employee < ActiveRecord::Base
   def generated_email
     if email.present?
       email
-    elsif sam_account_name.present? && employee_type != "Vendor"
+    elsif sam_account_name.present? && worker_type.name != "Vendor"
       gen_email = sam_account_name + "@opentable.com"
       update_attribute(:email, gen_email)
       gen_email
@@ -218,7 +218,7 @@ class Employee < ActiveRecord::Base
       accountExpires: generated_account_expires,
       title: job_title.try(:name),
       description: job_title.try(:name),
-      employeeType: employee_type,
+      employeeType: worker_type.try(:name),
       physicalDeliveryOfficeName: location.name,
       department: department.name,
       employeeID: employee_id,

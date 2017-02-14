@@ -7,6 +7,9 @@ describe Employee, type: :model do
 
   let!(:job_title) { FactoryGirl.create(:job_title)}
 
+  let!(:reg_worker_type) { FactoryGirl.create(:worker_type, kind: "Regular")}
+  let!(:temp_worker_type) { FactoryGirl.create(:worker_type, name: "Vendor", kind: "Temporary")}
+
   let!(:manager) { FactoryGirl.create(:employee,
     first_name: "Alex",
     last_name: "Trebek",
@@ -25,7 +28,8 @@ describe Employee, type: :model do
       sam_account_name: "bbarker",
       manager_id: manager.employee_id,
       location_id: location.id,
-      job_title_id: job_title.id
+      job_title_id: job_title.id,
+      worker_type_id: reg_worker_type.id
     )}
 
     it "should meet validations" do
@@ -134,8 +138,10 @@ describe Employee, type: :model do
     end
 
     it "should check if the employee is contingent" do
-      reg_emp = FactoryGirl.create(:employee)
-      contingent_emp = FactoryGirl.create(:employee, :contingent)
+      reg_worker_type = FactoryGirl.create(:worker_type, kind: "Regular")
+      temp_worker_type = FactoryGirl.create(:worker_type, kind: "Temporary")
+      reg_emp = FactoryGirl.create(:employee, worker_type_id: reg_worker_type.id)
+      contingent_emp = FactoryGirl.create(:employee, worker_type_id: temp_worker_type.id)
 
       expect(reg_emp.is_contingent_worker?).to eq(false)
       expect(contingent_emp.is_contingent_worker?).to eq(true)
@@ -297,7 +303,7 @@ describe Employee, type: :model do
           accountExpires: employee.generated_account_expires,
           title: employee.job_title.name,
           description: employee.job_title.name,
-          employeeType: employee.employee_type,
+          employeeType: employee.worker_type.name,
           physicalDeliveryOfficeName: employee.location.name,
           department: employee.department.name,
           employeeID: employee.employee_id,
@@ -319,7 +325,8 @@ describe Employee, type: :model do
       department_id: dept.id,
       job_title_id: job_title.id,
       manager_id: "at123",
-      sam_account_name: "mrbobbarker"
+      sam_account_name: "mrbobbarker",
+      worker_type_id: reg_worker_type.id
     )}
 
     it "should generate an email using the sAMAccountName" do
@@ -345,7 +352,7 @@ describe Employee, type: :model do
           accountExpires: employee.generated_account_expires,
           title: employee.job_title.name,
           description: employee.job_title.name,
-          employeeType: employee.employee_type,
+          employeeType: employee.worker_type.name,
           physicalDeliveryOfficeName: employee.location.name,
           department: employee.department.name,
           employeeID: employee.employee_id,
@@ -370,7 +377,8 @@ describe Employee, type: :model do
       job_title_id: job_title.id,
       manager_id: "at123",
       sam_account_name: "senorbob",
-      contract_end_date: 1.month.from_now
+      contract_end_date: 1.month.from_now,
+      worker_type_id: temp_worker_type.id
     )}
 
     it "should not generate an email when sAMAccountName is set" do
@@ -406,7 +414,7 @@ describe Employee, type: :model do
           accountExpires: employee.generated_account_expires,
           title: employee.job_title.name,
           description: employee.job_title.name,
-          employeeType: employee.employee_type,
+          employeeType: employee.worker_type.name,
           physicalDeliveryOfficeName: employee.location.name,
           department: employee.department.name,
           employeeID: employee.employee_id,
@@ -444,7 +452,8 @@ describe Employee, type: :model do
       job_title_id: job_title.id,
       manager_id: "at123",
       contract_end_date: 1.month.from_now,
-      termination_date: 1.day.from_now
+      termination_date: 1.day.from_now,
+      worker_type_id: temp_worker_type.id
     )}
 
     it "should set the correct account expiry" do
@@ -472,7 +481,7 @@ describe Employee, type: :model do
           accountExpires: employee.generated_account_expires,
           title: employee.job_title.name,
           description: employee.job_title.name,
-          employeeType: employee.employee_type,
+          employeeType: employee.worker_type.name,
           physicalDeliveryOfficeName: employee.location.name,
           department: employee.department.name,
           employeeID: employee.employee_id,
@@ -497,7 +506,8 @@ describe Employee, type: :model do
       home_address_1: "123 Fake St.",
       home_city: "Beverly Hills",
       home_state: "CA",
-      home_zip: "90210"
+      home_zip: "90210",
+      worker_type_id: reg_worker_type.id
     )}
 
     it "should set the correct address" do
@@ -523,7 +533,7 @@ describe Employee, type: :model do
           accountExpires: employee.generated_account_expires,
           title: employee.job_title.name,
           description: employee.job_title.name,
-          employeeType: employee.employee_type,
+          employeeType: employee.worker_type.name,
           physicalDeliveryOfficeName: employee.location.name,
           department: employee.department.name,
           employeeID: employee.employee_id,
@@ -549,7 +559,8 @@ describe Employee, type: :model do
       home_address_2: "Apt 3G",
       home_city: "Beverly Hills",
       home_state: "CA",
-      home_zip: "90210"
+      home_zip: "90210",
+      worker_type_id: reg_worker_type.id
     )}
 
     it "should set the correct address" do
@@ -575,7 +586,7 @@ describe Employee, type: :model do
           accountExpires: employee.generated_account_expires,
           title: employee.job_title.name,
           description: employee.job_title.name,
-          employeeType: employee.employee_type,
+          employeeType: employee.worker_type.name,
           physicalDeliveryOfficeName: employee.location.name,
           department: employee.department.name,
           employeeID: employee.employee_id,

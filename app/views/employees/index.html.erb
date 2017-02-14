@@ -37,7 +37,7 @@
           <td><%= e.manager.try(:cn) %></td>
           <td><%= e.department.name %></td>
           <td><%= e.location.name %></td>
-          <td><%= e.business_title %></td>
+          <td><%= e.job_title.try(:name) %></td>
           <td><%= e.hire_date.strftime("%m/%d/%Y") if e.hire_date.present? %></td>
           <td><%= e.contract_end_date.strftime("%m/%d/%Y") if e.contract_end_date.present? %></td>
           <td><%= e.termination_date.strftime("%m/%d/%Y") if e.termination_date.present? %></td>

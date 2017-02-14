@@ -26,8 +26,8 @@ module SummaryReportHelper
           csv << [
             employee.cn,
             employee.employee_id,
-            employee.employee_type,
-            employee.business_title,
+            employee.worker_type.try(:name),
+            employee.job_title.try(:name),
             employee.department.name,
             employee.manager.try(:cn),
             employee.location.name,
@@ -65,8 +65,8 @@ module SummaryReportHelper
           csv << [
             employee.cn,
             employee.employee_id,
-            employee.employee_type,
-            employee.business_title,
+            employee.worker_type.try(:name),
+            employee.job_title.try(:name),
             employee.department.name,
             employee.manager.cn,
             employee.location.name,

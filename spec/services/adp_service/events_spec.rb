@@ -173,7 +173,7 @@ describe AdpService::Events, type: :service do
       let(:parsed_reg_json) { JSON.parse(hire_json) }
       let(:parsed_contract_json) { JSON.parse(contract_hire_json) }
 
-      it "should create Employee if regular hire event" do
+      it "should create Employee w/ pending status if regular hire event" do
         expect(ActiveDirectoryService).to receive(:new).and_return(ads)
         expect(ads).to receive(:create_disabled_accounts)
 
@@ -184,6 +184,8 @@ describe AdpService::Events, type: :service do
         expect{
           adp.process_hire(parsed_reg_json)
         }.to change{Employee.count}.from(0).to(1)
+        expect(Employee.last.employee_id).to eq("if0rcdig4")
+        expect(Employee.last.status).to eq("Pending")
       end
 
       it "should make indicated manager if not already a manager" do
@@ -229,6 +231,8 @@ describe AdpService::Events, type: :service do
         expect{
           adp.process_hire(parsed_contract_json)
         }.to change{Employee.count}.from(0).to(1)
+        expect(Employee.last.employee_id).to eq("8vheos3zl")
+        expect(Employee.last.status).to eq("Pending")
         expect(Employee.last.contract_end_date).to eq("2017-12-01")
       end
     end

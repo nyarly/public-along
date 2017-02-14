@@ -14,7 +14,7 @@
 
     <div class="section primary">
       <p class="indent-1"><strong>Name:</strong> <%= @employee.cn %></p>
-      <p class="indent-1"><strong>Title:</strong> <%= @employee.business_title %></p>
+      <p class="indent-1"><strong>Title:</strong> <%= @employee.job_title.try(:name) %></p>
       <p class="indent-1"><strong>Department:</strong> <%= @employee.department.name %></p>
       <p class="indent-1"><strong>Location:</strong> <%= @employee.location.name %></p>
       <p class="indent-1"><strong>Manager:</strong> <%= @manager_user.first_name %> <%= @manager_user.last_name %></p>

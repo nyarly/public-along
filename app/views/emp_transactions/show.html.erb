@@ -12,7 +12,7 @@
 
 <p>
   <strong>Title:</strong>
-  <%= @employee.business_title %>
+  <%= @employee.job_title.try(:name) %>
 </p>
 
 <p>

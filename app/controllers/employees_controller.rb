@@ -125,6 +125,7 @@ class EmployeesController < ApplicationController
       :job_profile,
       :business_title,
       :employee_type,
+      :worker_type_id,
       :contingent_worker_id,
       :contingent_worker_type,
       :location_id,
