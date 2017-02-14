@@ -134,8 +134,10 @@ describe Employee, type: :model do
     end
 
     it "should check if the employee is contingent" do
-      reg_emp = FactoryGirl.create(:employee)
-      contingent_emp = FactoryGirl.create(:employee, :contingent)
+      reg_worker_type = FactoryGirl.create(:worker_type, kind: "Regular")
+      temp_worker_type = FactoryGirl.create(:worker_type, kind: "Temporary")
+      reg_emp = FactoryGirl.create(:employee, worker_type_id: reg_worker_type.id)
+      contingent_emp = FactoryGirl.create(:employee, worker_type_id: temp_worker_type.id)
 
       expect(reg_emp.is_contingent_worker?).to eq(false)
       expect(contingent_emp.is_contingent_worker?).to eq(true)
