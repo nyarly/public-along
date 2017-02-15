@@ -21,19 +21,19 @@
   </div>
   <div class="field">
     <%= f.label :status %><br>
-    <%= f.select :status, Location::STATUS %>
+    <%= f.select :status, Location::STATUS, {include_blank: true} %>
   </div>
   <div class="field">
     <%= f.label "Type" %><br>
-    <%= f.select :kind, Location::KINDS %>
+    <%= f.select :kind, Location::KINDS, {include_blank: true} %>
   </div>
   <div class="field">
     <%= f.label :country %><br>
-    <%= f.select :country, Location::COUNTRIES %>
+    <%= f.select :country, Location::COUNTRIES, {include_blank: true} %>
   </div>
   <div class="field">
     <%= f.label :timezone %><br>
-    <%= f.select :timezone, Location::TIMEZONES %>
+    <%= f.select :timezone, Location::TIMEZONES, {include_blank: true} %>
   </div>
   <div class="actions">
     <%= link_to 'Back to List', locations_path, :class => "button secondary" %>

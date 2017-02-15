@@ -23,9 +23,10 @@ class SabaService
   end
 
   def sftp_drop
-    Net::SFTP.start(SECRETS.saba_sftp_host, SECRETS.saba_sftp_user, password: SECRETS.saba_sftp_pass) do |sftp|
-      sftp.upload!("tmp/saba", SECRETS.saba_sftp_path)
-    end
+    uri = URI.parse("sftp://#{SECRETS.saba_sftp_host}")
+    Net::SFTP.start(uri.host, SECRETS.saba_sftp_user, password: SECRETS.saba_sftp_pass, port: SECRETS.saba_sftp_port ) { |f|
+      f.upload!("tmp/saba", "/opentable/uat/inbound")
+    }
   end
 
   def create_org_csv

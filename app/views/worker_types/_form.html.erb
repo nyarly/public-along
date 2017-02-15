@@ -21,11 +21,11 @@
   </div>
   <div class="field">
     <%= f.label :kind %><br>
-    <%= f.select :kind, WorkerType::KINDS %>
+    <%= f.select :kind, WorkerType::KINDS, {include_blank: true} %>
   </div>
   <div class="field">
     <%= f.label :status %><br>
-    <%= f.select :status, WorkerType::STATUS %>
+    <%= f.select :status, WorkerType::STATUS, {include_blank: true}%>
   </div>
   <div class="actions">
     <%= link_to 'Back to List', worker_types_path, :class => "button secondary" %>
