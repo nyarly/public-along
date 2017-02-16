@@ -46,6 +46,8 @@ module AdpService
           if e.present?
             e.update_attributes(w)
             workers_to_update << e
+          else
+            puts e.first_name + ", " + e.last_name + ":" + e.employee_id
           end
         end
 
