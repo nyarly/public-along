@@ -43,11 +43,11 @@ depts = [
 
 locs = [{:name=>"Leeds", :kind=>"Remote Location", :country=>"US", :status=>"Active", :code=>"LD", :timezone=>"(GMT) Greenwich Mean Time : Dublin, Edinburgh, Lisbon, London"},
  {:name=>"Berlin", :kind=>"Remote Location", :country=>"US", :status=>"Active", :code=>"BER", :timezone=>"(GMT+01:00) Amsterdam, Berlin, Bern, Rome, Stockholm, Vienna"},
- {:name=>"Birmingham", :kind=>"Remote Location", :country=>"US", :status=>"Active", :code=>"BM", :timezone=>"(GMT) Greenwich Mean Time : Dublin, Edinburgh, Lisbon, London"},
+ {:name=>"Birmingham", :kind=>"Remote Location", :country=>"GB", :status=>"Active", :code=>"BM", :timezone=>"(GMT) Greenwich Mean Time : Dublin, Edinburgh, Lisbon, London"},
  {:name=>"London Office", :kind=>"Office", :country=>"GB", :status=>"Active", :code=>"LON", :timezone=>"(GMT) Greenwich Mean Time : Dublin, Edinburgh, Lisbon, London"},
  {:name=>"Los Angeles Office", :kind=>"Office", :country=>"US", :status=>"Active", :code=>"LOS", :timezone=>"(GMT-08:00) Pacific Time (US & Canada), Tijuana"},
  {:name=>"Massachusetts", :kind=>"Remote Location", :country=>"US", :status=>"Active", :code=>"MA", :timezone=>"(GMT-05:00) Eastern Time (US & Canada)"},
- {:name=>"Manchester", :kind=>"Remote Location", :country=>"US", :status=>"Active", :code=>"MAN", :timezone=>"(GMT) Greenwich Mean Time : Dublin, Edinburgh, Lisbon, London"},
+ {:name=>"Manchester", :kind=>"Remote Location", :country=>"GB", :status=>"Active", :code=>"MAN", :timezone=>"(GMT) Greenwich Mean Time : Dublin, Edinburgh, Lisbon, London"},
  {:name=>"Maryland", :kind=>"Remote Location", :country=>"US", :status=>"Active", :code=>"MD", :timezone=>"(GMT-05:00) Eastern Time (US & Canada)"},
  {:name=>"Maine", :kind=>"Remote Location", :country=>"US", :status=>"Active", :code=>"ME", :timezone=>"(GMT-05:00) Eastern Time (US & Canada)"},
  {:name=>"Melbourne Office", :kind=>"Office", :country=>"AU", :status=>"Active", :code=>"MEL", :timezone=>"(GMT+10:00) Canberra, Melbourne, Sydney"},
@@ -133,7 +133,7 @@ ActiveRecord::Base.transaction do
     dept.update_attributes(attrs)
   }
   locs.each { |attrs|
-    loc = Location.find_or_create_by(name: attrs[:name])
+    loc = Location.find_or_create_by(code: attrs[:code])
     loc.update_attributes(attrs)
   }
   mach_bundles.each { |attrs|

@@ -3,7 +3,7 @@ class AdpWorker
 
   def perform(url)
     adp = AdpService::Workers.new
-    workers = adp.populate_workers(url)
+    workers = adp.sync_workers(url)
     logger.info "THIS IS THE URL: #{url}"
     logger.info "WORKERS_PROCESSED: #{workers.inspect}"
   end

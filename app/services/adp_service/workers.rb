@@ -28,7 +28,7 @@ module AdpService
       count
     end
 
-    def populate_workers(url)
+    def sync_workers(url)
       begin
       ensure
         str = get_json_str(url)
@@ -37,12 +37,20 @@ module AdpService
       unless str == nil
         json = JSON.parse(str)
         parser = AdpService::WorkerJsonParser.new
+
+        workers_to_update = []
         workers = parser.sort_workers(json)
 
         workers.each do |w|
-          e = Employee.find_or_create_by(employee_id: w[:employee_id])
-          e.update_attributes(w) if e
+          e = Employee.find_by(employee_id: w[:employee_id])
+          if e.present?
+            e.update_attributes(w)
+            workers_to_update << e
+          end
         end
+
+        ads = ActiveDirectoryService.new
+        ads.update(workers_to_update)
       end
     end
   end

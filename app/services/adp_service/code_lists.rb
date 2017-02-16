@@ -1,7 +1,7 @@
 module AdpService
   class CodeLists < Base
 
-    def populate_job_titles
+    def sync_job_titles
       str = get_json_str("https://#{SECRETS.adp_api_domain}/codelists/hr/v3/worker-management/job-titles/WFN/1")
       json = JSON.parse(str)
       titles = json["codeLists"].find { |l| l["codeListTitle"] == "job-titles"}["listItems"]
@@ -14,7 +14,7 @@ module AdpService
       end
     end
 
-    def populate_locations
+    def sync_locations
       str = get_json_str("https://#{SECRETS.adp_api_domain}/codelists/hr/v3/worker-management/locations/WFN/1")
       json = JSON.parse(str)
       locs = json["codeLists"].find { |l| l["codeListTitle"] == "locations"}["listItems"]
@@ -32,7 +32,7 @@ module AdpService
       #TODO (Netops-763) gather all new locations and send email to P&C notifying them that these location attributes need to be assigned.
     end
 
-    def populate_departments
+    def sync_departments
       str = get_json_str("https://#{SECRETS.adp_api_domain}/codelists/hr/v3/worker-management/departments/WFN/1")
       json = JSON.parse(str)
       depts = json["codeLists"].find { |d| d["codeListTitle"] == "departments"}["listItems"]
@@ -46,7 +46,7 @@ module AdpService
       #TODO (Netops-763) gather all depts without parent orgs and send email to P&C notifying them that these attributes need to be assigned.
     end
 
-    def populate_worker_types
+    def sync_worker_types
       str = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers/meta")
       json = JSON.parse(str)
       w_types = json["meta"]["/workers/workAssignments/workerTypeCode"]["codeList"]["listItems"]

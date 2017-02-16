@@ -23,9 +23,10 @@ class SabaService
   end
 
   def sftp_drop
-    Net::SFTP.start(SECRETS.saba_sftp_host, SECRETS.saba_sftp_user, password: SECRETS.saba_sftp_pass) do |sftp|
-      sftp.upload!("tmp/saba", SECRETS.saba_sftp_path)
-    end
+    uri = URI.parse("sftp://#{SECRETS.saba_sftp_host}")
+    Net::SFTP.start(uri.host, SECRETS.saba_sftp_user, password: SECRETS.saba_sftp_pass, port: SECRETS.saba_sftp_port ) { |f|
+      f.upload!("tmp/saba", SECRETS.saba_sftp_path)
+    }
   end
 
   def create_org_csv
@@ -169,6 +170,7 @@ class SabaService
       Employee.where.not(status: "Pending").find_each do |e|
         status = (e.status == "Inactive" ? "Leave" : e.status)
         domain = e.worker_type.kind == "Contractor" ? "OpenTable_Contractor" : "OpenTable"
+        email = SECRETS.saba_sftp_path.include?("uat") ? nil : e.email
         csv << [
           e.employee_id,
           status,
@@ -187,7 +189,7 @@ class SabaService
           e.department.code,
           e.first_name,
           e.last_name,
-          e.email,
+          email,
           e.email,
           e.job_title.name,
           e.department.code,

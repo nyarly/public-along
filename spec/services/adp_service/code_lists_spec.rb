@@ -36,7 +36,7 @@ describe AdpService::CodeLists, type: :service do
     expect(AdpService::CodeLists.new.token).to eq("7890f85c-43ef-4ebc-acb7-f98f2c0581d0")
   end
 
-  describe "populate job titles table" do
+  describe "sync job titles table" do
     let!(:existing) { FactoryGirl.create(:job_title, code: "ACCNASST", name: "Accounting Assistant", status: "Active")}
 
     before :each do
@@ -55,7 +55,7 @@ describe AdpService::CodeLists, type: :service do
       adp.token = "a-token-value"
 
       expect{
-        adp.populate_job_titles
+        adp.sync_job_titles
       }.to change{JobTitle.count}.from(1).to(3)
     end
 
@@ -66,7 +66,7 @@ describe AdpService::CodeLists, type: :service do
       adp.token = "a-token-value"
 
       expect{
-        adp.populate_job_titles
+        adp.sync_job_titles
       }.to change{JobTitle.find_by(code: "ACCNASST").name}.from("Accounting Assistant").to("New Accounting Assistant")
     end
 
@@ -79,14 +79,14 @@ describe AdpService::CodeLists, type: :service do
       adp.token = "a-token-value"
 
       expect{
-        adp.populate_job_titles
+        adp.sync_job_titles
       }.to change{JobTitle.find_by(code: "ACCPAYSU").status}.from("Active").to("Inactive")
       expect(JobTitle.find_by(code: "AASFE").status).to eq("Active")
       expect(JobTitle.find_by(code: "ACCNASST").status).to eq("Active")
     end
   end
 
-  describe "populate locations table" do
+  describe "sync locations table" do
 
     before :each do
       Location.destroy_all
@@ -105,7 +105,7 @@ describe AdpService::CodeLists, type: :service do
       adp.token = "a-token-value"
 
       expect{
-        adp.populate_locations
+        adp.sync_locations
       }.to change{Location.count}.from(0).to(5)
     end
 
@@ -117,7 +117,7 @@ describe AdpService::CodeLists, type: :service do
       adp.token = "a-token-value"
 
       expect{
-        adp.populate_locations
+        adp.sync_locations
       }.to change{Location.find_by(code: "AB").name}.from("Alberta").to("New Alberta")
       expect(Location.find_by(code: "AB").country).to eq("CA")
       expect(Location.find_by(code: "AB").kind).to eq("Remote Location")
@@ -136,14 +136,14 @@ describe AdpService::CodeLists, type: :service do
       adp.token = "a-token-value"
 
       expect{
-        adp.populate_locations
+        adp.sync_locations
       }.to change{Location.find_by(code: "CHA").status}.from("Active").to("Inactive")
       expect(Location.find_by(code: "AB").status).to eq("Active")
       expect(Location.find_by(code: "AZ").status).to eq("Active")
     end
   end
 
-  describe "populate departments table" do
+  describe "sync departments table" do
 
     before :each do
       Department.destroy_all
@@ -162,7 +162,7 @@ describe AdpService::CodeLists, type: :service do
       adp.token = "a-token-value"
 
       expect{
-        adp.populate_departments
+        adp.sync_departments
       }.to change{Department.count}.from(0).to(5)
     end
 
@@ -174,7 +174,7 @@ describe AdpService::CodeLists, type: :service do
       adp.token = "a-token-value"
 
       expect{
-        adp.populate_departments
+        adp.sync_departments
       }.to change{Department.find_by(code: "010000").name}.from("Facilities").to("New Facilities")
     end
 
@@ -187,14 +187,14 @@ describe AdpService::CodeLists, type: :service do
       adp.token = "a-token-value"
 
       expect{
-        adp.populate_departments
+        adp.sync_departments
       }.to change{Department.find_by(code: "014000").status}.from("Active").to("Inactive")
       expect(Department.find_by(code: "010000").status).to eq("Active")
       expect(Department.find_by(code: "011000").status).to eq("Active")
     end
   end
 
-  describe "populate worker types table" do
+  describe "sync worker types table" do
 
     before :each do
       WorkerType.destroy_all
@@ -213,7 +213,7 @@ describe AdpService::CodeLists, type: :service do
       adp.token = "a-token-value"
 
       expect{
-        adp.populate_worker_types
+        adp.sync_worker_types
       }.to change{WorkerType.count}.from(0).to(9)
     end
 
@@ -225,7 +225,7 @@ describe AdpService::CodeLists, type: :service do
       adp.token = "a-token-value"
 
       expect{
-        adp.populate_worker_types
+        adp.sync_worker_types
       }.to change{WorkerType.find_by(code: "ACW").name}.from("Agency Worker").to("New Agency Worker")
     end
 
@@ -238,7 +238,7 @@ describe AdpService::CodeLists, type: :service do
       adp.token = "a-token-value"
 
       expect{
-        adp.populate_worker_types
+        adp.sync_worker_types
       }.to change{WorkerType.find_by(code: "SRP").status}.from("Active").to("Inactive")
       expect(WorkerType.find_by(code: "CONT").status).to eq("Active")
       expect(WorkerType.find_by(code: "F").status).to eq("Active")

@@ -105,7 +105,7 @@ describe AdpService::Workers, type: :service do
     end
   end
 
-  describe "populate_workers" do
+  describe "sync_workers" do
     let!(:employee) { FactoryGirl.create(:employee, employee_id: "101455")}
     let(:json) { JSON.parse(File.read(Rails.root.to_s+"/spec/fixtures/adp_workers.json")) }
     let(:parser) { double(AdpService::WorkerJsonParser) }
@@ -129,6 +129,7 @@ describe AdpService::Workers, type: :service do
         personal_mobile_phone: "(212) 555-4411"
       }]
     }
+    let(:ads) { double(ActiveDirectoryService) }
 
     before :each do
       expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers?$top=25&$skip=25").and_return(uri)
@@ -148,8 +149,10 @@ describe AdpService::Workers, type: :service do
       expect(JSON).to receive(:parse).with(json)
       expect(AdpService::WorkerJsonParser).to receive(:new).and_return(parser)
       expect(parser).to receive(:sort_workers).and_return(sorted)
+      expect(ActiveDirectoryService).to receive(:new).and_return(ads)
+      expect(ads).to receive(:update).with([employee])
 
-      adp.populate_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
+      adp.sync_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
       expect(employee.reload.first_name).to eq("Sally Jesse")
     end
   end
