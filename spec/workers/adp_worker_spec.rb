@@ -10,9 +10,9 @@ RSpec.describe AdpWorker, type: :worker do
     expect(AdpWorker.jobs.size).to eq(1)
   end
 
-  it "should instantiate AdpService::Workers class and call #populate_workers with url" do
+  it "should instantiate AdpService::Workers class and call #sync_workers with url" do
     expect(AdpService::Workers).to receive(:new).and_return(service)
-    expect(service).to receive(:populate_workers).with("a url")
+    expect(service).to receive(:sync_workers).with("a url")
     allow(Sidekiq::Logging.logger).to receive(:info).with("THIS IS THE URL: a url")
     allow(Sidekiq::Logging.logger).to receive(:info).with("WORKERS_PROCESSED: nil")
 
@@ -21,7 +21,7 @@ RSpec.describe AdpWorker, type: :worker do
 
   it "should log info" do
     allow(AdpService::Workers).to receive(:new).and_return(service)
-    allow(service).to receive(:populate_workers).with("a url").and_return({workers: "stuff"})
+    allow(service).to receive(:sync_workers).with("a url").and_return({workers: "stuff"})
 
     expect(Sidekiq::Logging.logger).to receive(:info).with("THIS IS THE URL: a url")
     expect(Sidekiq::Logging.logger).to receive(:info).with("WORKERS_PROCESSED: {:workers=>\"stuff\"}")

@@ -273,5 +273,71 @@ describe AdpService::Events, type: :service do
         expect(leave_emp.reload.leave_start_date).to eq("2017-01-23")
       end
     end
+
+    describe "check leave return" do
+      let!(:leave_emp) {FactoryGirl.create(:employee, status: "Inactive", adp_assoc_oid: "123456", leave_return_date: nil) }
+      let!(:leave_cancel_emp) {FactoryGirl.create(:employee, status: "Inactive", adp_assoc_oid: "123457", leave_return_date: Date.today + 2.days) }
+      let!(:do_nothing_emp) {FactoryGirl.create(:employee, status: "Inactive", adp_assoc_oid: "123458", leave_return_date: nil) }
+      let!(:future_date) { 5.days.from_now.change(:usec => 0) }
+
+      before :each do
+        expect(URI).to receive(:parse).ordered.with("https://api.adp.com/hr/v2/workers/123456?asOfDate=#{future_date.strftime('%m')}%2F#{future_date.strftime('%d')}%2F#{future_date.strftime('%Y')}").and_return(uri)
+        expect(response).to receive(:body).ordered.and_return(
+          '{"workers": [
+            {
+              "workerStatus": {
+                "statusCode": {
+                  "codeValue": "Active"
+                }
+              }
+            }
+          ]}'
+        )
+        expect(URI).to receive(:parse).ordered.with("https://api.adp.com/hr/v2/workers/123457?asOfDate=#{future_date.strftime('%m')}%2F#{future_date.strftime('%d')}%2F#{future_date.strftime('%Y')}").and_return(uri)
+        expect(response).to receive(:body).ordered.and_return(
+          '{"workers": [
+            {
+              "workerStatus": {
+                "statusCode": {
+                  "codeValue": "Inactive"
+                }
+              }
+            }
+          ]}'
+        )
+        expect(URI).to receive(:parse).ordered.with("https://api.adp.com/hr/v2/workers/123458?asOfDate=#{future_date.strftime('%m')}%2F#{future_date.strftime('%d')}%2F#{future_date.strftime('%Y')}").and_return(uri)
+        expect(response).to receive(:body).ordered.and_return(
+          '{"workers": [
+            {
+              "workerStatus": {
+                "statusCode": {
+                  "codeValue": "Inactive"
+                }
+              }
+            }
+          ]}'
+        )
+        allow(http).to receive(:get).with(
+          request_uri,
+          { "Accept"=>"application/json",
+            "Authorization"=>"Bearer a-token-value",
+          }).and_return(response)
+      end
+
+      it "should update leave return date and call AD update, if applicable" do
+        expect(ActiveDirectoryService).to receive(:new).and_return(ads)
+        expect(ads).to receive(:update).with([leave_emp, leave_cancel_emp])
+
+        adp = AdpService::Events.new
+        adp.token = "a-token-value"
+
+        expect{
+          adp.check_leave_return
+        }.to_not change{Employee.count}
+        expect(leave_emp.reload.leave_return_date).to eq(future_date)
+        expect(leave_cancel_emp.reload.leave_return_date).to eq(nil)
+        expect(do_nothing_emp.reload.leave_return_date).to eq(nil)
+      end
+    end
   end
 end

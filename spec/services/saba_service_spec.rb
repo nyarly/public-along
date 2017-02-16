@@ -190,51 +190,76 @@ describe SabaService, type: :service do
       #{emp3.employee_id}|Terminated|#{emp3.manager_id}|#{contractor_type.name}|#{emp3.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp3.first_name}|#{emp3.last_name}|#{emp3.email}|#{emp3.email}|#{job_title.name}|#{dept.code}|#{emp3.company}
       EOS
     }
+    let(:person_uat_csv) {
+      <<-EOS.strip_heredoc
+      PERSON_NO|STATUS|MANAGER|PERSON_TYPE|HIRED_ON|TERMINATED_ON|JOB_TYPE|SECURITY_DOMAIN|RATE|LOCATION|GENDER|HOME_DOMAIN|LOCALE|TIMEZONE|COMPANY|FNAME|LNAME|EMAIL|USERNAME|JOB_TITLE|HOME_COMPANY|CUSTOM0
+      #{emp1.employee_id}|Active|#{emp1.manager_id}|#{contractor_type.name}|#{emp1.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable_Contractor|0|#{loc.code}|3|OpenTable_Contractor|English||#{dept.code}|#{emp1.first_name}|#{emp1.last_name}||#{emp1.email}|#{job_title.name}|#{dept.code}|#{emp1.company}
+      #{emp2.employee_id}|Leave|#{emp2.manager_id}|#{contractor_type.name}|#{emp2.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp2.first_name}|#{emp2.last_name}||#{emp2.email}|#{job_title.name}|#{dept.code}|#{emp2.company}
+      #{emp3.employee_id}|Terminated|#{emp3.manager_id}|#{contractor_type.name}|#{emp3.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp3.first_name}|#{emp3.last_name}||#{emp3.email}|#{job_title.name}|#{dept.code}|#{emp3.company}
+      EOS
+    }
     let(:filepath) { Rails.root.to_s+"/tmp/saba/person_#{DateTime.now.strftime('%Y%m%d')}.csv" }
 
+    describe "prod saba" do
+      before :each do
+        allow(Rails.application.secrets).to receive(:saba_sftp_path).and_return('/opentable/production/inbound')
+      end
 
-    it "should output csv string" do
-      service.create_person_csv
+      it "should output csv string" do
+        service.create_person_csv
 
-      expect(File.read(filepath)).to eq(person_csv)
+        expect(File.read(filepath)).to eq(person_csv)
+      end
+
+      it "should put Leave if status is Inactive otherwise use status value" do
+        service.create_person_csv
+
+        expect(File.read(filepath)).to include(
+          "#{emp2.employee_id}|Leave|#{emp2.manager_id}|#{contractor_type.name}|#{emp2.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp2.first_name}|#{emp2.last_name}|#{emp2.email}|#{emp2.email}|#{job_title.name}|#{dept.code}|#{emp2.company}"
+        )
+        expect(File.read(filepath)).to include(
+          "#{emp1.employee_id}|Active|#{emp1.manager_id}|#{contractor_type.name}|#{emp1.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable_Contractor|0|#{loc.code}|3|OpenTable_Contractor|English||#{dept.code}|#{emp1.first_name}|#{emp1.last_name}|#{emp1.email}|#{emp1.email}|#{job_title.name}|#{dept.code}|#{emp1.company}"
+        )
+        expect(File.read(filepath)).to include(
+          "#{emp3.employee_id}|Terminated|#{emp3.manager_id}|#{contractor_type.name}|#{emp3.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp3.first_name}|#{emp3.last_name}|#{emp3.email}|#{emp3.email}|#{job_title.name}|#{dept.code}|#{emp3.company}"
+        )
+      end
+
+      it "should assign OpenTable_Contractor for HOME/SECURITY DOMAIN if contractor type" do
+        service.create_person_csv
+
+        expect(File.read(filepath)).to include(
+          "#{emp1.employee_id}|Active|#{emp1.manager_id}|#{contractor_type.name}|#{emp1.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable_Contractor|0|#{loc.code}|3|OpenTable_Contractor|English||#{dept.code}|#{emp1.first_name}|#{emp1.last_name}|#{emp1.email}|#{emp1.email}|#{job_title.name}|#{dept.code}|#{emp1.company}"
+        )
+      end
+
+      it "should assign OpenTable for HOME/SECURITY DOMAIN if not contractor type" do
+        service.create_person_csv
+
+        expect(File.read(filepath)).to include(
+          "#{emp2.employee_id}|Leave|#{emp2.manager_id}|#{contractor_type.name}|#{emp2.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp2.first_name}|#{emp2.last_name}|#{emp2.email}|#{emp2.email}|#{job_title.name}|#{dept.code}|#{emp2.company}"
+        )
+      end
+
+      it "should not include pending workers" do
+        service.create_person_csv
+
+        expect(File.read(filepath)).to_not include(
+          "#{emp4.employee_id}|Pending|#{emp4.manager_id}|#{contractor_type.name}|#{emp4.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp4.first_name}|#{emp4.last_name}|#{emp4.email}|#{emp4.email}|#{job_title.name}|#{dept.code}|#{emp4.company}"
+        )
+      end
     end
 
-    it "should put Leave if status is Inactive otherwise use status value" do
-      service.create_person_csv
+    describe "staging saba" do
+      before :each do
+        allow(Rails.application.secrets).to receive(:saba_sftp_path).and_return('/opentable/uat/inbound')
+      end
 
-      expect(File.read(filepath)).to include(
-        "#{emp2.employee_id}|Leave|#{emp2.manager_id}|#{contractor_type.name}|#{emp2.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp2.first_name}|#{emp2.last_name}|#{emp2.email}|#{emp2.email}|#{job_title.name}|#{dept.code}|#{emp2.company}"
-      )
-      expect(File.read(filepath)).to include(
-        "#{emp1.employee_id}|Active|#{emp1.manager_id}|#{contractor_type.name}|#{emp1.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable_Contractor|0|#{loc.code}|3|OpenTable_Contractor|English||#{dept.code}|#{emp1.first_name}|#{emp1.last_name}|#{emp1.email}|#{emp1.email}|#{job_title.name}|#{dept.code}|#{emp1.company}"
-      )
-      expect(File.read(filepath)).to include(
-        "#{emp3.employee_id}|Terminated|#{emp3.manager_id}|#{contractor_type.name}|#{emp3.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp3.first_name}|#{emp3.last_name}|#{emp3.email}|#{emp3.email}|#{job_title.name}|#{dept.code}|#{emp3.company}"
-      )
-    end
+      it "should not include email column if path is uat" do
+        service.create_person_csv
 
-    it "should assign OpenTable_Contractor for HOME/SECURITY DOMAIN if contractor type" do
-      service.create_person_csv
-
-      expect(File.read(filepath)).to include(
-        "#{emp1.employee_id}|Active|#{emp1.manager_id}|#{contractor_type.name}|#{emp1.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable_Contractor|0|#{loc.code}|3|OpenTable_Contractor|English||#{dept.code}|#{emp1.first_name}|#{emp1.last_name}|#{emp1.email}|#{emp1.email}|#{job_title.name}|#{dept.code}|#{emp1.company}"
-      )
-    end
-
-    it "should assign OpenTable for HOME/SECURITY DOMAIN if not contractor type" do
-      service.create_person_csv
-
-      expect(File.read(filepath)).to include(
-        "#{emp2.employee_id}|Leave|#{emp2.manager_id}|#{contractor_type.name}|#{emp2.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp2.first_name}|#{emp2.last_name}|#{emp2.email}|#{emp2.email}|#{job_title.name}|#{dept.code}|#{emp2.company}"
-      )
-    end
-
-    it "should not include pending workers" do
-      service.create_person_csv
-
-      expect(File.read(filepath)).to_not include(
-        "#{emp4.employee_id}|Pending|#{emp4.manager_id}|#{contractor_type.name}|#{emp4.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp4.first_name}|#{emp4.last_name}|#{emp4.email}|#{emp4.email}|#{job_title.name}|#{dept.code}|#{emp4.company}"
-      )
+        expect(File.read(filepath)).to eq(person_uat_csv)
+      end
     end
   end
 
