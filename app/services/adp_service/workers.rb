@@ -47,7 +47,10 @@ module AdpService
             e.update_attributes(w)
             workers_to_update << e
           else
-            puts e.first_name + ", " + e.last_name + ":" + e.employee_id
+            first_name = w["person"]["legalName"]["nickName"].present? ? w["person"]["legalName"]["nickName"] : w["person"]["legalName"]["givenName"]
+            last_name = w["person"]["legalName"]["familyName1"]
+            employee_id = w["workerID"]["idValue"]
+            puts first_name + ", " + last_name + ":" + employee_id
           end
         end
 
