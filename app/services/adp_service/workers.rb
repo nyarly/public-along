@@ -50,7 +50,7 @@ module AdpService
             first_name = w.dig("person","legalName","givenName")
             last_name = w.dig("person","legalName","familyName1")
             employee_id = w.dig("workerID","idValue")
-            Rails.logger.info { first_name: first_name, last_name: last_name, employee_id: employee_id)
+            Rails.logger.info "{ first_name: #{first_name}, last_name: #{last_name}, employee_id: #{employee_id})"
           end
         end unless workers.blank?
 
