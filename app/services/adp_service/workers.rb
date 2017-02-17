@@ -47,12 +47,12 @@ module AdpService
             e.update_attributes(w)
             workers_to_update << e
           else
-            first_name = w["person"]["legalName"]["nickName"].present? ? w["person"]["legalName"]["nickName"] : w["person"]["legalName"]["givenName"]
-            last_name = w["person"]["legalName"]["familyName1"]
-            employee_id = w["workerID"]["idValue"]
-            puts first_name + ", " + last_name + ":" + employee_id
+            first_name = w.dig("person","legalName","givenName")
+            last_name = w.dig("person","legalName","familyName1")
+            employee_id = w.dig("workerID","idValue")
+            Rails.logger.info { first_name: first_name, last_name: last_name, employee_id: employee_id)
           end
-        end
+        end unless workers.blank?
 
         ads = ActiveDirectoryService.new
         ads.update(workers_to_update)
