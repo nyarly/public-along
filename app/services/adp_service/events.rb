@@ -62,8 +62,10 @@ module AdpService
       term_date = json.dig("events", 0, "data", "output", "worker", "workerDates", "terminationDate")
       e = Employee.find_by(employee_id: worker_id)
       e.assign_attributes(termination_date: term_date)
+      # delta = build_emp_delta(e)
 
       if e.save
+        # delta.save
         ads = ActiveDirectoryService.new
         ads.update([e])
         if Time.now < 5.business_days.before(e.termination_date)
@@ -121,12 +123,29 @@ module AdpService
       unless Employee.managers.include?(emp)
         sp = SecurityProfile.find_by(name: "Basic Manager")
         emp.security_profiles << sp
+
+        ads = ActiveDirectoryService.new
+        sp.access_levels.each do |al|
+          sg = al.ad_security_group
+          ads.add_to_sec_group(sg, emp) unless sg.blank?
+        end
       end
     end
 
     def del_event(num)
       set_http("https://#{SECRETS.adp_api_domain}/core/v1/event-notification-messages/#{num}")
       res = @http.delete(@uri.request_uri, {'Authorization' => "Bearer #{@token}"})
+    end
+
+    def build_emp_delta(employee)
+      before = employee.changed_attributes
+      after = Hash[employee.changes.map { |k,v| [k, v[1]] }]
+      emp_delta = EmpDelta.new(
+        employee_id: employee.id,
+        before: before,
+        after: after
+      )
+      emp_delta
     end
 
     private

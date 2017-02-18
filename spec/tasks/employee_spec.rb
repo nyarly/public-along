@@ -128,7 +128,7 @@ describe "employee rake tasks", type: :tasks do
         :olddn=>contract_end.dn,
         :newrdn=>"cn=#{contract_end.cn}",
         :delete_attributes=>true,
-        :new_superior=>"ou=Disabled Users,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com"})
+        :new_superior=>"ou=Disabled Users,ou=OT,dc=ottest,dc=opentable,dc=com"})
       expect(@ldap).to receive(:replace_attribute).once.with(
         termination.dn, :userAccountControl, "514"
       )
@@ -136,7 +136,7 @@ describe "employee rake tasks", type: :tasks do
         :olddn=>termination.dn,
         :newrdn=>"cn=#{termination.cn}",
         :delete_attributes=>true,
-        :new_superior=>"ou=Disabled Users,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com"})
+        :new_superior=>"ou=Disabled Users,ou=OT,dc=ottest,dc=opentable,dc=com"})
       expect(@ldap).to_not receive(:replace_attribute).with(
         new_hire_us.dn, :userAccountControl, "512"
       )

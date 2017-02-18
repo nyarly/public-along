@@ -192,7 +192,7 @@ describe AdpService::Events, type: :service do
         manager_to_be = FactoryGirl.create(:employee, employee_id: "100449")
         sp = FactoryGirl.create(:security_profile, name: "Basic Manager")
 
-        expect(ActiveDirectoryService).to receive(:new).and_return(ads)
+        expect(ActiveDirectoryService).to receive(:new).twice.and_return(ads)
         expect(ads).to receive(:create_disabled_accounts)
 
         adp = AdpService::Events.new
@@ -208,7 +208,7 @@ describe AdpService::Events, type: :service do
         sp = FactoryGirl.create(:security_profile, name: "Basic Manager")
         manager.security_profiles << sp
 
-        expect(ActiveDirectoryService).to receive(:new).and_return(ads)
+        expect(ActiveDirectoryService).to receive(:new).once.and_return(ads)
         expect(ads).to receive(:create_disabled_accounts)
 
         adp = AdpService::Events.new
