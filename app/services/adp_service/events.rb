@@ -89,7 +89,7 @@ module AdpService
     end
 
     def check_leave_return
-      future_date = 5.days.from_now.change(:usec => 0)
+      future_date = 1.day.from_now.change(:usec => 0)
 
       month = future_date.strftime("%m")
       day = future_date.strftime("%d")
