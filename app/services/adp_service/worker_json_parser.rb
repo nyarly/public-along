@@ -19,7 +19,7 @@ module AdpService
       adp_assoc_oid = w["associateOID"]
       first_name = w["person"]["legalName"]["nickName"].present? ? w["person"]["legalName"]["nickName"] : w["person"]["legalName"]["givenName"]
       last_name = find_last_name(w)
-      employee_id = w["workerID"]["idValue"]
+      employee_id = w["workerID"]["idValue"].downcase
       personal_mobile_phone = find_mobile(w["person"])
       office_phone = find_office_phone(w["businessCommunication"])
 

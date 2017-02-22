@@ -72,7 +72,7 @@ module AdpService
 
     def send_email?(employee)
       if employee.changed? && employee.valid?
-        if employee.manager_id_changed? || employee.business_title_changed?
+        if employee.manager_id_changed? || employee.job_title_id_changed?
           true
         end
       end
