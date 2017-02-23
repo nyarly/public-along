@@ -54,10 +54,7 @@ module AdpService
               # EmployeeWorker.perform_async("Security Access", e.id) if send_email == true
             end
           else
-            first_name = w.dig("person","legalName","givenName")
-            last_name = w.dig("person","legalName","familyName1")
-            employee_id = w.dig("workerID","idValue")
-            adp_only << "{ first_name: #{first_name}, last_name: #{last_name}, employee_id: #{employee_id})"
+            adp_only << "{ first_name: #{w[:first_name]}, last_name: #{w[:last_name]}, employee_id: #{w[:employee_id]})"
           end
         end unless workers.blank?
 
