@@ -135,17 +135,6 @@ module AdpService
       res = @http.delete(@uri.request_uri, {'Authorization' => "Bearer #{@token}"})
     end
 
-    def build_emp_delta(employee)
-      before = employee.changed_attributes
-      after = Hash[employee.changes.map { |k,v| [k, v[1]] }]
-      emp_delta = EmpDelta.new(
-        employee_id: employee.id,
-        before: before,
-        after: after
-      )
-      emp_delta
-    end
-
     private
 
     def get_json_str(url)
