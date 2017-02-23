@@ -14,11 +14,7 @@ class EmpDelta < ActiveRecord::Base
         'contract_end_date',
         'job_title_id',
         'manager_id',
-        'location_id')
-        OR (k IN ('termination_date')
-            AND (before -> 'termination_date' IS NOT NULL
-                OR before -> 'termination_date' != '')
-        ))
+        'location_id'))
       )",
       2.days.ago
     )
@@ -28,7 +24,6 @@ class EmpDelta < ActiveRecord::Base
     keys = [
       'hire_date',
       'contract_end_date',
-      'termination_date',
       'job_title_id',
       'manager_id',
       'location_id'

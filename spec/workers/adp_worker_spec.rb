@@ -14,7 +14,7 @@ RSpec.describe AdpWorker, type: :worker do
     expect(AdpService::Workers).to receive(:new).and_return(service)
     expect(service).to receive(:sync_workers).with("a url")
     allow(Sidekiq::Logging.logger).to receive(:info).with("THIS IS THE URL: a url")
-    allow(Sidekiq::Logging.logger).to receive(:info).with("WORKERS_PROCESSED: nil")
+    allow(Sidekiq::Logging.logger).to receive(:info).with("RESULTS: ")
 
     worker.perform("a url")
   end
@@ -24,7 +24,7 @@ RSpec.describe AdpWorker, type: :worker do
     allow(service).to receive(:sync_workers).with("a url").and_return({workers: "stuff"})
 
     expect(Sidekiq::Logging.logger).to receive(:info).with("THIS IS THE URL: a url")
-    expect(Sidekiq::Logging.logger).to receive(:info).with("WORKERS_PROCESSED: {:workers=>\"stuff\"}")
+    expect(Sidekiq::Logging.logger).to receive(:info).with("RESULTS: {:workers=>\"stuff\"}")
 
     worker.perform("a url")
   end

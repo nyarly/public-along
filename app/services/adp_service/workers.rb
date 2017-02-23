@@ -39,19 +39,51 @@ module AdpService
         parser = AdpService::WorkerJsonParser.new
 
         workers_to_update = []
+        adp_only = []
         workers = parser.sort_workers(json)
 
         workers.each do |w|
           e = Employee.find_by(employee_id: w[:employee_id])
           if e.present?
-            e.update_attributes(w)
-            workers_to_update << e
+            e.assign_attributes(w)
+            # delta = build_emp_delta(e)
+            # send_email = send_email?(e)
+            if e.save
+              workers_to_update << e
+              # delta.save
+              # EmployeeWorker.perform_async("Security Access", e.id) if send_email == true
+            end
+          else
+            adp_only << "{ first_name: #{w[:first_name]}, last_name: #{w[:last_name]}, employee_id: #{w[:employee_id]})"
           end
+        end unless workers.blank?
+
+        unless workers_to_update.blank?
+          ads = ActiveDirectoryService.new
+          ads.update(workers_to_update)
         end
 
-        ads = ActiveDirectoryService.new
-        ads.update(workers_to_update)
+        {updated: workers_to_update, not_found: adp_only}
       end
+    end
+
+    def send_email?(employee)
+      if employee.changed? && employee.valid?
+        if employee.manager_id_changed? || employee.job_title_id_changed?
+          true
+        end
+      end
+    end
+
+    def build_emp_delta(employee)
+      before = employee.changed_attributes
+      after = Hash[employee.changes.map { |k,v| [k, v[1]] }]
+      emp_delta = EmpDelta.new(
+        employee_id: employee.id,
+        before: before,
+        after: after
+      )
+      emp_delta
     end
   end
 end

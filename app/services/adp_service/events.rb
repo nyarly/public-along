@@ -87,7 +87,7 @@ module AdpService
     end
 
     def check_leave_return
-      future_date = 5.days.from_now.change(:usec => 0)
+      future_date = 1.day.from_now.change(:usec => 0)
 
       month = future_date.strftime("%m")
       day = future_date.strftime("%d")
@@ -121,6 +121,12 @@ module AdpService
       unless Employee.managers.include?(emp)
         sp = SecurityProfile.find_by(name: "Basic Manager")
         emp.security_profiles << sp
+
+        ads = ActiveDirectoryService.new
+        sp.access_levels.each do |al|
+          sg = al.ad_security_group
+          ads.add_to_sec_group(sg, emp) unless sg.blank?
+        end
       end
     end
 

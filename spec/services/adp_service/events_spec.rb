@@ -192,7 +192,7 @@ describe AdpService::Events, type: :service do
         manager_to_be = FactoryGirl.create(:employee, employee_id: "100449")
         sp = FactoryGirl.create(:security_profile, name: "Basic Manager")
 
-        expect(ActiveDirectoryService).to receive(:new).and_return(ads)
+        expect(ActiveDirectoryService).to receive(:new).twice.and_return(ads)
         expect(ads).to receive(:create_disabled_accounts)
 
         adp = AdpService::Events.new
@@ -208,7 +208,7 @@ describe AdpService::Events, type: :service do
         sp = FactoryGirl.create(:security_profile, name: "Basic Manager")
         manager.security_profiles << sp
 
-        expect(ActiveDirectoryService).to receive(:new).and_return(ads)
+        expect(ActiveDirectoryService).to receive(:new).once.and_return(ads)
         expect(ads).to receive(:create_disabled_accounts)
 
         adp = AdpService::Events.new
@@ -278,7 +278,7 @@ describe AdpService::Events, type: :service do
       let!(:leave_emp) {FactoryGirl.create(:employee, status: "Inactive", adp_assoc_oid: "123456", leave_return_date: nil) }
       let!(:leave_cancel_emp) {FactoryGirl.create(:employee, status: "Inactive", adp_assoc_oid: "123457", leave_return_date: Date.today + 2.days) }
       let!(:do_nothing_emp) {FactoryGirl.create(:employee, status: "Inactive", adp_assoc_oid: "123458", leave_return_date: nil) }
-      let!(:future_date) { 5.days.from_now.change(:usec => 0) }
+      let!(:future_date) { 1.day.from_now.change(:usec => 0) }
 
       before :each do
         expect(URI).to receive(:parse).ordered.with("https://api.adp.com/hr/v2/workers/123456?asOfDate=#{future_date.strftime('%m')}%2F#{future_date.strftime('%d')}%2F#{future_date.strftime('%Y')}").and_return(uri)

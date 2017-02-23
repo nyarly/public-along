@@ -130,6 +130,7 @@ describe AdpService::Workers, type: :service do
       }]
     }
     let(:ads) { double(ActiveDirectoryService) }
+    let(:emp_delta) { double(EmpDelta) }
 
     before :each do
       expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers?$top=25&$skip=25").and_return(uri)
@@ -149,6 +150,9 @@ describe AdpService::Workers, type: :service do
       expect(JSON).to receive(:parse).with(json)
       expect(AdpService::WorkerJsonParser).to receive(:new).and_return(parser)
       expect(parser).to receive(:sort_workers).and_return(sorted)
+      expect(EmpDelta).to receive(:new).and_return(emp_delta)
+      expect(emp_delta).to receive(:save)
+      expect(EmployeeWorker).to receive(:perform_async)
       expect(ActiveDirectoryService).to receive(:new).and_return(ads)
       expect(ads).to receive(:update).with([employee])
 

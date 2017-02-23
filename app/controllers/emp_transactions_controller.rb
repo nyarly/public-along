@@ -74,7 +74,7 @@ class EmpTransactionsController < ApplicationController
     end
 
     def set_machine_bundles
-      if @employee.worker_type.name == "Regular"
+      if @employee.worker_type.kind == "Regular"
         @machine_bundles = MachineBundle.find_bundles_for(@employee.department.id) - MachineBundle.contingent_bundles
       else
         @machine_bundles = MachineBundle.contingent_bundles
