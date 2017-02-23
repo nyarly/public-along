@@ -62,10 +62,8 @@ module AdpService
       term_date = json.dig("events", 0, "data", "output", "worker", "workerDates", "terminationDate")
       e = Employee.find_by(employee_id: worker_id)
       e.assign_attributes(termination_date: term_date)
-      # delta = build_emp_delta(e)
 
       if e.save
-        # delta.save
         ads = ActiveDirectoryService.new
         ads.update([e])
         if Time.now < 5.business_days.before(e.termination_date)

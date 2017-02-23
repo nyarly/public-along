@@ -29,10 +29,6 @@ RSpec.describe EmpDelta, type: :model do
         after: {"contract_end_date" => Date.tomorrow}
       ),
       FactoryGirl.create(:emp_delta,
-        before: {"termination_date" => Date.today},
-        after: {"termination_date" => nil}
-      ),
-      FactoryGirl.create(:emp_delta,
         before: {"job_title_id" => "some number"},
         after: {"job_title_id" => "some number"}
       ),
@@ -64,6 +60,10 @@ RSpec.describe EmpDelta, type: :model do
       FactoryGirl.create(:emp_delta,
         before: {"employee_id" => "some number"},
         after: {"employee_id" => "some number"}
+      ),
+      FactoryGirl.create(:emp_delta,
+        before: {"termination_date" => Date.today},
+        after: {"termination_date" => nil}
       ),
       FactoryGirl.create(:emp_delta,
         before: {"termination_date" => nil},
