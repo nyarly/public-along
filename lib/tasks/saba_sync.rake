@@ -61,6 +61,17 @@ namespace :db do
       end
     end
 
+    desc "update csvs"
+    task :update_csvs => :environment do
+      ss = SabaService.new
+      ss.generate_csvs
+    end
+
+    desc "drop to SABA via sFTP"
+    task :sftp_drop => :environment do
+      ss = SabaService.new
+      ss.sftp_drop
+    end
   end
 end
 

@@ -1,9 +1,12 @@
 require 'tzinfo'
 # set :output, "/path/to/my/cron_log.log"
 
-# Every hour run rake tasks that activate/deactivate employees in Active Directory according to time zone
+# Every hour:
+# - Run rake tasks that activate/deactivate employees in Active Directory according to time zone
+# - Sync ADP data
 every 1.hour do
   rake "employee:change_status"
+  rake "adp:sync_all"
 end
 
 every :weekday, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Time.parse("9:00")) do
@@ -13,6 +16,8 @@ end
 
 every :weekday, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Time.parse("18:00")) do
   rake "employee:offboard_report"
+  rake "saba:update_csvs"
+  rake "saba:sftp_drop"
 end
 
 # Suspended until Workday returns
