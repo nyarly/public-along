@@ -16,8 +16,34 @@ end
 
 every :weekday, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Time.parse("18:00")) do
   rake "employee:offboard_report"
-  rake "saba:update_csvs"
-  rake "saba:sftp_drop"
+  rake "db:saba:update_csvs"
+  rake "db:saba:sftp_drop"
+end
+
+# need to refactor this redundant code when we have time to test proper syntax
+every :sunday, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Time.parse("18:00")) do
+  rake "db:saba:update_csvs"
+  rake "db:saba:sftp_drop"
+end
+
+every :monday, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Time.parse("18:00")) do
+  rake "db:saba:update_csvs"
+  rake "db:saba:sftp_drop"
+end
+
+every :tuesday, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Time.parse("18:00")) do
+  rake "db:saba:update_csvs"
+  rake "db:saba:sftp_drop"
+end
+
+every :wednesday, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Time.parse("18:00")) do
+  rake "db:saba:update_csvs"
+  rake "db:saba:sftp_drop"
+end
+
+every :thursday, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Time.parse("18:00")) do
+  rake "db:saba:update_csvs"
+  rake "db:saba:sftp_drop"
 end
 
 # Suspended until Workday returns

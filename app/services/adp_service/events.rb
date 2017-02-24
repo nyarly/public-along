@@ -58,7 +58,7 @@ module AdpService
     end
 
     def process_term(json)
-      worker_id = json.dig("events", 0, "data", "output", "worker", "workerID", "idValue")
+      worker_id = json.dig("events", 0, "data", "output", "worker", "workerID", "idValue").downcase
       term_date = json.dig("events", 0, "data", "output", "worker", "workerDates", "terminationDate")
       e = Employee.find_by(employee_id: worker_id)
       e.assign_attributes(termination_date: term_date)
@@ -75,15 +75,15 @@ module AdpService
     end
 
     def process_leave(json)
-      worker_id = json.dig("events", 0, "data", "output", "worker", "workerID", "idValue")
-        leave_date = json.dig("events", 0, "data", "output", "worker", "workerStatus", "effectiveDate")
-        e = Employee.find_by(employee_id: worker_id)
-        e.assign_attributes(leave_start_date: leave_date)
+      worker_id = json.dig("events", 0, "data", "output", "worker", "workerID", "idValue").downcase
+      leave_date = json.dig("events", 0, "data", "output", "worker", "workerStatus", "effectiveDate")
+      e = Employee.find_by(employee_id: worker_id)
+      e.assign_attributes(leave_start_date: leave_date)
 
-        if e.save
-          ads = ActiveDirectoryService.new
-          ads.update([e])
-        end
+      if e.save
+        ads = ActiveDirectoryService.new
+        ads.update([e])
+      end
     end
 
     def check_leave_return
