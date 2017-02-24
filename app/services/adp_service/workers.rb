@@ -46,12 +46,12 @@ module AdpService
           e = Employee.find_by(employee_id: w[:employee_id])
           if e.present?
             e.assign_attributes(w)
-            # delta = build_emp_delta(e)
-            # send_email = send_email?(e)
+            delta = build_emp_delta(e)
+            send_email = send_email?(e)
             if e.save
               workers_to_update << e
-              # delta.save
-              # EmployeeWorker.perform_async("Security Access", e.id) if send_email == true
+              delta.save
+              EmployeeWorker.perform_async("Security Access", e.id) if send_email == true
             end
           else
             adp_only << "{ first_name: #{w[:first_name]}, last_name: #{w[:last_name]}, employee_id: #{w[:employee_id]})"

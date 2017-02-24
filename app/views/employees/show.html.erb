@@ -55,7 +55,7 @@
 
 <p>
   <strong>Location:</strong>
-  <%= @employee.location.name %>
+  <%= @employee.location.try(:name) %>
 </p>
 
 <p>
