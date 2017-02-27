@@ -135,15 +135,19 @@ class Employee < ActiveRecord::Base
   end
 
   def ou
-    match = OUS.select { |k,v|
-      v[:department].include?(department.name) && v[:country].include?(location.country)
-    }
-
-    if match.length == 1
-      match.keys[0]
+    if status == "Terminated"
+      "ou=Disabled Users,"
     else
-      TechTableMailer.alert_email("WARNING: could not find an exact ou match for #{first_name} #{last_name}; placed in default ou. To remedy, assign appropriate department and country values in Mezzo or contact your developer to create an OU mapping for this department and location combination.").deliver_now
-      return "ou=Users,"
+      match = OUS.select { |k,v|
+        v[:department].include?(department.name) && v[:country].include?(location.country)
+      }
+
+      if match.length == 1
+        match.keys[0]
+      else
+        TechTableMailer.alert_email("WARNING: could not find an exact ou match for #{first_name} #{last_name}; placed in default ou. To remedy, assign appropriate department and country values in Mezzo or contact your developer to create an OU mapping for this department and location combination.").deliver_now
+        return "ou=Users,"
+      end
     end
   end
 
