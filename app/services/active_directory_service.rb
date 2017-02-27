@@ -56,13 +56,16 @@ class ActiveDirectoryService
 
   def deactivate(employees)
     employees.each do |e|
-      ldap.replace_attribute(e.dn, :userAccountControl, "514")
-      ldap.rename(
-        :olddn => e.dn,
-        :newrdn => "cn=#{e.cn}",
-        :delete_attributes => true,
-        :new_superior => "ou=Disabled Users," + Rails.application.secrets.ad_ou_base
-      )
+      ldap_entry = find_entry("sAMAccountName", e.sam_account_name).first
+      if ldap_entry.present?
+        ldap.replace_attribute(ldap_entry.dn, :userAccountControl, "514")
+        ldap.rename(
+          :olddn => ldap_entry.dn,
+          :newrdn => "cn=#{e.cn}",
+          :delete_attributes => true,
+          :new_superior => "ou=Disabled Users," + Rails.application.secrets.ad_ou_base
+        )
+      end
     end
   end
 

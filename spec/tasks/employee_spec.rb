@@ -20,6 +20,7 @@ describe "employee rake tasks", type: :tasks do
       Rake::Task.define_task :environment
 
       @ldap = double(Net::LDAP)
+      @ldap_entry = double(Net::LDAP::Entry)
 
       allow(Net::LDAP).to receive(:new).and_return(@ldap)
       allow(@ldap).to receive(:host=)
@@ -121,19 +122,21 @@ describe "employee rake tasks", type: :tasks do
       # 7/29/2016 at 9pm IST/3:30pm UTC
       Timecop.freeze(Time.new(2016, 7, 29, 15, 30, 0, "+00:00"))
 
+      allow(@ldap).to receive(:search).and_return([@ldap_entry])
+      allow(@ldap_entry).to receive(:dn).and_return("the old dn")
       expect(@ldap).to receive(:replace_attribute).once.with(
-        contract_end.dn, :userAccountControl, "514"
+        "the old dn", :userAccountControl, "514"
       )
       expect(@ldap).to receive(:rename).once.with({
-        :olddn=>contract_end.dn,
+        :olddn=>"the old dn",
         :newrdn=>"cn=#{contract_end.cn}",
         :delete_attributes=>true,
         :new_superior=>"ou=Disabled Users,ou=OT,dc=ottest,dc=opentable,dc=com"})
       expect(@ldap).to receive(:replace_attribute).once.with(
-        termination.dn, :userAccountControl, "514"
+        "the old dn", :userAccountControl, "514"
       )
       expect(@ldap).to receive(:rename).once.with({
-        :olddn=>termination.dn,
+        :olddn=>"the old dn",
         :newrdn=>"cn=#{termination.cn}",
         :delete_attributes=>true,
         :new_superior=>"ou=Disabled Users,ou=OT,dc=ottest,dc=opentable,dc=com"})
