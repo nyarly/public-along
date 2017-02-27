@@ -106,7 +106,7 @@ class ActiveDirectoryService
 
   def delete_attrs(employee, ldap_entry, attrs)
     attrs.each do |k,v|
-      ldap.delete_attribute(employee.dn, k)
+      ldap.delete_attribute(ldap_entry.dn, k)
       ldap_success_check(employee, "ERROR: Could not successfully delete #{k}: #{v} for #{employee.cn}.")
     end
   end

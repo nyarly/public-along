@@ -31,7 +31,7 @@ describe XmlService, type: :service do
       expect(Employee.find_by(:first_name => "Jeffrey").location.kind).to eq("Office")
       expect(Employee.find_by(:first_name => "Jeffrey").location.name).to eq("Los Angeles Office")
       expect(Employee.find_by(:first_name => "Jeffrey").manager_id).to eq("12100123")
-      expect(Employee.find_by(:first_name => "Jeffrey").department.name).to eq("BizOpti/Internal Systems Engineering")
+      expect(Employee.find_by(:first_name => "Jeffrey").department.name).to eq("BizOpti/Internal System Engineering")
       expect(Employee.find_by(:first_name => "Jeffrey").office_phone).to eq("(213) 555-4321")
       expect(Employee.find_by(:first_name => "Jeffrey").image_code).to be_nil
       expect(Employee.find_by(:first_name => "Jeffrey").home_address_1).to be_nil
@@ -113,7 +113,7 @@ describe XmlService, type: :service do
       :business_title => "Software Development Team Lead",
       :first_name => "Jeffrey",
       :last_name => "Lebowski",
-      :department => Department.find_by(:name =>"BizOpti/Internal Systems Engineering"),
+      :department => Department.find_by(:name =>"BizOpti/Internal System Engineering"),
       :image_code => nil,
       :worker_type_id => reg_worker_type.id)
     }
