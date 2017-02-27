@@ -254,7 +254,7 @@ describe "employee rake tasks", type: :tasks do
       :location_id => la.id,
       :job_title_id => job_title_1.id,
       :manager_id => "12100123",
-      :department_id => Department.find_by(:name => "BizOpti/Internal Systems Engineering").id,
+      :department_id => Department.find_by(:name => "BizOpti/Internal System Engineering").id,
       :office_phone => nil,
       :image_code => nil)
 
@@ -298,7 +298,7 @@ describe "employee rake tasks", type: :tasks do
         description: "Rich Guy",
         employeeType: "Regular",
         physicalDeliveryOfficeName: "Los Angeles Office",
-        department: "BizOpti/Internal Systems Engineering",
+        department: "BizOpti/Internal System Engineering",
         employeeID: "1234567",
         mobile: nil,
         telephoneNumber: nil,
@@ -371,7 +371,7 @@ describe "employee rake tasks", type: :tasks do
           # :description=>"Software Development Team Lead",
           :employeeType=>"Regular",
           :physicalDeliveryOfficeName=>"Los Angeles Office",
-          :department=>"BizOpti/Internal Systems Engineering",
+          :department=>"BizOpti/Internal System Engineering",
           :employeeID=>"12100401",
           :telephoneNumber=>"(213) 555-4321"}})
       expect(@ldap).to receive(:add).once.with({

@@ -27,7 +27,7 @@ depts = [
   {:name =>  "Product Engineering - Front End Diner", :code => "041000"},
   {:name =>  "Product Engineering - Front End Restaurant", :code => "042000"},
   {:name =>  "Product Engineering - Back End", :code => "043000"},
-  {:name =>  "BizOpti/Internal Systems Engineering", :code => "044000"},
+  {:name =>  "BizOpti/Internal System Engineering", :code => "044000"},
   {:name =>  "Data Analytics & Experimentation", :code => "045000"},
   {:name =>  "Data Science", :code => "046000"},
   {:name =>  "Brand/General Marketing", :code => "050000"},
@@ -143,8 +143,8 @@ ActiveRecord::Base.transaction do
 end
 
 dept_mach_bundles = [
-  {:department_id => Department.find_by(:name => "BizOpti/Internal Systems Engineering").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle - Engineer").id},
-  {:department_id => Department.find_by(:name => "BizOpti/Internal Systems Engineering").id, :machine_bundle_id => MachineBundle.find_by(:name => '15" Mac Bundle').id},
+  {:department_id => Department.find_by(:name => "BizOpti/Internal System Engineering").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle - Engineer").id},
+  {:department_id => Department.find_by(:name => "BizOpti/Internal System Engineering").id, :machine_bundle_id => MachineBundle.find_by(:name => '15" Mac Bundle').id},
   {:department_id => Department.find_by(:name => "Brand/General Marketing").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
   {:department_id => Department.find_by(:name => "Brand/General Marketing").id, :machine_bundle_id => MachineBundle.find_by(:name => '13" Mac Bundle').id},
   {:department_id => Department.find_by(:name => "Business Development").id, :machine_bundle_id => MachineBundle.find_by(:name => "PC Bundle").id},
