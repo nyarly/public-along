@@ -1,3 +1,0 @@
-employee_id,first_name,last_name,business_title,hire_date,cost_center,location,email,leave_start_date,employee_type,manager_id
-101976,Scott,Lepich,Sr. Software Engineer,8/1/16,Product Engineering - Back End,San Francisco Office,slepich@opentable.com,,Regular,101573
-101313,Caleb,Tomlinson,Software Engineer,12/3/12,Product Engineering - Back End,San Francisco Office,ctomlinson@opentable.com,,Regular,101573
