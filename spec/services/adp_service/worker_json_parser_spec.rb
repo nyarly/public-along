@@ -48,7 +48,6 @@ describe AdpService::WorkerJsonParser, type: :service do
         employee_id: "101455",
         hire_date: "2013-08-05",
         contract_end_date: nil,
-        termination_date: nil,
         company: "OpenTable Inc.",
         job_title_id: job_title.id,
         worker_type_id: worker_type.id,
