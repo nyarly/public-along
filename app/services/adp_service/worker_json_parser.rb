@@ -31,7 +31,6 @@ module AdpService
         w_end_date_json = custom_dates.find { |f| f["nameCode"]["codeValue"] == "Worker End Date"}
         worker_end_date = w_end_date_json.try(:dig, "dateValue")
       end
-      termination_date = work_assignment["terminationDate"]
 
       biz_unit = work_assignment["homeOrganizationalUnits"].find { |ou| ou["typeCode"]["codeValue"] == "Business Unit"}
       company = find_biz_unit(biz_unit)
@@ -58,7 +57,6 @@ module AdpService
         employee_id: employee_id,
         hire_date: hire_date,
         contract_end_date: worker_end_date,
-        termination_date: termination_date,
         company: company,
         job_title_id: job_title.id,
         worker_type_id: worker_type.id,
