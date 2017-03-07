@@ -119,7 +119,7 @@ describe AdpService::Events, type: :service do
         adp = AdpService::Events.new
         adp.token = "a-token-value"
 
-        expect(adp).to receive(:process_hire)
+        expect(adp).to receive(:process_hire).and_return(true)
         expect(adp).to receive(:del_event).with(adp_event.msg_id)
         expect(adp_event).to receive(:update_attributes).with(status: "Processed")
 
@@ -130,7 +130,7 @@ describe AdpService::Events, type: :service do
         adp = AdpService::Events.new
         adp.token = "a-token-value"
 
-        expect(adp).to receive(:process_hire)
+        expect(adp).to receive(:process_hire).and_return(true)
         expect(adp).to receive(:del_event).with(adp_event.msg_id)
         expect(adp_event).to receive(:update_attributes).with(status: "Processed")
 
@@ -141,7 +141,7 @@ describe AdpService::Events, type: :service do
         adp = AdpService::Events.new
         adp.token = "a-token-value"
 
-        expect(adp).to receive(:process_term)
+        expect(adp).to receive(:process_term).and_return(true)
         expect(adp).to receive(:del_event).with(adp_event.msg_id)
         expect(adp_event).to receive(:update_attributes).with(status: "Processed")
 
@@ -152,7 +152,7 @@ describe AdpService::Events, type: :service do
         adp = AdpService::Events.new
         adp.token = "a-token-value"
 
-        expect(adp).to receive(:process_leave)
+        expect(adp).to receive(:process_leave).and_return(true)
         expect(adp).to receive(:del_event).with(adp_event.msg_id)
         expect(adp_event).to receive(:update_attributes).with(status: "Processed")
 
