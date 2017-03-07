@@ -32,14 +32,17 @@ module AdpService
       kind =  json.dig("events", 0, "eventNameCode", "codeValue")
       case kind
       when "worker.hire"
-        process_hire(json)
-        adp_event.update_attributes(status: "Processed")
+        if process_hire(json)
+          adp_event.update_attributes(status: "Processed")
+        end
       when "worker.terminate"
-        process_term(json)
-        adp_event.update_attributes(status: "Processed")
+        if process_term(json)
+          adp_event.update_attributes(status: "Processed")
+        end
       when "worker.on-leave"
-        process_leave(json)
-        adp_event.update_attributes(status: "Processed")
+        if process_leave(json)
+          adp_event.update_attributes(status: "Processed")
+        end
       end
       del_event(adp_event.msg_id)
     end
@@ -54,6 +57,9 @@ module AdpService
       if e.save
         ads = ActiveDirectoryService.new
         ads.create_disabled_accounts([e])
+        return true
+      else
+        return false
       end
     end
 
@@ -61,16 +67,15 @@ module AdpService
       worker_id = json.dig("events", 0, "data", "output", "worker", "workerID", "idValue").downcase
       term_date = json.dig("events", 0, "data", "output", "worker", "workerDates", "terminationDate")
       e = Employee.find_by(employee_id: worker_id)
-      e.assign_attributes(termination_date: term_date)
+      e.assign_attributes(termination_date: term_date) if e.present?
 
-      if e.save
+      if e.present? && e.save
         ads = ActiveDirectoryService.new
         ads.update([e])
-        if Time.now < 5.business_days.before(e.termination_date)
-          EmployeeWorker.perform_at(5.business_days.before(e.termination_date), "Offboarding", e.id)
-        else
-          EmployeeWorker.perform_async("Offboarding", e.id)
-        end
+        send_offboard_form(e)
+        return true
+      else
+        return false
       end
     end
 
@@ -78,11 +83,14 @@ module AdpService
       worker_id = json.dig("events", 0, "data", "output", "worker", "workerID", "idValue").downcase
       leave_date = json.dig("events", 0, "data", "output", "worker", "workerStatus", "effectiveDate")
       e = Employee.find_by(employee_id: worker_id)
-      e.assign_attributes(leave_start_date: leave_date)
+      e.assign_attributes(leave_start_date: leave_date) if e.present?
 
-      if e.save
+      if e.present? && e.save
         ads = ActiveDirectoryService.new
         ads.update([e])
+        return true
+      else
+        return false
       end
     end
 
@@ -127,6 +135,14 @@ module AdpService
           sg = al.ad_security_group
           ads.add_to_sec_group(sg, emp) unless sg.blank?
         end
+      end
+    end
+
+    def send_offboard_form(e)
+      if Time.now < 5.business_days.before(e.termination_date)
+        EmployeeWorker.perform_at(5.business_days.before(e.termination_date), "Offboarding", e.id)
+      else
+        EmployeeWorker.perform_async("Offboarding", e.id)
       end
     end
 

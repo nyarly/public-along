@@ -388,7 +388,8 @@ describe Employee, type: :model do
     it "should set the correct account expiry" do
       date = 1.month.from_now
       datetime = DateTime.new(date.year, date.month, date.day, 21)
-      expect(employee.generated_account_expires).to eq(DateTimeHelper::FileTime.wtime(datetime))
+      time_conversion = ActiveSupport::TimeZone.new("Europe/London").local_to_utc(datetime)
+      expect(employee.generated_account_expires).to eq(DateTimeHelper::FileTime.wtime(time_conversion))
     end
 
     it "should set the correct address" do
