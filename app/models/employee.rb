@@ -66,7 +66,7 @@ class Employee < ActiveRecord::Base
   end
 
   def is_contingent_worker?
-    worker_type.kind == "Temporary" || worker_type.kind == "Contract"
+    worker_type.kind == "Temporary" || worker_type.kind == "Contractor"
   end
 
   def self.managers
