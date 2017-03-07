@@ -11,5 +11,5 @@ class MachineBundle < ActiveRecord::Base
 
   scope :find_bundles_for, -> (dept_id) { joins(:dept_mach_bundles).where(:dept_mach_bundles => {department_id: dept_id}) }
   #TODO contingent worker scope should not be parsing name strings, need a better way to scope
-  scope :contingent_bundles, -> { where("name iLIKE ? OR iLIKE ?", '%contingent%', '%equipment%')}
+  scope :contingent_bundles, -> { where("name iLIKE ? OR name iLIKE ?", '%contingent%', '%equipment%')}
 end
