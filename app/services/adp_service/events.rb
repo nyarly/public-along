@@ -67,7 +67,11 @@ module AdpService
       worker_id = json.dig("events", 0, "data", "output", "worker", "workerID", "idValue").downcase
       term_date = json.dig("events", 0, "data", "output", "worker", "workerDates", "terminationDate")
       e = Employee.find_by(employee_id: worker_id)
-      e.assign_attributes(termination_date: term_date) if e.present?
+      if e.present? && !job_change?(e)
+        e.assign_attributes(termination_date: term_date)
+      else
+        return false
+      end
 
       if e.present? && e.save
         ads = ActiveDirectoryService.new
@@ -135,6 +139,25 @@ module AdpService
           sg = al.ad_security_group
           ads.add_to_sec_group(sg, emp) unless sg.blank?
         end
+      end
+    end
+
+    def job_change?(e)
+      date = e.termination_date + 1.day
+
+      month = date.strftime("%m")
+      day = date.strftime("%d")
+      year = date.strftime("%Y")
+
+      res = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers/#{e.adp_assoc_oid}?asOfDate=#{month}%2F#{day}%2F#{year}")
+      json = JSON.parse(res.body)
+
+      adp_status = json.dig("workers", 0, "workerStatus", "statusCode", "codeValue")
+
+      if adp_status != "Terminated"
+        return true
+      else
+        return false
       end
     end
 
