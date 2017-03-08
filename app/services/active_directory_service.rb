@@ -58,6 +58,7 @@ class ActiveDirectoryService
     employees.each do |e|
       ldap_entry = find_entry("sAMAccountName", e.sam_account_name).first
       if ldap_entry.present?
+        e.update_attributes(status: "Terminated")
         ldap.replace_attribute(ldap_entry.dn, :userAccountControl, "514")
         ldap.rename(
           :olddn => ldap_entry.dn,

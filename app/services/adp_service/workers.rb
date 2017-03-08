@@ -50,7 +50,7 @@ module AdpService
             send_email = send_email?(e)
             if e.save
               workers_to_update << e
-              delta.save
+              delta.save if delta.present?
               EmployeeWorker.perform_async("Security Access", e.id) if send_email == true
             end
           else
@@ -78,11 +78,13 @@ module AdpService
     def build_emp_delta(employee)
       before = employee.changed_attributes
       after = Hash[employee.changes.map { |k,v| [k, v[1]] }]
-      emp_delta = EmpDelta.new(
-        employee_id: employee.id,
-        before: before,
-        after: after
-      )
+      if before.present? && after.present?
+        emp_delta = EmpDelta.new(
+          employee_id: employee.id,
+          before: before,
+          after: after
+        )
+      end
       emp_delta
     end
   end

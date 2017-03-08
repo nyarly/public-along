@@ -249,6 +249,7 @@ describe AdpService::Events, type: :service do
         adp = AdpService::Events.new
         adp.token = "a-token-value"
 
+        expect(adp).to receive(:job_change?).and_return(false)
         expect{
           adp.process_term(parsed_json)
         }.to_not change{Employee.count}
