@@ -69,6 +69,7 @@ module AdpService
       e = Employee.find_by(employee_id: worker_id)
       if e.present? && !job_change?(e)
         e.assign_attributes(termination_date: term_date)
+        send_offboard_form(e)
       else
         return false
       end
@@ -76,7 +77,6 @@ module AdpService
       if e.present? && e.save
         ads = ActiveDirectoryService.new
         ads.update([e])
-        send_offboard_form(e)
         return true
       else
         return false

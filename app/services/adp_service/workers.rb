@@ -78,7 +78,7 @@ module AdpService
     def build_emp_delta(employee)
       before = employee.changed_attributes
       after = Hash[employee.changes.map { |k,v| [k, v[1]] }]
-      unless before.empty? && after.empty?
+      if before.present? && after.present?
         emp_delta = EmpDelta.new(
           employee_id: employee.id,
           before: before,
