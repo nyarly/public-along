@@ -20,29 +20,12 @@ every :weekday, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Tim
   rake "db:saba:sftp_drop"
 end
 
-# need to refactor this redundant code when we have time to test proper syntax
-every :sunday, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Time.parse("18:00")) do
+# This is at UTC time so it runs at 6pm PST every day of the week except on Fridays
+every [:sunday, :monday, :tuesday, :wednesday, :thursday, :friday], at: '2:00am' do
   rake "db:saba:update_csvs"
-  rake "db:saba:sftp_drop"
 end
 
-every :monday, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Time.parse("18:00")) do
-  rake "db:saba:update_csvs"
-  rake "db:saba:sftp_drop"
-end
-
-every :tuesday, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Time.parse("18:00")) do
-  rake "db:saba:update_csvs"
-  rake "db:saba:sftp_drop"
-end
-
-every :wednesday, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Time.parse("18:00")) do
-  rake "db:saba:update_csvs"
-  rake "db:saba:sftp_drop"
-end
-
-every :thursday, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Time.parse("18:00")) do
-  rake "db:saba:update_csvs"
+every [:sunday, :monday, :tuesday, :wednesday, :thursday, :friday], at: '2:10am' do
   rake "db:saba:sftp_drop"
 end
 
