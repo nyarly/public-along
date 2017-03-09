@@ -1,8 +1,10 @@
-<%= form_for(@security_profile, :html => {:class => "form"} ) do |f| %>
+<%= form_for(@security_profile_entry, 
+    :url => @security_profile.persisted? ? security_profile_path(@security_profile) : security_profiles_path, 
+    :method => @security_profile.persisted? ? "put": "post", 
+    :html => {:class => "form"} ) do |f| %>
   <% if @security_profile.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@security_profile.errors.count, "error") %> prohibited this security_profile from being saved:</h2>
-
       <ul>
       <% @security_profile.errors.full_messages.each do |message| %>
         <li><%= message %></li>
@@ -21,10 +23,19 @@
   </div>
   <div class="field">
     <%= f.label :departments %><br>
-    <%= f.select :department_ids, Department.all.collect {|x| [x.name, x.id]}, {}, :multiple => true %>
+    <%= f.select :department_ids, Department.all.collect {|x| [x.name, x.id]}, {}, :selected => @security_profile.department_ids, :multiple => true %>
+  </div>
+  <div class="field">
+    <%= f.label 'Permissions' %><br>
+    <%= f.select :access_level_ids, AccessLevel.all.collect {|x| [x.display_name, x.id]}, {}, :selected => @security_profile.access_level_ids, :multiple => true %>
   </div>
   <div class="actions">
     <%= link_to 'Back to List', security_profiles_path, :class => "button secondary" %>
     <%= f.submit "Submit", :class => "button"%>
   </div>
+    <a data-open="newPermission" id="newPermissionBtn">+ Add New Permission</a>
+    <%#= link_to 'new perm', new_access_level_path, data: {:remote => true, :"reveal-id" => "newPermission", :"reveal-ajax" => true, :open => "newPermission" } %>
+    <div class="reveal" id="newPermission" data-reveal>
+      <%= render partial: 'access_level', locals: { access_level: @access_level } %>
+    </div>
 <% end %>

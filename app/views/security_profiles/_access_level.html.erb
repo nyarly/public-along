@@ -1,4 +1,6 @@
-<%= form_for(@access_level, :html => {:class => "form"} ) do |f| %>
+<%= form_for(@access_level, 
+    :url => { :action => "access_level", :controller => "security_profile_entry"},
+    :html => {:class => "form"} ) do |f| %>
   <% if @access_level.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@access_level.errors.count, "error") %> prohibited this access_level from being saved:</h2>

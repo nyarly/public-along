@@ -7,4 +7,8 @@ class AccessLevel < ActiveRecord::Base
   belongs_to :application
   has_many :sec_prof_access_levels
   has_many :security_profiles, through: :sec_prof_access_levels, dependent: :destroy
+
+  def display_name
+    "#{application.name} - #{name}"
+  end
 end
