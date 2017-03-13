@@ -49,6 +49,7 @@ module AdpService
             delta = build_emp_delta(e)
             send_email = send_email?(e)
             if e.save
+              check_manager(e.manager_id)
               workers_to_update << e
               delta.save if delta.present?
               EmployeeWorker.perform_async("Security Access", e.id) if send_email == true
@@ -64,6 +65,20 @@ module AdpService
         end
 
         {updated: workers_to_update, not_found: adp_only}
+      end
+    end
+
+    def check_manager(emp_id)
+      emp = Employee.find_by(employee_id: emp_id)
+      unless Employee.managers.include?(emp)
+        sp = SecurityProfile.find_by(name: "Basic Manager")
+        emp.security_profiles << sp
+
+        ads = ActiveDirectoryService.new
+        sp.access_levels.each do |al|
+          sg = al.ad_security_group
+          ads.add_to_sec_group(sg, emp) unless sg.blank?
+        end
       end
     end
 
