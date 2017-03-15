@@ -53,7 +53,7 @@ module AdpService
       w_hash = parser.gen_worker_hash(worker_json)
       w_hash[:status] = "Pending" # put worker as "Pending" rather than "Active"
       e = Employee.new(w_hash)
-      check_manager(e.manager_id)
+      Employee.check_manager(e.manager_id)
       if e.save
         ads = ActiveDirectoryService.new
         ads.create_disabled_accounts([e])
@@ -126,20 +126,6 @@ module AdpService
 
       ads = ActiveDirectoryService.new
       ads.update(update_emps)
-    end
-
-    def check_manager(emp_id)
-      emp = Employee.find_by(employee_id: emp_id)
-      unless Employee.managers.include?(emp)
-        sp = SecurityProfile.find_by(name: "Basic Manager")
-        emp.security_profiles << sp
-
-        ads = ActiveDirectoryService.new
-        sp.access_levels.each do |al|
-          sg = al.ad_security_group
-          ads.add_to_sec_group(sg, emp) unless sg.blank?
-        end
-      end
     end
 
     def job_change?(e, term_date)

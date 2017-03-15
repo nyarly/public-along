@@ -155,8 +155,58 @@ describe AdpService::Workers, type: :service do
       expect(ActiveDirectoryService).to receive(:new).and_return(ads)
       expect(ads).to receive(:update).with([employee])
 
+      allow(Employee).to receive(:check_manager)
+
       adp.sync_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
       expect(employee.reload.first_name).to eq("Sally Jesse")
+    end
+
+    it "should make indicated manager if not already a manager" do
+      manager_to_be = FactoryGirl.create(:employee, employee_id: "101734")
+      sp = FactoryGirl.create(:security_profile, name: "Basic Manager")
+
+      expect(response).to receive(:body).and_return(json)
+
+      adp = AdpService::Workers.new
+      adp.token = "a-token-value"
+
+      expect(JSON).to receive(:parse).with(json)
+      expect(AdpService::WorkerJsonParser).to receive(:new).and_return(parser)
+      expect(parser).to receive(:sort_workers).and_return(sorted)
+      expect(EmpDelta).to receive(:new).and_return(emp_delta)
+      expect(emp_delta).to receive(:save)
+      expect(EmployeeWorker).to receive(:perform_async)
+      expect(ActiveDirectoryService).to receive(:new).twice.and_return(ads)
+      expect(ads).to receive(:update).with([employee])
+
+      expect{
+        adp.sync_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
+      }.to change{Employee.managers.include?(manager_to_be)}.from(false).to(true)
+    end
+
+    it "should do nothing if manager already a manager" do
+      manager = FactoryGirl.create(:employee, employee_id: "101734")
+      sp = FactoryGirl.create(:security_profile, name: "Basic Manager")
+
+      manager.security_profiles << sp
+
+      expect(response).to receive(:body).and_return(json)
+
+      adp = AdpService::Workers.new
+      adp.token = "a-token-value"
+
+      expect(JSON).to receive(:parse).with(json)
+      expect(AdpService::WorkerJsonParser).to receive(:new).and_return(parser)
+      expect(parser).to receive(:sort_workers).and_return(sorted)
+      expect(EmpDelta).to receive(:new).and_return(emp_delta)
+      expect(emp_delta).to receive(:save)
+      expect(EmployeeWorker).to receive(:perform_async)
+      expect(ActiveDirectoryService).to receive(:new).and_return(ads)
+      expect(ads).to receive(:update).with([employee])
+
+      expect{
+        adp.sync_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
+      }.to_not change{Employee.managers.include?(manager)}
     end
   end
 end
