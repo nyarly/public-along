@@ -67,7 +67,7 @@ module AdpService
       worker_id = json.dig("events", 0, "data", "output", "worker", "workerID", "idValue").downcase
       term_date = json.dig("events", 0, "data", "output", "worker", "workerDates", "terminationDate")
       e = Employee.find_by(employee_id: worker_id)
-      if e.present? && !job_change?(e)
+      if e.present? && !job_change?(e, term_date)
         e.assign_attributes(termination_date: term_date)
         send_offboard_form(e)
       else
@@ -128,8 +128,8 @@ module AdpService
       ads.update(update_emps)
     end
 
-    def job_change?(e)
-      date = e.termination_date + 1.day
+    def job_change?(e, term_date)
+      date = DateTime.parse(term_date) + 1.day
 
       month = date.strftime("%m")
       day = date.strftime("%d")
