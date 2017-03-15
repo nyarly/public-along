@@ -49,6 +49,7 @@ module AdpService
             delta = build_emp_delta(e)
             send_email = send_email?(e)
             if e.save
+              Employee.check_manager(e.manager_id)
               workers_to_update << e
               delta.save if delta.present?
               EmployeeWorker.perform_async("Security Access", e.id) if send_email == true

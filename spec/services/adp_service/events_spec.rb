@@ -180,7 +180,7 @@ describe AdpService::Events, type: :service do
         adp = AdpService::Events.new
         adp.token = "a-token-value"
 
-        expect(adp).to receive(:check_manager)
+        expect(Employee).to receive(:check_manager)
         expect{
           adp.process_hire(parsed_reg_json)
         }.to change{Employee.count}.from(0).to(1)
@@ -227,7 +227,7 @@ describe AdpService::Events, type: :service do
         adp = AdpService::Events.new
         adp.token = "a-token-value"
 
-        expect(adp).to receive(:check_manager)
+        expect(Employee).to receive(:check_manager)
         expect{
           adp.process_hire(parsed_contract_json)
         }.to change{Employee.count}.from(0).to(1)
