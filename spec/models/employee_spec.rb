@@ -601,4 +601,62 @@ describe Employee, type: :model do
       )
     end
   end
+
+  describe "#check_manager" do
+    let(:manager) { FactoryGirl.create(:employee) }
+    let(:mgr_profile) { FactoryGirl.create(:security_profile, name: "Basic Manager") }
+    let(:app) { FactoryGirl.create(:application) }
+    let(:access_level_1) {FactoryGirl.create(:access_level,
+      application_id: app.id,
+      ad_security_group: nil
+    )}
+    let(:access_level_2) {FactoryGirl.create(:access_level,
+      application_id: app.id,
+      ad_security_group: "distinguished name of AD sec group"
+    )}
+    let!(:spal_1) { FactoryGirl.create(:sec_prof_access_level,
+      security_profile_id: mgr_profile.id,
+      access_level_id: access_level_1.id
+    )}
+    let!(:spal_2) { FactoryGirl.create(:sec_prof_access_level,
+      security_profile_id: mgr_profile.id,
+      access_level_id: access_level_2.id
+    )}
+    let(:ads) { double(ActiveDirectoryService) }
+
+    before :each do
+      allow(ActiveDirectoryService).to receive(:new).and_return(ads)
+    end
+
+    it "should add 'Basic Manager' profile to worker if not present" do
+      allow(ads).to receive(:add_to_sec_group)
+
+      expect{
+        Employee.check_manager(manager.employee_id)
+      }.to change{Employee.managers.include?(manager)}.from(false).to(true)
+    end
+
+    it "should apply AD security group if not nil" do
+      expect(ads).to receive(:add_to_sec_group).with(
+        "distinguished name of AD sec group",
+        manager
+      )
+
+      Employee.check_manager(manager.employee_id)
+    end
+
+    it "should do nothing if worker already has 'Basic Manager' profile" do
+      manager.security_profiles << mgr_profile
+
+      expect(ads).to_not receive(:add_to_sec_group).with(
+        "distinguished name of AD sec group",
+        manager
+      )
+
+      expect{
+        Employee.check_manager(manager.employee_id)
+      }.to_not change{Employee.managers.include?(manager)}
+      expect(Employee.managers.include?(manager)).to eq(true)
+    end
+  end
 end
