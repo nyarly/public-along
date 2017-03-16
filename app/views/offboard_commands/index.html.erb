@@ -1,0 +1,7 @@
+<h1>Offboard Commands</h1>
+
+<%= render template: "offboard_commands/new" %>
+
+<% if @offboard_command.employee_id %>
+  <%= render template: "offboard_commands/show" %>
+<% end %>
