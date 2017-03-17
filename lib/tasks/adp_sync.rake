@@ -18,6 +18,8 @@ namespace :adp do
   task :sync_workers => :environment do
     w = AdpService::Workers.new
     w.create_sidekiq_workers
+    w.check_new_hire_changes
+    w.check_leave_return
   end
 
   desc "sync all adp info"

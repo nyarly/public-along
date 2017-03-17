@@ -98,36 +98,6 @@ module AdpService
       end
     end
 
-    def check_leave_return
-      future_date = 1.day.from_now.change(:usec => 0)
-
-      month = future_date.strftime("%m")
-      day = future_date.strftime("%d")
-      year = future_date.strftime("%Y")
-
-      update_emps = []
-
-      Employee.where(status: "Inactive").find_each do |e|
-        res = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers/#{e.adp_assoc_oid}?asOfDate=#{month}%2F#{day}%2F#{year}")
-        json = JSON.parse(res.body)
-
-        adp_status = json.dig("workers", 0, "workerStatus", "statusCode", "codeValue")
-
-        if adp_status == "Active" && e.leave_return_date.blank?
-          e.assign_attributes(leave_return_date: future_date)
-        elsif e.leave_return_date.present? && adp_status == "Inactive"
-          e.assign_attributes(leave_return_date: nil)
-        end
-
-        if e.changed? && e.save
-          update_emps << e
-        end
-      end
-
-      ads = ActiveDirectoryService.new
-      ads.update(update_emps)
-    end
-
     def job_change?(e, term_date)
       date = DateTime.parse(term_date) + 1.day
 

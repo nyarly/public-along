@@ -68,6 +68,67 @@ module AdpService
       end
     end
 
+    def check_new_hire_changes
+      Employee.where(status: "Pending").find_each do |e|
+        # arbitrary future date to see if any info has changed on hire
+        # hire date could have been moved forward
+        date = e.hire_date + 1.month
+
+        month = date.strftime("%m")
+        day = date.strftime("%d")
+        year = date.strftime("%Y")
+
+        update_emps = []
+
+        str = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers/#{e.adp_assoc_oid}?asOfDate=#{month}%2F#{day}%2F#{year}")
+        json = JSON.parse(str)
+
+        parser = WorkerJsonParser.new
+        workers = parser.sort_workers(json)
+
+        workers.each do |w_hash|
+          e = Employee.find_by(employee_id: w_hash[:employee_id])
+          e.assign_attributes(w_hash.except(:status))
+        end
+        if e.changed? && e.save
+          update_emps << e
+        end
+
+        ads = ActiveDirectoryService.new
+        ads.update(update_emps)
+      end
+    end
+
+    def check_leave_return
+      future_date = 1.day.from_now.change(:usec => 0)
+
+      month = future_date.strftime("%m")
+      day = future_date.strftime("%d")
+      year = future_date.strftime("%Y")
+
+      update_emps = []
+
+      Employee.where(status: "Inactive").find_each do |e|
+        str = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers/#{e.adp_assoc_oid}?asOfDate=#{month}%2F#{day}%2F#{year}")
+        json = JSON.parse(str)
+
+        adp_status = json.dig("workers", 0, "workerStatus", "statusCode", "codeValue")
+
+        if adp_status == "Active" && e.leave_return_date.blank?
+          e.assign_attributes(leave_return_date: future_date)
+        elsif e.leave_return_date.present? && adp_status == "Inactive"
+          e.assign_attributes(leave_return_date: nil)
+        end
+
+        if e.changed? && e.save
+          update_emps << e
+        end
+      end
+
+      ads = ActiveDirectoryService.new
+      ads.update(update_emps)
+    end
+
     def send_email?(employee)
       if employee.changed? && employee.valid?
         if employee.manager_id_changed? || employee.department_id_changed? || employee.location_id_changed?
