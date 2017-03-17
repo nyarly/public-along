@@ -167,8 +167,15 @@ class SabaService
     CSV.open(filename, "w+", {headers: true, col_sep: "|"}) do |csv|
       csv << headers
 
-      Employee.where.not(status: "Pending").find_each do |e|
-        status = (e.status == "Inactive" ? "Leave" : e.status)
+      Employee.find_each do |e|
+        if e.status == "Pending"
+          status = "Active"
+        elsif e.status == "Inactive"
+          status = "Leave"
+        else
+          status = e.status
+        end
+
         domain = e.worker_type.kind == "Contractor" ? "OpenTable_Contractor" : "OpenTable"
         email = SECRETS.saba_sftp_path.include?("uat") ? nil : e.email
         csv << [
