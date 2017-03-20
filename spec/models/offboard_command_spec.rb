@@ -30,28 +30,33 @@ RSpec.describe OffboardCommand, type: :model do
 
     it "should meet validations" do
       offboard_command = FactoryGirl.build(:offboard_command, employee_id: employee.id)
+      offboard_command.employee
       expect(offboard_command).to be_valid
       expect(offboard_command).to_not allow_value(nil).for(:employee_id)
     end
 
     it "should find the employee" do
       offboard_command = FactoryGirl.build(:offboard_command, employee_id: employee.id)
+      offboard_command.employee
       expect(offboard_command.employee.id).to eq(offboard_command.employee_id)
     end
 
     it "should make an ot_id" do
       offboard_command = FactoryGirl.build(:offboard_command, employee_id: employee.id)
+      offboard_command.employee
       expect(offboard_command.ot_id).to eq('bbarker')
     end
 
     it "should set the forward email to the offboarding info email" do
       offboard_command = FactoryGirl.build(:offboard_command, employee_id: employee.id)
+      offboard_command.employee
       expect(offboard_command.forward_email).to eq('newguy@otcorp.com')
     end
 
     it "should have offboarding info" do
       offboard_command = FactoryGirl.build(:offboard_command, employee_id: employee.id)
-      expect(offboard_command.offboarding_info.id).to eq(offboarding_info.id)
+      offboard_command.employee
+      expect(offboard_command.employee.offboarding_infos.count).to eq(1)
     end
   end
 
@@ -71,28 +76,32 @@ RSpec.describe OffboardCommand, type: :model do
 
     it "should meet validations" do
       offboard_command = FactoryGirl.build(:offboard_command, employee_id: employee.id)
+      offboard_command.employee
       expect(offboard_command).to be_valid
       expect(offboard_command).to_not allow_value(nil).for(:employee_id)
     end
 
     it "should find the employee" do
       offboard_command = FactoryGirl.build(:offboard_command, employee_id: employee.id)
+      offboard_command.employee
       expect(offboard_command.employee.id).to eq(offboard_command.employee_id)
     end
 
     it "should make an ot_id" do
       offboard_command = FactoryGirl.build(:offboard_command, employee_id: employee.id)
+      offboard_command.employee
       expect(offboard_command.ot_id).to eq('bbarker')
     end
 
     it "should set the forward email to the manager's email" do
       offboard_command = FactoryGirl.build(:offboard_command, employee_id: employee.id)
+      offboard_command.employee
       expect(offboard_command.forward_email).to eq('atrebek@otcorp.com')
     end
 
     it "should not have offboarding info" do
       offboard_command = FactoryGirl.build(:offboard_command, employee_id: employee.id)
-      expect(offboard_command.offboarding_info).to eq(nil)
+      expect(offboard_command.employee.offboarding_infos.count).to eq(0)
     end
   end
 

@@ -1,11 +1,11 @@
 <div class="row columns small-9 medium-9 large-9">
-  <h4>Offboard Commands for <%= @offboard_command.employee.cn %></h4>
+  <h4>Offboard Commands for <%= @offboard_command.employee_name %></h4>
 </div>
 <div class="row columns small-9 medium-9 large-9">
   <br><h5>For Google, run these:</h5>
 <pre>
-gam update user <%= @offboard_command.employee.email %> transfer drive <%= @offboard_command.forward_email %>
-gam delete user <%= @offboard_command.employee.email %>
+gam update user <%= @offboard_command.employee_email %> transfer drive <%= @offboard_command.forward_email %>
+gam delete user <%= @offboard_command.employee_email %>
 </pre>
   <br><h5>For O365, run these:</h5>
 <pre>
@@ -13,9 +13,9 @@ $CRED = Get-Credential
 $SESSION = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://ps.outlook.com/powershell -Credential $CRED -Authentication Basic -AllowRedirection
 Import-PSSession $SESSION
 Connect-MsolService -Credential $CRED
-Get-Mailbox -identity <%= @offboard_command.employee.email %> | set-mailbox -type "Shared"
-Set-MsolUserLicense -UserPrincipalName <%= @offboard_command.employee.email %> -RemoveLicenses "litwareinc:ENTERPRISEPACK"
-Add-MailboxPermission <%= @offboard_command.employee.email %> -User " <%= @offboard_command.forward_email %> " -AccessRights FullAccess
+Get-Mailbox -identity <%= @offboard_command.employee_email %> | set-mailbox -type "Shared"
+Set-MsolUserLicense -UserPrincipalName <%= @offboard_command.employee_email %> -RemoveLicenses "litwareinc:ENTERPRISEPACK"
+Add-MailboxPermission <%= @offboard_command.employee_email %> -User " <%= @offboard_command.forward_email %> " -AccessRights FullAccess
 </pre>
   <br><h5>To deactivate ROMS:</h5>
 <pre>
@@ -30,6 +30,6 @@ update Login set Active = 0 where Active = 1 and DomainLogin in ('opentable.com\
   <br><h5>To deactivate OTA:</h5>
 <pre>
 -- OTA (OTAnywhere, OTAnywhere_Asia, OTAnywhere_EU)
-update Login set Active = 0 where Active = 1 and Email in ('<%= @offboard_command.employee.email %>')
+update Login set Active = 0 where Active = 1 and Email in ('<%= @offboard_command.employee_email %>')
 </pre>
 </div>

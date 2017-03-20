@@ -1,31 +1,29 @@
 class OffboardCommandsController < ApplicationController
-  load_and_authorize_resource
-  
+
   def index
     @offboard_command = OffboardCommand.new
-    @employees = Employee.all
-  end
-
-  def show
+    authorize! :index, @offboard_command
   end
 
   def new
     @offboard_command = OffboardCommand.new
+    authorize! :new, @offboard_command
   end
 
   def create
     @offboard_command = OffboardCommand.new(offboard_command_params)
+    authorize! :create, @offboard_command
+    @offboard_command.employee
 
     respond_to do |format|
       if @offboard_command.valid?
         format.html { render :index, location: @offboard_command }
-        format.json { render :show, status: :created, location: @offboard_command }
+        format.json { render :index, status: :created, location: @offboard_command }
       else
         format.html { render :index }
-        format.json { render json: @offboard_command.errors, status: :unprocessable_entity }
+        format.json { render json: @offboard_command.erros, status: :unprocessable_entity}
       end
     end
-
   end
 
   private
