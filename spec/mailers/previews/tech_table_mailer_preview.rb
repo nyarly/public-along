@@ -32,4 +32,9 @@ class TechTableMailerPreview < ActionMailer::Preview
     emp = Employee.find(emp_trans.emp_mach_bundles.first.employee_id)
     TechTableMailer.permissions(emp_trans, emp)
   end
+
+  def offboard_notice
+    emp = Employee.where('termination_date IS NOT NULL').first
+    TechTableMailer.offboard_notice(emp)
+  end
 end

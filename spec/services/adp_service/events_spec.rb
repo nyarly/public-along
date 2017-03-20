@@ -240,10 +240,13 @@ describe AdpService::Events, type: :service do
     describe "termination event" do
       let!(:term_emp) { FactoryGirl.create(:employee, employee_id: "101652", termination_date: nil) }
       let(:parsed_json) { JSON.parse(term_json) }
+      let(:mailer) { double(TechTableMailer) }
 
       it "should update termination date" do
         expect(ActiveDirectoryService).to receive(:new).and_return(ads)
         expect(ads).to receive(:update)
+        expect(TechTableMailer).to receive(:offboard_notice).and_return(mailer)
+        expect(mailer).to receive(:deliver_now)
         expect(EmployeeWorker).to receive(:perform_async)
 
         adp = AdpService::Events.new

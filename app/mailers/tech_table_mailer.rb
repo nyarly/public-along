@@ -12,4 +12,10 @@ class TechTableMailer < ApplicationMailer
     @manager = User.find(@emp_transaction.user_id)
     mail(subject: "IMMEDIATE ACTION REQUIRED: #{emp_transaction.kind} request for #{employee.first_name} #{employee.last_name}")
   end
+
+  def offboard_notice(employee)
+    @employee = employee
+    @manager = Employee.find_by(employee_id: @employee.manager_id)
+    mail(subject: "Mezzo Offboarding notice for #{employee.first_name} #{employee.last_name}")
+  end
 end

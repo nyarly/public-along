@@ -34,4 +34,21 @@ RSpec.describe TechTableMailer, type: :mailer do
       expect(email.parts.first.body.raw_source).to include("Onboarding")
     end
   end
+
+  context "offboard notice" do
+    let(:emp) { FactoryGirl.create(:employee, termination_date: 2.weeks.from_now, manager_id: "123456")}
+    let!(:mgr) { FactoryGirl.create(:employee, employee_id: "123456")}
+    let!(:email) { TechTableMailer.offboard_notice(emp).deliver_now }
+
+    it "should queue to send" do
+      expect(ActionMailer::Base.deliveries).to_not be_empty
+    end
+
+    it "should have the right content" do
+      expect(email.from).to eq(["no-reply@opentable.com"])
+      expect(email.to).to include("techtable@opentable.com")
+      expect(email.subject).to eq("Mezzo Offboarding notice for #{emp.first_name} #{emp.last_name}")
+      expect(email.parts.first.body.raw_source).to include("Upcoming Offboard Notice")
+    end
+  end
 end

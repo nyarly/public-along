@@ -1,0 +1,65 @@
+<div style="font-family: helvetica;">
+  <h1>Upcoming Offboard Notice</h1>
+
+  <p>
+    <strong>Termination Date:</strong>
+    <%= @employee.termination_date.strftime("%b %e, %Y") %>
+  </p>
+
+  <p>
+    <strong>Name:</strong>
+    <%= @employee.cn %>
+  </p>
+
+  <p>
+    <strong>Email:</strong>
+    <%= @employee.email %>
+  </p>
+
+  <p>
+    <strong>EmployeeID:</strong>
+    <%= @employee.employee_id %>
+  </p>
+
+  <p>
+    <strong>Department:</strong>
+    <%= @employee.department.name %>
+   </p>
+
+  <p>
+    <strong>Location:</strong>
+    <%= @employee.location.name %>
+   </p>
+
+  <p>
+    <strong>Manager:</strong>
+    <%= @manager.first_name %> <%= @manager.last_name %>
+  </p>
+
+  <p>
+    <strong>Manager Email:</strong>
+    <%= @manager.email %>
+  </p>
+
+  <p>
+  <strong>Current Active Security Profiles:</strong>
+  </p>
+  <div style="margin-left: 2em">
+    <% @employee.active_security_profiles.each do |sp| %>
+      <div>
+        <%= sp.name %><br>
+        <ul>
+          <% sp.access_levels.find_each do |al| %>
+            <li style="margin-left: 2em"><small><%= al.name %> <%= al.application.name %></small></li>
+            <% if(al.application.dependency.present? || al.application.instructions.present?) %>
+              <p style="margin-left: 2em; color: red"><%= al.application.dependency %></p>
+              <p style="margin-left: 2em; color: red"><%= al.application.instructions %></p>
+            <% else %>
+              <p style="margin-left: 2em; color: limegreen">No further action needed.</p>
+            <% end %>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+  </div>
+</div>
