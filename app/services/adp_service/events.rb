@@ -69,7 +69,7 @@ module AdpService
       e = Employee.find_by(employee_id: worker_id)
       if e.present? && !job_change?(e, term_date)
         e.assign_attributes(termination_date: term_date)
-        send_offboard_form(e)
+        send_offboard_forms(e)
       else
         return false
       end
@@ -117,7 +117,8 @@ module AdpService
       end
     end
 
-    def send_offboard_form(e)
+    def send_offboard_forms(e)
+      TechTableMailer.offboard_notice(e).deliver_now
       if Time.now < 5.business_days.before(e.termination_date)
         EmployeeWorker.perform_at(5.business_days.before(e.termination_date), "Offboarding", e.id)
       else
