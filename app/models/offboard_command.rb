@@ -7,8 +7,9 @@ class OffboardCommand
   attr_accessor :employee_id
   attr_reader :employee_email, :employee_name, :ot_id, :forward_email
 
-  def employee
-    @employee = Employee.find(self.employee_id)
+
+  def initialize(employee_id)
+    @employee ||= Employee.find(employee_id).first
   end
 
   def employee_email
@@ -33,7 +34,7 @@ class OffboardCommand
       forward_email_id = offboarding_info.forward_email_id
       Employee.find(forward_email_id).email
     else
-      Employee.find(@employee.manager_id).email
+      Employee.find_by(employee_id: @employee.manager_id).email
     end
   end
 

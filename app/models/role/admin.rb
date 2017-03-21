@@ -15,6 +15,6 @@ class Role::Admin < Role
     ability.can :manage, EmpSecProfile
     ability.can :manage, ParentOrg
     ability.can :manage, WorkerType
-    ability.can :manage, OffboardCommand
+    ability.can :generate, OffboardCommand
   end
 end

@@ -94,7 +94,7 @@
               </ul>
             </li>
           <% end %>
-          <% if can? :read, OffboardCommand %>
+          <% if can? :generate, OffboardCommand %>
             <li>
               <%= link_to "Offboard Commands", offboard_commands_path %>
             </li>
