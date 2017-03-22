@@ -3,23 +3,27 @@
     <div class="small-10 medium-10 large-10 columns">
       <%= form_tag(offboard_commands_path, :method => "get", id: "search-form") do %>
         <div class="field">
-          <%= collection_select :employee_id, params[:employee_id], Employee.all, :employee_id, :cn, include_blank: 'Select Worker' %>
+          <%= collection_select :employee_id, params[:employee_id], Employee.all, :employee_id, :cn, { include_blank: 'Select Worker'}, required: true %>
         </div>
         <%= submit_tag "Generate Commands", class: "button" %>
       <% end %>   
     </div>
   </div>
-  <% else %>
+
+<% else %>
   <div class="row align-middle">
-    <div class="columns small-9 medium-9 large-9 columns">
+    <div class="columns small-12 medium-12 large-12 columns">
       <%= link_to 'Generate New Commands', offboard_commands_path, :class => "button align-right" %>
       <h4>Offboard Commands for <%= @offboard_command.employee_name %></h4>
-        <br><h5>For Google, run these:</h5>
+      <h5>For Google, run these:</h5>
+      <div class="callout">
 <pre>
 gam update user <%= @offboard_command.employee_email %> transfer drive <%= @offboard_command.forward_google %>
 gam delete user <%= @offboard_command.employee_email %>
 </pre>
-  <br><h5>For O365, run these:</h5>
+      </div>
+      <h5>For O365, run these:</h5>
+      <div class="callout">
 <pre>
 $CRED = Get-Credential
 $SESSION = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://ps.outlook.com/powershell -Credential $CRED -Authentication Basic -AllowRedirection
@@ -28,23 +32,30 @@ Connect-MsolService -Credential $CRED
 Get-Mailbox -identity <%= @offboard_command.employee_email %> | set-mailbox -type "Shared"
 Set-MsolUserLicense -UserPrincipalName <%= @offboard_command.employee_email %> -RemoveLicenses "opentable:ENTERPRISEPACK"
 Add-MailboxPermission <%= @offboard_command.employee_email %> -User " <%= @offboard_command.forward_email %> " -AccessRights FullAccess
-</pre>
-  <br><h5>To deactivate ROMS:</h5>
+</pre>  
+      </div>
+      <h5>To deactivate ROMS:</h5>
+      <div class="callout">
 <pre>
 -- ROMS (GOD DB)
 update Employees set Active = 0 where Active = 1 and EmployeeLoginID in ('opentable.com\<%= @offboard_command.ot_id %>')
 </pre>
-  <br><h5>To deactivate CHARM:</h5>
+      </div>
+      <h5>To deactivate CHARM:</h5>
+      <div class="callout">
 <pre>
 --CHARM (Admin, Admin_Asia, Admin_EU)
 update Login set Active = 0 where Active = 1 and DomainLogin in ('opentable.com\<%= @offboard_command.ot_id %>')
 </pre>
-  <br><h5>To deactivate OTA:</h5>
+      </div>
+      <h5>To deactivate OTA:</h5>
+      <div class="callout">
 <pre>
 -- OTA (OTAnywhere, OTAnywhere_Asia, OTAnywhere_EU)
 update Login set Active = 0 where Active = 1 and Email in ('<%= @offboard_command.employee_email %>')
-</pre>
+</pre>  
       </div>
-    <%end%>
+
+    </div>
   </div>
-</div>
+<%end%>

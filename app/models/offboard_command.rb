@@ -24,12 +24,8 @@ class OffboardCommand
   end
 
   def forward_google
-    if @employee.offboarding_infos.present?
-      if offboarding_info.transfer_google_docs_id
+    if @employee.offboarding_infos.present? && offboarding_info.transfer_google_docs_id
         Employee.find(offboarding_info.transfer_google_docs_id).email
-      else
-        manager_email
-      end
     else
       manager_email
     end
