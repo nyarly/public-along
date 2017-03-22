@@ -17,16 +17,16 @@ RSpec.describe OffboardCommand, type: :model do
     employee_id: 'bb123'
   )}
 
+  let!(:forward_to_employee) { FactoryGirl.create(:employee,
+    first_name: "Steven",
+    last_name: "Colbert",
+    email: "newguy@otcorp.com",
+    employee_id: 'sc123'
+  )}
+
   let!(:offboard_command) {FactoryGirl.build(:offboard_command, employee_id: employee.employee_id)}
 
   context "with offboarding info" do
-
-    let!(:forward_to_employee) { FactoryGirl.create(:employee,
-      first_name: "Steven",
-      last_name: "Colbert",
-      email: "newguy@otcorp.com",
-      employee_id: 'sc123'
-    )}
 
     let!(:offboarding_info) { FactoryGirl.create(:offboarding_info,
       employee_id: employee.id,
@@ -61,12 +61,6 @@ RSpec.describe OffboardCommand, type: :model do
   end
 
   context "with offboarding info and with google forwarding id" do
-    let!(:forward_to_employee) { FactoryGirl.create(:employee,
-      first_name: "Steven",
-      last_name: "Colbert",
-      email: "newguy@otcorp.com",
-      employee_id: 'sc123'
-    )}
 
     let!(:offboarding_info) { FactoryGirl.create(:offboarding_info,
       employee_id: employee.id,
@@ -100,6 +94,10 @@ RSpec.describe OffboardCommand, type: :model do
 
     it "should set the forward email to the manager's email" do
       expect(offboard_command.forward_email).to eq('atrebek@otcorp.com')
+    end
+
+    it "should set the google docs transfer to the manager's email" do
+      expect(offboard_command.forward_google).to eq('atrebek@otcorp.com')
     end
   end
 
