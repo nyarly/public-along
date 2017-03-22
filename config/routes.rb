@@ -14,6 +14,8 @@ Rails.application.routes.draw do
     sessions: 'users/sessions'
   }
   resources :employees, :except => [:destroy]
+  get '/offboard_commands' => "offboard_commands#generate", as: :offboard_commands
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
@@ -29,6 +31,7 @@ Rails.application.routes.draw do
     Sidekiq::Web.session_secret = Rails.application.secrets[:secret_key_base]
     mount Sidekiq::Web => '/sidekiq'
   end
+
   # You can have the root of your site routed with "root"
   # root 'welcome#index'
 

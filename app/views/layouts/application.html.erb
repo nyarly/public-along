@@ -94,6 +94,11 @@
               </ul>
             </li>
           <% end %>
+          <% if can? :generate, OffboardCommand %>
+            <li>
+              <%= link_to "Offboard Commands", offboard_commands_path %>
+            </li>
+          <% end %>
           <!-- <li><a href="#">Two</a></li>
           <li><a href="#">Three</a></li> -->
         </ul>
