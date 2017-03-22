@@ -6,5 +6,4 @@ class OffboardCommandsController < ApplicationController
       @offboard_command = OffboardCommand.new(params[:employee_id])
     end
   end
-
 end

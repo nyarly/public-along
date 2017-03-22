@@ -18,6 +18,6 @@ describe Role::Admin, :type => :model do
     it_should_behave_like "role abilities", EmpSecProfile, [:manage]
     it_should_behave_like "role abilities", ParentOrg, [:manage]
     it_should_behave_like "role abilities", WorkerType, [:manage]
-    it_should_behave_like "role abilities", OffboardCommand, [:manage]
+    it_should_behave_like "role abilities", OffboardCommand, [:generate]
   end
 end
