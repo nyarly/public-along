@@ -386,9 +386,8 @@ describe Employee, type: :model do
     end
 
     it "should set the correct account expiry" do
-      date = 1.month.from_now
-      datetime = DateTime.new(date.year, date.month, date.day, 21)
-      time_conversion = ActiveSupport::TimeZone.new("Europe/London").local_to_utc(datetime)
+      date = employee.contract_end_date + 1.day
+      time_conversion = ActiveSupport::TimeZone.new("Europe/London").local_to_utc(date)
       expect(employee.generated_account_expires).to eq(DateTimeHelper::FileTime.wtime(time_conversion))
     end
 
@@ -438,9 +437,9 @@ describe Employee, type: :model do
     )}
 
     it "should set the correct account expiry" do
-      date = 2.days.from_now
-      datetime = DateTime.new(date.year, date.month, date.day, 21)
-      expect(employee.generated_account_expires).to eq(DateTimeHelper::FileTime.wtime(datetime))
+      date = employee.termination_date + 1.day
+      time_conversion = ActiveSupport::TimeZone.new("Europe/London").local_to_utc(date)
+      expect(employee.generated_account_expires).to eq(DateTimeHelper::FileTime.wtime(time_conversion))
     end
   end
 
@@ -458,9 +457,9 @@ describe Employee, type: :model do
     )}
 
     it "should set the correct account expiry" do
-      date = 1.day.from_now
-      datetime = DateTime.new(date.year, date.month, date.day, 21)
-      expect(employee.generated_account_expires).to eq(DateTimeHelper::FileTime.wtime(datetime))
+      date = employee.termination_date + 1.day
+      time_conversion = ActiveSupport::TimeZone.new("Europe/London").local_to_utc(date)
+      expect(employee.generated_account_expires).to eq(DateTimeHelper::FileTime.wtime(time_conversion))
     end
 
     it "should create attr hash" do
