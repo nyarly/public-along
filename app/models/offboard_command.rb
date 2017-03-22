@@ -5,7 +5,7 @@ class OffboardCommand
             presence: true
 
   attr_accessor :employee_id
-  attr_reader :employee_email, :employee_name, :ot_id, :forward_email
+  attr_reader :employee_email, :employee_name, :ot_id, :forward_email, :forward_google
 
   def initialize(employee_id)
     @employee ||= Employee.find_by(employee_id: employee_id)
@@ -23,13 +23,32 @@ class OffboardCommand
     employee_email[/[^@]+/]
   end
 
+  def forward_google
+    if @employee.offboarding_infos.present?
+      if offboarding_info.transfer_google_docs_id
+        Employee.find(offboarding_info.transfer_google_docs_id).email
+      else
+        manager_email
+      end
+    else
+      manager_email
+    end
+  end
+
   def forward_email
     if @employee.offboarding_infos.present?
-      offboarding_info = @employee.offboarding_infos.order("created_at").last
       Employee.find(offboarding_info.forward_email_id).email
     else
-      Employee.find_by(employee_id: @employee.manager_id).email
+      manager_email
     end
+  end
+
+  def manager_email
+    Employee.find_by(employee_id: @employee.manager_id).email
+  end
+
+  def offboarding_info
+    @employee.offboarding_infos.order("created_at").last
   end
 
 end

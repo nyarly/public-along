@@ -16,7 +16,7 @@
       <h4>Offboard Commands for <%= @offboard_command.employee_name %></h4>
         <br><h5>For Google, run these:</h5>
 <pre>
-gam update user <%= @offboard_command.employee_email %> transfer drive <%= @offboard_command.forward_email %>
+gam update user <%= @offboard_command.employee_email %> transfer drive <%= @offboard_command.forward_google %>
 gam delete user <%= @offboard_command.employee_email %>
 </pre>
   <br><h5>For O365, run these:</h5>
@@ -26,7 +26,7 @@ $SESSION = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri ht
 Import-PSSession $SESSION
 Connect-MsolService -Credential $CRED
 Get-Mailbox -identity <%= @offboard_command.employee_email %> | set-mailbox -type "Shared"
-Set-MsolUserLicense -UserPrincipalName <%= @offboard_command.employee_email %> -RemoveLicenses "litwareinc:ENTERPRISEPACK"
+Set-MsolUserLicense -UserPrincipalName <%= @offboard_command.employee_email %> -RemoveLicenses "opentable:ENTERPRISEPACK"
 Add-MailboxPermission <%= @offboard_command.employee_email %> -User " <%= @offboard_command.forward_email %> " -AccessRights FullAccess
 </pre>
   <br><h5>To deactivate ROMS:</h5>

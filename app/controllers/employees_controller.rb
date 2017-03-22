@@ -10,8 +10,8 @@ class EmployeesController < ApplicationController
       @employees = Employee.all
     end
 
-    if params[:search]
-      @employees = @employees.search(params[:search]).order("last_name ASC")
+    if search_params[:search]
+      @employees = @employees.search(search_params[:search]).order("last_name ASC")
     end
   end
 
@@ -145,5 +145,9 @@ class EmployeesController < ApplicationController
       :leave_start_date,
       :leave_return_date
     )
+  end
+
+  def search_params
+    params.permit(:search)
   end
 end
