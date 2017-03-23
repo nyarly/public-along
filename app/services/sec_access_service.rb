@@ -39,12 +39,12 @@ class SecAccessService
 
   def add_or_remove_employee_from_groups
     ads = ActiveDirectoryService.new
-    @add_sec_groups.each do |sg|
-      ads.add_to_sec_group(sg, @employee) unless sg.blank?
-    end unless @add_sec_groups.blank?
-
     @revoke_sec_groups.each do |sg|
       ads.remove_from_sec_group(sg, @employee) unless sg.blank?
     end unless @revoke_sec_groups.blank?
+
+    @add_sec_groups.each do |sg|
+      ads.add_to_sec_group(sg, @employee) unless sg.blank?
+    end unless @add_sec_groups.blank?
   end
 end
