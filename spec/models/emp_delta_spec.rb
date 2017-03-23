@@ -128,10 +128,10 @@ RSpec.describe EmpDelta, type: :model do
 
       expect(delta.format(delta.before)).to include("manager: #{old_mgr.cn}")
       expect(delta.format(delta.before)).to include("location: #{old_loc.name}")
-      expect(delta.format(delta.before)).to include("business_title: #{old_jt.name}")
+      expect(delta.format(delta.before)).to include("business_title: #{old_jt.code} - #{old_jt.name}")
       expect(delta.format(delta.after)).to include("manager: #{new_mgr.cn}")
       expect(delta.format(delta.after)).to include("location: #{new_loc.name}")
-      expect(delta.format(delta.after)).to include("business_title: #{new_jt.name}")
+      expect(delta.format(delta.after)).to include("business_title: #{new_jt.code} - #{new_jt.name}")
     end
 
     it "should format dates" do

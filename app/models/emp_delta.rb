@@ -36,7 +36,11 @@ class EmpDelta < ActiveRecord::Base
         result << "#{k.tr("_", " ")}: #{v.present? ? Date.parse(v).strftime('%b %e, %Y') : 'nil'}" if k.include? "date"
         result << "manager: #{Employee.find_by(employee_id: v).try(:cn) || 'nil'}" if k.include? "manager"
         result << "location: #{Location.find(v).try(:name) || 'nil'}" if k.include? "location"
-       result << "business_title: #{JobTitle.find(v).try(:name) || 'nil'}" if k.include? "job_title"
+        if k.include?("job_title")
+          jt = JobTitle.find(v)
+          value = jt.present? ? "#{jt.code} - #{jt.name}" : nil
+          result << "business_title: #{value}"
+        end
       end
     }
 
