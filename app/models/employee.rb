@@ -174,12 +174,18 @@ class Employee < ActiveRecord::Base
 
   def generated_account_expires
     if termination_date.present?
-      date_time = DateTime.new(termination_date.year, termination_date.month, termination_date.day, 21)
-      time_conversion = ActiveSupport::TimeZone.new(nearest_time_zone).local_to_utc(date_time)
-      DateTimeHelper::FileTime.wtime(time_conversion)
+      date = termination_date
     elsif contract_end_date.present?
-      date_time = DateTime.new(contract_end_date.year, contract_end_date.month, contract_end_date.day, 21)
-      time_conversion = ActiveSupport::TimeZone.new(nearest_time_zone).local_to_utc(date_time)
+      date = contract_end_date
+    else
+      date = nil
+    end
+
+    if date.present?
+      # The expiration date needs to be set a day after term date
+      # AD expires the account at midnight of the day before the expiry date
+      expiration_date = date + 1.day
+      time_conversion = ActiveSupport::TimeZone.new(nearest_time_zone).local_to_utc(expiration_date)
       DateTimeHelper::FileTime.wtime(time_conversion)
     else
       NEVER_EXPIRES
