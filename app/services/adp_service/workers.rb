@@ -69,64 +69,62 @@ module AdpService
     end
 
     def check_new_hire_changes
-      Employee.where(status: "Pending").find_each do |e|
-        # arbitrary future date to see if any info has changed on hire
-        # hire date could have been moved forward
-        date = e.hire_date + 1.month
+      check_adp("Pending", 1.year.from_now.change(:usec => 0)) { |e, json|
+        if json["workers"].present?
+          parser = WorkerJsonParser.new
+          workers = parser.sort_workers(json)
 
-        month = date.strftime("%m")
-        day = date.strftime("%d")
-        year = date.strftime("%Y")
-
-        update_emps = []
-
-        str = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers/#{e.adp_assoc_oid}?asOfDate=#{month}%2F#{day}%2F#{year}")
-        json = JSON.parse(str)
-
-        parser = WorkerJsonParser.new
-        workers = parser.sort_workers(json)
-
-        workers.each do |w_hash|
-          e = Employee.find_by(employee_id: w_hash[:employee_id])
+          w_hash = workers[0]
           e.assign_attributes(w_hash.except(:status))
+        else
+          TechTableMailer.alert_email("New hire sync is erroring on #{e.cn}, employee id: #{e.employee_id}.\nPlease contact the developer to help diagnose the problem.").deliver_now
         end
-        if e.changed? && e.save
-          update_emps << e
-        end
-
-        ads = ActiveDirectoryService.new
-        ads.update(update_emps)
-      end
+      }
     end
 
     def check_leave_return
-      future_date = 1.day.from_now.change(:usec => 0)
-
-      month = future_date.strftime("%m")
-      day = future_date.strftime("%d")
-      year = future_date.strftime("%Y")
-
-      update_emps = []
-
-      Employee.where(status: "Inactive").find_each do |e|
-        str = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers/#{e.adp_assoc_oid}?asOfDate=#{month}%2F#{day}%2F#{year}")
-        json = JSON.parse(str)
-
+      check_adp("Inactive", 1.day.from_now.change(:usec => 0)) { |e, json, date|
         adp_status = json.dig("workers", 0, "workerStatus", "statusCode", "codeValue")
 
         if adp_status == "Active" && e.leave_return_date.blank?
-          e.assign_attributes(leave_return_date: future_date)
+          e.assign_attributes(leave_return_date: date)
         elsif e.leave_return_date.present? && adp_status == "Inactive"
           e.assign_attributes(leave_return_date: nil)
         end
+      }
+    end
+
+    def check_adp(status, as_of_date, &block)
+      update_emps = []
+
+      Employee.where(status: status).find_each do |e|
+        json = get_worker_json(e, as_of_date)
+
+        block.call(e, json, as_of_date)
 
         if e.changed? && e.save
           update_emps << e
         end
       end
 
-      ads = ActiveDirectoryService.new
-      ads.update(update_emps)
+      update_ads(update_emps)
+    end
+
+
+    def get_worker_json(e, date)
+      m = date.strftime("%m")
+      d = date.strftime("%d")
+      y = date.strftime("%Y")
+
+      str = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers/#{e.adp_assoc_oid}?asOfDate=#{m}%2F#{d}%2F#{y}")
+      JSON.parse(str)
+    end
+
+    def update_ads(emp_array)
+      if emp_array.present?
+        ads = ActiveDirectoryService.new
+        ads.update(emp_array)
+      end
     end
 
     def send_email?(employee)
