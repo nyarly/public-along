@@ -1,0 +1,1 @@
+ $('#al_ids').append("<%= escape_javascript (render partial: 'update_al_ids', locals: { al_id: @al_id}) %>")

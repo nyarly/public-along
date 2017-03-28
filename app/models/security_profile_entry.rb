@@ -7,21 +7,12 @@ class SecurityProfileEntry
 	include ActiveModel::Conversion
 	include ActiveModel::Validations
 
-  attr_reader :security_profile
+  attr_accessor :security_profile, :access_level
 
   attribute :name, String
   attribute :description, String
   attribute :department_ids, Array[Integer]
   attribute :access_level_ids, Array[Integer]
-
-  attr_reader :access_level
-
-  attribute :name, String
-  attribute :application_id, Integer
-  attribute :ad_security_group, String
-  attribute :security_profile_ids, Array[Integer]
-
-  # put validations here
 
   def initialize(attr = {})
     if !attr["id"].nil?
@@ -46,30 +37,7 @@ class SecurityProfileEntry
   end
 
   def access_level
-    @access_level ||= AccessLevel.new(
-      name: name,
-      application_id: application_id,
-      ad_security_group: ad_security_group,
-      security_profile_ids: security_profile_ids
-    )
-  end
-
-  def access_levels
-    @security_profile.access_levels.build(
-      name: name,
-      application_id: application_id,
-      ad_security_group: ad_security_group,
-      security_profile_ids: security_profile_ids
-    )
-  end
-
-  def build_access_levels
-    access_level_ids.each do |al_id|
-      security_profile.sec_prof_access_levels.build(
-        security_profile_id: security_profile_id,
-        access_level_id: al_id
-      )
-    end
+    @access_level ||= AccessLevel.new
   end
 
   def errors
@@ -81,8 +49,10 @@ class SecurityProfileEntry
   end
 
   def save
-    ActiveRecord::Base.transaction do
-      security_profile.save!
+    if valid?
+      ActiveRecord::Base.transaction do
+        security_profile.save!
+      end
     end
   end
 

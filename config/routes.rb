@@ -16,6 +16,9 @@ Rails.application.routes.draw do
   resources :employees, :except => [:destroy]
   get '/offboard_commands' => "offboard_commands#generate", as: :offboard_commands
 
+  get '/update_al_opts' => "security_profiles#update_al_opts", as: 'update_al_opts', defaults: {format: 'js'}
+  get '/update_al_ids' => "security_profiles#update_al_ids", as: 'udpate_al_ids'
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

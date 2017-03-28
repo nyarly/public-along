@@ -1,0 +1,8 @@
+<h5>Permissions</h5>
+<div class="callout" id="al_ids">
+  <%= @security_profile.access_levels.each do |al| %>
+    <p><%= al.name %></p>
+    <%= f.collection_select "security_profiles[access_level_ids[]]", value: al.id %>
+  <% end %>
+</div>
+

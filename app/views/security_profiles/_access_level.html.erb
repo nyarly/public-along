@@ -1,6 +1,14 @@
-<%= form_for(@access_level, 
-    :url => { :action => "access_level", :controller => "security_profile_entry"},
-    :html => {:class => "form"} ) do |f| %>
+<button class="close-button" data-close aria-label="Close modal" type="button">
+  <span aria-hidden="true">&times;</span>
+</button>
+
+<h5>Create New Access Level</h5>
+<%= form_tag(@access_level,
+    url: access_levels_path,
+    method: "post",
+    remote: true,
+    html: { :class => "form" }) do %>
+
   <% if @access_level.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@access_level.errors.count, "error") %> prohibited this access_level from being saved:</h2>
@@ -14,24 +22,18 @@
   <% end %>
 
   <div class="field">
-    <%= f.label :name %><br>
-    <%= f.text_field :name %>
+    <%= label_tag :name %><br>
+    <%= text_field_tag :name %>
   </div>
   <div class="field">
-    <%= f.label :application_id %><br>
-    <%= f.collection_select :application_id, Application.all, :id, :name %>
-    <%= link_to 'Add new application', new_application_path, :class => 'button' %>
+    <%= label_tag :application_id %><br>
+    <%= collection_select @access_level.application_id, :application_id, Application.all, :id, :name, { include_blank: 'Select Application' }, required: true %>
   </div>
   <div class="field">
-    <%= f.label :ad_security_group %><br>
-    <%= f.text_field :ad_security_group %>
+    <%= label_tag :ad_security_group %><br>
+    <%= text_field_tag :ad_security_group %>
   </div>
-  <div class="field">
-    <%= f.label :security_profiles %><br>
-    <%= f.select :security_profile_ids, SecurityProfile.all.collect {|x| [x.name, x.id]}, {}, :multiple => true %>
-  </div>
-  <div class="actions">
-    <%= link_to 'Back to List', access_levels_path, :class => "button secondary" %>
-    <%= f.submit "Submit", :class => "button"%>
+  <div class="actions" id="add_al_from_sp">
+    <%= submit_tag "Submit", :class => "button" %>
   </div>
 <% end %>

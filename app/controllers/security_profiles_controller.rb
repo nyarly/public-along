@@ -18,13 +18,34 @@ class SecurityProfilesController < ApplicationController
   def new
     @security_profile_entry = SecurityProfileEntry.new
     @security_profile = @security_profile_entry.security_profile
-    @access_level = AccessLevel.new
+    @access_level = @security_profile_entry.access_level
+    @al_opts = []
+    @al_ids = []
+  end
+
+  def update_al_opts
+    @security_profile_entry = SecurityProfileEntry.new
+    @security_profile = @security_profile_entry.security_profile
+    @al_opts = AccessLevel.where("application_id = ?", params[:application_id])
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def update_al_ids
+    @al_id = AccessLevel.find(params[:access_level_id])
+    respond_to do |format|
+      format.js
+    end
   end
 
   # GET /security_profiles/1/edit
   def edit
     @security_profile_entry = SecurityProfileEntry.new("id" => params[:id])
     @security_profile = @security_profile_entry.security_profile
+    @access_level = @security_profile_entry.access_level
+    @al_ops = []
+    @al_ids = []
   end
 
   # POST /security_profiles
@@ -34,7 +55,7 @@ class SecurityProfilesController < ApplicationController
     @security_profile = @security_profile_entry.security_profile
 
     respond_to do |format|
-      if @security_profile.save
+      if @security_profile_entry.save
         format.html { redirect_to @security_profile, notice: 'Security profile was successfully created.' }
         format.json { render :show, status: :created, location: @security_profile }
       else
