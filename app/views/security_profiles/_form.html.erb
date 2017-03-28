@@ -3,11 +3,11 @@
     :method => @security_profile.persisted? ? "put": "post", 
     :html => {:class => "form"} ) do |f| %>
 
-  <% if @security_profile.errors.any? %>
+  <% if @security_profile_entry.errors.any? %>
     <div id="error_explanation">
-      <h2><%= pluralize(@security_profile.errors.count, "error") %> prohibited this security_profile from being saved:</h2>
+      <h2><%= pluralize(@security_profile_entry.errors.count, "error") %> prohibited this security_profile_entry from being saved:</h2>
       <ul>
-      <% @security_profile.errors.full_messages.each do |message| %>
+      <% @security_profile_entry.errors.full_messages.each do |message| %>
         <li><%= message %></li>
       <% end %>
       </ul>
@@ -28,8 +28,13 @@
     <%= f.select :department_ids, Department.all.collect {|x| [x.name, x.id]}, {}, :selected => @security_profile.department_ids, :multiple => true %>
   </div>
 
-  <div class="field" id="al_ids">
+  <h5>Permissions</h5>
+  <div class="callout">
+    <div class="field" id="al_ids">
+    <%= render :partial => 'update_al_ids', :collection => @security_profile.access_levels, :as => :al_id %>
+    </div>
   </div>
+  <p><a data-open="getAccessLevel">+ Permission</a></p>
   
   <div class="actions">
     <%= link_to 'Back to List', security_profiles_path, :class => "button secondary" %>
@@ -37,17 +42,11 @@
   </div>
 <% end %>
 
-<div class="field">
-  <%= form_tag :access_levels do |g| %>
-    <%= collection_select(:access_level, :application_id, Application.all, :id, :name, { prompt: "Select Application"}, {id: 'application_access_level_select'}) %>
-    <%= collection_select(:access_level, :name, @al_opts, :id, :name, { prompt: "Select Permission Level"}, {id: 'access_level_name_select'}) %>
-  <% end %>
+<div class="small reveal" id="getAccessLevel" data-reveal>
+  <%= render partial: 'permissions' %>
 </div>
-<button id="add_al_id">Add</button>
 
-<div class="small-11 medium-11 large-11 columns">
-  <%= link_to 'Create New Permission', new_access_level_path, data: {:remote => true, :"reveal-id" => "newPermission", :open => "newPermission" }, :class => "button" %>
-  <div class="reveal" id="newPermission" data-reveal>
-    <%= render partial: 'access_level', locals: { access_level: @access_level, security_profile: @security_profile } %>
-  </div>
+<%= link_to 'Create New Access Level', new_access_level_path, data: {:remote => true, :"reveal-id" => "newPermission", :open => "newPermission" }, :class => "button float-left" %>
+<div class="reveal" id="newPermission" data-reveal>
+  <%= render partial: 'access_level', locals: { access_level: @access_level, security_profile: @security_profile } %>
 </div>

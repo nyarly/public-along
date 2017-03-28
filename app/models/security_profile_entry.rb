@@ -53,7 +53,13 @@ class SecurityProfileEntry
       ActiveRecord::Base.transaction do
         security_profile.save!
       end
+    else
+      security_profile.errors.add(:base, :security_profile_blank, message: "Can't be blank")
+      raise ActiveRecord::RecordInvalid.new(security_profile)
     end
-  end
 
+    rescue ActiveRecord::RecordInvalid => e
+      @errors = security_profile.errors
+      errors.blank?
+  end
 end

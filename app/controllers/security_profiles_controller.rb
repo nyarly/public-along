@@ -39,13 +39,21 @@ class SecurityProfilesController < ApplicationController
     end
   end
 
+  def remove_al_id
+    @security_profile_entry = SecurityProfileEntry.new
+    @security_profile = @security_profile_entry.security_profile
+    @security_profile.access_levels.delete(AccessLevel.find(params[:access_level_id]))
+    respond_to do |format|
+      format.json { render json: @security_profile.access_levels }
+    end
+  end
+
   # GET /security_profiles/1/edit
   def edit
     @security_profile_entry = SecurityProfileEntry.new("id" => params[:id])
     @security_profile = @security_profile_entry.security_profile
     @access_level = @security_profile_entry.access_level
-    @al_ops = []
-    @al_ids = []
+    @al_opts = []
   end
 
   # POST /security_profiles
@@ -105,6 +113,10 @@ class SecurityProfilesController < ApplicationController
 
     def security_profile_entry_params
       params.require(:security_profile_entry).permit(:name, :description, department_ids: [], access_level_ids: [])
+    end
+
+    def access_level_params
+      params.require(:access_level).permit(:name, :application_id, :ad_security_group, security_profile_ids: [])
     end
 
 end

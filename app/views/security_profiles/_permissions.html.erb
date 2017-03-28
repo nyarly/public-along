@@ -1,8 +1,22 @@
-<h5>Permissions</h5>
-<div class="callout" id="al_ids">
-  <%= @security_profile.access_levels.each do |al| %>
-    <p><%= al.name %></p>
-    <%= f.collection_select "security_profiles[access_level_ids[]]", value: al.id %>
-  <% end %>
+<div class="row">
+  <div class="large-12 columns">
+    <button class="close-button" data-close aria-label="Close modal" type="button">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
 </div>
 
+<div class="row">
+  <div class="large-12 columns">
+    <br>
+    <%= form_tag :access_levels do |g| %>
+      <%= collection_select(:access_level, :application_id, Application.all, :id, :name, { prompt: "Select Application", required: true}, {id: 'application_access_level_select'}) %>
+      <%= collection_select(:access_level, :name, @al_opts, :id, :name, { prompt: "Select Permission Level", required: true}, {id: 'access_level_name_select'}) %>
+    <% end %>
+  </div>
+</div>
+<div class="row">
+  <div class="large-12 columns">
+    <button type="button" class="button" id="add_al_id">Add to Security Profile</button>
+  </div>
+</div>

@@ -22,9 +22,9 @@ $(function(){ $(document).foundation(); });
 $(document).ready(function(){
   toggleContract();
   $('#employee_employee_type').change(toggleContract);
-  $('#application_access_level_select').change(updateAccessLevelNames);
+  $('#application_access_level_select').change(updateAccessLevelOptions);
   $('#add_al_id').click(addAccessLevelId);
-  $('#add_al_from_sp').click(addToALList);
+  $('#new_al').click(newAccessLevel);
 });
 
 function toggleContract() {
@@ -41,7 +41,7 @@ function toggleContract() {
   }
 }
 
-function updateAccessLevelNames() {
+function updateAccessLevelOptions() {
   $.ajax({
     type: 'get',
     url: '/update_al_opts',
@@ -61,11 +61,31 @@ function addAccessLevelId() {
     url: '/update_al_ids',
     data: { access_level_id: $('#access_level_name_select').val()},
     success: function(data) {
-      console.log(data)
+      $('#getAccessLevel').foundation('close');
+      console.log("Add access level success");
+    },
+    error: function(error) {
+      console.log("Add access level error");
     }
   })
 }
 
-function addToALList() {
-  console.log("update list of permissions")
+function removeAccessLevelId(e) {
+  var access_level = '#al_id_' + $(e).attr('id');
+  $(access_level).remove()
+  $.ajax({
+    type: 'get',
+    url: '/remove_al_id',
+    data: { access_level_id: $(e).attr('id')},
+    success: function(data) {
+      console.log("Remove access level success");
+    },
+    error: function(data) {
+      console.log("Remove access level error");
+    }
+  })
+}
+
+function newAccessLevel() {
+  $('#newPermission').foundation('close');
 }

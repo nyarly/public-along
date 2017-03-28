@@ -3,11 +3,9 @@
 </button>
 
 <h5>Create New Access Level</h5>
-<%= form_tag(@access_level,
-    url: access_levels_path,
-    method: "post",
+<%= form_for(@access_level,
     remote: true,
-    html: { :class => "form" }) do %>
+    html: { :class => "form", :onsubmit => 'return newAccessLevel()' }) do |f| %>
 
   <% if @access_level.errors.any? %>
     <div id="error_explanation">
@@ -22,18 +20,18 @@
   <% end %>
 
   <div class="field">
-    <%= label_tag :name %><br>
-    <%= text_field_tag :name %>
+    <%= f.label :name %><br>
+    <%= f.text_field :name %>
   </div>
   <div class="field">
-    <%= label_tag :application_id %><br>
-    <%= collection_select @access_level.application_id, :application_id, Application.all, :id, :name, { include_blank: 'Select Application' }, required: true %>
+    <%= f.label :application_id %><br>
+    <%= f.collection_select :application_id, Application.all, :id, :name, { include_blank: 'Select Application' }, required: true %>
   </div>
   <div class="field">
-    <%= label_tag :ad_security_group %><br>
-    <%= text_field_tag :ad_security_group %>
+    <%= f.label :ad_security_group %><br>
+    <%= f.text_field :ad_security_group %>
   </div>
-  <div class="actions" id="add_al_from_sp">
-    <%= submit_tag "Submit", :class => "button" %>
+  <div class="actions" id="add_al_id">
+    <%= f.submit "Submit", :class => "button" %>
   </div>
 <% end %>
