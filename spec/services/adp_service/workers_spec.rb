@@ -10,6 +10,7 @@ describe AdpService::Workers, type: :service do
   let(:response)    { double(Net::HTTPResponse) }
   let(:ads) { double(ActiveDirectoryService) }
   let(:pending_hire_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_pending_hire.json") }
+  let(:not_found_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_worker_not_found.json") }
 
   before :each do
     allow(uri).to receive(:host).and_return(host)
@@ -285,36 +286,66 @@ describe AdpService::Workers, type: :service do
       first_name: "Robert",
       hire_date: Date.today + 2.weeks
     )}
-    let!(:future_date) { new_hire.hire_date + 1.month }
+    let!(:future_date) { 1.year.from_now.change(:usec => 0) }
     let!(:regular_w_type) { FactoryGirl.create(:worker_type, code: "FTR")}
 
-    before :each do
-      expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers/G3NQ5754ETA080N?asOfDate=#{future_date.strftime('%m')}%2F#{future_date.strftime('%d')}%2F#{future_date.strftime('%Y')}").and_return(uri)
-      expect(response).to receive(:body).and_return(pending_hire_json)
-      allow(http).to receive(:get).with(
-        request_uri,
-        { "Accept"=>"application/json",
-          "Authorization"=>"Bearer a-token-value",
-        }).and_return(response)
+    context "worker found" do
+      before :each do
+        expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers/G3NQ5754ETA080N?asOfDate=#{future_date.strftime('%m')}%2F#{future_date.strftime('%d')}%2F#{future_date.strftime('%Y')}").and_return(uri)
+        expect(response).to receive(:body).and_return(pending_hire_json)
+        allow(http).to receive(:get).with(
+          request_uri,
+          { "Accept"=>"application/json",
+            "Authorization"=>"Bearer a-token-value",
+          }).and_return(response)
+      end
+
+      it "should update worker information and call AD update if info changed" do
+        expect(ActiveDirectoryService).to receive(:new).and_return(ads)
+        expect(ads).to receive(:update).with([new_hire])
+
+        adp = AdpService::Workers.new
+        adp.token = "a-token-value"
+
+        expect{
+          adp.check_new_hire_changes
+        }.to_not change{Employee.count}
+
+        new_hire.reload
+
+        expect(new_hire.status).to eq("Pending")
+        expect(new_hire.first_name).to eq("Bob")
+        expect(new_hire.last_name).to eq("Seger")
+        expect(new_hire.hire_date).to eq(DateTime.new(2018, 7, 12))
+      end
     end
 
-    it "should update worker information and call AD update if info changed" do
-      expect(ActiveDirectoryService).to receive(:new).and_return(ads)
-      expect(ads).to receive(:update).with([new_hire])
+    context "worker not found" do
+      let(:mailer) { double(TechTableMailer) }
 
-      adp = AdpService::Workers.new
-      adp.token = "a-token-value"
+      before :each do
+        expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers/G3NQ5754ETA080N?asOfDate=#{future_date.strftime('%m')}%2F#{future_date.strftime('%d')}%2F#{future_date.strftime('%Y')}").and_return(uri)
+        expect(response).to receive(:body).and_return(not_found_json)
+        allow(http).to receive(:get).with(
+          request_uri,
+          { "Accept"=>"application/json",
+            "Authorization"=>"Bearer a-token-value",
+          }).and_return(response)
+      end
 
-      expect{
+      it "should send an error message to TechTable if worker is not found" do
+        expect(ActiveDirectoryService).to_not receive(:new)
+
+        adp = AdpService::Workers.new
+        adp.token = "a-token-value"
+
+        expect(TechTableMailer).to receive(:alert_email)
+          .with("New hire sync is erroring on #{new_hire.cn}, employee id: #{new_hire.employee_id}.\nPlease contact the developer to help diagnose the problem.")
+          .and_return(mailer)
+        expect(mailer).to receive(:deliver_now)
+
         adp.check_new_hire_changes
-      }.to_not change{Employee.count}
-
-      new_hire.reload
-
-      expect(new_hire.status).to eq("Pending")
-      expect(new_hire.first_name).to eq("Bob")
-      expect(new_hire.last_name).to eq("Seger")
-      expect(new_hire.hire_date).to eq(DateTime.new(2018, 7, 12))
+      end
     end
   end
 end
