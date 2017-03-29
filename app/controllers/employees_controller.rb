@@ -3,6 +3,8 @@ class EmployeesController < ApplicationController
 
   before_action :set_employee, only: [:show, :edit, :update]
 
+  autocomplete :employee, :first_name, :display_value => :cn
+
   def index
     if current_user.role_names.count == 1 && current_user.role_names.include?("Manager")
       @employees = Employee.direct_reports_of(current_user.employee_id)
@@ -10,9 +12,19 @@ class EmployeesController < ApplicationController
       @employees = Employee.all
     end
 
-    if search_params[:search]
-      @employees = @employees.search(search_params[:search]).order("last_name ASC")
+    if search_params[:term]
+      @employees = @employees.search(search_params[:term]).order("last_name ASC")
     end
+  end
+
+  def autocomplete_first_name
+    term = params[:term]
+    if term && !term.empty?
+      @employees = Employee.search(params[:term])
+    else
+      term = {}
+    end
+    render :json => json_for_autocomplete(@employees, :cn)
   end
 
   def show
@@ -148,6 +160,6 @@ class EmployeesController < ApplicationController
   end
 
   def search_params
-    params.permit(:search)
+    params.permit(:term, :utf8, :commit)
   end
 end

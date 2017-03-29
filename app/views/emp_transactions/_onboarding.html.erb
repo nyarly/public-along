@@ -7,7 +7,12 @@
 <% unless @employee.is_contingent_worker? %>
   <h4>Buddy</h4>
   <p class="help-text">Select a buddy for the worker's first day. If you do not know who the buddy will be, leave blank and inform P&amp;C off line.</p>
-  <%= f.collection_select :buddy_id, Employee.all - [@employee], :id, :cn, {prompt: "Select from list"} %>
+  <%#= f.collection_select :buddy_id, Employee.all - [@employee], :id, :cn, {prompt: "Select from list"} %>
+  <%= form_tag(employees_path, :method => "get", id: "search-form") do %>
+    <%= text_field_tag :buddy_id, params[:term], placeholder: "Search for Worker", 'data-auto-focus' => true, data: { autocomplete: autocomplete_first_name_employees_path} %>
+    <%#= submit_tag "Search", class: "button" %>
+  <% end %>
+
   <hr>
 <% end %>
 

@@ -13,7 +13,10 @@ Rails.application.routes.draw do
   devise_for :users, controllers: {
     sessions: 'users/sessions'
   }
-  resources :employees, :except => [:destroy]
+  resources :employees, :except => [:destroy] do
+    get :autocomplete_first_name, :on => :collection
+  end
+  
   get '/offboard_commands' => "offboard_commands#generate", as: :offboard_commands
 
   # The priority is based upon order of creation: first created -> highest priority.
