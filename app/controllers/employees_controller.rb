@@ -80,7 +80,6 @@ class EmployeesController < ApplicationController
     else
       term = {}
     end
-    puts json_for_autocomplete(@employees, :fn, [:employee_id])
     render :json => json_for_autocomplete(@employees, :fn , [:employee_id])
   end
 

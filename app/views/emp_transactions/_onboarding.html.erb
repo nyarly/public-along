@@ -7,7 +7,7 @@
 <% unless @employee.is_contingent_worker? %>
   <h4>Buddy</h4>
   <p class="help-text">Select a buddy for the worker's first day. If you do not know who the buddy will be, leave blank and inform P&amp;C off line.</p>
-  <%= f.autocomplete_field :buddy_id, autocomplete_name_employees_path, :id_element => '#buddy_id', :update_elements => {} %>
+  <%= f.autocomplete_field :buddy_id, autocomplete_name_employees_path, :id_element => '#buddy_id', :update_elements => {}, :placeholder => "Search for Employee" %>
   <%= f.hidden_field :buddy_id, id: 'buddy_id' %>
   <hr>
 <% end %>
