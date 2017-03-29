@@ -123,7 +123,11 @@ class Employee < ActiveRecord::Base
   end
 
   def self.search(term)
-    where("lower(first_name) LIKE ? OR lower(last_name) LIKE ? ", "%#{term.downcase}%", "%#{term.downcase}%")
+    where("lower(last_name) LIKE ? OR lower(first_name) LIKE ? ", "%#{term.downcase}%", "%#{term.downcase}%").reorder("last_name ASC")
+  end
+
+  def fn
+    last_name + ", " + first_name
   end
 
   def cn

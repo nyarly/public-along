@@ -14,7 +14,7 @@ Rails.application.routes.draw do
     sessions: 'users/sessions'
   }
   resources :employees, :except => [:destroy] do
-    get :autocomplete_first_name, :on => :collection
+    get :autocomplete_name, :on => :collection
   end
   
   get '/offboard_commands' => "offboard_commands#generate", as: :offboard_commands

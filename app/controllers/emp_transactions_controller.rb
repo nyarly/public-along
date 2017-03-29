@@ -67,16 +67,6 @@ class EmpTransactionsController < ApplicationController
     end
   end
 
-  def autocomplete_first_name
-    term = params[:term]
-    if term && !term.empty?
-      @employees = Employee.search(params[:term])
-    else
-      term = {}
-    end
-    render :json => json_for_autocomplete(@employees, :cn, :id)
-  end
-
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_emp_transaction

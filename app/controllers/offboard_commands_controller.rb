@@ -10,6 +10,6 @@ class OffboardCommandsController < ApplicationController
   private
 
   def offboard_params
-    params.permit(:employee_id => [])
+    params.permit(:employee_id)
   end
 end
