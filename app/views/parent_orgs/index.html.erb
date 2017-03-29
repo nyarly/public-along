@@ -18,7 +18,7 @@
         <td><%= raw(parent_org.departments.map(&:name).join('<br/>')) %></td>
         <td><%= link_to 'Show', parent_org %></td>
         <td><%= link_to 'Edit', edit_parent_org_path(parent_org) %></td>
-        <td><%= link_to 'Destroy', parent_org, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <!-- <td><%#= link_to 'Destroy', parent_org, method: :delete, data: { confirm: 'Are you sure?' } %></td> -->
       </tr>
     <% end %>
   </tbody>

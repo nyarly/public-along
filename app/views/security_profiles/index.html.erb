@@ -20,7 +20,7 @@
         <td><%= raw(security_profile.access_levels.map { |al| "#{al.application.name} - #{al.name}"}.join('<br/>')) %></td>
         <td><%= link_to 'Show', security_profile %></td>
         <td><%= link_to 'Edit', edit_security_profile_path(security_profile) %></td>
-        <td><%= link_to 'Destroy', security_profile, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <!-- <td><%#= link_to 'Destroy', security_profile, method: :delete, data: { confirm: 'Are you sure?' } %></td> -->
       </tr>
     <% end %>
   </tbody>

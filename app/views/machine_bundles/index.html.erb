@@ -18,7 +18,7 @@
         <td><%= raw(machine_bundle.departments.map(&:name).join('<br/>')) %></td>
         <td><%= link_to 'Show', machine_bundle %></td>
         <td><%= link_to 'Edit', edit_machine_bundle_path(machine_bundle) %></td>
-        <td><%= link_to 'Destroy', machine_bundle, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <!-- <td><%#= link_to 'Destroy', machine_bundle, method: :delete, data: { confirm: 'Are you sure?' } %></td> -->
       </tr>
     <% end %>
   </tbody>
