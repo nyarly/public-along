@@ -379,4 +379,13 @@ RSpec.describe EmployeesController, type: :controller do
     end
   end
 
+  describe "autocomplete search" do
+    it "searches for employees" do
+      allow(controller).to receive(:current_user).and_return(user)
+      get :autocomplete_name, {:term => 'al'}
+      expect(assigns(:employees)).to include(employee)
+      expect(assigns(:employees)).to_not include(manager)
+    end
+  end
+
 end

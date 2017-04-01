@@ -1,9 +1,10 @@
 <% if !@offboard_command %>
   <div class="row align-middle">
     <div class="small-10 medium-10 large-10 columns">
+      <%= autocomplete_field_tag 'employee', '', autocomplete_name_employees_path, :update_elements => {:employee_id => '#employee_id'}, :placeholder => "Search for Employee" %>
       <%= form_tag(offboard_commands_path, :method => "get", id: "search-form") do %>
         <div class="field">
-          <%= collection_select :employee_id, params[:employee_id], Employee.all, :employee_id, :cn, { include_blank: 'Select Worker'}, required: true %>
+          <%= hidden_field_tag 'employee_id' %>
         </div>
         <%= submit_tag "Generate Commands", class: "button" %>
       <% end %>   

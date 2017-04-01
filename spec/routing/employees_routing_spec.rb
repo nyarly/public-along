@@ -31,5 +31,9 @@ RSpec.describe EmployeesController, type: :routing do
       expect(:patch => "/employees/1").to route_to("employees#update", :id => "1")
     end
 
+    it "routes to #autocomplete_name" do
+      expect(:get => "employees/autocomplete_name?term=something").to route_to("employees#autocomplete_name", :term => "something")
+    end
+
   end
 end

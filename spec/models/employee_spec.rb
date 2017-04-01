@@ -264,6 +264,10 @@ describe Employee, type: :model do
       expect(employee.cn).to eq("Bob Barker")
     end
 
+    it "should create an fn" do
+      expect(employee.fn).to eq("Barker, Bob")
+    end
+
     it "should find the correct ou" do
       expect(employee.ou).to eq("ou=Operations,ou=EU,ou=Users,")
     end

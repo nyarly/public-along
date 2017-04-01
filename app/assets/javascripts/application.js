@@ -12,7 +12,9 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= require jquery-ui
 //= require foundation
+//= require autocomplete-rails
 //= require_tree .
 
 $(function(){ $(document).foundation(); });
@@ -22,6 +24,7 @@ $(function(){ $(document).foundation(); });
 $(document).ready(function(){
   toggleContract();
   $('#employee_employee_type').change(toggleContract);
+
 });
 
 function toggleContract() {

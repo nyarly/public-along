@@ -50,6 +50,10 @@ gem 'sidekiq'
 
 gem 'net-sftp'
 
+gem 'jquery-ui-rails'
+
+gem 'rails4-autocomplete'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
