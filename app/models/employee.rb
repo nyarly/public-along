@@ -261,7 +261,7 @@ class Employee < ActiveRecord::Base
 
   def self.check_manager(emp_id)
     emp = Employee.find_by(employee_id: emp_id)
-    unless Employee.managers.include?(emp)
+    if emp.present? && !Employee.managers.include?(emp)
       sp = SecurityProfile.find_by(name: "Basic Manager")
       emp.security_profiles << sp
 

@@ -661,5 +661,12 @@ describe Employee, type: :model do
       }.to_not change{Employee.managers.include?(manager)}
       expect(Employee.managers.include?(manager)).to eq(true)
     end
+
+    it "should not execute if nil is passed in" do
+      expect(Employee).to_not receive(:managers)
+      expect(SecurityProfile).to_not receive(:find)
+
+      Employee.check_manager(nil)
+    end
   end
 end
