@@ -18,6 +18,7 @@ class EmployeesController < ApplicationController
   end
 
   def show
+    @email = Email.new(employee_id: @employee.id)
   end
 
   def new

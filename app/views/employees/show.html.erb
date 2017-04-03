@@ -45,7 +45,7 @@
 
 <p>
   <strong>Manager:</strong>
-  <%= Employee.where(:employee_id => @employee.manager_id)[0].try(:cn) %>
+  <%= @employee.manager.cn %>
 </p>
 
 <p>
@@ -134,7 +134,18 @@
   <% end %>
 </div>
 
+<% if can? :create, Email and not @employee.status == "Terminated" %>
+  <div class="row">
+    <div class="callout secondary small-6 medium-6 large-6 columns float-left">
+      <p>Send Email<span data-tooltip aria-haspopup="true" class="has-tip float-right" data-disable-hover="false" tabindex="1" title="Use this form to resend an email about this employee.">?</span>
+      </p>
+      <%= render 'emails/form', locals: { :employee_id => @employee.id } %>
+    </div>
+  </div>
+<% end %>
+
 <% if can? :update, Employee %>
   <%= link_to 'Edit', edit_employee_path(@employee) %> |
 <% end %>
+
 <%= link_to 'Back', employees_path %>

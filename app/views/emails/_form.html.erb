@@ -1,0 +1,22 @@
+<%= form_for(@email, :html => {:class => "form"}) do |f| %>
+  <% if @email.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@email.errors.count, "error") %> prohibited this email from being sent:</h2>
+
+      <ul>
+      <% @email.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.select :email_kind, EmpTransaction::KINDS - ["Equipment"], {include_blank: true}, {required: true} %>
+    <%= f.hidden_field :send_at %>
+    <%= f.hidden_field :employee_id %>
+  </div>
+  <div class="actions">
+    <%= f.submit "Submit", :class => "button" %>
+  </div>
+<% end %>
