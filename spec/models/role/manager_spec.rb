@@ -8,7 +8,7 @@ describe Role::Manager, :type => :model do
   let :ability do Ability.new(user) end
 
   describe 'abilities' do
-    it_should_behave_like "role abilities", Employee, [:read]
+    it_should_behave_like "role abilities", Employee, [:read, :autocomplete_name]
     it_should_behave_like "role abilities", EmpTransaction, [:new, :show, :create]
     it_should_behave_like "role abilities", ManagerEntry, [:create]
 

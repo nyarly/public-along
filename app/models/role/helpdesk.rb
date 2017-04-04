@@ -14,5 +14,6 @@ class Role::Helpdesk < Role
     ability.can :read, EmpTransaction
     ability.can :read, EmpSecProfile
     ability.can :read, Department
+    ability.can :autocomplete_name, Employee
   end
 end
