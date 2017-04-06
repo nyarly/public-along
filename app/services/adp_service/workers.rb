@@ -112,12 +112,15 @@ module AdpService
 
 
     def get_worker_json(e, date)
-      m = date.strftime("%m")
-      d = date.strftime("%d")
-      y = date.strftime("%Y")
+      begin
+      ensure
+        m = date.strftime("%m")
+        d = date.strftime("%d")
+        y = date.strftime("%Y")
 
-      str = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers/#{e.adp_assoc_oid}?asOfDate=#{m}%2F#{d}%2F#{y}")
-      JSON.parse(str)
+        str = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers/#{e.adp_assoc_oid}?asOfDate=#{m}%2F#{d}%2F#{y}")
+        JSON.parse(str)
+      end
     end
 
     def update_ads(emp_array)
