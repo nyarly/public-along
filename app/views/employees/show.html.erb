@@ -137,9 +137,9 @@
 <% if can? :create, Email and not @employee.status == "Terminated" %>
   <div class="row">
     <div class="callout secondary small-6 medium-6 large-6 columns float-left">
-      <p>Send Email<span data-tooltip aria-haspopup="true" class="has-tip float-right" data-disable-hover="false" tabindex="1" title="Use this form to resend an email about this employee.">?</span>
-      </p>
-      <%= render 'emails/form', locals: { :employee_id => @employee.id } %>
+      <div id="email-info"><p>Send Email<span data-tooltip aria-haspopup="true" class="has-tip float-right" data-disable-hover="false" tabindex="1" title="Use this form to immediately resend an email about this employee to their manager.">?</span></p>
+      </div>
+      <%= render 'emails/form' %>
     </div>
   </div>
 <% end %>
