@@ -119,8 +119,9 @@ module AdpService
         y = date.strftime("%Y")
 
         str = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers/#{e.adp_assoc_oid}?asOfDate=#{m}%2F#{d}%2F#{y}")
-        JSON.parse(str)
+        worker_json = JSON.parse(str)
       end
+      worker_json
     end
 
     def update_ads(emp_array)
