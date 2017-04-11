@@ -239,6 +239,19 @@ describe Employee, type: :model do
       expect(emp.revoked_security_profiles).to include(sec_prof_1)
     end
 
+    it "should group security profiles that do not belong to current department" do
+      dept = FactoryGirl.create(:department)
+      emp = FactoryGirl.create(:employee, department_id: dept.id)
+      sec_prof_1 = FactoryGirl.create(:security_profile)
+      sec_prof_2 = FactoryGirl.create(:security_profile)
+      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile, employee_id: emp.id, security_profile_id: sec_prof_1.id, revoking_transaction_id: nil)
+      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile, employee_id: emp.id, security_profile_id: sec_prof_2.id, revoking_transaction_id: nil)
+      dept_sec_prof_1 = FactoryGirl.create(:dept_sec_prof, department_id: dept.id, security_profile_id: sec_prof_1.id)
+
+      expect(emp.security_profiles_to_revoke).to include(sec_prof_2)
+      expect(emp.security_profiles_to_revoke).to_not include(sec_prof_1)
+    end
+
     it "should calculate an onboarding due date according to location" do
       emp_1 = FactoryGirl.create(:employee,
         hire_date: Date.new(2016, 7, 25, 2),
