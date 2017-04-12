@@ -1,19 +1,7 @@
-<%= form_for(@email, :html => {:class => "form"}, remote: true) do |f| %>
-  <% if @email.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@email.errors.count, "error") %> prohibited this email from being sent:</h2>
-
-      <ul>
-      <% @email.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
-      <% end %>
-      </ul>
-    </div>
-  <% end %>
-
+<%= form_for(@email, :html => {:class => "form"}) do |f| %>
   <div class="field">
-    <%= f.select :email_kind, EmpTransaction::KINDS - ["Equipment"], {include_blank: true}, {required: true} %>
-    <%= f.hidden_field :employee_id, :value => params[:id] %>
+    <%= f.select :email_option, Employee.email_options(@employee.id), {include_blank: true}, {required: true} %>
+    <%= f.hidden_field :employee_id, :value => @employee.id %>
   </div>
   <div class="actions">
     <%= f.submit "Submit", :class => "button" %>

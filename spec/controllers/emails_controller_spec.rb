@@ -7,7 +7,7 @@ RSpec.describe EmailsController, type: :controller do
   let(:valid_attributes) do
     {
       employee_id: employee.id,
-      email_kind: "Security Access"
+      email_option: "Security Access"
     }
   end
 
@@ -16,11 +16,10 @@ RSpec.describe EmailsController, type: :controller do
   end
 
   describe "POST #create" do
-    it "creates a new email but render nothing" do
+    it "creates a new email" do
       should_authorize(:create, Email)
       post :create, { :email => valid_attributes }
-      expect(response.status).to eq(200)
-      expect(response.body).to eq('')
+      expect(response.status).to eq(302)
       expect(assigns(:email)).to be_an_instance_of(Email)
     end
   end

@@ -6,7 +6,7 @@ RSpec.describe Email, type: :model do
   it "should meet validations" do
     expect(email).to be_valid
     expect(email).to_not allow_value(nil).for(:employee_id)
-    expect(email).to_not allow_value(nil).for(:email_kind)
+    expect(email).to_not allow_value(nil).for(:email_option)
   end
   
 end

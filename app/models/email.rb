@@ -5,15 +5,14 @@ class Email
   include ActiveModel::Conversion
   include ActiveModel::Validations
 
-  attribute :email_kind, String
+  attribute :email_option, String
   attribute :employee_id, String
 
-  validates :email_kind, :employee_id, presence: true
+  validates :email_option, :employee_id, presence: true
 
-  attr_accessor :employee_id, :email_kind
+  attr_accessor :employee_id, :email_option
 
   def persisted?
     false
   end
-
 end

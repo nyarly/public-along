@@ -1,151 +1,159 @@
-<p>
-  <strong>Active Directory Updated at:</strong>
-  <%= @employee.ad_updated_at %>
-</p>
-
-<p>
-  <strong>First Name:</strong>
-  <%= @employee.first_name %>
-</p>
-
-<p>
-  <strong>Last Name:</strong>
-  <%= @employee.last_name %>
-</p>
-
-<p>
-  <strong>Email:</strong>
-  <%= @employee.email %>
-</p>
-
-<p>
-  <strong>sAMAccountName:</strong>
-  <%= @employee.sam_account_name %>
-</p>
-
-<p>
-  <strong>Employee ID:</strong>
-  <%= @employee.employee_id %>
-</p>
-
-<p>
-  <strong>Worker Type:</strong>
-  <%= @employee.worker_type.try(:name) %>
-</p>
-
-<p>
-  <strong>Hire Date:</strong>
-  <%= @employee.hire_date %>
-</p>
-
-<p>
-  <strong>Department:</strong>
-  <%= @employee.department.name %>
-</p>
-
-<p>
-  <strong>Manager:</strong>
-  <%= @employee.manager.cn %>
-</p>
-
-<p>
-  <strong>Business Title:</strong>
-  <%= @employee.job_title.try(:name) %>
-</p>
-
-<p>
-  <strong>Location:</strong>
-  <%= @employee.location.try(:name) %>
-</p>
-
-<p>
-  <strong>Office Phone:</strong>
-  <%= @employee.office_phone %>
-</p>
-
-<p>
-  <strong>Home Address 1:</strong>
-  <%= @employee.home_address_1 %>
-</p>
-
-<p>
-  <strong>Home Address 2:</strong>
-  <%= @employee.home_address_2 %>
-</p>
-
-<p>
-  <strong>Home City:</strong>
-  <%= @employee.home_city %>
-</p>
-
-<p>
-  <strong>Home State:</strong>
-  <%= @employee.home_state %>
-</p>
-
-<p>
-  <strong>Home Zip:</strong>
-  <%= @employee.home_zip %>
-</p>
-
-<p>
-  <strong>Leave Start Date:</strong>
-  <%= @employee.leave_start_date %>
-</p>
-
-<p>
-  <strong>Leave Return Date:</strong>
-  <%= @employee.leave_return_date %>
-</p>
-
-<p>
-  <strong>Contract End Date:</strong>
-  <%= @employee.contract_end_date %>
-</p>
-
-<p>
-  <strong>Termination Date:</strong>
-  <%= @employee.termination_date %>
-</p>
-
-<p>
-  <strong>Record Created at:</strong>
-  <%= @employee.created_at %>
-</p>
-
-<p>
-  <strong>Record Updated at:</strong>
-  <%= @employee.updated_at %>
-</p>
-
-<p>
-  <strong>Active Security Profiles:</strong>
-</p>
-<div class="indent-1">
-  <% @employee.active_security_profiles.each do |sp| %>
-    <div>
-      <%= sp.name %><br>
-      <ul>
-        <% sp.access_levels.find_each do |al| %>
-          <li class="indent-1"><small><%= al.name %> <%= al.application.name %></small></li>
-        <% end %>
-      </ul>
+<div class="row">
+  <% if (can? :create, Email) && (@employee.status != "Terminated") %>
+    <div class="float-right small-12 medium-6 large-6 columns">
+      <div class="callout secondary">
+        <div id="email-info"><p>Send Email<span data-tooltip aria-haspopup="true" class="has-tip float-right" data-disable-hover="false" tabindex="1" title="Use this form to immediately resend an email about this employee to their manager.">?</span></p>
+        </div>
+        <%= render'emails/form', employee: @employee %>
+      </div>
     </div>
   <% end %>
-</div>
+  
+  <div class="float-left small-12 medium-6 large-6 columns">
+    <p>
+      <strong>Active Directory Updated at:</strong>
+      <%= @employee.ad_updated_at %>
+    </p>
 
-<% if can? :create, Email and not @employee.status == "Terminated" %>
-  <div class="row">
-    <div class="callout secondary small-6 medium-6 large-6 columns float-left">
-      <div id="email-info"><p>Send Email<span data-tooltip aria-haspopup="true" class="has-tip float-right" data-disable-hover="false" tabindex="1" title="Use this form to immediately resend an email about this employee to their manager.">?</span></p>
-      </div>
-      <%= render 'emails/form' %>
+    <p>
+      <strong>First Name:</strong>
+      <%= @employee.first_name %>
+    </p>
+
+    <p>
+      <strong>Last Name:</strong>
+      <%= @employee.last_name %>
+    </p>
+
+    <p>
+      <strong>Email:</strong>
+      <%= @employee.email %>
+    </p>
+
+    <p>
+      <strong>sAMAccountName:</strong>
+      <%= @employee.sam_account_name %>
+    </p>
+
+    <p>
+      <strong>Employee ID:</strong>
+      <%= @employee.employee_id %>
+    </p>
+
+    <p>
+      <strong>Worker Type:</strong>
+      <%= @employee.worker_type.try(:name) %>
+    </p>
+
+    <p>
+      <strong>Hire Date:</strong>
+      <%= @employee.hire_date %>
+    </p>
+
+    <p>
+      <strong>Department:</strong>
+      <%= @employee.department.name %>
+    </p>
+
+    <p>
+      <strong>Manager:</strong>
+      <%= @employee.manager.try(:cn) %>
+    </p>
+
+    <p>
+      <strong>Business Title:</strong>
+      <%= @employee.job_title.try(:name) %>
+    </p>
+
+    <p>
+      <strong>Location:</strong>
+      <%= @employee.location.try(:name) %>
+    </p>
+
+    <p>
+      <strong>Office Phone:</strong>
+      <%= @employee.office_phone %>
+    </p>
+
+    <p>
+      <strong>Home Address 1:</strong>
+      <%= @employee.home_address_1 %>
+    </p>
+
+    <p>
+      <strong>Home Address 2:</strong>
+      <%= @employee.home_address_2 %>
+    </p>
+
+    <p>
+      <strong>Home City:</strong>
+      <%= @employee.home_city %>
+    </p>
+
+    <p>
+      <strong>Home State:</strong>
+      <%= @employee.home_state %>
+    </p>
+
+    <p>
+      <strong>Home Zip:</strong>
+      <%= @employee.home_zip %>
+    </p>
+
+    <p>
+      <strong>Leave Start Date:</strong>
+      <%= @employee.leave_start_date %>
+    </p>
+
+    <p>
+      <strong>Leave Return Date:</strong>
+      <%= @employee.leave_return_date %>
+    </p>
+
+    <p>
+      <strong>Contract End Date:</strong>
+      <%= @employee.contract_end_date %>
+    </p>
+
+    <p>
+      <strong>Termination Date:</strong>
+      <%= @employee.termination_date %>
+    </p>
+
+    <p>
+      <strong>Record Created at:</strong>
+      <%= @employee.created_at %>
+    </p>
+
+    <p>
+      <strong>Record Updated at:</strong>
+      <%= @employee.updated_at %>
+    </p>
+
+    <p>
+      <strong>Active Security Profiles:</strong>
+    </p>
+    <div class="indent-1">
+      <% @employee.active_security_profiles.each do |sp| %>
+        <div>
+          <%= sp.name %><br>
+          <ul>
+            <% sp.access_levels.find_each do |al| %>
+              <li class="indent-1"><small><%= al.name %> <%= al.application.name %></small></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
     </div>
   </div>
-<% end %>
+</div>
 
-<% if can? :update, Employee %>
-  <%= link_to 'Edit', edit_employee_path(@employee) %> |
-<% end %>
+<div class="row">
+  <div class="columns small-12 medium-12 large-12">
+    <% if can? :update, Employee %>
+      <%= link_to 'Edit', edit_employee_path(@employee) %> |
+    <% end %>
 
-<%= link_to 'Back', employees_path %>
+    <%= link_to 'Back', employees_path %>
+  </div>
+</div>

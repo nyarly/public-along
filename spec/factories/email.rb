@@ -3,7 +3,7 @@ FactoryGirl.define do
     skip_create
     
     employee_id 1
-    email_kind "Offboarding"
+    email_option "Offboarding"
 
   end
 end

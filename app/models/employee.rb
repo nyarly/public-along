@@ -1,5 +1,6 @@
 class Employee < ActiveRecord::Base
   TYPES = ["Agency Contractor", "Independent Contractor", "Service Provider", "Intern", "Regular", "Temporary"]
+  EMAIL_OPTIONS = ["Onboarding", "Offboarding", "Security Access"]
 
   before_validation :downcase_unique_attrs
   before_validation :strip_whitespace
@@ -271,5 +272,10 @@ class Employee < ActiveRecord::Base
         ads.add_to_sec_group(sg, emp) unless sg.blank?
       end
     end
+  end
+
+  def self.email_options(emp_id)
+    emp = Employee.find(emp_id)
+    emp.termination_date ? EMAIL_OPTIONS : EMAIL_OPTIONS - ["Offboarding"]
   end
 end
