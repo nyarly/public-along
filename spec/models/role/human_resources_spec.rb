@@ -10,5 +10,6 @@ describe Role::HumanResources, :type => :model do
     it_should_behave_like "role abilities", Location, [:manage]
     it_should_behave_like "role abilities", ParentOrg, [:manage]
     it_should_behave_like "role abilities", WorkerType, [:manage]
+    it_should_behave_like "role abilities", Email, [:create]
   end
 end

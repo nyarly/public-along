@@ -10,5 +10,6 @@ class Role::HumanResources < Role
     ability.can :manage, Location
     ability.can :manage, ParentOrg
     ability.can :manage, WorkerType
+    ability.can :create, Email
   end
 end

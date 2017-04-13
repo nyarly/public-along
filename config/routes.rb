@@ -16,6 +16,7 @@ Rails.application.routes.draw do
   resources :employees, :except => [:destroy] do
     get :autocomplete_name, :on => :collection
   end
+  resource :emails, :only => [:create]
   
   get '/offboard_commands' => "offboard_commands#generate", as: :offboard_commands
 

@@ -18,6 +18,7 @@ class EmployeesController < ApplicationController
   end
 
   def show
+    @email = Email.new
   end
 
   def new
@@ -82,7 +83,6 @@ class EmployeesController < ApplicationController
     end
     render :json => json_for_autocomplete(@employees, :fn , [:employee_id])
   end
-
 
   private
 

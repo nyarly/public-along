@@ -16,5 +16,6 @@ class Role::Admin < Role
     ability.can :manage, ParentOrg
     ability.can :manage, WorkerType
     ability.can :generate, OffboardCommand
+    ability.can :create, Email
   end
 end
