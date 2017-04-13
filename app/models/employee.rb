@@ -119,6 +119,12 @@ class Employee < ActiveRecord::Base
     self.security_profiles.references(:emp_sec_profiles).where(emp_sec_profiles: {revoking_transaction_id: nil})
   end
 
+  def security_profiles_to_revoke
+    current_sps = self.security_profiles.references(:emp_sec_profiles).where(emp_sec_profiles: {revoking_transaction_id: nil})
+    current_department_sps = SecurityProfile.find_profiles_for(self.department.id)
+    current_sps - current_department_sps
+  end
+
   def revoked_security_profiles
     self.security_profiles.references(:emp_sec_profiles).where("emp_sec_profiles.revoking_transaction_id IS NOT NULL")
   end
