@@ -1,6 +1,7 @@
 <h4>Security Access</h4>
   <% if @kind == "Security Access" %>
     <p class="help-text">Select ONLY the appropriate security access profiles to apply to the worker. As manager, you will be held responsible for over-permissioning your direct reports. If you are not sure what to pick, or if you do not see what you need, please contact <%= mail_to "techtable@opentable.com" %> for guidance.</p>
+    <p class="help-text danger-text"><b>If you are revoking security profiles (de-selecting checked boxes), the worker will automatically be removed from those permission groups upon submission. For example, if you revoke a security profile that contains VPN access, the worker will not be able to access the VPN when you submit the form.</b></p>
     <p class="help-text">If you do not wish to make any changes, you may disregard this form.</p>
   <% else %>
     <p class="help-text">Select ONLY the appropriate security access profiles to apply to the worker. As manager, you will be held responsible for over-permissioning your direct reports. If you are not sure what to pick, or if you do not see what you need, please contact <%= mail_to "techtable@opentable.com" %> for guidance.</p>
@@ -33,7 +34,7 @@
 
   <% if @employee.security_profiles_to_revoke.count > 0 %>
     <div class="callout secondary">
-      <p class="help-text">Please note: the following access levels will be immediately revoked on submission of this form. The worker will automatically be removed from those permission groups. For example, if you revoke a security profile that contains VPN access, the worker will not be able to access the VPN when you submit the form.</p>
+      <p class="help-text">Please note: because the worker's department has changed, the following access levels will be immediately revoked on submission of this form. The worker will automatically be removed from those permission groups. For example, if you revoke a security profile that contains VPN access, the worker will not be able to access the VPN when you submit the form. Make sure the new permissions selected include all necessary access.</p>
       <% @employee.security_profiles_to_revoke.each do |sp| %>
         <p><%= sp.name %></p>
         <% sp.access_levels.find_each do |al| %>
