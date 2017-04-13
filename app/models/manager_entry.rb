@@ -36,6 +36,9 @@ class ManagerEntry
 
   def build_security_profiles
     employee = Employee.find(employee_id)
+
+    # The security access form automatically understands old department security profiles to be unchecked
+    # It will automatically add those to revoke_profile_ids
     old_profile_ids = employee.active_security_profiles.map(&:id)
     new_profile_ids = security_profile_ids
 
