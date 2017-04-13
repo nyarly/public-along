@@ -1,6 +1,5 @@
 class EmailsController < ApplicationController
   load_and_authorize_resource
-  rescue_from ActionController::RedirectBackError, with: :redirect_to_default
 
   def create
     @email = Email.new(email_params)
@@ -13,16 +12,12 @@ class EmailsController < ApplicationController
     end
   end
 
+  private
+
   def send_now
     @employee = Employee.find(@email.employee_id)
     @manager = Employee.find_by(employee_id: @employee.manager_id)
     ManagerMailer.permissions(@manager, @employee, @email.email_option).deliver_now
-  end
-
-  private
-
-  def redirect_to_default
-    redirect_to employees_path
   end
 
   def email_params

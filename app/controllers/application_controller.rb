@@ -5,6 +5,9 @@ class ApplicationController < ActionController::Base
   rescue_from DeviseLdapAuthenticatable::LdapException do |exception|
     render :text => exception, :status => 500
   end
+
+  rescue_from ActionController::RedirectBackError, with: :redirect_to_default
+
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
@@ -16,6 +19,10 @@ class ApplicationController < ActionController::Base
   end
 
   protected
+
+  def redirect_to_default
+    redirect_to root_path
+  end
 
   def store_current_location
     store_location_for(:user, request.url)
@@ -29,11 +36,7 @@ class ApplicationController < ActionController::Base
     if !user_signed_in?
       redirect_to login_path, :notice => "You are logged out."
     else
-      if request.env["HTTP_REFERER"].present?
-        redirect_to :back, :alert => "You do not have the correct access permissions."
-      else
-        redirect_to root_path, :alert => "You do not have the correct access permissions."
-      end
+      redirect_to :back, :alert => "You do not have the correct access permissions."
     end
   end
 end

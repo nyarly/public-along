@@ -84,14 +84,6 @@ class EmployeesController < ApplicationController
     render :json => json_for_autocomplete(@employees, :fn , [:employee_id])
   end
 
-  def email_options
-    ["Security Access", "Onboarding"]
-    # if @employee.termination_date
-    #   opts << "Offboarding"
-    # end
-    # opts
-  end
-
   private
 
   def set_email_kind
