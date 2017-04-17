@@ -92,10 +92,14 @@ class EmployeesController < ApplicationController
         @email_kind = "Onboarding"
       elsif @employee.termination_date_changed? && !@employee.termination_date.blank?
         @email_kind = "Offboarding"
-      elsif @employee.manager_id_changed? || @employee.business_title_changed?
+      elsif send_security_access_form?
         @email_kind = "Security Access"
       end
     end
+  end
+
+  def send_security_access_form?
+    @employee.department_id_changed? || @employee.location_id_changed? || @employee.worker_type_id_changed? || @employee.job_title_id_changed?
   end
 
   def build_emp_delta
@@ -136,6 +140,7 @@ class EmployeesController < ApplicationController
       :job_family,
       :job_profile_id,
       :job_profile,
+      :job_title_id,
       :business_title,
       :employee_type,
       :worker_type_id,

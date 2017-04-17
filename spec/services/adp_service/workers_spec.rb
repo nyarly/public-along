@@ -153,7 +153,6 @@ describe AdpService::Workers, type: :service do
       expect(parser).to receive(:sort_workers).and_return(sorted)
       expect(EmpDelta).to receive(:new).and_return(emp_delta)
       expect(emp_delta).to receive(:save)
-      expect(EmployeeWorker).to receive(:perform_async)
       expect(ActiveDirectoryService).to receive(:new).and_return(ads)
       expect(ads).to receive(:update).with([employee])
 
@@ -177,7 +176,6 @@ describe AdpService::Workers, type: :service do
       expect(parser).to receive(:sort_workers).and_return(sorted)
       expect(EmpDelta).to receive(:new).and_return(emp_delta)
       expect(emp_delta).to receive(:save)
-      expect(EmployeeWorker).to receive(:perform_async)
       expect(ActiveDirectoryService).to receive(:new).twice.and_return(ads)
       expect(ads).to receive(:update).with([employee])
 
@@ -202,7 +200,6 @@ describe AdpService::Workers, type: :service do
       expect(parser).to receive(:sort_workers).and_return(sorted)
       expect(EmpDelta).to receive(:new).and_return(emp_delta)
       expect(emp_delta).to receive(:save)
-      expect(EmployeeWorker).to receive(:perform_async)
       expect(ActiveDirectoryService).to receive(:new).and_return(ads)
       expect(ads).to receive(:update).with([employee])
 

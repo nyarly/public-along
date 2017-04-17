@@ -2,7 +2,8 @@ require 'rails_helper'
 
 RSpec.describe EmployeesController, type: :controller do
 
-  let!(:employee) { FactoryGirl.create(:employee, first_name: "Alex", last_name: "Trebek", manager_id: manager.employee_id, worker_type_id: worker_type.id) }
+  let!(:employee) { FactoryGirl.create(:employee, first_name: "Alex", last_name: "Trebek", manager_id: manager.employee_id, worker_type_id: worker_type.id, job_title_id: job_title.id) }
+  let!(:job_title) { FactoryGirl.create(:job_title, id: 444) }
   let!(:worker_type) { FactoryGirl.create(:worker_type, kind: "Regular") }
   let!(:manager) { FactoryGirl.create(:employee, first_name: "Pat", last_name: "Sajak") }
   let!(:user) { FactoryGirl.create(:user, :role_names => ["Admin"], employee_id: employee.employee_id) }
@@ -259,12 +260,12 @@ RSpec.describe EmployeesController, type: :controller do
       end
     end
 
-    context "Job Change - Business Title" do
+    context "Job Change - Department id" do
       let(:new_attributes) {
         {
           first_name: "Bobby",
           last_name: "Barker",
-          business_title: "New Title",
+          department_id: 777,
           ad_updated_at: 10.months.ago
         }
       }
@@ -276,18 +277,68 @@ RSpec.describe EmployeesController, type: :controller do
       end
     end
 
-    context "Job Change - Manager change" do
+    context "Job Change - Location id" do
       let(:new_attributes) {
         {
           first_name: "Bobby",
           last_name: "Barker",
-          manager_id: "newmgr1234",
+          location_id: 333,
           ad_updated_at: 10.months.ago
         }
       }
 
       it "calls EmployeeWorker with correct values" do
         expect(EmployeeWorker).to receive(:perform_async).with("Security Access", employee.id)
+
+        put :update, {:id => employee.id, :employee => new_attributes}
+      end
+    end
+
+    context "Job Change - Worker Type id" do
+      let(:new_attributes) {
+        {
+          first_name: "Bobby",
+          last_name: "Barker",
+          worker_type_id: 2,
+          ad_updated_at: 10.months.ago
+        }
+      }
+
+      it "calls EmployeeWorker with correct values" do
+        expect(EmployeeWorker).to receive(:perform_async).with("Security Access", employee.id)
+
+        put :update, {:id => employee.id, :employee => new_attributes}
+      end
+    end
+
+    context "Job Change - Job Title id" do
+      let(:new_attributes) {
+        {
+          first_name: "Bobby",
+          last_name: "Barker",
+          job_title_id: 666,
+          ad_updated_at: 10.months.ago
+        }
+      }
+
+      it "calls EmployeeWorker with correct values" do
+        expect(EmployeeWorker).to receive(:perform_async).with("Security Access", employee.id)
+
+        put :update, {:id => employee.id, :employee => new_attributes}
+      end
+    end
+
+    context "No changes requiring Security Access form review" do
+      let(:new_attributes) {
+        {
+          first_name: "Bobby",
+          last_name: "Barker",
+          ad_updated_at: 10.months.ago
+        }
+      }
+
+      it "calls EmployeeWorker with correct values" do
+        expect(EmployeeWorker).not_to receive(:perform_async).with("Security Access", employee.id)
 
         put :update, {:id => employee.id, :employee => new_attributes}
       end
