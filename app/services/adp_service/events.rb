@@ -15,9 +15,11 @@ module AdpService
     def process_event(str, body)
       json = JSON.parse(body)
       if json.dig("events", 0, "data", "output", "worker", "person", "governmentIDs").present?
-        json['events'][0]['data']['output']['worker']['person']['governmentIDs'][0]['idValue'] = "XXX-XX-XXXX"
+        json['events'][0]['data']['output']['worker']['person']['governmentIDs'].each do |government_id|
+          government_id['idValue'] = "REDACTED"
+        end
       elsif json.dig("events", 0, "data", "output", "worker", "person", "governmentID").present?
-        json['events'][0]['data']['output']['worker']['person']['governmentID']['idValue'] = "XXX-XX-XXXX"
+        json['events'][0]['data']['output']['worker']['person']['governmentID']['idValue'] = "REDACTED"
       end
       scrubbed_json = JSON.dump(json)
 

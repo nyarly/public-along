@@ -110,7 +110,7 @@ describe AdpService::Events, type: :service do
         }.to change{AdpEvent.count}.from(0).to(1)
         expect(
           JSON.parse(AdpEvent.last.json)['events'][0]['data']['output']['worker']['person']['governmentIDs'][0]['idValue']
-        ).to eq("XXX-XX-XXXX")
+        ).to eq("REDACTED")
       end
 
       it "should return false if AdpEvent does not save" do
