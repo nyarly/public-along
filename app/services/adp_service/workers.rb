@@ -47,10 +47,12 @@ module AdpService
           if e.present?
             e.assign_attributes(w)
             delta = build_emp_delta(e)
+            send_email = send_email?(e)
             if e.save
               Employee.check_manager(e.manager_id)
               workers_to_update << e
               delta.save if delta.present?
+              EmployeeWorker.perform_async("Security Access", e.id) if send_email == true
             end
           else
             adp_only << "{ first_name: #{w[:first_name]}, last_name: #{w[:last_name]}, employee_id: #{w[:employee_id]})"
@@ -127,6 +129,10 @@ module AdpService
         ads = ActiveDirectoryService.new
         ads.update(emp_array)
       end
+    end
+
+    def send_email?(employee)
+      employee.department_id_changed? || employee.location_id_changed? || employee.worker_type_id_changed? || employee.job_title_id_changed?
     end
 
     def build_emp_delta(employee)
