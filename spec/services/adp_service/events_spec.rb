@@ -10,7 +10,7 @@ describe AdpService::Events, type: :service do
   let(:http)        { double(Net::HTTP) }
   let(:response)    { double(Net::HTTPResponse) }
   let(:header_hash) { {"server"=>["Apache-Coyote/1.1"], "adp-correlationid"=>["ac5c8427-d7df-4a36-9c1c-ed9a9405e58f"], "content-language"=>["en-US"], "adp-msg-msgid"=>["0x_414d51205554494e464f4251362020206f3e8b5866814928"], "etag"=>["W/\"298-3FGDAYibwmNEuawCuC+BEg\""], "x-upstream"=>["10.136.1.43:4110"], "strict-transport-security"=>["max-age=31536000"], "content-type"=>["application/json;charset=utf-8"], "content-length"=>["664"], "date"=>["Fri, 10 Feb 2017 00:57:40 GMT"], "connection"=>["close"]} }
-  let(:json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_event.json") }
+  let(:json) { JSON.dump(JSON.parse(File.read(Rails.root.to_s+"/spec/fixtures/adp_event.json"))) }
   let(:hire_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_hire_event.json") }
   let(:contract_hire_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_contract_hire_event.json") }
   let(:term_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_terminate_event.json") }
@@ -98,6 +98,19 @@ describe AdpService::Events, type: :service do
         expect(AdpEvent.last.json).to eq(json)
         expect(AdpEvent.last.msg_id).to eq("0x_414d51205554494e464f4251362020206f3e8b5866814928")
         expect(AdpEvent.last.status).to eq("New")
+      end
+
+      it "should scrub sensitive data" do
+        adp = AdpService::Events.new
+        adp.token = "a-token-value"
+
+        expect(adp).to receive(:sort_event)
+        expect{
+          adp.process_event(header_hash, hire_json)
+        }.to change{AdpEvent.count}.from(0).to(1)
+        expect(
+          JSON.parse(AdpEvent.last.json)['events'][0]['data']['output']['worker']['person']['governmentIDs'][0]['idValue']
+        ).to eq("REDACTED")
       end
 
       it "should return false if AdpEvent does not save" do

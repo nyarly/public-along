@@ -13,14 +13,24 @@ module AdpService
     end
 
     def process_event(str, body)
+      json = JSON.parse(body)
+      if json.dig("events", 0, "data", "output", "worker", "person", "governmentIDs").present?
+        json['events'][0]['data']['output']['worker']['person']['governmentIDs'].each do |government_id|
+          government_id['idValue'] = "REDACTED"
+        end
+      elsif json.dig("events", 0, "data", "output", "worker", "person", "governmentID").present?
+        json['events'][0]['data']['output']['worker']['person']['governmentID']['idValue'] = "REDACTED"
+      end
+      scrubbed_json = JSON.dump(json)
+
       ae = AdpEvent.new(
-        json: body,
+        json: scrubbed_json,
         msg_id: str.to_hash["adp-msg-msgid"][0],
         status: "New"
       )
 
       if ae.save
-        sort_event(body, ae)
+        sort_event(scrubbed_json, ae)
         return true
       else
         return false
