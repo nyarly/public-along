@@ -17,7 +17,7 @@ every :weekday, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Tim
   rake "employee:offboard_report"
 end
 
-every [:monday, :tuesday, :wednesday, :thursday, :friday, :saturday].local_to_utc(Time.parse("9:00")) do
+every :day, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Time.parse("9:00")) do
   rake "employee:job_change_report"
 end
 
