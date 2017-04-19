@@ -32,8 +32,8 @@
     <tbody>
       <% @employees.each do |e| %>
         <tr>
-          <td><%= e.last_name %></td>
-          <td><%= e.first_name %></td>
+          <td><%= link_to e.last_name, employee_path(e) %></td>
+          <td><%= link_to e.first_name, employee_path(e) %></td>
           <td><%= e.status %></td>
           <td><%= e.email %></td>
           <td><%= e.manager.try(:cn) %></td>
@@ -46,10 +46,6 @@
           <td><%= e.leave_start_date.strftime("%m/%d/%Y") if e.leave_start_date.present? %></td>
           <td><%= e.leave_return_date.strftime("%m/%d/%Y") if e.leave_return_date.present? %></td>
           <td><%= e.ad_updated_at %></td>
-          <td><%= link_to "Show", employee_path(e) %></td>
-          <% if can? :update, Employee %>
-            <td><%= link_to "Edit", edit_employee_path(e) %></td>
-          <% end %>
         </tr>
       <% end %>
     </tbody>
