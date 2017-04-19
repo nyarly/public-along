@@ -132,7 +132,11 @@ module AdpService
     end
 
     def send_email?(employee)
-      employee.department_id_changed? || employee.location_id_changed? || employee.worker_type_id_changed? || employee.job_title_id_changed?
+      if employee.changed? && employee.valid?
+        if employee.department_id_changed? || employee.location_id_changed? || employee.worker_type_id_changed? || employee.job_title_id_changed?
+          true
+        end
+      end
     end
 
     def build_emp_delta(employee)
