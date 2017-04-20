@@ -388,6 +388,7 @@ describe AdpService::Workers, type: :service do
     context "worker has contract end date less than one year" do
 
       contract_end_date = Date.today + 3.months
+      check_contract_end_date = contract_end_date - 1
 
       let!(:new_hire) {FactoryGirl.create(:employee,
         adp_assoc_oid: "TESTOID",
@@ -406,7 +407,7 @@ describe AdpService::Workers, type: :service do
           { "Accept"=>"application/json",
             "Authorization"=>"Bearer a-token-value",
           }).and_return(response)
-        expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers/TESTOID?asOfDate=#{contract_end_date.strftime('%m')}%2F#{contract_end_date.strftime('%d')}%2F#{contract_end_date.strftime('%Y')}").and_return(uri)
+        expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers/TESTOID?asOfDate=#{check_contract_end_date.strftime('%m')}%2F#{check_contract_end_date.strftime('%d')}%2F#{check_contract_end_date.strftime('%Y')}").and_return(uri)
         expect(response).to receive(:body).and_return(pending_hire_json)
         allow(http).to receive(:get).with(
           request_uri,

@@ -76,7 +76,7 @@ module AdpService
           w_hash = workers[0]
 
           if w_hash.blank? && e.contract_end_date.present?
-            w = get_worker_json(e, e.contract_end_date)
+            w = get_worker_json(e, e.contract_end_date - 1.day)
             worker = parser.sort_workers(w)
             w_hash = worker[0]
           end
@@ -84,7 +84,7 @@ module AdpService
           if w_hash.present?
             e.assign_attributes(w_hash.except(:status))
           else
-            TechTableMailer.alert_email("New hire sync is erroring on #{e.cn}, employee id: #{e.employee_id}.\nPlease contact the developer to help diagnose the problem.").deliver_now
+            TechTableMailer.alert_email("Cannot get updated ADP info for new contract hire #{e.cn}, employee id: #{e.employee_id}.\nPlease contact the developer to help diagnose the problem.").deliver_now
           end
         else
           TechTableMailer.alert_email("New hire sync is erroring on #{e.cn}, employee id: #{e.employee_id}.\nPlease contact the developer to help diagnose the problem.").deliver_now
