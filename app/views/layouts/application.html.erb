@@ -24,14 +24,9 @@
           <% if can? :read, Employee %>
             <li>
               <%= link_to "Workers", employees_path %>
-              <% if can?(:create, Employee) || can?(:read, WorkerType) %>
+              <% if can?(:read, WorkerType) %>
                 <ul class="menu vertical">
-                  <% if can? :create, Employee %>
-                    <li><%= link_to "New Worker", new_employee_path %></li>
-                  <% end %>
-                  <% if can? :read, WorkerType %>
-                    <li><%= link_to "Worker Types", worker_types_path %></li>
-                  <% end %>
+                  <li><%= link_to "Worker Types", worker_types_path %></li>
                 </ul>
               <% end %>
             </li>

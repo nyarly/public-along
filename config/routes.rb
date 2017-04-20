@@ -13,7 +13,7 @@ Rails.application.routes.draw do
   devise_for :users, controllers: {
     sessions: 'users/sessions'
   }
-  resources :employees, :except => [:destroy] do
+  resources :employees, :only => [:index, :show] do
     get :autocomplete_name, :on => :collection
   end
   resource :emails, :only => [:create]
