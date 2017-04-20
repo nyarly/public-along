@@ -386,18 +386,28 @@ describe AdpService::Workers, type: :service do
     end
 
     context "worker has contract end date less than one year" do
+
+      contract_end_date = Date.today + 3.months
+
       let!(:new_hire) {FactoryGirl.create(:employee,
-        adp_assoc_oid: "G3NQ5754ETA080N",
+        adp_assoc_oid: "TESTOID",
         employee_id: "100015",
         status: "Pending",
         first_name: "Robert",
-        contract_end_date: Date.today + 3.months,
+        contract_end_date: contract_end_date,
         hire_date: Date.today + 2.weeks
       )}
 
       before :each do
-        expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers/G3NQ5754ETA080N?asOfDate=#{future_date.strftime('%m')}%2F#{future_date.strftime('%d')}%2F#{future_date.strftime('%Y')}").and_return(uri)
+        expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers/TESTOID?asOfDate=#{future_date.strftime('%m')}%2F#{future_date.strftime('%d')}%2F#{future_date.strftime('%Y')}").and_return(uri)
         expect(response).to receive(:body).and_return(pending_hire_contract_json)
+        allow(http).to receive(:get).with(
+          request_uri,
+          { "Accept"=>"application/json",
+            "Authorization"=>"Bearer a-token-value",
+          }).and_return(response)
+        expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers/TESTOID?asOfDate=#{contract_end_date.strftime('%m')}%2F#{contract_end_date.strftime('%d')}%2F#{contract_end_date.strftime('%Y')}").and_return(uri)
+        expect(response).to receive(:body).and_return(pending_hire_json)
         allow(http).to receive(:get).with(
           request_uri,
           { "Accept"=>"application/json",

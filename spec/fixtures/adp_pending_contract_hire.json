@@ -1,7 +1,7 @@
 {
   "workers": [
     {
-      "associateOID": "TTTTTTTTTTTTTTTT",
+      "associateOID": "TESTOID",
       "workerID": {
         "idValue": "123456"
       },
@@ -29,8 +29,7 @@
         }
       },
       "workerDates": {
-        "originalHireDate": "2017-04-24",
-        "terminationDate": "2017-04-24"
+        "originalHireDate": "2017-04-24"
       },
       "workerStatus": {
         "statusCode": {
@@ -43,7 +42,6 @@
           "primaryIndicator": true,
           "hireDate": "2017-04-24",
           "actualStartDate": "2017-04-24",
-          "terminationDate": "2017-04-24",
           "assignmentStatus": {
             "statusCode": {
               "codeValue": "T",
