@@ -388,7 +388,7 @@ describe AdpService::Workers, type: :service do
     context "worker has contract end date less than one year" do
 
       contract_end_date = Date.today + 3.months
-      check_contract_end_date = contract_end_date - 1
+      check_contract_end_date = contract_end_date - 1.day
 
       let!(:new_hire) {FactoryGirl.create(:employee,
         adp_assoc_oid: "TESTOID",
@@ -400,6 +400,7 @@ describe AdpService::Workers, type: :service do
       )}
 
       before :each do
+        # return worker json with status "Terminated" on first try
         expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers/TESTOID?asOfDate=#{future_date.strftime('%m')}%2F#{future_date.strftime('%d')}%2F#{future_date.strftime('%Y')}").and_return(uri)
         expect(response).to receive(:body).and_return(pending_hire_contract_json)
         allow(http).to receive(:get).with(
@@ -407,6 +408,7 @@ describe AdpService::Workers, type: :service do
           { "Accept"=>"application/json",
             "Authorization"=>"Bearer a-token-value",
           }).and_return(response)
+        # return worker json with status "Active" on second try
         expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers/TESTOID?asOfDate=#{check_contract_end_date.strftime('%m')}%2F#{check_contract_end_date.strftime('%d')}%2F#{check_contract_end_date.strftime('%Y')}").and_return(uri)
         expect(response).to receive(:body).and_return(pending_hire_json)
         allow(http).to receive(:get).with(
@@ -416,7 +418,7 @@ describe AdpService::Workers, type: :service do
           }).and_return(response)
       end
 
-      it "should should return blank" do
+      it "should should update data for worker" do
         adp = AdpService::Workers.new
         adp.token = "a-token-value"
 
@@ -425,6 +427,8 @@ describe AdpService::Workers, type: :service do
         }.to_not change{Employee.count}
 
         new_hire.reload
+        expect(new_hire.first_name).to eq("Bob")
+        expect(new_hire.last_name).to eq("Seger")
         expect(new_hire.status).to eq("Pending")
       end
     end
