@@ -10,6 +10,7 @@ describe AdpService::Workers, type: :service do
   let(:response)    { double(Net::HTTPResponse) }
   let(:ads) { double(ActiveDirectoryService) }
   let(:pending_hire_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_pending_hire.json") }
+  let(:pending_hire_contract_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_pending_contract_hire.json") }
   let(:not_found_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_worker_not_found.json") }
 
   before :each do
@@ -381,6 +382,54 @@ describe AdpService::Workers, type: :service do
         expect(mailer).to receive(:deliver_now)
 
         adp.check_new_hire_changes
+      end
+    end
+
+    context "worker has contract end date less than one year" do
+
+      contract_end_date = Date.today + 3.months
+      check_contract_end_date = contract_end_date - 1.day
+
+      let!(:new_hire) {FactoryGirl.create(:employee,
+        adp_assoc_oid: "TESTOID",
+        employee_id: "100015",
+        status: "Pending",
+        first_name: "Robert",
+        contract_end_date: contract_end_date,
+        hire_date: Date.today + 2.weeks
+      )}
+
+      before :each do
+        # return worker json with status "Terminated" on first try
+        expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers/TESTOID?asOfDate=#{future_date.strftime('%m')}%2F#{future_date.strftime('%d')}%2F#{future_date.strftime('%Y')}").and_return(uri)
+        expect(response).to receive(:body).and_return(pending_hire_contract_json)
+        allow(http).to receive(:get).with(
+          request_uri,
+          { "Accept"=>"application/json",
+            "Authorization"=>"Bearer a-token-value",
+          }).and_return(response)
+        # return worker json with status "Active" on second try
+        expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers/TESTOID?asOfDate=#{check_contract_end_date.strftime('%m')}%2F#{check_contract_end_date.strftime('%d')}%2F#{check_contract_end_date.strftime('%Y')}").and_return(uri)
+        expect(response).to receive(:body).and_return(pending_hire_json)
+        allow(http).to receive(:get).with(
+          request_uri,
+          { "Accept"=>"application/json",
+            "Authorization"=>"Bearer a-token-value",
+          }).and_return(response)
+      end
+
+      it "should should update data for worker" do
+        adp = AdpService::Workers.new
+        adp.token = "a-token-value"
+
+        expect{
+          adp.check_new_hire_changes
+        }.to_not change{Employee.count}
+
+        new_hire.reload
+        expect(new_hire.first_name).to eq("Bob")
+        expect(new_hire.last_name).to eq("Seger")
+        expect(new_hire.status).to eq("Pending")
       end
     end
   end
