@@ -109,7 +109,7 @@ describe AdpService::Workers, type: :service do
   end
 
   describe "sync_workers" do
-    let!(:employee) { FactoryGirl.create(:employee, employee_id: "101455")}
+    let!(:employee) { FactoryGirl.create(:employee, employee_id: "101455", job_title_id: 1, worker_type_id: 2, department_id: 3, location_id: 4)}
     let(:json) { JSON.parse(File.read(Rails.root.to_s+"/spec/fixtures/adp_workers.json")) }
     let(:parser) { double(AdpService::WorkerJsonParser) }
     let(:sorted) {
@@ -122,7 +122,11 @@ describe AdpService::Workers, type: :service do
         hire_date: "2013-08-05",
         contract_end_date: nil,
         company: "OpenTable Inc.",
+        job_title_id: 1,
+        worker_type_id: 2,
         manager_id: "101734",
+        department_id: 3,
+        location_id: 4,
         office_phone: "(212) 555-4411",
         personal_mobile_phone: "(212) 555-4411"
       }]
@@ -220,7 +224,7 @@ describe AdpService::Workers, type: :service do
         worker_type_id: 2,
         manager_id: "101734",
         department_id: 3,
-        location_id: 4,
+        location_id: 777,
         office_phone: "(212) 555-4411",
         personal_mobile_phone: "(212) 555-4411"
       }]
