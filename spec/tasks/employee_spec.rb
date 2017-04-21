@@ -315,7 +315,7 @@ describe "employee rake tasks", type: :tasks do
       @ldap_entry_2 = Net::LDAP::Entry.new("cn=Kylie Kylie,ou=OT,dc=ottest,dc=opentable,dc=com")
       {
         cn: "Kylie Kylie",
-        dn: "cn=Kylie Kylie,ou=Provisional,ou=OT,dc=ottest,dc=opentable,dc=com",
+        dn: "cn=Kylie Kylie,ou=Provisional,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com",
         objectclass: ["top", "person", "organizationalPerson", "user"],
         givenName: "Kylie",
         sn: "Kylie",
@@ -429,7 +429,7 @@ describe "employee rake tasks", type: :tasks do
           :postalCode=>"60611",
           :thumbnailPhoto=>Base64.decode64(IMAGE)}})
       expect(@ldap).to receive(:replace_attribute).once.with("cn=The Big Lebowski,ou=Engineering,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com", :telephoneNumber, "(213) 555-4321")
-      expect(@ldap).to receive(:replace_attribute).once.with("cn=Kylie Kylie,ou=Provisional,ou=OT,dc=ottest,dc=opentable,dc=com", :accountExpires, "131062374000000000")
+      expect(@ldap).to receive(:replace_attribute).once.with("cn=Kylie Kylie,ou=Provisional,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com", :accountExpires, "131062374000000000")
       expect{
         expect{
           Rake::Task["employee:xml_to_ad"].invoke

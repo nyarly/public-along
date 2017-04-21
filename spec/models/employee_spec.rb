@@ -629,7 +629,7 @@ describe Employee, type: :model do
     )}
 
     it "should assign the user to the provisional ou" do
-      expect(employee.ou).to eq("ou=Provisional,")
+      expect(employee.ou).to eq("ou=Provisional,ou=Users,")
     end
   end
 
