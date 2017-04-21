@@ -618,6 +618,21 @@ describe Employee, type: :model do
     end
   end
 
+  context "when it does not find a location and department ou match" do
+    let!(:location) { Location.find_by(:name => "London Office") }
+    let!(:department) { Department.find_by(name: "Risk Management") }
+    let!(:employee) { FactoryGirl.build(:employee,
+      first_name: "Charlie",
+      last_name: "Brown",
+      location_id: location.id,
+      department_id: department.id
+    )}
+
+    it "should assign the user to the provisional ou" do
+      expect(employee.ou).to eq("ou=Provisional,ou=Users,")
+    end
+  end
+
   describe "#check_manager" do
     let(:manager) { FactoryGirl.create(:employee) }
     let(:mgr_profile) { FactoryGirl.create(:security_profile, name: "Basic Manager") }
