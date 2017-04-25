@@ -15,6 +15,9 @@
         <th>First Name</th>
         <th>Status</th>
         <th>Email</th>
+        <% if can? :manage, Employee %>
+          <th>ADP Assoc. OID</th>
+        <% end %>
         <th>Manager</th>
         <th>Department</th>
         <th>Location</th>
@@ -25,7 +28,6 @@
         <th>Leave Start Date</th>
         <th>Leave Return Date</th>
         <th>AD Updated At</th>
-        <th colspan="3"></th>
       </tr>
     </thead>
 
@@ -36,6 +38,9 @@
           <td><%= link_to e.first_name, employee_path(e) %></td>
           <td><%= e.status %></td>
           <td><%= e.email %></td>
+          <% if can? :manage, Employee %>
+            <td><%= e.adp_assoc_oid %></td>
+          <% end %>
           <td><%= e.manager.try(:cn) %></td>
           <td><%= e.department.name %></td>
           <td><%= e.location.try(:name) %></td>
