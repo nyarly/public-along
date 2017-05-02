@@ -59,7 +59,8 @@ class Employee < ActiveRecord::Base
   end
 
   def self.deactivation_group
-    where('contract_end_date BETWEEN ? AND ? OR leave_start_date BETWEEN ? AND ? OR termination_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow)
+    where('termination_date BETWEEN ? AND ?', Date.new(2017, 1, 1), Date.new(2018, 1, 1))
+    # where('contract_end_date BETWEEN ? AND ? OR leave_start_date BETWEEN ? AND ? OR termination_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow)
   end
 
   def self.full_termination_group

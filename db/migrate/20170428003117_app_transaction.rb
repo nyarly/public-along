@@ -7,5 +7,7 @@ class AppTransaction < ActiveRecord::Migration
 
       t.timestamps null: false
     end
+
+    add_foreign_key :app_transactions, :emp_transactions
   end
 end
