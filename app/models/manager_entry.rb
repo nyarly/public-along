@@ -55,16 +55,6 @@ class ManagerEntry
     end unless add_profile_ids.blank?
   end
 
-  def build_offboarding_security_profiles
-    employee = Employee.find(employee_id)
-
-    sec_profiles_to_offboard = employee.active_security_profiles.map(&:id)
-    sec_profiles_to_offboard.each do |sp_id|
-      esp = EmpSecProfile.where("employee_id = ? AND security_profile_id = ? AND revoking_transaction_id IS NULL", employee_id, sp_id).first
-      emp_transaction.emp_sec_profiles << esp
-    end
-  end
-
   def build_machine_bundles
     machine_bundle = MachineBundle.find(machine_bundle_id)
     emp_transaction.emp_mach_bundles.build(
@@ -105,7 +95,6 @@ class ManagerEntry
           build_security_profiles
         elsif kind == "Offboarding"
           build_offboarding
-          build_offboarding_security_profiles
         elsif kind == "Equipment"
           build_machine_bundles
         end
