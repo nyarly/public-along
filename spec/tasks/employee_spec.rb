@@ -19,6 +19,7 @@ describe "employee rake tasks", type: :tasks do
       Rake.application.rake_require "lib/tasks/employee", [Rails.root.to_s], ''
       Rake::Task.define_task :environment
 
+      @offboarding_service = double(OffboardingService)
       @ldap = double(Net::LDAP)
       @ldap_entry = double(Net::LDAP::Entry)
 
@@ -28,6 +29,7 @@ describe "employee rake tasks", type: :tasks do
       allow(@ldap).to receive(:encryption)
       allow(@ldap).to receive(:auth)
       allow(@ldap).to receive(:bind)
+      allow(OffboardingService).to receive(:new).and_return(@offboarding_service)
     end
 
     after :each do

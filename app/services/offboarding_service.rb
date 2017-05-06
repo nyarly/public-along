@@ -5,19 +5,18 @@ class OffboardingService
     processed_offboards = []
 
     employees.each do |employee|
+      offboard_accounts = []
 
       employee.active_security_profiles.each do |sp|
         sp.access_levels.each do |a|
 
-          offboard_accounts = []
           application = Application.find(a.application_id)
           if APPLICATIONS.include? application.name
             offboard_accounts << application
           end
-
-          processed_offboards << process(offboard_accounts, employee)
         end
       end
+      processed_offboards << process(offboard_accounts, employee)
     end
 
     processed_offboards
@@ -49,7 +48,9 @@ class OffboardingService
       end
 
       app_transaction.save!
-    end
+    end unless accounts.blank?
+
+    send_notification(emp_transaction, employee)
     emp_transaction
   end
 
@@ -78,6 +79,10 @@ class OffboardingService
     emp_transaction.save!
     offboarding_info.save!
     offboarding_info
+  end
+
+  def send_notification(emp_transaction, employee)
+    TechTableMailer.offboard_status(emp_transaction, employee).deliver_now
   end
 
 end

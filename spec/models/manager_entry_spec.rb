@@ -132,12 +132,5 @@ RSpec.describe ManagerEntry do
       expect(manager_entry.emp_transaction.notes).to eq("stuff")
 
     end
-
-    it "emp transaction should have emp security profiles" do
-      manager_entry.save
-
-      expect(manager_entry.emp_transaction.emp_sec_profiles.count).to eq(1)
-      expect(employee.emp_transactions.last.kind).to eq("Offboarding")
-    end
   end
 end

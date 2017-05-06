@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe OffboardingService, type: :service do
   let!(:manager) { FactoryGirl.create(:employee) }
-  let!(:employee) { FactoryGirl.create(:employee, manager_id: manager.id) }
+  let!(:employee) { FactoryGirl.create(:employee, manager_id: manager.id, termination_date: Date.new(2017, 6, 1)) }
   let!(:security_profile) { FactoryGirl.create(:security_profile) }
   let!(:application) { FactoryGirl.create(:application, name: "Google Apps") }
   let!(:access_level) { FactoryGirl.create(:access_level, application_id: application.id) }
@@ -16,6 +16,8 @@ describe OffboardingService, type: :service do
       emp_transaction_id: emp_transaction.id,
       employee_id: employee.id,
       security_profile_id: security_profile.id)}
+
+  Timecop.freeze(Time.new(2017, 6, 01, 15, 30, 0, "+00:00"))
 
   context "without an offboarding emp transaction" do
     it "should successfully create an offboarding emp transaction" do
@@ -77,7 +79,7 @@ describe OffboardingService, type: :service do
       expect(employee.offboarding_infos.last.archive_data).to eq(true)
       expect(employee.offboarding_infos.last.replacement_hired).to eq(true)
       expect(employee.offboarding_infos.last.forward_email_id).to eq(1111)
-      expect(employee.offboarding_infos.last.reassign_salesforce_id).to eq(2222)
+      expect(employee.offboarding_infos.last.reassign_salesforce_id).to eq(2222 )
       expect(employee.offboarding_infos.last.transfer_google_docs_id).to eq(3333)
     end
 
