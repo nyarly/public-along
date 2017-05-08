@@ -93,24 +93,27 @@ class ManagerEntry
           build_machine_bundles
         elsif kind == "Security Access"
           build_security_profiles
+        elsif kind == "Offboarding"
+          build_offboarding
+        elsif kind == "Equipment"
+          build_machine_bundles
         end
       else
         emp_transaction.errors.add(:base, :employee_blank, message: "Employee can not be blank. Please revisit email link to refresh page.")
         raise ActiveRecord::RecordInvalid.new(emp_transaction)
       end
 
-      build_machine_bundles if kind == "Equipment"
-      build_offboarding if kind == "Offboarding"
-
       emp_transaction.save!
 
-      if emp_transaction.emp_sec_profiles.count > 0 || emp_transaction.revoked_emp_sec_profiles.count > 0
-        sas = SecAccessService.new(emp_transaction)
-        sas.apply_ad_permissions
-      end
+      if immediately_update_security_profiles?
+        if emp_transaction.emp_sec_profiles.count > 0 || emp_transaction.revoked_emp_sec_profiles.count > 0
+          sas = SecAccessService.new(emp_transaction)
+          sas.apply_ad_permissions
+        end
 
-      if emp_transaction.revoked_emp_sec_profiles.count > 0
-        emp_transaction.revoked_emp_sec_profiles.update_all(revoking_transaction_id: @emp_transaction.id)
+        if emp_transaction.revoked_emp_sec_profiles.count > 0
+          emp_transaction.revoked_emp_sec_profiles.update_all(revoking_transaction_id: @emp_transaction.id)
+        end
       end
 
       emp_transaction.errors.blank?
@@ -119,6 +122,12 @@ class ManagerEntry
     rescue ActiveRecord::RecordInvalid => e
       @errors = emp_transaction.errors
       errors.blank?
+  end
+
+  private
+
+  def immediately_update_security_profiles?
+    kind == "Onboarding" || kind == "Security Access"
   end
 
 end

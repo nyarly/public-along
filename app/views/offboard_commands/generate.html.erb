@@ -7,7 +7,7 @@
           <%= hidden_field_tag 'employee_id' %>
         </div>
         <%= submit_tag "Generate Commands", class: "button" %>
-      <% end %>   
+      <% end %>
     </div>
   </div>
 
@@ -31,9 +31,10 @@ $SESSION = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri ht
 Import-PSSession $SESSION
 Connect-MsolService -Credential $CRED
 Get-Mailbox -identity <%= @offboard_command.employee_email %> | set-mailbox -type "Shared"
+Set-Mailbox -identity <%= @offboard_command.employee_email %> -DeliverToMailboxAndForward $true -ForwardingAddress <%= @offboard_command.forward_email %>
 Set-MsolUserLicense -UserPrincipalName <%= @offboard_command.employee_email %> -RemoveLicenses "opentable:ENTERPRISEPACK"
-Add-MailboxPermission <%= @offboard_command.employee_email %> -User " <%= @offboard_command.forward_email %> " -AccessRights FullAccess
-</pre>  
+Add-MailboxPermission <%= @offboard_command.employee_email %> -User "<%= @offboard_command.forward_email %>" -AccessRights FullAccess
+</pre>
       </div>
       <h5>To deactivate ROMS:</h5>
       <div class="callout">
@@ -54,7 +55,7 @@ update Login set Active = 0 where Active = 1 and DomainLogin in ('opentable.com\
 <pre>
 -- OTA (OTAnywhere, OTAnywhere_Asia, OTAnywhere_EU)
 update Login set Active = 0 where Active = 1 and Email in ('<%= @offboard_command.employee_email %>')
-</pre>  
+</pre>
       </div>
 
     </div>

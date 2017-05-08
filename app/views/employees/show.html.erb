@@ -35,6 +35,13 @@
       <%= @employee.email %>
     </p>
 
+    <% if can? :manage, Employee %>
+      <p>
+        <strong>ADP Assoc. OID:</strong>
+        <%= @employee.adp_assoc_oid %>
+      </p>
+    <% end %>
+
     <p>
       <strong>sAMAccountName:</strong>
       <%= @employee.sam_account_name %>

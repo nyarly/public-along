@@ -117,6 +117,8 @@ RSpec.describe ManagerEntry do
 
     let(:manager_entry) { ManagerEntry.new(params) }
     let!(:employee) { FactoryGirl.create(:employee) }
+    let!(:security_profile) { FactoryGirl.create(:security_profile) }
+    let!(:emp_sec_profile) { FactoryGirl.create(:emp_sec_profile, security_profile_id: security_profile.id, employee_id: employee.id) }
 
     it "should create offboarding info" do
       manager_entry.save
@@ -130,5 +132,5 @@ RSpec.describe ManagerEntry do
       expect(manager_entry.emp_transaction.notes).to eq("stuff")
 
     end
-   end
+  end
 end
