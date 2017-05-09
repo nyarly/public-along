@@ -36,7 +36,7 @@ class OffboardingService
       )
 
       if account.name == "Google Apps"
-        # call google app service with app_transaction & info
+        GoogleServiceApp.new(app_transaction, offboarding_info)
       elsif account.name == "Office 365"
         # call office 365 service with app_transaction & info
       elsif account.name.include? == "CHARM"
