@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170428003117) do
+ActiveRecord::Schema.define(version: 20170509185839) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -31,14 +31,6 @@ ActiveRecord::Schema.define(version: 20170428003117) do
     t.text     "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-  end
-
-  create_table "app_transactions", force: :cascade do |t|
-    t.integer  "emp_transaction_id"
-    t.integer  "application_id"
-    t.string   "status"
-    t.datetime "created_at",         null: false
-    t.datetime "updated_at",         null: false
   end
 
   create_table "applications", force: :cascade do |t|
@@ -72,6 +64,15 @@ ActiveRecord::Schema.define(version: 20170428003117) do
     t.datetime "created_at",          null: false
     t.datetime "updated_at",          null: false
   end
+
+  create_table "emp_access_levels", force: :cascade do |t|
+    t.integer "access_level_id"
+    t.boolean "active"
+    t.integer "employee_id"
+  end
+
+  add_index "emp_access_levels", ["access_level_id"], name: "index_emp_access_levels_on_access_level_id", using: :btree
+  add_index "emp_access_levels", ["employee_id"], name: "index_emp_access_levels_on_employee_id", using: :btree
 
   create_table "emp_delta", force: :cascade do |t|
     t.integer  "employee_id"
@@ -256,5 +257,6 @@ ActiveRecord::Schema.define(version: 20170428003117) do
     t.datetime "updated_at", null: false
   end
 
-  add_foreign_key "app_transactions", "emp_transactions"
+  add_foreign_key "emp_access_levels", "access_levels"
+  add_foreign_key "emp_access_levels", "employees"
 end

@@ -16,5 +16,4 @@ class EmpTransaction < ActiveRecord::Base
   has_many :revoked_security_profiles, through: :revoked_emp_sec_profiles, source: :security_profile
   has_many :onboarding_infos
   has_many :offboarding_infos
-  has_many :app_transactions
 end
