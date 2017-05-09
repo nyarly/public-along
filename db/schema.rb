@@ -66,9 +66,11 @@ ActiveRecord::Schema.define(version: 20170509185839) do
   end
 
   create_table "emp_access_levels", force: :cascade do |t|
-    t.integer "access_level_id"
-    t.boolean "active"
-    t.integer "employee_id"
+    t.integer  "access_level_id"
+    t.boolean  "active"
+    t.integer  "employee_id"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
   end
 
   add_index "emp_access_levels", ["access_level_id"], name: "index_emp_access_levels_on_access_level_id", using: :btree

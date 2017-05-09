@@ -4,6 +4,8 @@ class CreateEmpAccessLevels < ActiveRecord::Migration
       t.references :access_level, index: true
       t.boolean :active
       t.references :employee, index: true
+
+      t.timestamps null: false
     end
 
     add_foreign_key :emp_access_levels, :access_levels

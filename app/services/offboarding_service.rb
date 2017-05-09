@@ -5,18 +5,18 @@ class OffboardingService
     processed_offboards = []
 
     employees.each do |employee|
-      offboard_accounts = []
+      offboard_access_levels = []
 
       employee.active_security_profiles.each do |sp|
-        sp.access_levels.each do |a|
+        sp.access_levels.each do |al|
 
-          application = Application.find(a.application_id)
+          application = Application.find(al.application_id)
           if APPLICATIONS.include? application.name
-            offboard_accounts << application
+            offboard_access_levels << al
           end
         end
       end
-      processed_offboards << process(offboard_accounts, employee)
+      processed_offboards << process(offboard_access_levels, employee)
     end
 
     processed_offboards
@@ -24,31 +24,30 @@ class OffboardingService
 
   private
 
-  def process(accounts, employee)
+  def process(offboard_access_levels, employee)
     offboarding_info = offboarding_info(employee)
-    emp_transaction = offboarding_info.emp_transaction
 
-    accounts.each do |account|
+    offboard_access_levels.each do |access_level|
       app_transaction = emp_transaction.app_transactions.build(
-        application_id: account.id,
+        application_id: access_level.id,
         emp_transaction_id: emp_transaction.id,
         status: "Pending"
       )
 
-      if account.name == "Google Apps"
+      if access_level.name == "Google Apps"
         # call google app service with app_transaction & info
-      elsif account.name == "Office 365"
+      elsif access_level.name == "Office 365"
         # call office 365 service with app_transaction & info
-      elsif account.name.include? == "CHARM"
+      elsif access_level.name.include? == "CHARM"
         # call charm service with app_transaction
-      elsif account.name == "ROMS"
+      elsif access_level.name == "ROMS"
         # call ROMS service with app_transaction
-      elsif account.name == "OTA"
+      elsif access_level.name == "OTA"
         # call OTA service with app_transaction
       end
 
       app_transaction.save!
-    end unless accounts.blank?
+    end unless access_level.blank?
 
     send_notification(emp_transaction, employee)
     emp_transaction

@@ -31,7 +31,7 @@ class Employee < ActiveRecord::Base
   has_many :onboarding_infos
   has_many :offboarding_infos
   has_many :emp_deltas
-  has_many :emp_access_levels, dependent: :destroy
+  has_many :emp_access_levels
   has_many :access_levels, through: :emp_access_levels
 
   attr_accessor :nearest_time_zone
