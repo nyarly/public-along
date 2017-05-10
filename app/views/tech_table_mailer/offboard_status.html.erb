@@ -25,30 +25,9 @@
     <strong>Automatic Account Offboarding Status:</strong>
   </p>
   <div style="margin-left: 2em">
-    <% @emp_transaction.app_transactions.each do |at| %>
-      <p style="margin-left: 2em"><%= Application.find(at.application_id).name %> -- <%= at.status %></p>
-    <% end %>
-  </div>
-
-  <p>
-  <strong>Current Active Security Profiles:</strong>
-  </p>
-  <div style="margin-left: 2em">
-    <% @employee.active_security_profiles.each do |sp| %>
-      <div>
-        <%= sp.name %><br>
-        <ul>
-          <% sp.access_levels.find_each do |al| %>
-            <li style="margin-left: 2em"><small><%= al.name %> <%= al.application.name %></small></li>
-            <% if(al.application.dependency.present? || al.application.instructions.present?) %>
-              <p style="margin-left: 2em; color: red"><%= al.application.dependency %></p>
-              <p style="margin-left: 2em; color: red"><%= al.application.instructions %></p>
-            <% else %>
-              <p style="margin-left: 2em; color: limegreen">No further action needed.</p>
-            <% end %>
-          <% end %>
-        </ul>
-      </div>
+    <% @employee.emp_access_levels.each do |al| %>
+      <p style="margin-left: 2em"><%= AccessLevel.find(al.access_level_id).name %></p>
+      <p style="margin-left: 2em">Active: <%= al.active %></p>
     <% end %>
   </div>
 </div>

@@ -5,7 +5,8 @@ class OffboardingService
     processed_offboards = []
 
     employees.each do |employee|
-      emp_access_levels = EmpAccessLevelService.new(employee)
+      EmpAccessLevelService.new(employee)
+      emp_access_levels = employee.emp_access_levels
       processed_offboards << process(emp_access_levels, employee)
     end
 
@@ -15,41 +16,37 @@ class OffboardingService
   private
 
   def process(emp_access_levels, employee)
-    offboarding_info = @employee.offboarding_infos.last
-    processed_eal = []
+    processed_emp_als = []
 
     emp_access_levels.each do |emp_access_level|
+      application = Application.find(emp_access_level.access_level.application_id)
 
       # this doesn't do anything now
       # once the services are complete, it should change the
       # emp_access_level.active to false if the service succeeds in offboarding
 
-      if emp_access_level.name == "Google Apps"
+      if application.name == "Google Apps"
         # call google app service with info
-      elsif emp_access_level.name == "Office 365"
+      elsif application.name == "Office 365"
         # call office 365 service with info
-      elsif emp_access_level.name.include? == "CHARM"
+      elsif application.name.include? == "CHARM"
         # call charm service
-      elsif emp_access_level.name == "ROMS"
+      elsif application.name == "ROMS"
         # call ROMS service
-      elsif emp_access_level.name == "OTA"
+      elsif application.name == "OTA"
         # call OTA service
       end
 
       emp_access_level.save!
-      processed_eal << emp_acecss_level
-    end unless emp_access_level.blank?
+      processed_emp_als << emp_access_level
+    end
 
-    send_notification(processed_eal, employee)
-    processed_eal
+    send_notification(employee)
+    processed_emp_als
   end
 
-  def offboarding_info
-    @employee.offboarding_infos.last || default_offboarding_info
-  end
-
-  def send_notification(eals, employee)
-    TechTableMailer.offboard_status(eals, employee).deliver_now
+  def send_notification(employee)
+    TechTableMailer.offboard_status(employee).deliver_now
   end
 
 end
