@@ -75,12 +75,15 @@ module AdpService
           workers = parser.sort_workers(json)
           w_hash = workers[0]
 
+          # If employee will be with OpenTable for less than a year,
+          # check for changes within a smaller time window
+
           if w_hash.blank? && e.contract_end_date.present?
             w = get_worker_json(e, e.contract_end_date - 1.day)
             worker = parser.sort_workers(w)
             w_hash = worker[0]
           end
-          
+
           if w_hash.present?
             e.assign_attributes(w_hash.except(:status))
           else
@@ -113,6 +116,7 @@ module AdpService
         block.call(e, json, as_of_date)
 
         if e.changed? && e.save
+          Employee.check_manager(e.manager_id)
           update_emps << e
         end
       end
