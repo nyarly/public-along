@@ -54,9 +54,7 @@ RSpec.describe TechTableMailer, type: :mailer do
 
   context "offboard status" do
     let!(:employee) { FactoryGirl.create(:employee, termination_date: Date.new(2017, 6, 1), manager_id: "123456") }
-    let!(:emp_transaction) {FactoryGirl.create(:emp_transaction) }
-    let!(:offboarding_info) { FactoryGirl.create(:offboarding_info, emp_transaction_id: emp_transaction.id, employee_id: employee.id) }
-    let!(:email) { TechTableMailer.offboard_status(emp_transaction, employee).deliver_now }
+    let!(:email) { TechTableMailer.offboard_status(employee).deliver_now }
 
     Timecop.freeze(Time.new(2017, 6, 01, 15, 30, 0, "+00:00"))
 

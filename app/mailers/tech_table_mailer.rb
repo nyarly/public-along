@@ -19,8 +19,7 @@ class TechTableMailer < ApplicationMailer
     mail(subject: "Mezzo Offboarding notice for #{employee.first_name} #{employee.last_name}")
   end
 
-  def offboard_status(emp_transaction, employee)
-    @emp_transaction = emp_transaction
+  def offboard_status(employee)
     @employee = employee
     mail(subject: "Mezzo Automated Offboarding Status for #{@employee.first_name} #{@employee.last_name}")
   end
