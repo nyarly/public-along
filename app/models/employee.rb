@@ -63,7 +63,7 @@ class Employee < ActiveRecord::Base
   end
 
   def self.full_termination_group
-    where('termination_date BETWEEN ? AND ?', 31.days.ago, 30.days.ago)
+    where('termination_date BETWEEN ? AND ?', 8.days.ago, 7.days.ago)
   end
 
   def is_contingent_worker?
