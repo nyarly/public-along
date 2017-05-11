@@ -151,8 +151,8 @@ describe "employee rake tasks", type: :tasks do
       Rake::Task["employee:change_status"].invoke
     end
 
-    it "should remove worker from all security groups at 3am, 30 days after termination" do
-      termination = FactoryGirl.create(:employee, :manager_id => "12345", :hire_date => Date.new(2014, 5, 3), :termination_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "Technology/CTO Admin").id, :location_id => sf.id, worker_type_id: worker_type.id)
+    it "should remove worker from all security groups at 3am, 7 days after termination" do
+      termination = FactoryGirl.create(:employee, :manager_id => "12345", :hire_date => Date.new(2014, 5, 3), :termination_date => Date.new(2016, 8, 21), :department_id => Department.find_by(:name => "Technology/CTO Admin").id, :location_id => sf.id, worker_type_id: worker_type.id)
       recent_termination = FactoryGirl.create(:employee, :manager_id => "12345", :hire_date => Date.new(2014, 5, 3), :termination_date => Date.new(2016, 8, 20), :department_id => Department.find_by(:name => "Technology/CTO Admin").id, :location_id => sf.id, worker_type_id: worker_type.id)
       manager = FactoryGirl.create(:employee, :employee_id => "12345")
 
