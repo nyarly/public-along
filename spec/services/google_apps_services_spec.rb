@@ -1,20 +1,32 @@
 require 'rails_helper'
 
 describe GoogleAppsService, type: :service do
-  let!(:employee) { FactoryGirl.create(:employee) }
+  let(:data_transfer_service) { double(Google::Apis::AdminDatatransferV1::DataTransferService) }
+  let(:directory_service) { double(Google::Apis::AdminDirectoryV1::DirectoryService) }
+  let(:google_app_service) { GoogleAppsService.new }
 
-  describe "successfully transfers google app data" do
+  before :each do
+    allow(Google::Apis::AdminDatatransferV1::DataTransferService).to receive(:new).and_return(data_transfer_service)
+    allow(data_transfer_service).to receive_message_chain(:client_options, :application_name=)
+    allow(data_transfer_service).to receive(:application_name)
+    allow(data_transfer_service).to receive(:authorization=)
 
-    context "when the employee has offboarding info" do
-      let!(:emp_transaction) { FactoryGirl.create(:emp_transaction) }
-      let!(:offboarding_info) { FactoryGirl.create(:offboarding_info, emp_transction: emp_transaction.id, employee_id: employee.id, transfer_google_docs_id: 1) }
+    allow(Google::Apis::AdminDirectoryV1::DirectoryService).to receive(:new).and_return(directory_service)
+    allow(directory_service).to receive_message_chain(:client_options, :application_name=)
+    allow(directory_service).to receive(:application_name)
+    allow(directory_service).to receive(:authorization=)
+  end
 
-      it "should get a success response from the google api" do
-        transfer_google = GoogleAppsService.new(employee)
-        expect(transfer_google).to eq(true)
+  context "successfully transfers data" do
+    let!(:manager) { FactoryGirl.create(:employee, email: "123@example.com") }
+    let!(:employee) { FactoryGirl.create(:employee, manager_id: manager.id, email: "456@example.com") }
 
-      end
+    it "should get a success response from the google api" do
+      allow(directory_service).to receive_message_chain(:get_user, :id).and_return({"id": "1111"})
+      transfers = google_app_service.transfer_data(employee)
+      expect(transfers).to eq(stuff)
     end
+  end
 
     context "when the employee does not have offboarding info" do
     end
@@ -22,7 +34,7 @@ describe GoogleAppsService, type: :service do
 
     # it "should update the app transaction status to 'success'" do
     # end
-  end
+
 
   # context "fails to transfer google app data" do
   #   it "should get a fail response from the google api" do

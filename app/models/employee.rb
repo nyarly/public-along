@@ -286,4 +286,15 @@ class Employee < ActiveRecord::Base
     emp = Employee.find(emp_id)
     emp.termination_date ? EMAIL_OPTIONS : EMAIL_OPTIONS - ["Offboarding"]
   end
+
+  def self.transfer_google_docs_id(emp)
+
+    offboarding_info = emp.offboarding_infos.last
+
+    if offboarding_info.present? && offboarding_info.transfer_google_docs_id.present?
+      Employee.find(offboarding_info.transfer_google_docs_id)
+    else
+      Employee.find_by(employee_id: emp.manager_id)
+    end
+  end
 end
