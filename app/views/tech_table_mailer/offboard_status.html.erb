@@ -26,8 +26,15 @@
   </p>
   <div style="margin-left: 2em">
     <% @employee.emp_access_levels.each do |al| %>
-      <p style="margin-left: 2em"><%= AccessLevel.find(al.access_level_id).name %></p>
-      <p style="margin-left: 2em">Active: <%= al.active %></p>
+      <% @access_level = AccessLevel.find(al.access_level_id) %>
+      <p style="margin-left: 2em">
+        <% if al.active %>
+          <span style="color: red">Active </span>
+        <% else %>
+          <span style="color: limegreen">Deactivated </span>
+        <% end %>
+        <%= @access_level.name %> <%= Application.find(@access_level.application_id).name %>
+      </p>
     <% end %>
   </div>
 </div>

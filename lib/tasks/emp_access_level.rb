@@ -1,9 +1,8 @@
 namespace :emp_access_level do
   desc "create emp access levels for existing employees with security profiles"
   task :create => :environment do
-    employees = Employee.all
 
-    employees.each do |e|
+    Employees.find_each do |e|
       e.active_security_profiles.each do |sp|
         sp.access_levels.each do |al|
           EmpAccessLevel.create(
