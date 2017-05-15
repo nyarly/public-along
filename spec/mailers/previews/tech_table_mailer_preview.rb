@@ -40,7 +40,7 @@ class TechTableMailerPreview < ActionMailer::Preview
 
   def offboard_status
     emp_trans = EmpTransaction.where(kind: "Offboarding").last
-    emp = Employee.where'termination_date IS NOT NULL').first
-    TechTableMailer.offboard_status(emp_trans, emp)
+    emp = Employee.where('termination_date IS NOT NULL').first
+    TechTableMailer.offboard_status(emp)
   end
 end

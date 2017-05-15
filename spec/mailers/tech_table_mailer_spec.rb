@@ -36,8 +36,8 @@ RSpec.describe TechTableMailer, type: :mailer do
   end
 
   context "offboard notice" do
-    let(:emp) { FactoryGirl.create(:employee, termination_date: 2.weeks.from_now, manager_id: "123456")}
-    let!(:mgr) { FactoryGirl.create(:employee, employee_id: "123456")}
+    let(:mgr) { FactoryGirl.create(:employee, employee_id: "123456")}
+    let(:emp) { FactoryGirl.create(:employee, termination_date: 2.weeks.from_now, manager_id: mgr.employee_id)}
     let!(:email) { TechTableMailer.offboard_notice(emp).deliver_now }
 
     it "should queue to send" do
@@ -53,7 +53,8 @@ RSpec.describe TechTableMailer, type: :mailer do
   end
 
   context "offboard status" do
-    let!(:employee) { FactoryGirl.create(:employee, termination_date: Date.new(2017, 6, 1), manager_id: "123456") }
+    let(:manager) { FactoryGirl.create(:employee) }
+    let(:employee) { FactoryGirl.create(:employee, termination_date: Date.new(2017, 6, 1), manager_id: manager.employee_id) }
     let!(:email) { TechTableMailer.offboard_status(employee).deliver_now }
 
     Timecop.freeze(Time.new(2017, 6, 01, 15, 30, 0, "+00:00"))
