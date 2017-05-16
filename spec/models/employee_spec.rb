@@ -173,25 +173,11 @@ describe Employee, type: :model do
       non_offboarding_group = [
         FactoryGirl.create(:employee, :termination_date => Date.today + 1.day),
         FactoryGirl.create(:employee, :termination_date => Date.today + 5.days),
-        FactoryGirl.create(:employee, :termination_date => Date.today + 1.week)
+        FactoryGirl.create(:employee, :termination_date => Date.today + 1.week),
+        FactoryGirl.create(:employee, :termination_date => Date.today - 3.weeks)
       ]
 
-      sec_prof = FactoryGirl.create(:security_profile)
-
-      offboarding_group.each do |emp|
-        emp_trans = FactoryGirl.create(:emp_transaction, :kind => "Offboarding")
-        offboarding = FactoryGirl.create(:offboarding_info, emp_transaction_id: emp_trans.id, employee_id: emp.id)
-      end
-
-      non_offboarding_group.each do |emp|
-        emp_trans = FactoryGirl.create(:emp_transaction, :kind => "Offboarding")
-        offboarding = FactoryGirl.create(:offboarding_info, emp_transaction_id: emp_trans.id, employee_id: emp.id)
-      end
-
-      emp_trans_0 = FactoryGirl.create(:emp_transaction, :kind => "Onboarding")
-      emp_trans_1 = FactoryGirl.create(:emp_transaction, :kind => "Offboarding", :created_at => 1.day.ago)
-
-      expect(Employee.offboard_group).to match_array(offboarding_group)
+      expect(Employee.offboarding_report_group).to match_array(offboarding_group)
       expect(Employee.offboarding_report_group).to_not include(non_offboarding_group)
     end
 

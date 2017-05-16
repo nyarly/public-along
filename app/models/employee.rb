@@ -91,11 +91,6 @@ class Employee < ActiveRecord::Base
     where('employees.termination_date BETWEEN ? AND ?', Date.today - 2.weeks, Date.today).uniq
   end
 
-  def self.offboard_group
-    joins(:offboarding_infos)
-    .where('employees.termination_date BETWEEN ? AND ?', Date.today - 1.week, Date.today).uniq
-  end
-
   def onboarding_complete?
     self.onboarding_infos.count > 0
   end
