@@ -14,17 +14,18 @@ class GoogleAppsService
 
 
   def initialize
+    Google::Apis::RequestOptions.default.authorization = authorize
+    Google::Apis::RequestOptions.default.retries = 5
+
     @data_transfer_service ||= begin
       service = Google::Apis::AdminDatatransferV1::DataTransferService.new
       service.client_options.application_name = APPLICATION_NAME
-      service.authorization = authorize
       service
     end
 
     @directory_service ||= begin
       service = Google::Apis::AdminDirectoryV1::DirectoryService.new
       service.client_options.application_name = APPLICATION_NAME
-      service.authorization = authorize
       service
     end
 
@@ -32,14 +33,10 @@ class GoogleAppsService
   end
 
   def transfer_data(employee)
-    transfer_status = []
+    transfers = []
     transfer_to_employee = Employee.transfer_google_docs_id(employee)
 
-    employee_user_id = @directory_service.get_user(employee.email).id
-    transfer_to_user_id = @directory_service.get_user(transfer_to_employee.email).id
-
-    # List the first 10 applications available for transfer.
-    app_list = @data_transfer_service.list_applications(max_results: 10)
+    app_list = get_app_list
 
     if app_list && app_list.applications.present?
       app_list.applications.each do |application|
@@ -49,22 +46,31 @@ class GoogleAppsService
             application_transfer_params: application.transfer_params)
 
           dto = Google::Apis::AdminDatatransferV1::DataTransfer.new(
-            old_owner_user_id: employee_user_id,
-            new_owner_user_id: transfer_to_user_id,
+            old_owner_user_id: google_user(employee.email).id,
+            new_owner_user_id: google_user(transfer_to_employee.email).id,
             application_data_transfers: [app_data])
 
-          transfer = @data_transfer_service.insert_transfer(dto)
-          transfer_status << confirm_transfer(transfer.id)
+          transfer_response = @data_transfer_service.insert_transfer(dto)
+          transfers << transfer_response.data_transfer
         end
       end
     end
 
-    transfer_status
+    transfers
   end
 
   def confirm_transfer(transfer_id)
     response = @data_transfer_service.get_transfer(transfer_id)
     return response.overall_transfer_status_code
+  end
+
+  def google_user(employee)
+    @directory_service.get_user(employee.email)
+  end
+
+  def get_app_list
+    # List the first 10 applications available for transfer.
+    @data_transfer_service.list_applications(max_results: 10)
   end
 
   private

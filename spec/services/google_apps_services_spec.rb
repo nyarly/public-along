@@ -56,16 +56,18 @@ describe GoogleAppsService, type: :service do
     it "should get a success response from the google api" do
       allow(directory_service).to receive_message_chain(:get_user, :id).and_return({"id": "1111"})
       transfers = google_app_service.transfer_data(employee)
+      expect(@employee.email).to eq("okay")
       expect(transfers[0]).to eq("completed")
     end
   end
 
 
   context "fails to transfer google app data" do
-    it "should get a fail response from the google api" do
-    end
+    let!(:manager) { FactoryGirl.create(:employee, email: "123@example.com") }
+    let!(:employee) { FactoryGirl.create(:employee, manager_id: manager.employee_id, email: "456@example.com") }
 
-    it "should update the app transaction to 'failed'" do
+    it "should get a fail response from the google api" do
+
     end
   end
 end
