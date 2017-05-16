@@ -3,6 +3,7 @@ namespace :employee do
   task :change_status => :environment do
     activations = []
     deactivations = []
+    offboards = []
     full_terminations = []
 
     Employee.activation_group.each do |e|
@@ -22,6 +23,7 @@ namespace :employee do
         deactivations << e
       elsif e.termination_date && in_time_window?(e.termination_date, 21, e.nearest_time_zone)
         deactivations << e
+        offboards << e
       end
     end
 
@@ -30,6 +32,8 @@ namespace :employee do
         full_terminations << e
       end
     end
+
+    OffboardingService.new(offboards)
 
     ads = ActiveDirectoryService.new
     ads.activate(activations)

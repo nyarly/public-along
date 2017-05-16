@@ -1,0 +1,40 @@
+<div style="font-family: helvetica;">
+  <h1>Mezzo Automatic Offboarding Status</h1>
+
+  <p>
+    <strong>Termination Date:</strong>
+    <%= @employee.termination_date.strftime("%b %e, %Y") %>
+  </p>
+
+  <p>
+    <strong>Name:</strong>
+    <%= @employee.cn %>
+  </p>
+
+  <p>
+    <strong>Email:</strong>
+    <%= @employee.email %>
+  </p>
+
+  <p>
+    <strong>EmployeeID:</strong>
+    <%= @employee.employee_id %>
+  </p>
+
+  <p>
+    <strong>Automatic Account Offboarding Status:</strong>
+  </p>
+  <div style="margin-left: 2em">
+    <% @employee.emp_access_levels.each do |al| %>
+      <% @access_level = AccessLevel.find(al.access_level_id) %>
+      <p style="margin-left: 2em">
+        <% if al.active %>
+          <span style="color: red">Active </span>
+        <% else %>
+          <span style="color: limegreen">Deactivated </span>
+        <% end %>
+        <%= @access_level.name %> <%= Application.find(@access_level.application_id).name %>
+      </p>
+    <% end %>
+  </div>
+</div>

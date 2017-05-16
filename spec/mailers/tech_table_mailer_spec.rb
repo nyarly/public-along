@@ -36,8 +36,8 @@ RSpec.describe TechTableMailer, type: :mailer do
   end
 
   context "offboard notice" do
-    let(:emp) { FactoryGirl.create(:employee, termination_date: 2.weeks.from_now, manager_id: "123456")}
-    let!(:mgr) { FactoryGirl.create(:employee, employee_id: "123456")}
+    let(:mgr) { FactoryGirl.create(:employee, employee_id: "123456")}
+    let(:emp) { FactoryGirl.create(:employee, termination_date: 2.weeks.from_now, manager_id: mgr.employee_id)}
     let!(:email) { TechTableMailer.offboard_notice(emp).deliver_now }
 
     it "should queue to send" do
@@ -49,6 +49,25 @@ RSpec.describe TechTableMailer, type: :mailer do
       expect(email.to).to include("techtable@opentable.com")
       expect(email.subject).to eq("Mezzo Offboarding notice for #{emp.first_name} #{emp.last_name}")
       expect(email.parts.first.body.raw_source).to include("Upcoming Offboard Notice")
+    end
+  end
+
+  context "offboard status" do
+    let(:manager) { FactoryGirl.create(:employee) }
+    let(:employee) { FactoryGirl.create(:employee, termination_date: Date.new(2017, 6, 1), manager_id: manager.employee_id) }
+    let!(:email) { TechTableMailer.offboard_status(employee).deliver_now }
+
+    Timecop.freeze(Time.new(2017, 6, 01, 15, 30, 0, "+00:00"))
+
+    it "should queue to send" do
+      expect(ActionMailer::Base.deliveries).to_not be_empty
+    end
+
+    it "should have the right content" do
+      expect(email.from).to eq(["no-reply@opentable.com"])
+      expect(email.to).to include("techtable@opentable.com")
+      expect(email.subject).to eq("Mezzo Automated Offboarding Status for #{employee.first_name} #{employee.last_name}")
+      expect(email.parts.first.body.raw_source).to include("Mezzo Automatic Offboarding Status")
     end
   end
 end
