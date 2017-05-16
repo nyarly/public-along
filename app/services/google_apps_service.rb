@@ -32,8 +32,8 @@ class GoogleAppsService
   end
 
   def transfer_data(employee)
+    transfer_status = []
     transfer_to_employee = Employee.transfer_google_docs_id(employee)
-    puts Employee.transfer_google_docs_id(employee)
 
     employee_user_id = @directory_service.get_user(employee.email).id
     transfer_to_user_id = @directory_service.get_user(transfer_to_employee.email).id
@@ -41,20 +41,30 @@ class GoogleAppsService
     # List the first 10 applications available for transfer.
     app_list = @data_transfer_service.list_applications(max_results: 10)
 
-    app_list.applications.each do |application|
-      if application.name == "Drive and Docs"
-        app_data = Google::Apis::AdminDatatransferV1::ApplicationDataTransfer.new(
-          application_id: application.id,
-          application_transfer_params: application.transfer_params)
+    if app_list && app_list.applications.present?
+      app_list.applications.each do |application|
+        if application.name == "Drive and Docs"
+          app_data = Google::Apis::AdminDatatransferV1::ApplicationDataTransfer.new(
+            application_id: application.id,
+            application_transfer_params: application.transfer_params)
 
-        dto = Google::Apis::AdminDatatransferV1::DataTransfer.new(
-          old_owner_user_id: employee_user_id,
-          new_owner_user_id: transfer_to_user_id,
-          application_data_transfers: [app_data])
+          dto = Google::Apis::AdminDatatransferV1::DataTransfer.new(
+            old_owner_user_id: employee_user_id,
+            new_owner_user_id: transfer_to_user_id,
+            application_data_transfers: [app_data])
 
-        @data_transfer_service.insert_transfer(dto)
+          transfer = @data_transfer_service.insert_transfer(dto)
+          transfer_status << confirm_transfer(transfer.id)
+        end
       end
     end
+
+    transfer_status
+  end
+
+  def confirm_transfer(transfer_id)
+    response = @data_transfer_service.get_transfer(transfer_id)
+    return response.overall_transfer_status_code
   end
 
   private
