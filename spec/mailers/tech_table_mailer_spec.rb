@@ -57,8 +57,6 @@ RSpec.describe TechTableMailer, type: :mailer do
     let(:employee) { FactoryGirl.create(:employee, termination_date: Date.new(2017, 6, 1), manager_id: manager.employee_id) }
     let!(:email) { TechTableMailer.offboard_status(employee).deliver_now }
 
-    Timecop.freeze(Time.new(2017, 6, 01, 15, 30, 0, "+00:00"))
-
     it "should queue to send" do
       expect(ActionMailer::Base.deliveries).to_not be_empty
     end
