@@ -435,7 +435,7 @@ describe AdpService::Workers, type: :service do
 
     context "new hire's manager is new manager" do
 
-      check_date = Date.today + 1.year
+      check_date = 1.year.from_now.change(:usec => 0)
 
       let!(:new_manager) { FactoryGirl.create(:employee, employee_id: "100345") }
       let!(:basic_manager_sec_prof) { FactoryGirl.create(:security_profile, name: "Basic Manager") }
