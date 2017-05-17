@@ -19,7 +19,7 @@ class OffboardingService
     employee.emp_access_levels.each do |emp_access_level|
 
       if emp_access_level.active
-        application = Application.find(emp_access_level.access_level.application_id)
+        application = emp_access_level.access_level.application
 
         # this doesn't do anything now
         # once the services are complete, it should change the
@@ -29,7 +29,7 @@ class OffboardingService
           # call google app service with info
         elsif application.name == "Office 365"
           # call office 365 service with info
-        elsif application.name.include? == "CHARM"
+        elsif application.name.include? "CHARM"
           # call charm service
         elsif application.name == "ROMS"
           # call ROMS service
