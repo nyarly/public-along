@@ -65,7 +65,7 @@ class Employee < ActiveRecord::Base
   end
 
   def self.full_termination_group
-    where('termination_date BETWEEN ? AND ?', 31.days.ago, 30.days.ago)
+    where('termination_date BETWEEN ? AND ?', 8.days.ago, 7.days.ago)
   end
 
   def is_contingent_worker?
@@ -90,23 +90,7 @@ class Employee < ActiveRecord::Base
   end
 
   def self.offboarding_report_group
-    offboard_group + late_offboard_group + incomplete_offboard_group
-  end
-
-  def self.offboard_group
-    joins(:offboarding_infos)
-    .where('employees.termination_date BETWEEN ? AND ?', Date.today - 1.week, Date.today).uniq
-  end
-
-  def self.late_offboard_group
-    joins(:offboarding_infos)
-    .where('offboarding_infos.created_at >= ? AND employees.termination_date < ?', Date.today - 2.days, Date.today - 1.week).uniq
-  end
-
-  def self.incomplete_offboard_group
-    where.not(:id => OffboardingInfo
-      .select(:employee_id).uniq)
-    .where('termination_date IS NOT NULL')
+    where('employees.termination_date BETWEEN ? AND ?', Date.today - 2.weeks, Date.today)
   end
 
   def onboarding_complete?

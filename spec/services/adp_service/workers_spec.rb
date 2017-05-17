@@ -432,5 +432,39 @@ describe AdpService::Workers, type: :service do
         expect(new_hire.status).to eq("Pending")
       end
     end
+
+    context "new hire's manager is new manager" do
+
+      check_date = 1.year.from_now.change(:usec => 0)
+
+      let!(:new_manager) { FactoryGirl.create(:employee, employee_id: "100345") }
+      let!(:basic_manager_sec_prof) { FactoryGirl.create(:security_profile, name: "Basic Manager") }
+      let!(:new_hire) { FactoryGirl.create(:employee,
+        adp_assoc_oid: "TESTOID",
+        employee_id: "123456",
+        status: "Pending",
+        manager_id: new_manager.employee_id,
+        hire_date: Date.today + 4.days
+      )}
+
+      before :each do
+        expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers/TESTOID?asOfDate=#{check_date.strftime('%m')}%2F#{check_date.strftime('%d')}%2F#{check_date.strftime('%Y')}").and_return(uri)
+        expect(response).to receive(:body).and_return(pending_hire_json)
+        allow(http).to receive(:get).with(
+          request_uri,
+          { "Accept"=>"application/json",
+            "Authorization"=>"Bearer a-token-value",
+          }).and_return(response)
+      end
+
+      it "should update the new hire's manager with the correct security profile" do
+        adp = AdpService::Workers.new
+        adp.token = "a-token-value"
+        adp.check_new_hire_changes
+
+        expect(new_hire.manager_id).to eq(new_manager.employee_id)
+        expect(new_manager.active_security_profiles).to include(basic_manager_sec_prof)
+      end
+    end
   end
 end

@@ -28,7 +28,7 @@ namespace :employee do
     end
 
     Employee.full_termination_group.each do |e|
-      if in_time_window?(e.termination_date + 30.days, 3, e.nearest_time_zone)
+      if in_time_window?(e.termination_date + 7.days, 3, e.nearest_time_zone)
         full_terminations << e
       end
     end
