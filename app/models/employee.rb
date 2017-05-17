@@ -90,7 +90,7 @@ class Employee < ActiveRecord::Base
   end
 
   def self.offboarding_report_group
-    where('employees.termination_date BETWEEN ? AND ?', Date.today - 2.weeks, Date.today).uniq
+    where('employees.termination_date BETWEEN ? AND ?', Date.today - 2.weeks, Date.today)
   end
 
   def onboarding_complete?
