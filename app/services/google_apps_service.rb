@@ -51,7 +51,7 @@ class GoogleAppsService
             application_data_transfers: [app_data])
 
           transfer_response = @data_transfer_service.insert_transfer(dto)
-          transfers << transfer_response.data_transfer
+          transfers << transfer_response
         end
       end
     end
@@ -60,12 +60,11 @@ class GoogleAppsService
   end
 
   def confirm_transfer(transfer_id)
-    response = @data_transfer_service.get_transfer(transfer_id)
-    return response.overall_transfer_status_code
+    @data_transfer_service.get_transfer(transfer_id)
   end
 
-  def google_user(employee)
-    @directory_service.get_user(employee.email)
+  def google_user(employee_email)
+    @directory_service.get_user(employee_email)
   end
 
   def get_app_list

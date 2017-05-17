@@ -3,6 +3,7 @@ require 'rails_helper'
 describe GoogleAppsService, type: :service do
   let(:data_transfer_service) { double(Google::Apis::AdminDatatransferV1::DataTransferService) }
   let(:directory_service) { double(Google::Apis::AdminDirectoryV1::DirectoryService) }
+  let(:data_transfer) { double(Google::Apis::AdminDatatransferV1::DataTransfer) }
   let(:google_app_service) { GoogleAppsService.new }
 
   def mock_application
@@ -21,17 +22,10 @@ describe GoogleAppsService, type: :service do
   end
 
   def mock_transfer_pending
-    transfer = Google::Apis::AdminDatatransferV1::DataTransfer.new
     app_transfer = Google::Apis::AdminDatatransferV1::ApplicationDataTransfer.new
     app_transfer.application_transfer_status = "pending"
-    transfer.application_data_transfers = [app_transfer]
-    return transfer
-  end
-
-  def mock_transfer_completed
-    transfer = Google::Apis::AdminDatatransferV1::DataTransfer.new
-    transfer.overall_transfer_status_code = "completed"
-    return transfer
+    data_transfer.application_data_transfers = [app_transfer]
+    return data_transfer
   end
 
   before :each do
@@ -40,8 +34,7 @@ describe GoogleAppsService, type: :service do
     allow(data_transfer_service).to receive(:application_name)
     allow(data_transfer_service).to receive(:authorization=)
     allow(data_transfer_service).to receive(:list_applications).and_return(mock_application)
-    allow(data_transfer_service).to receive(:insert_transfer).and_return(mock_transfer_pending)
-    allow(data_transfer_service).to receive(:get_transfer).and_return(mock_transfer_completed)
+
 
     allow(Google::Apis::AdminDirectoryV1::DirectoryService).to receive(:new).and_return(directory_service)
     allow(directory_service).to receive_message_chain(:client_options, :application_name=)
@@ -50,24 +43,16 @@ describe GoogleAppsService, type: :service do
   end
 
   context "successfully transfers data" do
-    let!(:manager) { FactoryGirl.create(:employee, email: "123@example.com") }
-    let!(:employee) { FactoryGirl.create(:employee, manager_id: manager.employee_id, email: "456@example.com") }
+    let(:manager) { FactoryGirl.create(:employee, email: "123@example.com") }
+    let(:employee) { FactoryGirl.create(:employee, manager_id: manager.employee_id, email: "456@example.com") }
 
-    it "should get a success response from the google api" do
+    it "should respond with an array of data transfers" do
       allow(directory_service).to receive_message_chain(:get_user, :id).and_return({"id": "1111"})
+      allow(data_transfer).to receive(:application_data_transfers=)
+      allow(data_transfer_service).to receive(:insert_transfer).and_return(mock_transfer_pending)
+
       transfers = google_app_service.transfer_data(employee)
-      expect(@employee.email).to eq("okay")
-      expect(transfers[0]).to eq("completed")
-    end
-  end
-
-
-  context "fails to transfer google app data" do
-    let!(:manager) { FactoryGirl.create(:employee, email: "123@example.com") }
-    let!(:employee) { FactoryGirl.create(:employee, manager_id: manager.employee_id, email: "456@example.com") }
-
-    it "should get a fail response from the google api" do
-
+      expect(transfers[0]).to eq(mock_transfer_pending)
     end
   end
 end
