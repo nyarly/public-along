@@ -8,8 +8,8 @@ class GoogleAppsService
 
   OOB_URI = 'urn:ietf:wg:oauth:2.0:oob'
   APPLICATION_NAME = 'Mezzo'
-  CLIENT_SECRETS_PATH = 'client_secret.json'
-  CREDENTIALS_PATH = File.join(Dir.home, '.credentials', "admin-datatransfer.yaml")
+  CLIENT_SECRETS_PATH = 'config/client_secrets.json'
+  # CREDENTIALS_PATH = File.read(SECRETS.google_cred_path)
   SCOPE = [ Google::Apis::AdminDatatransferV1::AUTH_ADMIN_DATATRANSFER, Google::Apis::AdminDirectoryV1::AUTH_ADMIN_DIRECTORY_USER ]
 
 
@@ -75,13 +75,12 @@ class GoogleAppsService
   private
 
   def authorize
-    FileUtils.mkdir_p(File.dirname(CREDENTIALS_PATH))
+    FileUtils.mkdir_p(File.dirname(SECRETS.google_cred_path))
 
-    client_id = Google::Auth::ClientId.from_file(CLIENT_SECRETS_PATH)
-    token_store = Google::Auth::Stores::FileTokenStore.new(file: CREDENTIALS_PATH)
+    client_id = Google::Auth::ClientId.new(SECRETS.google_client_id, SECRETS.google_client_secret)
+    token_store = Google::Auth::Stores::FileTokenStore.new(file: SECRETS.google_cred_path)
     authorizer = Google::Auth::UserAuthorizer.new(client_id, SCOPE, token_store)
-    user_id = 'default'
-    credentials = authorizer.get_credentials(user_id)
+    credentials = authorizer.get_credentials(SECRETS.google_user_id)
 
     # If authorization expires, run Google Apps Service from the command line
     # The terminal will print a url, which an admin must visit in the browser
@@ -94,7 +93,7 @@ class GoogleAppsService
       puts url
       code = gets
       credentials = authorizer.get_and_store_credentials_from_code(
-        user_id: user_id, code: code, base_url: OOB_URI)
+        user_id: SECRETS.google_user_id, code: code, base_url: OOB_URI)
     end
     credentials
   end
