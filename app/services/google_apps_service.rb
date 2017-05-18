@@ -8,10 +8,8 @@ class GoogleAppsService
 
   OOB_URI = 'urn:ietf:wg:oauth:2.0:oob'
   APPLICATION_NAME = 'Mezzo'
-  CLIENT_SECRETS_PATH = 'config/client_secrets.json'
-  # CREDENTIALS_PATH = File.read(SECRETS.google_cred_path)
-  SCOPE = [ Google::Apis::AdminDatatransferV1::AUTH_ADMIN_DATATRANSFER, Google::Apis::AdminDirectoryV1::AUTH_ADMIN_DIRECTORY_USER ]
-
+  SCOPE = [ Google::Apis::AdminDatatransferV1::AUTH_ADMIN_DATATRANSFER,
+            Google::Apis::AdminDirectoryV1::AUTH_ADMIN_DIRECTORY_USER ]
 
   def initialize
     Google::Apis::RequestOptions.default.authorization = authorize
