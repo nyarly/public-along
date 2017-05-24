@@ -84,7 +84,8 @@ module SummaryReportHelper
       attrs = [
         "Name",
         "Prior Values",
-        "Current Values"
+        "Current Values",
+        "Changed At"
       ]
       CSV.generate(headers: true) do |csv|
         csv << attrs
@@ -93,7 +94,8 @@ module SummaryReportHelper
           csv << [
             delta.employee.cn,
             delta.format(delta.before),
-            delta.format(delta.after)
+            delta.format(delta.after),
+            delta.created_at.strftime("%b %e, %Y at %H:%M:%S")
           ]
         end
       end
