@@ -86,6 +86,8 @@ module AdpService
 
           if w_hash.present?
             e.assign_attributes(w_hash.except(:status))
+            delta = build_emp_delta(e)
+            delta.save if delta.present?
           else
             TechTableMailer.alert_email("Cannot get updated ADP info for new contract hire #{e.cn}, employee id: #{e.employee_id}.\nPlease contact the developer to help diagnose the problem.").deliver_now
           end

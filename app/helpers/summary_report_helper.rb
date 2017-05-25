@@ -17,7 +17,8 @@ module SummaryReportHelper
         "Buddy Name",
         "Buddy Email",
         "Start Date",
-        "Contract End Date"
+        "Contract End Date",
+        "Employee Info Last Modified"
       ]
       CSV.generate(headers: true) do |csv|
         csv << attrs
@@ -38,6 +39,7 @@ module SummaryReportHelper
             buddy(employee).try(:email),
             employee.hire_date.strftime("%b %e, %Y"),
             employee.contract_end_date.try(:strftime, "%b %e, %Y"),
+            last_changed(employee).try(:strftime, "%b %e, %Y at %H:%M:%S")
           ]
         end
       end
@@ -56,7 +58,8 @@ module SummaryReportHelper
         "Transfer SalesForces Cases to",
         "Start Date",
         "Termination Date",
-        "Offboarding Form Submitted"
+        "Offboarding Form Submitted",
+        "Employee Info Last Modified"
       ]
       CSV.generate(headers: true) do |csv|
         csv << attrs
@@ -75,6 +78,7 @@ module SummaryReportHelper
             employee.hire_date.strftime("%b %e, %Y"),
             employee.termination_date.strftime("%b %e, %Y"),
             employee.offboarding_complete?,
+            last_changed(employee).try(:strftime, "%b %e, %Y at %H:%M:%S")
           ]
         end
       end
@@ -98,6 +102,39 @@ module SummaryReportHelper
             delta.created_at.strftime("%b %e, %Y at %H:%M:%S")
           ]
         end
+      end
+    end
+
+    def last_changed(employee)
+
+      # looking for last meaningful change to employee record,
+      # which may include changes to offboarding or onboarding info.
+      # this function will return the most recent change.
+      # if for some reason there are no changes to the record, it will return the created_at date
+      # this is a workaround as the sync updates the record every hour.
+
+      changed = []
+
+      deltas = EmpDelta.where("employee_id = ? AND before != '' AND after != ''", employee.id)
+      onboards = OnboardingInfo.where(employee_id: employee.id)
+      offboards = OffboardingInfo.where(employee_id: employee.id)
+
+      if deltas.present?
+        changed << deltas.order('created_at ASC').last.created_at
+      end
+
+      if onboards.present?
+        changed << onboards.order('created_at ASC').last.created_at
+      end
+
+      if offboards.present?
+        changed << offboards.order('created_at ASC').last.created_at
+      end
+
+      if changed.present?
+        changed.sort.last
+      else
+        employee.created_at
       end
     end
 
