@@ -350,10 +350,14 @@ describe AdpService::Workers, type: :service do
 
         new_hire.reload
 
+        emp_delta = EmpDelta.where(employee_id: new_hire.id).last
+
         expect(new_hire.status).to eq("Pending")
         expect(new_hire.first_name).to eq("Bob")
         expect(new_hire.last_name).to eq("Seger")
         expect(new_hire.hire_date).to eq(DateTime.new(2018, 7, 12))
+        expect(emp_delta.before['first_name']).to eq("Robert")
+        expect(emp_delta.after['first_name']).to eq("Bob")
       end
     end
 
