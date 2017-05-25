@@ -114,9 +114,11 @@ module AdpService
         json = get_worker_json(e, as_of_date)
 
         block.call(e, json, as_of_date)
+        delta = build_emp_delta(e)
 
         if e.changed? && e.save
           Employee.check_manager(e.manager_id)
+          delta.save if delta.present?
           update_emps << e
         end
       end

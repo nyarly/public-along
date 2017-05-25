@@ -28,6 +28,32 @@ describe SummaryReportHelper, type: :helper do
 
       expect(helper.buddy(emp_group[0])).to eq(buddy)
     end
+
+    it "should get the last changed date from the employee delta" do
+      employee = FactoryGirl.create(:employee, created_at: 2.days.ago)
+      emp_delta = FactoryGirl.create(:emp_delta, employee_id: employee.id, before: {thing: "thing"}, after: {nothing: "nothing"}, created_at: 1.day.ago)
+
+      expect(helper.last_changed(employee)).to eq(emp_delta.created_at)
+    end
+
+    it "should get the last changed date from the onboarding info" do
+      employee = FactoryGirl.create(:employee, created_at: 5.days.ago)
+      emp_delta = FactoryGirl.create(:emp_delta, employee_id: employee.id, before: {thing: "thing"}, after: {nothing: "nothing"}, created_at: 4.days.ago)
+
+      old_emp_trans = FactoryGirl.create(:emp_transaction, kind: "Onboarding", created_at: 3.days.ago)
+      old_onboarding = FactoryGirl.create(:onboarding_info, emp_transaction_id: old_emp_trans.id, created_at: 3.days.ago, employee_id: employee.id)
+
+      new_emp_trans = FactoryGirl.create(:emp_transaction, kind: "Onboarding", created_at: 1.day.ago)
+      new_onboarding = FactoryGirl.create(:onboarding_info, emp_transaction_id: new_emp_trans.id, created_at: 1.day.ago, employee_id: employee.id)
+
+      expect(helper.last_changed(employee)).to eq(new_onboarding.created_at)
+    end
+
+    it "should use the employee created date if there are no other changes" do
+      employee = FactoryGirl.create(:employee, created_at: 5.days.ago)
+
+      expect(helper.last_changed(employee)).to eq(employee.created_at)
+    end
   end
 
   context "offboarding" do
