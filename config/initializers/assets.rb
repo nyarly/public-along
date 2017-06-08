@@ -9,3 +9,6 @@ Rails.application.config.assets.version = '1.0'
 # Precompile additional assets.
 # application.js, application.css, and all non-JS/CSS in app/assets folder are already added.
 # Rails.application.config.assets.precompile += %w( search.js )
+
+# set preview interceptor to show images in preview mode
+ActionMailer::Base.register_preview_interceptor(ActionMailer::InlinePreviewInterceptor)
