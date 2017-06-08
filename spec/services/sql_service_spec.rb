@@ -4,7 +4,7 @@ extend RSpec::Matchers
 describe SqlService, type: :service do
   let(:tiny_tds) { double(TinyTds::Client) }
   let(:sql_service) { SqlService.new }
-  let(:employee) { FactoryGirl.create(:employee, termination_date: Date.today, email: 'bob@ottest.com') }
+  let(:employee) { FactoryGirl.create(:employee, termination_date: Date.today, sam_account_name: 'm_bmarley', email: 'bmarley@ottest.com') }
   let(:pool) { double(ConnectionPool) }
 
   before :each do
@@ -43,10 +43,10 @@ describe SqlService, type: :service do
     end
 
     it "should deactivate and log charm with correct information on all three databases" do
-      charm_str = "EXEC dbo.User_ActivationByDomainLogin @DomainLogin = 'opentable.com\\bob', @Activate = 0"
-      na_log_str = "EXEC dbo.Log_LogServiceAction @UserAccount = 'opentable.com\\bob', @UserActivated = 0, @ProcExecuted = 'dbo.User_ActivationByDomainLogin', @Server = 'Admin', @Status = 0"
-      eu_log_str = "EXEC dbo.Log_LogServiceAction @UserAccount = 'opentable.com\\bob', @UserActivated = 0, @ProcExecuted = 'dbo.User_ActivationByDomainLogin', @Server = 'Admin_EU', @Status = 0"
-      asia_log_str = "EXEC dbo.Log_LogServiceAction @UserAccount = 'opentable.com\\bob', @UserActivated = 0, @ProcExecuted = 'dbo.User_ActivationByDomainLogin', @Server = 'Admin_Asia', @Status = 0"
+      charm_str = "EXEC dbo.User_ActivationByDomainLogin @DomainLogin = 'opentable.com\\m_bmarley', @Activate = 0"
+      na_log_str = "EXEC dbo.Log_LogServiceAction @UserAccount = 'opentable.com\\m_bmarley', @UserActivated = 0, @ProcExecuted = 'dbo.User_ActivationByDomainLogin', @Server = 'Admin', @Status = 0"
+      eu_log_str = "EXEC dbo.Log_LogServiceAction @UserAccount = 'opentable.com\\m_bmarley', @UserActivated = 0, @ProcExecuted = 'dbo.User_ActivationByDomainLogin', @Server = 'Admin_EU', @Status = 0"
+      asia_log_str = "EXEC dbo.Log_LogServiceAction @UserAccount = 'opentable.com\\m_bmarley', @UserActivated = 0, @ProcExecuted = 'dbo.User_ActivationByDomainLogin', @Server = 'Admin_Asia', @Status = 0"
 
       expect(sql_service).to receive(:deactivate).with(tiny_tds, charm_str, na_log_str)
       expect(sql_service).to receive(:deactivate).with(tiny_tds, charm_str, eu_log_str)
@@ -56,10 +56,10 @@ describe SqlService, type: :service do
     end
 
     it "should deactivate and log charm with correct information on all three databases" do
-      charm_str = "EXEC dbo.User_Activation @Email = 'bob@ottest.com', @Activate = 0"
-      na_log_str = "EXEC dbo.Log_LogServiceAction @UserAccount = 'bob@ottest.com', @UserActivated = 0, @ProcExecuted = 'dbo.User_Activation', @Server = 'OTAnywhere', @Status = 0"
-      eu_log_str = "EXEC dbo.Log_LogServiceAction @UserAccount = 'bob@ottest.com', @UserActivated = 0, @ProcExecuted = 'dbo.User_Activation', @Server = 'OTAnywhere_EU', @Status = 0"
-      asia_log_str = "EXEC dbo.Log_LogServiceAction @UserAccount = 'bob@ottest.com', @UserActivated = 0, @ProcExecuted = 'dbo.User_Activation', @Server = 'OTAnywhere_Asia', @Status = 0"
+      charm_str = "EXEC dbo.User_Activation @Email = 'bmarley@ottest.com', @Activate = 0"
+      na_log_str = "EXEC dbo.Log_LogServiceAction @UserAccount = 'bmarley@ottest.com', @UserActivated = 0, @ProcExecuted = 'dbo.User_Activation', @Server = 'OTAnywhere', @Status = 0"
+      eu_log_str = "EXEC dbo.Log_LogServiceAction @UserAccount = 'bmarley@ottest.com', @UserActivated = 0, @ProcExecuted = 'dbo.User_Activation', @Server = 'OTAnywhere_EU', @Status = 0"
+      asia_log_str = "EXEC dbo.Log_LogServiceAction @UserAccount = 'bmarley@ottest.com', @UserActivated = 0, @ProcExecuted = 'dbo.User_Activation', @Server = 'OTAnywhere_Asia', @Status = 0"
 
       expect(sql_service).to receive(:deactivate).with(tiny_tds, charm_str, na_log_str)
       expect(sql_service).to receive(:deactivate).with(tiny_tds, charm_str, eu_log_str)
@@ -69,8 +69,8 @@ describe SqlService, type: :service do
     end
 
     it "should deactivate and log roms with correct information" do
-      roms_str = "EXEC dbo.ROMS_EmployeeActivation @EmployeeLoginID = 'opentable.com\\bob', @Activate = 0"
-      log_str =  "EXEC dbo.Log_LogServiceAction @UserAccount = 'opentable.com\\bob', @UserActivated = 0, @ProcExecuted = 'dbo.ROMS_EmployeeActivation', @Server = 'GOD', @Status = 0"
+      roms_str = "EXEC dbo.ROMS_EmployeeActivation @EmployeeLoginID = 'opentable.com\\m_bmarley', @Activate = 0"
+      log_str =  "EXEC dbo.Log_LogServiceAction @UserAccount = 'opentable.com\\m_bmarley', @UserActivated = 0, @ProcExecuted = 'dbo.ROMS_EmployeeActivation', @Server = 'GOD', @Status = 0"
 
       expect(sql_service).to receive(:deactivate).with(tiny_tds, roms_str, log_str)
       sql_service.deactivate_roms(employee)

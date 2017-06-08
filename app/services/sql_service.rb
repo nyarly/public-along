@@ -22,7 +22,7 @@ class SqlService
     databases = [{ database: "Admin", host: SECRETS.sql_na_host },
                  { database: "Admin_EU", host: SECRETS.sql_eu_host },
                  { database: "Admin_Asia", host: SECRETS.sql_asia_host }]
-    user_account = "opentable.com\\" + employee.email[/[^@]+/]
+    user_account = "opentable.com\\" + employee.sam_account_name
     proc_name = "dbo.User_ActivationByDomainLogin"
     proc_str = "EXEC #{proc_name} @DomainLogin = '#{user_account}', @Activate = 0"
 
@@ -52,7 +52,7 @@ class SqlService
   end
 
   def deactivate_roms(employee)
-    user_account = "opentable.com\\" + employee.email[/[^@]+/]
+    user_account = "opentable.com\\" + employee.sam_account_name
     proc_name = "dbo.ROMS_EmployeeActivation"
     proc_str = "EXEC #{proc_name} @EmployeeLoginID = '#{user_account}', @Activate = 0"
     log_str = "EXEC dbo.Log_LogServiceAction @UserAccount = '#{user_account}', @UserActivated = 0, @ProcExecuted = '#{proc_name}', @Server = 'GOD', @Status = 0"
