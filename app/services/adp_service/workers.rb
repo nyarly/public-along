@@ -147,8 +147,12 @@ module AdpService
     end
 
     def send_email?(employee)
-      if employee.changed? && employee.valid?
-        if employee.department_id_changed? || employee.location_id_changed? || employee.worker_type_id_changed? || employee.job_title_id_changed?
+      has_changed = employee.changed? && employee.valid?
+      is_triggering_change = employee.department_id_changed? || employee.location_id_changed? || employee.worker_type_id_changed? || employee.job_title_id_changed?
+
+      if has_changed && is_triggering_change
+        last_emailed_on = employee.emp_deltas.important_changes.last.created_at
+        if last_emailed_on <= 1.day.ago
           true
         end
       end
