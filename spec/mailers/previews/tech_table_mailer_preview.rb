@@ -43,4 +43,9 @@ class TechTableMailerPreview < ActionMailer::Preview
     emp = Employee.where('termination_date IS NOT NULL').first
     TechTableMailer.offboard_status(emp)
   end
+
+  def offboard_instructions
+    emp = Employee.where('termination_date IS NOT NULL').first
+    TechTableMailer.offboard_instructions(emp)
+  end
 end

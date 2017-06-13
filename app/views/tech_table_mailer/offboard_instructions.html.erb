@@ -1,0 +1,61 @@
+<div style="font-family: helvetica;">
+
+  <p><strong>Name: </strong><%= @employee.cn %></p>
+
+  <p><strong>Termination Date: </strong><%= @employee.termination_date.strftime("%b %e, %Y") %></p>
+
+  <p><strong>EmployeeID: </strong><%= @employee.employee_id %></p>
+
+  <p><strong>Title: </strong><%= @employee.job_title.try(:name) %></p>
+
+  <p><strong>Department: </strong><%= @employee.department.name %></p>
+
+  <p><strong>Location: </strong><%= @employee.location.name %></p>
+
+  <p><strong>Manager: </strong><%= @manager.first_name %> <%= @manager.last_name %></p>
+
+  <p><strong>Manager Email: </strong><%= @manager.email %></p>
+
+  <p>
+    <strong>Archive Data:</strong>
+    <span style="color: red"><%= @offboard_info.archive_data %></span>
+  </p>
+  <p>
+    <strong>Forward Email To:</strong>
+    <span style="color: red"><%= @offboard_info.forward_email.cn %> at <%= @offboard_info.forward_email.email %></span>
+  </p>
+  <p>
+    <strong>Reassign Salesforce Cases To:</strong>
+    <span style="color: red"><%= @offboard_info.reassign_salesforce.cn %> at <%= @offboard_info.reassign_salesforce.email %></span>
+  </p>
+  <p>
+    <strong>Transfer Google Docs To:</strong>
+    <span style="color: red"><%= @offboard_info.forward_google.cn %> at <%= @offboard_info.forward_google.email %></span>
+  </p>
+
+  <p>
+    <strong>Active Security Profiles To Terminate:</strong>
+  </p>
+  <div style="margin-left: 2em">
+      <% @employee.active_security_profiles.each do |sp| %>
+        <div>
+          <%= sp.name %><br>
+          <ul>
+            <% sp.access_levels.find_each do |al| %>
+              <li style="margin-left: 2em"><strong><%= al.name %> <%= al.application.name %></strong></li>
+                <% if al.application.name.include? "Office 365" %>
+                  <%= render partial: "offboard_commands/office", locals: {offboard_info: @offboard_info} %>
+                <% end %>
+                <% if(al.application.dependency.present? || al.application.instructions.present?) %>
+                  <p style="margin-left: 2em; color: red"><%= al.application.dependency %></p>
+                  <p style="margin-left: 2em; color: red"><%= al.application.instructions %></p>
+                <% else %>
+                  <p style="margin-left: 2em; color: limegreen">Worker will automatically be removed from the related Active Directory group in 30 days. No further action needed.</p>
+                <% end %>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+    </div>
+</div>
+

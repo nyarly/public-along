@@ -40,14 +40,14 @@ Add-MailboxPermission <%= @offboard_command.employee_email %> -User "<%= @offboa
       <div class="callout">
 <pre>
 -- ROMS (GOD DB)
-update Employees set Active = 0 where Active = 1 and EmployeeLoginID in ('opentable.com\<%= @offboard_command.ot_id %>')
+update Employees set Active = 0 where Active = 1 and EmployeeLoginID in ('opentable.com\<%= @offboard_command.sam_account_name %>')
 </pre>
       </div>
       <h5>To deactivate CHARM:</h5>
       <div class="callout">
 <pre>
 --CHARM (Admin, Admin_Asia, Admin_EU)
-update Login set Active = 0 where Active = 1 and DomainLogin in ('opentable.com\<%= @offboard_command.ot_id %>')
+update Login set Active = 0 where Active = 1 and DomainLogin in ('opentable.com\<%= @offboard_command.sam_account_name %>')
 </pre>
       </div>
       <h5>To deactivate OTA:</h5>

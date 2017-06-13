@@ -23,4 +23,11 @@ class TechTableMailer < ApplicationMailer
     @employee = employee
     mail(subject: "Mezzo Automated Offboarding Status for #{@employee.first_name} #{@employee.last_name}")
   end
+
+  def offboard_instructions(employee)
+    @employee = employee
+    @manager = Employee.find_by(employee_id: employee.manager_id)
+    @offboard_info = OffboardCommand.new(employee.employee_id)
+    mail(subject: "idk")
+  end
 end
