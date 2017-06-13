@@ -234,7 +234,9 @@ class Employee < ActiveRecord::Base
       l: home_city,
       st: home_state,
       postalCode: home_zip,
-      thumbnailPhoto: decode_img_code
+      # thumbnailPhoto: decode_img_code
+      # TODO bring back thumbnail photo when we pull the info from ADP or other source
+      # Make cure to comment back in the relevant tests in models/employee_spec.rb, and tasks/employee_spec.rb
     }
   end
 

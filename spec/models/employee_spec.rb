@@ -306,7 +306,8 @@ describe Employee, type: :model do
           l: employee.home_city,
           st: employee.home_state,
           postalCode: employee.home_zip,
-          thumbnailPhoto: Base64.decode64(employee.image_code)
+          # thumbnailPhoto: Base64.decode64(employee.image_code)
+          # TODO comment back in when we bring back thumbnail photo
         }
       )
     end
@@ -355,7 +356,8 @@ describe Employee, type: :model do
           l: employee.home_city,
           st: employee.home_state,
           postalCode: employee.home_zip,
-          thumbnailPhoto: Base64.decode64(employee.image_code)
+          # thumbnailPhoto: Base64.decode64(employee.image_code)
+          # TODO comment back in when we bring back thumbnail photo
         }
       )
     end
@@ -417,7 +419,8 @@ describe Employee, type: :model do
           l: employee.home_city,
           st: employee.home_state,
           postalCode: employee.home_zip,
-          thumbnailPhoto: Base64.decode64(employee.image_code)
+          # thumbnailPhoto: Base64.decode64(employee.image_code)
+          # TODO comment back in when we bring back thumbnail photo
         }
       )
     end
@@ -484,7 +487,8 @@ describe Employee, type: :model do
           l: employee.home_city,
           st: employee.home_state,
           postalCode: employee.home_zip,
-          thumbnailPhoto: Base64.decode64(employee.image_code)
+          # thumbnailPhoto: Base64.decode64(employee.image_code)
+          # TODO comment back in when we bring back thumbnail photo
         }
       )
     end
@@ -536,7 +540,8 @@ describe Employee, type: :model do
           l: "Beverly Hills",
           st: "CA",
           postalCode: "90210",
-          thumbnailPhoto: Base64.decode64(employee.image_code)
+          # thumbnailPhoto: Base64.decode64(employee.image_code)
+          # TODO comment back in when we bring back thumbnail photo
         }
       )
     end
@@ -589,7 +594,8 @@ describe Employee, type: :model do
           l: "Beverly Hills",
           st: "CA",
           postalCode: "90210",
-          thumbnailPhoto: Base64.decode64(employee.image_code)
+          # thumbnailPhoto: Base64.decode64(employee.image_code)
+          # TODO comment back in when we bring back thumbnail photo
         }
       )
     end
