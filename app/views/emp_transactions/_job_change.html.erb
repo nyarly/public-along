@@ -1,8 +1,8 @@
 <div class="section danger text-center">
-  <p>You are reciving this form because you are listed as the manager of <%= @employee.cn %>, who may need a security profile update because the following information changed on <strong><%= @employee.emp_deltas.important_changes.last.created_at.try(:strftime, "%b %e, %Y") %></strong>:</p>
-  <p><strong>Old data:</strong> <%= @employee.emp_deltas.important_changes.last.format(@employee.emp_deltas.important_changes.last.before) %></p>
-  <p><strong>New data:</strong> <%= @employee.emp_deltas.important_changes.last.format(@employee.emp_deltas.important_changes.last.after) %></p>
+  <p>You are receiving this form because you are listed as the manager of <%= @employee.cn %>, who may need a security profile update because the following information changed on <strong><%= @employee.emp_deltas.important_changes.last.created_at.try(:strftime, "%b %e, %Y") %></strong>:</p>
+  <% @employee.emp_deltas.important_changes.last.format_by_key.each do |e| %>
+    <p><%= e['name'] %> changed from <%= e['before'] %> to <%= e['after'] %></p>
+  <% end %>
 </div>
 
 <%= render partial: "security_access", locals: {f: f, employee: @employee, kind: @kind} %>
-

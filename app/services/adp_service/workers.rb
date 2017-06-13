@@ -148,12 +148,17 @@ module AdpService
 
     def send_email?(employee)
       has_changed = employee.changed? && employee.valid?
-      is_triggering_change = employee.department_id_changed? || employee.location_id_changed? || employee.worker_type_id_changed? || employee.job_title_id_changed?
+      has_triggering_change = employee.department_id_changed? || employee.location_id_changed? || employee.worker_type_id_changed? || employee.job_title_id_changed?
+      no_previous_changes = employee.emp_deltas.important_changes.blank?
 
-      if has_changed && is_triggering_change
-        last_emailed_on = employee.emp_deltas.important_changes.last.created_at
-        if last_emailed_on <= 1.day.ago
+      if has_changed && has_triggering_change
+        if no_previous_changes
           true
+        else
+          last_emailed_on = employee.emp_deltas.important_changes.last.created_at
+          if last_emailed_on <= 1.day.ago
+            true
+          end
         end
       end
     end
