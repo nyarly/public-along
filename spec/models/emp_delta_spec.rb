@@ -154,7 +154,7 @@ RSpec.describe EmpDelta, type: :model do
           "department_id" => new_department.id })
 
       delta_b = FactoryGirl.create(:emp_delta,
-        before: {},
+        before: { "contract_end_date" => nil },
         after: { "contract_end_date" => Date.new(2018, 5, 6) })
 
       delta_c = FactoryGirl.create(:emp_delta,

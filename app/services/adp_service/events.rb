@@ -79,6 +79,7 @@ module AdpService
       e = Employee.find_by(employee_id: worker_id)
       if e.present? && !job_change?(e, term_date)
         e.assign_attributes(termination_date: term_date)
+        delta = build_emp_delta(e)
         send_offboard_forms(e)
       else
         return false
@@ -87,6 +88,7 @@ module AdpService
       if e.present? && e.save
         ads = ActiveDirectoryService.new
         ads.update([e])
+        delta.save if delta.present?
         return true
       else
         return false
@@ -97,11 +99,16 @@ module AdpService
       worker_id = json.dig("events", 0, "data", "output", "worker", "workerID", "idValue").downcase
       leave_date = json.dig("events", 0, "data", "output", "worker", "workerStatus", "effectiveDate")
       e = Employee.find_by(employee_id: worker_id)
-      e.assign_attributes(leave_start_date: leave_date) if e.present?
+
+      if e.present?
+        e.assign_attributes(leave_start_date: leave_date)
+        delta = build_emp_delta(e)
+      end
 
       if e.present? && e.save
         ads = ActiveDirectoryService.new
         ads.update([e])
+        delta.save if delta.present?
         return true
       else
         return false
@@ -139,6 +146,19 @@ module AdpService
     def del_event(num)
       set_http("https://#{SECRETS.adp_api_domain}/core/v1/event-notification-messages/#{num}")
       res = @http.delete(@uri.request_uri, {'Authorization' => "Bearer #{@token}"})
+    end
+
+    def build_emp_delta(employee)
+      before = employee.changed_attributes
+      after = Hash[employee.changes.map { |k,v| [k, v[1]] }]
+      if before.present? && after.present?
+        emp_delta = EmpDelta.new(
+          employee_id: employee.id,
+          before: before,
+          after: after
+        )
+      end
+      emp_delta
     end
 
     private

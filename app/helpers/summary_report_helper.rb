@@ -115,7 +115,7 @@ module SummaryReportHelper
 
       changed = []
 
-      deltas = employee.emp_deltas
+      deltas = EmpDelta.where("employee_id = ? AND before != '' AND after != ''", employee.id)
       onboards = OnboardingInfo.where(employee_id: employee.id)
       offboards = OffboardingInfo.where(employee_id: employee.id)
 
