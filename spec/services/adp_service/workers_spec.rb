@@ -247,6 +247,49 @@ describe AdpService::Workers, type: :service do
       adp.sync_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
       expect(employee.reload.department_id).to eq(3)
     end
+
+    it "should not send an email if it did recently" do
+      sorted = [{
+        status: "Active",
+        adp_assoc_oid: "G32B8JAXA1W398Z8",
+        first_name: "Sally Jesse",
+        last_name: "Allansberg",
+        employee_id: "101455",
+        hire_date: "2013-08-05",
+        contract_end_date: nil,
+        company: "OpenTable Inc.",
+        job_title_id: 1,
+        worker_type_id: 2,
+        manager_id: "101734",
+        department_id: 3,
+        location_id: 777,
+        office_phone: "(212) 555-4411",
+        personal_mobile_phone: "(212) 555-4411"
+      }]
+
+      previous_change = FactoryGirl.create(:emp_delta,
+        employee_id: employee.id,
+        before: {"location_id" => 1},
+        after: {"location_id" => 2},
+        created_at: 1.hour.ago )
+
+      expect(response).to receive(:body).and_return(json)
+
+      adp = AdpService::Workers.new
+      adp.token = "a-token-value"
+
+      expect(JSON).to receive(:parse).with(json)
+      expect(AdpService::WorkerJsonParser).to receive(:new).and_return(parser)
+      expect(parser).to receive(:sort_workers).and_return(sorted)
+      expect(EmpDelta).to receive(:new).and_return(emp_delta)
+      expect(emp_delta).to receive(:save)
+      expect(ActiveDirectoryService).to receive(:new).and_return(ads)
+      expect(ads).to receive(:update).with([employee])
+      expect(EmployeeWorker).not_to receive(:perform_async)
+
+      adp.sync_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
+      expect(employee.reload.department_id).to eq(3)
+    end
   end
 
   describe "check leave return" do

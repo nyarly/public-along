@@ -26,7 +26,7 @@
     <% when "Offboarding" %>
       <%= render partial: "offboarding", locals: {f: f, employee: @employee} %>
     <% when "Security Access" %>
-      <%= render partial: "security_access", locals: {f: f, employee: @employee, kind: @kind} %>
+      <%= render partial: "job_change", locals: {f: f, employee: @employee, kind: @kind} %>
     <% when "Equipment" %>
       <%= render partial: "equipment", locals: {f: f} %>
     <% end %>

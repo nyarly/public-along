@@ -137,4 +137,37 @@ RSpec.describe EmpDelta, type: :model do
     it "should format dates" do
     end
   end
+
+  context "format by value" do
+    it "should collect the values and format them" do
+      old_location = FactoryGirl.create(:location, name: "Boston")
+      old_department = FactoryGirl.create(:department, name: "Backend Product")
+      new_location = FactoryGirl.create(:location, name: "Los Angeles")
+      new_department = FactoryGirl.create(:department, name: "Infrastructure")
+
+      delta_a = FactoryGirl.create(:emp_delta,
+        before: {
+          "location_id" => old_location.id,
+          "department_id" => old_department.id },
+        after: {
+          "location_id" => new_location.id,
+          "department_id" => new_department.id })
+
+      delta_b = FactoryGirl.create(:emp_delta,
+        before: { "contract_end_date" => nil },
+        after: { "contract_end_date" => Date.new(2018, 5, 6) })
+
+      delta_c = FactoryGirl.create(:emp_delta,
+        before: {},
+        after: {"office_phone" => "888-888-8888"})
+
+      formatted_results = [
+        {'name'=>'Location', 'before'=>'Boston', 'after'=>'Los Angeles'},
+        {'name'=>'Department', 'before'=>'Backend Product', 'after'=>'Infrastructure'}]
+
+      expect(delta_a.format_by_key).to eq(formatted_results)
+      expect(delta_b.format_by_key).to eq([{'name'=>'Contract End Date', 'before'=> 'blank', 'after'=>'May 6, 2018'}])
+      expect(delta_c.format_by_key).to eq([{'name'=>'Office Phone', 'before'=> 'blank', 'after'=>'888-888-8888'}])
+    end
+  end
 end

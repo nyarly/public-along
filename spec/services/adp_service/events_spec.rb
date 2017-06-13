@@ -270,6 +270,8 @@ describe AdpService::Events, type: :service do
           adp.process_term(parsed_json)
         }.to_not change{Employee.count}
         expect(term_emp.reload.termination_date).to eq("2017-01-24")
+        expect(term_emp.emp_deltas.last.before).to eq({"termination_date"=>nil})
+        expect(term_emp.emp_deltas.last.after).to eq({"termination_date"=>"2017-01-24 00:00:00 UTC"})
       end
     end
 
@@ -288,6 +290,8 @@ describe AdpService::Events, type: :service do
           adp.process_leave(parsed_json)
         }.to_not change{Employee.count}
         expect(leave_emp.reload.leave_start_date).to eq("2017-01-23")
+        expect(leave_emp.emp_deltas.last.before).to eq({"leave_start_date"=>nil})
+        expect(leave_emp.emp_deltas.last.after).to eq({"leave_start_date"=>"2017-01-23 00:00:00 UTC"})
       end
     end
   end
