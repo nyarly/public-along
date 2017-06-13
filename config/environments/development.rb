@@ -1,3 +1,6 @@
+# set preview interceptor to show images in preview mode
+ActionMailer::Base.register_preview_interceptor(ActionMailer::InlinePreviewInterceptor)
+
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
