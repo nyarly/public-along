@@ -429,7 +429,9 @@ describe "employee rake tasks", type: :tasks do
           :l=>"Chicago",
           :st=>"Illinois",
           :postalCode=>"60611",
-          :thumbnailPhoto=>Base64.decode64(IMAGE)}})
+          # :thumbnailPhoto=>Base64.decode64(IMAGE)
+          # TODO comment back in when we bring back thumbnail photo
+          }})
       expect(@ldap).to receive(:replace_attribute).once.with("cn=The Big Lebowski,ou=Engineering,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com", :telephoneNumber, "(213) 555-4321")
       expect(@ldap).to receive(:replace_attribute).once.with("cn=Kylie Kylie,ou=Provisional,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com", :accountExpires, "131062374000000000")
       expect{
