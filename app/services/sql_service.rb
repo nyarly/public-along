@@ -113,8 +113,8 @@ class SqlService
   end
 
   def connect(host, database)
-    username = SECRETS.sql_server_user
-    password = SECRETS.sql_server_password
+    username = SECRETS.sql_db_user
+    password = SECRETS.sql_db_user_passwd
 
     begin
       client = TinyTds::Client.new host: host, username: username, password: password, database: database
