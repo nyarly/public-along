@@ -29,7 +29,6 @@ describe GoogleAppsService, type: :service do
   end
 
   context "successfully transfers data" do
-
     let(:manager) { FactoryGirl.create(:employee, email: "123@example.com") }
     let(:employee) { FactoryGirl.create(:employee, manager_id: manager.employee_id, email: "456@example.com") }
 

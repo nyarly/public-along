@@ -79,6 +79,7 @@ class GoogleAppsService
     token_store = Google::Auth::Stores::FileTokenStore.new(file: SECRETS.google_cred_path)
     authorizer = Google::Auth::UserAuthorizer.new(client_id, SCOPE, token_store)
     credentials = authorizer.get_credentials(SECRETS.google_user_id)
+
     # If authorization expires, run Google Apps Service from the command line
     # The terminal will print a url, which an admin must visit in the browser
     # The browser will display an access code, which will need to be put into the terminal
