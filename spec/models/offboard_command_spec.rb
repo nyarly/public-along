@@ -14,7 +14,8 @@ RSpec.describe OffboardCommand, type: :model do
     last_name: "Barker",
     email: "bbarker@otcorp.com",
     manager_id: manager.employee_id,
-    employee_id: 'bb123'
+    employee_id: 'bb123',
+    sam_account_name: 'bbarker'
   )}
 
   let!(:forward_to_employee) { FactoryGirl.create(:employee,
@@ -29,6 +30,7 @@ RSpec.describe OffboardCommand, type: :model do
   context "with offboarding info" do
 
     let!(:offboarding_info) { FactoryGirl.create(:offboarding_info,
+      archive_data: true,
       employee_id: employee.id,
       forward_email_id: forward_to_employee.id,
       reassign_salesforce_id: forward_to_employee.id,
@@ -39,8 +41,12 @@ RSpec.describe OffboardCommand, type: :model do
       expect(offboard_command).to_not allow_value(nil).for(:employee_id)
     end
 
-    it "should make an ot_id" do
-      expect(offboard_command.ot_id).to eq('bbarker')
+    it "should respond to archive data" do
+      expect(offboard_command.archive_data).to eq(true)
+    end
+
+    it "should make an sam_account_name" do
+      expect(offboard_command.sam_account_name).to eq('bbarker')
     end
 
     it "should get an employee email" do
@@ -58,15 +64,24 @@ RSpec.describe OffboardCommand, type: :model do
     it "should set should set the google docs transfer email to the manager email" do
       expect(offboard_command.forward_google).to eq('atrebek@otcorp.com')
     end
+
+    it "should set the reassign salesforce email" do
+      expect(offboard_command.reassign_salesforce).to eq('newguy@otcorp.com')
+    end
   end
 
   context "with offboarding info and with google forwarding id" do
+
+    let(:emp_transaction) { FactoryGirl.create(:emp_transaction,
+      kind: "Offboarding"
+    )}
 
     let!(:offboarding_info) { FactoryGirl.create(:offboarding_info,
       employee_id: employee.id,
       forward_email_id: forward_to_employee.id,
       reassign_salesforce_id: forward_to_employee.id,
-      transfer_google_docs_id: forward_to_employee.id
+      transfer_google_docs_id: forward_to_employee.id,
+      emp_transaction_id: emp_transaction.id
     )}
 
     it "should use the google docs transfer email" do
@@ -80,8 +95,12 @@ RSpec.describe OffboardCommand, type: :model do
       expect(offboard_command).to_not allow_value(nil).for(:employee_id)
     end
 
-    it "should make an ot_id" do
-      expect(offboard_command.ot_id).to eq('bbarker')
+    it "should respond to archive data" do
+      expect(offboard_command.archive_data).to eq('no info provided')
+    end
+
+    it "should make an sam_account_name" do
+      expect(offboard_command.sam_account_name).to eq('bbarker')
     end
 
     it "should get an employee email" do
@@ -98,6 +117,10 @@ RSpec.describe OffboardCommand, type: :model do
 
     it "should set the google docs transfer to the manager's email" do
       expect(offboard_command.forward_google).to eq('atrebek@otcorp.com')
+    end
+
+    it "should set the reassign salesforce email" do
+      expect(offboard_command.reassign_salesforce).to eq('atrebek@otcorp.com')
     end
   end
 

@@ -5,16 +5,25 @@ class OffboardCommand
             presence: true
 
   attr_accessor :employee_id
-  attr_reader :employee_email,
+
+  attr_reader :archive_data,
+              :employee_email,
               :employee_name,
-              :sam_account_name,
               :forward_email,
-              :forward_google
+              :forward_google,
+              :reassign_salesforce,
+              :sam_account_name
 
   def initialize(employee_id)
     @employee ||= Employee.find_by(employee_id: employee_id)
-    @manager = Employee.find_by(employee_id: @employee.manager_id)
+  end
 
+  def archive_data
+    if offboarding_info.present? && offboarding_info.archive_data
+      offboarding_info.archive_data
+    else
+      'no info provided'
+    end
   end
 
   def employee_email
@@ -25,44 +34,39 @@ class OffboardCommand
     @employee.cn
   end
 
-  def sam_account_name
-    @employee.sam_account_name
-  end
-
-  def archive_data
-    if @employee.offboarding_infos.present? && offboarding_infos.archive_data
-      offboarding_info.archive_data
+  def forward_email
+    if offboarding_info.present? && offboarding_info.forward_email_id
+      Employee.find(offboarding_info.forward_email_id).email
     else
-      'no info provided'
+      manager.email
     end
   end
 
   def forward_google
-    if @employee.offboarding_infos.present? && offboarding_info.transfer_google_docs_id
-      Employee.find(offboarding_info.transfer_google_docs_id)
+    if offboarding_info.present? && offboarding_info.transfer_google_docs_id
+      Employee.find(offboarding_info.transfer_google_docs_id).email
     else
-      @manager
+      manager.email
     end
   end
 
-  def forward_email
-    if @employee.offboarding_infos.present? && offboarding_infos.forward_email_id
-      Employee.find(offboarding_info.forward_email_id)
-    else
-      @manager
-    end
-  end
-
-  def reassign_salesforce
-    if @employee.offboarding_infos.present? && offboarding_infos.transfer_google_docs_id
-      Employee.find(offboarding_info.transfer_google_docs_id)
-    else
-      @manager
-    end
+  def manager
+    Employee.find_by(employee_id: @employee.manager_id)
   end
 
   def offboarding_info
-    @employee.offboarding_infos.order("created_at").last
+    OffboardingInfo.where(employee_id: @employee.id).order("created_at").last
   end
 
+  def reassign_salesforce
+    if offboarding_info.present? && offboarding_info.reassign_salesforce_id
+      Employee.find(offboarding_info.reassign_salesforce_id).email
+    else
+      manager.email
+    end
+  end
+
+  def sam_account_name
+    @employee.sam_account_name
+  end
 end

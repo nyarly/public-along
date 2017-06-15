@@ -57,9 +57,11 @@ class EmpTransactionsController < ApplicationController
 
     respond_to do |format|
       if @manager_entry.save
-        TechTableMailer.permissions(@emp_transaction, @employee).deliver_now
         format.html { redirect_to emp_transaction_path(@emp_transaction, emp_id: @employee.id), notice: 'Success! TechTable will be notified with the details of your request.' }
         format.json { render :show, status: :created, location: @emp_transaction }
+        if @emp_transaction.kind != "Offboarding"
+          TechTableMailer.permissions(@emp_transaction, @employee).deliver_now
+        end
       else
         format.html { redirect_to new_emp_transaction_path(manager_entry_params) }
         format.json { render json: @emp_transaction.errors, status: :unprocessable_entity }

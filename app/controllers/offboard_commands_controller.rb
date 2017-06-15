@@ -4,6 +4,7 @@ class OffboardCommandsController < ApplicationController
   def generate
     if params[:employee_id]
       @offboard_command = OffboardCommand.new(offboard_params[:employee_id])
+      puts @offboard_command.archive_data
     end
   end
 
