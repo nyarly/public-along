@@ -5,8 +5,10 @@
     <tr>
       <th>Name</th>
       <th>Description</th>
+      <th>Updated by AD</th>
       <th>Dependency</th>
-      <th>Instructions</th>
+      <th>Onboard Instructions</th>
+      <th>Offboard Instructions</th>
       <th colspan="3"></th>
     </tr>
   </thead>
@@ -16,8 +18,10 @@
       <tr>
         <td><%= application.name %></td>
         <td><%= application.description %></td>
+        <td><%= application.ad_controls %></td>
         <td><%= application.dependency %></td>
-        <td><%= application.instructions %></td>
+        <td><%= application.onboard_instructions %></td>
+        <td><%= application.offboard_instructions %></td>
         <td><%= link_to 'Show', application %></td>
         <td><%= link_to 'Edit', edit_application_path(application) %></td>
         <!-- <td><%#= link_to 'Destroy', application, method: :delete, data: { confirm: 'Are you sure?' } %></td> -->

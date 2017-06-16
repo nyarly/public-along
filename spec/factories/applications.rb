@@ -3,6 +3,8 @@ FactoryGirl.define do
     name "MyString"
     description "MyText"
     dependency "MyText"
-    instructions "MyText"
+    ad_controls true
+    onboard_instructions "MyText"
+    offboard_instructions "MyText"
   end
 end

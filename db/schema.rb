@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170509185839) do
+ActiveRecord::Schema.define(version: 20170614232456) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -37,9 +37,11 @@ ActiveRecord::Schema.define(version: 20170509185839) do
     t.string   "name"
     t.text     "description"
     t.text     "dependency"
-    t.text     "instructions"
-    t.datetime "created_at",   null: false
-    t.datetime "updated_at",   null: false
+    t.text     "onboard_instructions"
+    t.datetime "created_at",            null: false
+    t.datetime "updated_at",            null: false
+    t.text     "offboard_instructions"
+    t.boolean  "ad_controls"
   end
 
   create_table "departments", force: :cascade do |t|
@@ -207,8 +209,8 @@ ActiveRecord::Schema.define(version: 20170509185839) do
   end
 
   create_table "sec_prof_access_levels", force: :cascade do |t|
-    t.integer  "security_profile_id"
     t.integer  "access_level_id"
+    t.integer  "security_profile_id"
     t.datetime "created_at",          null: false
     t.datetime "updated_at",          null: false
   end

@@ -38,7 +38,7 @@
   <% if @kind == "Offboarding" %>
     <p>
       <strong style="color: red; text-decoration: underline">
-        You must complete this form by <%= @employee.termination_date.strftime("%b %e, %Y") %>.
+        You must complete this form by noon on <%= @employee.termination_date.strftime("%b %e, %Y") %>.
       </strong>
     </p>
   <% end %>

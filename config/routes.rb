@@ -17,8 +17,6 @@ Rails.application.routes.draw do
     get :autocomplete_name, :on => :collection
   end
   resource :emails, :only => [:create]
-  
-  get '/offboard_commands' => "offboard_commands#generate", as: :offboard_commands
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

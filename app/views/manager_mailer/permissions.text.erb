@@ -17,7 +17,7 @@ Submissions after the due date may cause your employee’s access to be compromi
 <% end %>
 
 <% if @kind == "Offboarding" %>
-You must complete this form by <%= @employee.termination_date.strftime("%b %e, %Y") %>.
+You must complete this form by noon on <%= @employee.termination_date.strftime("%b %e, %Y") %>.
 ------------------------------------------------------
 <% end %>
 

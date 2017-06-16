@@ -24,6 +24,9 @@ namespace :employee do
       elsif e.termination_date && in_time_window?(e.termination_date, 21, e.nearest_time_zone)
         deactivations << e
         offboards << e
+      # send techtable info around noon
+      elsif e.termination_date && in_time_window?(e.contract_end_date, 12, e.nearest_time_zone)
+        TechTableMailer.offboard_instructions(e).deliver_now
       end
     end
 
