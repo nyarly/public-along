@@ -9,8 +9,8 @@
     <p><strong>Department: </strong><%= @employee.department.name %></p>
     <p><strong>Location: </strong><%= @employee.location.name %></p>
     <p><strong>Manager: </strong><%= @employee.manager.try(:cn) %></p>
-  </div>
     <p><strong>Manager Email: </strong><%= @employee.manager.email %></p>
+  </div>
 
   <hr>
 
@@ -76,10 +76,10 @@
     </div>
   </div>
 
-  <% if @employee.offboarding_infos.present? && @employee.offboarding_infos.emp_transaction.notes.present? %>
+  <% if @info.emp_transaction.present? && @info.emp_transaction.notes.present? %>
     <div>
       <h1 style="font-size=1.5em;">Additional Instructions from Manager</h1>
-        <p><%= @employee.offboarding_infos.emp_transaction.notes %></p>
+        <p><%= @info.emp_transaction.notes %></p>
     </div>
   <% end %>
 </div>

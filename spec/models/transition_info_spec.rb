@@ -35,7 +35,7 @@ RSpec.describe TransitionInfo, type: :model do
       transfer_google_docs_id: nil
     )}
 
-    let(:offboard) {FactoryGirl.create(:offboard, employee_id: employee.employee_id)}
+    let(:offboard) { FactoryGirl.create(:offboard, employee_id: employee.employee_id) }
 
     it "should respond to archive data" do
       expect(offboard.archive_data).to eq(true)
@@ -56,7 +56,7 @@ RSpec.describe TransitionInfo, type: :model do
 
   context "offboard without offboarding info" do
 
-    let(:offboard) {FactoryGirl.create(:offboard, employee_id: employee.employee_id)}
+    let(:offboard) { FactoryGirl.create(:offboard, employee_id: employee.employee_id) }
 
     it "should respond to archive data" do
       expect(offboard.archive_data).to eq('no info provided')
@@ -72,6 +72,32 @@ RSpec.describe TransitionInfo, type: :model do
 
     it "should set the reassign salesforce email" do
       expect(offboard.reassign_salesforce).to eq('atrebek@otcorp.com')
+    end
+  end
+
+  context "onboard" do
+
+    let(:buddy) { FactoryGirl.create(:employee) }
+
+    let!(:emp_transaction) { FactoryGirl.create(:emp_transaction,
+      kind: "Onboarding",
+      notes: "welcome!"
+    )}
+
+    let!(:onboarding_info) { FactoryGirl.create(:onboarding_info,
+      employee_id: employee.id,
+      emp_transaction_id: emp_transaction.id,
+      buddy_id: buddy.id
+    )}
+
+    let(:onboard) { FactoryGirl.create(:onboard, employee_id: employee.employee_id) }
+
+    it "should get onboarding info" do
+      expect(onboard.onboarding_info.buddy_id).to eq(buddy.id)
+    end
+
+    it "should get the onboarding emp transaction" do
+      expect(onboard.emp_transaction.notes).to eq('welcome!')
     end
   end
 
