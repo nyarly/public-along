@@ -8,7 +8,7 @@
     <p><strong>Title: </strong><%= @employee.job_title.try(:name) %></p>
     <p><strong>Department: </strong><%= @employee.department.name %></p>
     <p><strong>Location: </strong><%= @employee.location.name %></p>
-    <p><strong>Manager: </strong><%= @employee.manager.first_name %> <%= @employee.manager.last_name %></p>
+    <p><strong>Manager: </strong><%= @employee.manager.try(:cn) %></p>
   </div>
     <p><strong>Manager Email: </strong><%= @employee.manager.email %></p>
 
@@ -18,19 +18,19 @@
     <h1 style="font-size: 1.5em;"><strong>Offboarding Info</strong></h1>
     <p>
       <strong>Archive Data:</strong>
-      <span style="color: red;"><%= @offboard_command.archive_data %></span>
+      <span style="color: red;"><%= @info.archive_data %></span>
     </p>
     <p>
       <strong>Forward Email To:</strong>
-      <span style="color: red;"><%= @offboard_command.forward_email %></span>
+      <span style="color: red;"><%= @info.forward_email %></span>
     </p>
     <p>
       <strong>Reassign Salesforce Cases To:</strong>
-      <span style="color: red;"><%= @offboard_command.reassign_salesforce %></span>
+      <span style="color: red;"><%= @info.reassign_salesforce %></span>
     </p>
     <p>
       <strong>Transfer Google Docs To:</strong>
-      <span style="color: red;"><%= @offboard_command.forward_google %></span>
+      <span style="color: red;"><%= @info.forward_google %></span>
     </p>
   </div>
 
@@ -66,7 +66,7 @@
 
               <!-- Include commands for Office 365 -->
               <% if al.application.name.include? "Office 365" %>
-                <%= render partial: "offboard_commands/office", locals: {offboard_command: @offboard_command} %>
+                <%= render partial: "offboard_office", locals: {employee: @employee, info: @info} %>
               <% end %>
 
             <% end %>

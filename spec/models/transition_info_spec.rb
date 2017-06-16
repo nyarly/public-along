@@ -1,0 +1,79 @@
+require 'rails_helper'
+
+RSpec.describe TransitionInfo, type: :model do
+
+  let!(:manager) { FactoryGirl.create(:employee,
+    first_name: "Alex",
+    last_name: "Trebek",
+    email: "atrebek@otcorp.com",
+    employee_id: 'at123'
+  )}
+
+  let!(:employee) { FactoryGirl.create(:employee,
+    first_name: "Bob",
+    last_name: "Barker",
+    email: "bbarker@otcorp.com",
+    manager_id: manager.employee_id,
+    employee_id: 'bb123',
+    sam_account_name: 'bbarker'
+  )}
+
+  context "offboard with offboarding info" do
+
+    let!(:offboard) {FactoryGirl.create(:offboard, employee_id: employee.employee_id)}
+
+    let!(:forward_to_employee) { FactoryGirl.create(:employee,
+      first_name: "Steven",
+      last_name: "Colbert",
+      email: "newguy@otcorp.com",
+      employee_id: 'sc123'
+    )}
+
+    let!(:offboarding_info) { FactoryGirl.create(:offboarding_info,
+      archive_data: true,
+      employee_id: employee.id,
+      forward_email_id: forward_to_employee.id,
+      reassign_salesforce_id: forward_to_employee.id,
+      transfer_google_docs_id: nil
+    )}
+
+    it "should get the most recent offboard info from manager" do
+    end
+
+    it "should respond to archive data" do
+      expect(offboard.archive_data).to eq(true)
+    end
+
+    it "should set the forward email to the offboarding info email" do
+      expect(offboard.forward_email).to eq('newguy@otcorp.com')
+    end
+
+    it "should set should set the google docs transfer email to the manager email" do
+      expect(offboard.forward_google).to eq('atrebek@otcorp.com')
+    end
+
+    it "should set the reassign salesforce email" do
+      expect(offboard.reassign_salesforce).to eq('newguy@otcorp.com')
+    end
+  end
+
+  context "offboard without offboarding info" do
+
+    it "should respond to archive data" do
+      expect(offboard.archive_data).to eq('no info provided')
+    end
+
+    it "should set the forward email to the manager's email" do
+      expect(offboard.forward_email).to eq('atrebek@otcorp.com')
+    end
+
+    it "should set the google docs transfer to the manager's email" do
+      expect(offboard.forward_google).to eq('atrebek@otcorp.com')
+    end
+
+    it "should set the reassign salesforce email" do
+      expect(offboard.reassign_salesforce).to eq('atrebek@otcorp.com')
+    end
+  end
+
+end

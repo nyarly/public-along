@@ -26,7 +26,7 @@ class TechTableMailer < ApplicationMailer
 
   def offboard_instructions(employee)
     @employee = employee
-    @offboard_command = OffboardCommand.new(employee.employee_id)
+    @info = TransitionInfo::Offboard.new(employee.employee_id)
     mail(subject: "Mezzo Offboard Instructons for #{@employee.first_name} #{@employee.last_name}")
   end
 end

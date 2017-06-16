@@ -1,8 +1,0 @@
-$CRED = Get-Credential
-$SESSION = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://ps.outlook.com/powershell -Credential $CRED -Authentication Basic -AllowRedirection
-Import-PSSession $SESSION
-Connect-MsolService -Credential $CRED
-Get-Mailbox -identity <%= @offboard_command.employee_email %> | set-mailbox -type "Shared"
-Set-Mailbox -identity <%= @offboard_command.employee_email %> -DeliverToMailboxAndForward $true -ForwardingAddress <%= @offboard_command.forward_email %>
-Set-MsolUserLicense -UserPrincipalName <%= @offboard_command.employee_email %> -RemoveLicenses "opentable:ENTERPRISEPACK"
-Add-MailboxPermission <%= @offboard_command.employee_email %> -User "<%= @offboard_command.forward_email %>" -AccessRights FullAccess

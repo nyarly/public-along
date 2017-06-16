@@ -13,20 +13,20 @@ Department: <%= @employee.department.name %>
 
 Location: <%= @employee.location.name %>
 
-Manager: <%= @employee.manager.first_name %> <%= @employee.manager.last_name %>
+Manager: <%= @employee.manager.try(:cn) %>
 
 Manager Email: <%= @employee.manager.email %>
 
 Offboard Info:
 --------------
 
-Archive Data: <%= @offboard_command.archive_data %>
+Archive Data: <%= @info.archive_data %>
 
-Forward Email To: <%= @offboard_command.forward_email %>
+Forward Email To: <%= @info.forward_email %>
 
-Reassign Salesforce Cases To: <%= @offboard_command.reassign_salesforce %>
+Reassign Salesforce Cases To: <%= @info.reassign_salesforce %>
 
-Transfer Google Docs To: <%= @offboard_command.forward_google %>
+Transfer Google Docs To: <%= @info.forward_google %>
 
 Active Security Profile Termination Instructions:
 -------------------------------------------------
@@ -51,7 +51,7 @@ Active Security Profile Termination Instructions:
 <% end %>
 
 <% if al.application.name.include? "Office 365" %>
-<%= render partial: "offboard_commands/office", locals: {offboard_command: @offboard_command} %>
+<%= render partial: "offboard_office", locals: {employee: @employee, info: @info} %>
 <% end %>
 <% end %>
 <% end %>
