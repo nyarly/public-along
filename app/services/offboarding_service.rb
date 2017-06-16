@@ -1,7 +1,5 @@
 class OffboardingService
 
-  SERVICES = ["Google Apps", "SQL"]
-
   def offboard(employees)
     processed_offboards = []
 
@@ -15,7 +13,7 @@ class OffboardingService
   def process(employee)
     processed_applications = []
 
-    SERVICES.each do |service|
+    Applications::AUTOMATED_OFFBOARDS.each do |service|
       if service.include? "Google"
         process_google_apps(employee)
       elsif service.include? "CHARM"
@@ -37,7 +35,8 @@ class OffboardingService
     confirmation = google_apps.confirm_transfer(transfer.id)
     access_level = find_emp_access_level(employee, "Google Apps")
 
-    if confirmation = "whatever"
+    if confirmation == "whatever"
+      puts confirmation
       access_level.active = false
     else
       access_level.active = true
