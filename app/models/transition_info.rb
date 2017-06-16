@@ -7,6 +7,13 @@ module TransitionInfo
   class Offboard
     include TransitionInfo
 
+    attr_accessor :archive_data,
+                  :forward_email,
+                  :forward_google,
+                  :offboard_info,
+                  :offboard_notes,
+                  :reassign_salesforce
+
     def offboarding_info
       OffboardingInfo.where(employee_id: @employee.id).order("created_at").last
     end

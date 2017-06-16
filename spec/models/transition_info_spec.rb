@@ -2,14 +2,14 @@ require 'rails_helper'
 
 RSpec.describe TransitionInfo, type: :model do
 
-  let!(:manager) { FactoryGirl.create(:employee,
+  let(:manager) { FactoryGirl.create(:employee,
     first_name: "Alex",
     last_name: "Trebek",
     email: "atrebek@otcorp.com",
     employee_id: 'at123'
   )}
 
-  let!(:employee) { FactoryGirl.create(:employee,
+  let(:employee) { FactoryGirl.create(:employee,
     first_name: "Bob",
     last_name: "Barker",
     email: "bbarker@otcorp.com",
@@ -20,9 +20,7 @@ RSpec.describe TransitionInfo, type: :model do
 
   context "offboard with offboarding info" do
 
-    let!(:offboard) {FactoryGirl.create(:offboard, employee_id: employee.employee_id)}
-
-    let!(:forward_to_employee) { FactoryGirl.create(:employee,
+    let(:forward_to_employee) { FactoryGirl.create(:employee,
       first_name: "Steven",
       last_name: "Colbert",
       email: "newguy@otcorp.com",
@@ -37,8 +35,7 @@ RSpec.describe TransitionInfo, type: :model do
       transfer_google_docs_id: nil
     )}
 
-    it "should get the most recent offboard info from manager" do
-    end
+    let(:offboard) {FactoryGirl.create(:offboard, employee_id: employee.employee_id)}
 
     it "should respond to archive data" do
       expect(offboard.archive_data).to eq(true)
@@ -58,6 +55,8 @@ RSpec.describe TransitionInfo, type: :model do
   end
 
   context "offboard without offboarding info" do
+
+    let(:offboard) {FactoryGirl.create(:offboard, employee_id: employee.employee_id)}
 
     it "should respond to archive data" do
       expect(offboard.archive_data).to eq('no info provided')
