@@ -42,4 +42,10 @@ class TechTableMailerPreview < ActionMailer::Preview
     emp = Employee.where('termination_date IS NOT NULL').first
     TechTableMailer.offboard_instructions(emp)
   end
+
+  def onboard_instructions
+    emp_trans = EmpTransaction.where(kind: "Onboarding").last
+    emp = Employee.find(emp_trans.onboarding_infos.first.employee_id)
+    TechTableMailer.onboard_instructions(emp)
+  end
 end

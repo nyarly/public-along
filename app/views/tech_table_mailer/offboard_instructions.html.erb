@@ -9,8 +9,8 @@
     <p><strong>Department: </strong><%= @employee.department.name %></p>
     <p><strong>Location: </strong><%= @employee.location.name %></p>
     <p><strong>Manager: </strong><%= @employee.manager.try(:cn) %></p>
-  </div>
     <p><strong>Manager Email: </strong><%= @employee.manager.email %></p>
+  </div>
 
   <hr>
 

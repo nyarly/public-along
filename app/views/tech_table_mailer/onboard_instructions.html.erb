@@ -1,0 +1,104 @@
+<div style="font-family: helvetica;">
+
+  <div>
+    <h1 style="font-size: 1.5em;">Onboarding Worker Request</h1>
+    <p><strong>Name: </strong><%= @employee.cn %></p>
+    <p><strong>Start Date: </strong><%= @employee.hire_date.strftime("%b %e, %Y") %></p>
+    <p><strong>EmployeeID: </strong><%= @employee.employee_id %></p>
+    <p><strong>Title: </strong><%= @employee.job_title.try(:name) %></p>
+    <p><strong>Department: </strong><%= @employee.department.name %></p>
+    <p><strong>Location: </strong><%= @employee.location.name %></p>
+    <p><strong>Manager: </strong><%= @employee.manager.try(:cn) %></p>
+    <p><strong>Manager Email: </strong><%= @employee.manager.email %></p>
+    <p><strong>Submission Date: </strong><%= @info.onboarding_info.emp_transaction.created_at.strftime("%b %e, %Y") %></p>
+    <% if @employee.contract_end_date.present? %>
+      <strong>Contract End Date:</strong><%= @employee.contract_end_date.strftime("%b %e, %Y") %>
+    <% end %>
+    <% if @employee.is_contingent_worker? %>
+      <p><strong>Contingent Worker: </strong>
+        <div style="margin-left: 2em">
+          <ul>
+            <li style="color: <%= @info.onboarding_info.cw_email ? 'red' : 'limegreen' %>"><p>Create OpenTable Email: <%= @info.onboarding_info.cw_email %></p></li>
+            <li style="color: <%= @info.onboarding_info.cw_google_membership ? 'red' : 'limegreen' %>"><p>Create Google Group Membership: <%= @info.onboarding_info.cw_google_membership %></p></li>
+          </ul>
+        </div>
+      </p>
+    <% else %>
+      <p><strong>Contingent Worker: </strong>false</p>
+    <% end %>
+  </div>
+
+  <% if @info.emp_transaction.security_profiles.count > 0 %>
+    <h2><strong>Apply Security Profiles:</strong></h2>
+
+    <div style="margin-left: 2em">
+      <% @info.emp_transaction.security_profiles.each do |sp| %>
+        <div>
+          <%= sp.name %><br>
+          <ul>
+            <% sp.access_levels.find_each do |al| %>
+              <li style="margin-left: 2em"><%= al.name %> <%= al.application.name %></li>
+              <% if al.application.ad_controls? %>
+                <p style="margin-left: 2em; color: limegreen;">Worker will automatically be added by Active Directory.</p>
+              <% end %>
+
+              <% if al.application.dependency.present? %>
+                <p style="margin-left: 2em; color: red;"><%= al.application.dependency %></p>
+              <% end %>
+
+              <% if al.application.onboard_instructions.present? %>
+                <p style="margin-left: 2em; color: red;"><%= al.application.onboard_instructions %></p>
+              <% end %>
+
+              <% if al.application.name.include? "Office 365" %>
+                <%= render partial: "onboard_office", locals: {employee: @employee} %>
+              <% end %>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <h2>Machine Bundle:</h2>
+  <div style="margin-left: 2em">
+    <% @info.emp_transaction.machine_bundles.each do |mb| %>
+      <div>
+        <%= mb.name %><br>
+        <ul>
+          <li style="margin-left: 2em"><%= mb.description %></li>
+        </ul>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @employee.home_address_1.present? %>
+    <h2>Shipping Address:</h2>
+    <p style="margin-left: 2em">Address 1: <%= @employee.home_address_1 %></p>
+    <p style="margin-left: 2em">
+      Address 2: <%= @employee.home_address_2 if @employee.home_address_2.present? %>
+    </p>
+    <p style="margin-left: 2em">
+      City: <%= @employee.home_city if @employee.home_city.present? %>
+    </p>
+    <p style="margin-left: 2em">
+      State: <%= @employee.home_state if @employee.home_state.present? %>
+    </p>
+    <p style="margin-left: 2em">
+      Zip: <%= @employee.home_zip if @employee.home_zip.present? %>
+    </p>
+  <% end %>
+
+  <% if @employee.personal_mobile_phone.present? %>
+    <h2>Personal Mobile:</h2>
+    <p><%= @employee.personal_mobile_phone %></p>
+  <% end %>
+
+  <% if @info.emp_transaction.notes.present? %>
+    <div>
+      <h2 style="font-size=1.5em;">Additional Instructions from Manager:</h2>
+      <p><%= @info.emp_transaction.notes %></p>
+    </div>
+  <% end %>
+
+</div>
