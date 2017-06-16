@@ -20,7 +20,7 @@ RSpec.describe TechTableMailer, type: :mailer do
     let(:user) { FactoryGirl.create(:user)}
     let(:emp) { FactoryGirl.create(:employee, worker_type_id: wt.id)}
     let(:wt) { FactoryGirl.create(:worker_type, kind: "Regular")}
-    let(:et) { FactoryGirl.create(:emp_transaction, user_id: user.id, kind: "Onboarding")}
+    let(:et) { FactoryGirl.create(:emp_transaction, user_id: user.id, kind: "Security Access")}
     let!(:email) { TechTableMailer.permissions(et, emp).deliver_now }
 
     it "should queue to send" do
@@ -31,7 +31,7 @@ RSpec.describe TechTableMailer, type: :mailer do
       expect(email.from).to eq(["no-reply@opentable.com"])
       expect(email.to).to include("techtable@opentable.com")
       expect(email.subject).to eq("IMMEDIATE ACTION REQUIRED: #{et.kind} request for #{emp.first_name} #{emp.last_name}")
-      expect(email.parts.first.body.raw_source).to include("Onboarding")
+      expect(email.parts.first.body.raw_source).to include("Security Access")
     end
   end
 
@@ -66,6 +66,52 @@ RSpec.describe TechTableMailer, type: :mailer do
       expect(email.to).to include("techtable@opentable.com")
       expect(email.subject).to eq("Mezzo Automated Offboarding Status for #{employee.first_name} #{employee.last_name}")
       expect(email.parts.first.body.raw_source).to include("Mezzo Automatic Offboarding Status")
+    end
+  end
+
+  context "offboard instructions" do
+    let!(:user) { FactoryGirl.create(:user)}
+    let!(:manager) { FactoryGirl.create(:employee) }
+    let!(:forwarding) { FactoryGirl.create(:employee) }
+    let!(:employee) { FactoryGirl.create(:employee, manager_id: manager.employee_id, termination_date: Date.new(2017, 6, 1)) }
+    let!(:emp_transaction) { FactoryGirl.create(:emp_transaction, kind: "Onboarding", user_id: user.id) }
+    let!(:offboarding_info) { FactoryGirl.create(:offboarding_info, employee_id: employee.id, emp_transaction_id: emp_transaction.id, forward_email_id: forwarding.id, reassign_salesforce_id: forwarding.id, transfer_google_docs_id: forwarding.id) }
+    let!(:info) { FactoryGirl.create(:offboard, employee_id: employee.id) }
+    let!(:email) { TechTableMailer.offboard_instructions(employee).deliver_now }
+
+    it "should queue to send" do
+      expect(ActionMailer::Base.deliveries).to_not be_empty
+    end
+
+    it "should have the right content" do
+      expect(email.from).to eq(["no-reply@opentable.com"])
+      expect(email.to).to include("techtable@opentable.com")
+      expect(email.subject).to eq("Mezzo Offboard Instructions for #{employee.first_name} #{employee.last_name}")
+      expect(email.parts.first.body.raw_source).to include("Offboarding Worker Request")
+    end
+  end
+
+  context "onboard instructions" do
+    let!(:user) { FactoryGirl.create(:user)}
+    let!(:manager) { FactoryGirl.create(:employee) }
+    let!(:employee) { FactoryGirl.create(:employee, manager_id: manager.employee_id, worker_type_id: worker_type.id) }
+    let!(:worker_type) { FactoryGirl.create(:worker_type) }
+    let!(:sp) { FactoryGirl.create(:security_profile) }
+    let!(:emp_transaction) { FactoryGirl.create(:emp_transaction, kind: "Onboarding", user_id: user.id) }
+    let!(:onboarding_info) { FactoryGirl.create(:onboarding_info, employee_id: employee.id, emp_transaction_id: emp_transaction.id) }
+    let!(:emp_sec_profile) { FactoryGirl.create(:emp_sec_profile, employee_id: employee.id, security_profile_id: sp.id, emp_transaction_id: emp_transaction.id) }
+    let!(:info) { FactoryGirl.create(:onboard, employee_id: employee.id) }
+    let!(:email) { TechTableMailer.onboard_instructions(employee).deliver_now }
+
+    it "should queue to send" do
+      expect(ActionMailer::Base.deliveries).to_not be_empty
+    end
+
+    it "should have the right content" do
+      expect(email.from).to eq(["no-reply@opentable.com"])
+      expect(email.to).to include("techtable@opentable.com")
+      expect(email.subject).to eq("Mezzo Onboarding Request for #{employee.first_name} #{employee.last_name}")
+      expect(email.parts.first.body.raw_source).to include("Onboarding Worker Request")
     end
   end
 end

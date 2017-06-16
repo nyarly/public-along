@@ -4,12 +4,6 @@ class TechTableMailerPreview < ActionMailer::Preview
     TechTableMailer.alert_email(message)
   end
 
-  def onboarding_permissions
-    emp_trans = EmpTransaction.where(kind: "Onboarding").last
-    emp = Employee.find(emp_trans.onboarding_infos.first.employee_id)
-    TechTableMailer.permissions(emp_trans, emp)
-  end
-
   def security_access_permissions
     emp_trans = EmpTransaction.where(kind: "Security Access").last
     if emp_trans.emp_sec_profiles.count > 0

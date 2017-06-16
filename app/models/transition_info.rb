@@ -11,6 +11,10 @@ module TransitionInfo
       OffboardingInfo.where(employee_id: @employee.id).order("created_at").last
     end
 
+    def emp_transaction
+      EmpTransaction.find(offboarding_info.emp_transaction_id)
+    end
+
     def archive_data
       if offboarding_info.present? && offboarding_info.archive_data
         offboarding_info.archive_data
