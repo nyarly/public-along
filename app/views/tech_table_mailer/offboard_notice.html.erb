@@ -44,6 +44,7 @@
   <p>
   <strong>Current Active Security Profiles:</strong>
   </p>
+
   <div style="margin-left: 2em">
     <% @employee.active_security_profiles.each do |sp| %>
       <div>
@@ -51,15 +52,19 @@
         <ul>
           <% sp.access_levels.find_each do |al| %>
             <li style="margin-left: 2em"><small><%= al.name %> <%= al.application.name %></small></li>
-            <% if(al.application.dependency.present? || al.application.instructions.present?) %>
-              <p style="margin-left: 2em; color: red"><%= al.application.dependency %></p>
-              <p style="margin-left: 2em; color: red"><%= al.application.instructions %></p>
-            <% else %>
-              <p style="margin-left: 2em; color: limegreen">No further action needed.</p>
+            <% if Application::AUTOMATED_OFFBOARDS.include? al.application.name or al.application.ad_controls? %>
+              <p style="margin-left: 2em; color: limegreen;">No further action needed.</p>
+            <% end %>
+            <% if al.application.dependency.present? %>
+              <p style="margin-left: 2em; color: red;"><%= al.application.dependency %></p>
+            <% end %>
+            <% if al.application.offboard_instructions.present? %>
+              <p style="margin-left: 2em; color: red;"><%= al.application.offboard_instructions %></p>
             <% end %>
           <% end %>
         </ul>
       </div>
     <% end %>
   </div>
+
 </div>

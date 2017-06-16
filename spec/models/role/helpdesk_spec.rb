@@ -11,7 +11,6 @@ describe Role::Helpdesk, :type => :model do
     it_should_behave_like "role abilities", SecProfAccessLevel, [:manage]
     it_should_behave_like "role abilities", AccessLevel, [:manage]
     it_should_behave_like "role abilities", Application, [:manage]
-    it_should_behave_like "role abilities", OffboardCommand, [:generate]
     it_should_behave_like "role abilities", EmpTransaction, [:new, :read]
     it_should_behave_like "role abilities", Employee, [:read, :autocomplete_name]
     it_should_behave_like "role abilities", EmpSecProfile, [:read]

@@ -8,7 +8,6 @@ class Role::Helpdesk < Role
     ability.can :manage, SecProfAccessLevel
     ability.can :manage, AccessLevel
     ability.can :manage, Application
-    ability.can :generate, OffboardCommand
     ability.can :new, EmpTransaction
     ability.can :read, Employee
     ability.can :read, EmpTransaction
