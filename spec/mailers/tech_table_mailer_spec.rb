@@ -74,7 +74,7 @@ RSpec.describe TechTableMailer, type: :mailer do
     let!(:manager) { FactoryGirl.create(:employee) }
     let!(:forwarding) { FactoryGirl.create(:employee) }
     let!(:employee) { FactoryGirl.create(:employee, manager_id: manager.employee_id, termination_date: Date.new(2017, 6, 1)) }
-    let!(:emp_transaction) { FactoryGirl.create(:emp_transaction, kind: "Onboarding", user_id: user.id) }
+    let!(:emp_transaction) { FactoryGirl.create(:emp_transaction, kind: "Offboarding", user_id: user.id) }
     let!(:offboarding_info) { FactoryGirl.create(:offboarding_info, employee_id: employee.id, emp_transaction_id: emp_transaction.id, forward_email_id: forwarding.id, reassign_salesforce_id: forwarding.id, transfer_google_docs_id: forwarding.id) }
     let!(:info) { FactoryGirl.create(:offboard, employee_id: employee.id) }
     let!(:email) { TechTableMailer.offboard_instructions(employee).deliver_now }
