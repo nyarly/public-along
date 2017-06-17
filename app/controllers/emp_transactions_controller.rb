@@ -57,11 +57,9 @@ class EmpTransactionsController < ApplicationController
 
     respond_to do |format|
       if @manager_entry.save
+        send_email
         format.html { redirect_to emp_transaction_path(@emp_transaction, emp_id: @employee.id), notice: 'Success! TechTable will be notified with the details of your request.' }
         format.json { render :show, status: :created, location: @emp_transaction }
-        if @emp_transaction.kind != "Offboarding"
-          TechTableMailer.permissions(@emp_transaction, @employee).deliver_now
-        end
       else
         format.html { redirect_to new_emp_transaction_path(manager_entry_params) }
         format.json { render json: @emp_transaction.errors, status: :unprocessable_entity }
@@ -70,6 +68,16 @@ class EmpTransactionsController < ApplicationController
   end
 
   private
+
+    def send_email
+      if @emp_transaction.kind != "Offboarding"
+        if @emp_transaction.kind == "Onboarding"
+          TechTableMailer.onboard_instructions(e).deliver_now
+        else
+          TechTableMailer.permissions(@emp_transaction, @employee).deliver_now
+        end
+      end
+    end
     # Use callbacks to share common setup or constraints between actions.
     def set_emp_transaction
       @emp_transaction = EmpTransaction.find(params[:id])

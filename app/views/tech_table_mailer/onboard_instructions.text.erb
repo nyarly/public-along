@@ -1,0 +1,86 @@
+Onboarding Worker Request
+====================================
+
+Name: <%= @employee.cn %>
+Start Date: <%= @employee.hire_date.strftime("%b %e, %Y") %>
+EmployeeID: <%= @employee.employee_id %>
+Title: <%= @employee.job_title.try(:name) %>
+Department: <%= @employee.department.name %>
+Location: <%= @employee.location.name %>
+Manager: <%= @employee.manager.try(:cn) %>
+Manager Email: <%= @employee.manager.email %>
+Submission Date: <%= @info.onboarding_info.emp_transaction.created_at.strftime("%b %e, %Y") %>
+<% if @employee.contract_end_date.present? %>
+Contract End Date: <%= @employee.contract_end_date.strftime("%b %e, %Y") %>
+<% end %>
+<% if @employee.is_contingent_worker? %>
+Contingent Worker:
+<% if @info.onboarding_info.cw_email.present? %>
+Create OpenTable Email: <%= @info.onboarding_info.cw_email %>
+<% end %>
+<% if @info.onboarding_info.cw_google_membership.present? %>
+Create Google Membership: <%= @info.onboarding_info.cw_google_membership %>
+<% end %>
+<% else %>
+Contingent Worker: false
+<% end %>
+
+<% if @info.emp_transaction.security_profiles.count > 0 %>
+Apply Security Profiles:
+--------------
+
+<% @info.emp_transaction.security_profiles.each do |sp| %>
+<%= sp.name %>
+
+<% sp.access_levels.find_each do |al| %>
+<%= al.name %> <%= al.application.name %>
+
+<% if al.application.ad_controls? %>
+- Worker will automatically be added by Active Directory.
+<% end %>
+<% if al.application.dependency.present? %>
+- <%= al.application.dependency %>
+<% end %>
+<% if al.application.onboard_instructions.present? %>
+- <%= al.application.onboard_instructions %>
+<% end %>
+
+<% if al.application.name.include? "Office 365" %>
+<%= render partial: "onboard_office", locals: {employee: @employee} %>
+<% end %>
+<% end %>
+<% end %>
+<% end %>
+
+Machine Bundle:
+--------------
+
+<% @info.emp_transaction.machine_bundles.each do |mb| %>
+<%= mb.name %>
+<%= mb.description %>
+<% end %>
+
+<% if @employee.home_address_1.present? %>
+Shipping Address:
+--------------
+
+Address 1: <%= @employee.home_address_1 %>
+Address 2: <%= @employee.home_address_2 if @employee.home_address_2.present? %>
+City: <%= @employee.home_city if @employee.home_city.present? %>
+State: <%= @employee.home_state if @employee.home_state.present? %>
+Zip: <%= @employee.home_zip if @employee.home_zip.present? %>
+<% end %>
+
+<% if @employee.personal_mobile_phone.present? %>
+Personal Mobile:
+--------------
+
+<%= @employee.personal_mobile_phone %>
+<% end %>
+
+<% if @info.emp_transaction.notes.present? %>
+Additional Instructions from Manager:
+--------------
+
+<%= @info.emp_transaction.notes %>
+<% end %>

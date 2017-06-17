@@ -55,9 +55,9 @@ Active Security Profile Termination Instructions:
 <% end %>
 <% end %>
 <% end %>
-<% if @employee.offboarding_infos.present? && @employee.offboarding_infos.emp_transaction.notes.present? %>
+<% if @info.emp_transaction.present? && @info.emp_transaction.notes.present? %>
 Additional Instructions from Manager
 -------------------------------------------------
 
-<%= @employee.offboarding_infos.emp_transaction.notes %>
+<%= @info.emp_transaction.notes %>
 <% end %>
