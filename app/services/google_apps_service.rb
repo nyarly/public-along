@@ -28,12 +28,19 @@ class GoogleAppsService
     end
   end
 
+  def process(employee)
+    transfer = transfer_data(employee)
+    confirm = confirm_transfer(transfer[0].id)
+    confirm.overall_transfer_status_code
+  end
+
   def transfer_data(employee)
     transfer_info = TransitionInfo::Offboard.new(employee.employee_id)
     transfer_email = transfer_info.forward_google
     user_account = google_user(employee.email)
     transfer_account = google_user(transfer_email)
     app_list = get_app_list
+    transfers = []
 
     if user_account && transfer_account
       if app_list && app_list.applications.present?
@@ -48,21 +55,21 @@ class GoogleAppsService
               new_owner_user_id: transfer_account.id,
               application_data_transfers: [app_data])
 
-            transfer_response = @data_transfer_service.insert_transfer(dto)
-            transfer_response
+            transfers << @data_transfer_service.insert_transfer(dto)
           end
         end
       end
     end
+
+    transfers
   end
 
   def confirm_transfer(transfer_id)
     begin
       @data_transfer_service.get_transfer(transfer_id)
     rescue => e
-      Rails.logger.error "Google Apps confirm transfer error."
-      Rails.logger.error "Google Apps responded with: #{e}"
-      e
+      Rails.logger.error "Google Apps confirm transfer failed with: #{e}"
+      nil
     end
   end
 
@@ -70,8 +77,7 @@ class GoogleAppsService
     begin
       @directory_service.get_user(employee_email)
     rescue => e
-      Rails.logger.error "Google Apps User #{employee_email} not found."
-      Rails.logger.error "Google Apps responded with: #{e}"
+      Rails.logger.error "Google Apps get user #{employee_email} not found because #{e}"
       nil
     end
   end
@@ -81,7 +87,7 @@ class GoogleAppsService
     begin
       @data_transfer_service.list_applications(max_results: 10)
     rescue => e
-      Rails.logger.error "Google Apps List failed with: #{e}"
+      Rails.logger.error "Google Apps list applications failed with: #{e}"
       nil
     end
   end
