@@ -26,30 +26,37 @@ class GoogleAppsService
       service.client_options.application_name = APPLICATION_NAME
       service
     end
+  end
 
-    @errors = {}
+  def process(employee)
+    transfer = transfer_data(employee)
+    confirm = confirm_transfer(transfer[0].id)
+    confirm.overall_transfer_status_code
   end
 
   def transfer_data(employee)
-    transfers = []
-    transfer_to_employee = Employee.transfer_google_docs_id(employee)
-
+    transfer_info = TransitionInfo::Offboard.new(employee.employee_id)
+    transfer_email = transfer_info.forward_google
+    user_account = google_user(employee.email)
+    transfer_account = google_user(transfer_email)
     app_list = get_app_list
+    transfers = []
 
-    if app_list && app_list.applications.present?
-      app_list.applications.each do |application|
-        if application.name == "Drive and Docs"
-          app_data = Google::Apis::AdminDatatransferV1::ApplicationDataTransfer.new(
-            application_id: application.id,
-            application_transfer_params: application.transfer_params)
+    if user_account && transfer_account
+      if app_list && app_list.applications.present?
+        app_list.applications.each do |application|
+          if application.name == "Drive and Docs"
+            app_data = Google::Apis::AdminDatatransferV1::ApplicationDataTransfer.new(
+              application_id: application.id,
+              application_transfer_params: application.transfer_params)
 
-          dto = Google::Apis::AdminDatatransferV1::DataTransfer.new(
-            old_owner_user_id: google_user(employee.email).id,
-            new_owner_user_id: google_user(transfer_to_employee.email).id,
-            application_data_transfers: [app_data])
+            dto = Google::Apis::AdminDatatransferV1::DataTransfer.new(
+              old_owner_user_id: user_account.id,
+              new_owner_user_id: transfer_account.id,
+              application_data_transfers: [app_data])
 
-          transfer_response = @data_transfer_service.insert_transfer(dto)
-          transfers << transfer_response
+            transfers << @data_transfer_service.insert_transfer(dto)
+          end
         end
       end
     end
@@ -58,16 +65,31 @@ class GoogleAppsService
   end
 
   def confirm_transfer(transfer_id)
-    @data_transfer_service.get_transfer(transfer_id)
+    begin
+      @data_transfer_service.get_transfer(transfer_id)
+    rescue => e
+      Rails.logger.error "Google Apps confirm transfer failed with: #{e}"
+      nil
+    end
   end
 
   def google_user(employee_email)
-    @directory_service.get_user(employee_email)
+    begin
+      @directory_service.get_user(employee_email)
+    rescue => e
+      Rails.logger.error "Google Apps get user #{employee_email} not found because #{e}"
+      nil
+    end
   end
 
   def get_app_list
     # List the first 10 applications available for transfer.
-    @data_transfer_service.list_applications(max_results: 10)
+    begin
+      @data_transfer_service.list_applications(max_results: 10)
+    rescue => e
+      Rails.logger.error "Google Apps list applications failed with: #{e}"
+      nil
+    end
   end
 
   private

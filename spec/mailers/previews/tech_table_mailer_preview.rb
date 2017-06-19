@@ -27,9 +27,16 @@ class TechTableMailerPreview < ActionMailer::Preview
   end
 
   def offboard_status
-    emp_trans = EmpTransaction.where(kind: "Offboarding").last
     emp = Employee.where('termination_date IS NOT NULL').first
-    TechTableMailer.offboard_status(emp)
+    results = {"Google Apps"=>"completed",
+               "Admin"=>"success",
+               "Admin_EU"=>"success",
+               "Admin_Asia"=>"success",
+               "OTAnywhere"=>"success",
+               "OTAnywhere_EU"=>"success",
+               "OTAnywhere_Asia"=>"success",
+               "GOD"=>"failed"}
+    TechTableMailer.offboard_status(emp, results)
   end
 
   def offboard_instructions

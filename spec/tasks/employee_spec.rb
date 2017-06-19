@@ -30,6 +30,7 @@ describe "employee rake tasks", type: :tasks do
       allow(@ldap).to receive(:auth)
       allow(@ldap).to receive(:bind)
       allow(OffboardingService).to receive(:new).and_return(@offboarding_service)
+      allow(@offboarding_service).to receive(:offboard)
     end
 
     after :each do
@@ -150,6 +151,22 @@ describe "employee rake tasks", type: :tasks do
       )
 
       allow(@ldap).to receive(:get_operation_result)
+      Rake::Task["employee:change_status"].invoke
+    end
+
+    it "should offboard deactivated employee group at 9pm" do
+      termination = FactoryGirl.create(:employee, :termination_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "Technology/CTO Admin").id, :location_id => mumbai.id, worker_type_id: worker_type.id)
+
+      # 7/29/ 2017 at 9pm IST/3:30pm UTC
+      Timecop.freeze(Time.new(2016, 7, 29, 15, 30, 0, "+00:00"))
+
+      ad = double(ActiveDirectoryService)
+      allow(ActiveDirectoryService).to receive(:new).and_return(ad)
+      allow(ad).to receive(:deactivate)
+      allow(ad).to receive(:activate)
+      allow(ad).to receive(:terminate)
+      expect(@offboarding_service).to receive(:offboard).once.with([termination])
+
       Rake::Task["employee:change_status"].invoke
     end
 

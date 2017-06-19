@@ -53,9 +53,10 @@ RSpec.describe TechTableMailer, type: :mailer do
   end
 
   context "offboard status" do
+    results = {}
     let(:manager) { FactoryGirl.create(:employee) }
     let(:employee) { FactoryGirl.create(:employee, termination_date: Date.new(2017, 6, 1), manager_id: manager.employee_id) }
-    let!(:email) { TechTableMailer.offboard_status(employee).deliver_now }
+    let!(:email) { TechTableMailer.offboard_status(employee, results).deliver_now }
 
     it "should queue to send" do
       expect(ActionMailer::Base.deliveries).to_not be_empty
@@ -63,7 +64,7 @@ RSpec.describe TechTableMailer, type: :mailer do
 
     it "should have the right content" do
       expect(email.from).to eq(["no-reply@opentable.com"])
-      expect(email.to).to include("techtable@opentable.com")
+      expect(email.to).to include("ComputerClub@opentable.com")
       expect(email.subject).to eq("Mezzo Automated Offboarding Status for #{employee.first_name} #{employee.last_name}")
       expect(email.parts.first.body.raw_source).to include("Mezzo Automatic Offboarding Status")
     end

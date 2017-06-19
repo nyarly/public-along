@@ -5,7 +5,7 @@ class SqlService
   attr_accessor :results
 
   def initialize
-    @results = []
+    @results = {}
     @log_connection = log_connection
   end
 
@@ -63,32 +63,42 @@ class SqlService
     @results
   end
 
+  def close_pool(pool)
+    @pool.shutdown { |conn| conn.close }
+  end
+
   private
 
   def deactivate(connection, data, log)
     send_log(log)
+    status = 'failed'
+    database_name = result_key(log)
 
     begin
       deactivation = connection.execute(data)
       deactivation.do
-      deactivation_status = deactivation.return_code
 
       # all sql stored proc success codes return 0
-      if deactivation_status == 0
+      if deactivation.return_code == 0
         #update sql server log entry on success
         send_log(log)
+        status = 'success'
       end
 
-      Rails.logger.info "SQL SERVER RETURNED: #{deactivation_status} WITH INFO: #{data}"
-      @results << deactivation_status
+      Rails.logger.info "SQL SERVER RETURNED: #{status} WITH INFO: #{data}"
     rescue => e
-      # execeptions push return code -1 for failure
       Rails.logger.error "SQL SERVER ERROR: #{e} WITH INFO: #{data}"
       TechTableMailer.alert_email("ERROR: Could not deactivate #{data} because #{e}").deliver_now
-      @results << -1
     end
 
+    @results[database_name] = status
     @results
+  end
+
+  def result_key(str)
+    server = str.match(/@Server = (.*')/)
+    formatted = server[1].gsub /^'|'$/, ''
+    formatted
   end
 
   def send_log(data)
@@ -113,8 +123,8 @@ class SqlService
   end
 
   def connect(host, database)
-    username = SECRETS.sql_server_user
-    password = SECRETS.sql_server_password
+    username = SECRETS.sql_db_user
+    password = SECRETS.sql_db_user_passwd
 
     begin
       client = TinyTds::Client.new host: host, username: username, password: password, database: database
@@ -136,10 +146,6 @@ class SqlService
     if connection && connection.active?
       connection.close
     end
-  end
-
-  def close_pool(pool)
-    @pool.shutdown { |conn| conn.close }
   end
 
 end
