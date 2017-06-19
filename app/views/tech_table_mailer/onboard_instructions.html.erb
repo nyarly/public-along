@@ -73,8 +73,8 @@
   </div>
 
   <% if @employee.location.kind == "Remote Location" %>
+    <h2>Shipping Address:</h2>
     <% if @employee.home_address_1.present? %>
-      <h2>Shipping Address:</h2>
       <p style="margin-left: 2em">Address 1: <%= @employee.home_address_1 %></p>
       <p style="margin-left: 2em">
         Address 2: <%= @employee.home_address_2 if @employee.home_address_2.present? %>
