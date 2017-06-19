@@ -63,7 +63,11 @@ class SqlService
     @results
   end
 
-  # private
+  def close_pool(pool)
+    @pool.shutdown { |conn| conn.close }
+  end
+
+  private
 
   def deactivate(connection, data, log)
     send_log(log)
@@ -83,7 +87,6 @@ class SqlService
 
       Rails.logger.info "SQL SERVER RETURNED: #{status} WITH INFO: #{data}"
     rescue => e
-      # execeptions push return code -1 for failure
       Rails.logger.error "SQL SERVER ERROR: #{e} WITH INFO: #{data}"
       TechTableMailer.alert_email("ERROR: Could not deactivate #{data} because #{e}").deliver_now
     end
@@ -94,7 +97,8 @@ class SqlService
 
   def result_key(str)
     server = str.match(/@Server = (.*')/)
-    server[1]
+    formatted = server[1].gsub /^'|'$/, ''
+    formatted
   end
 
   def send_log(data)
@@ -142,10 +146,6 @@ class SqlService
     if connection && connection.active?
       connection.close
     end
-  end
-
-  def close_pool(pool)
-    @pool.shutdown { |conn| conn.close }
   end
 
 end

@@ -30,7 +30,7 @@ describe SqlService, type: :service do
       sql_service.deactivate_all(employee)
     end
 
-    it "should return an array of results" do
+    it "should return a hash of results" do
       allow(tiny_tds).to receive(:execute).and_return(tiny_tds)
       allow(tiny_tds).to receive(:do)
       allow(tiny_tds).to receive(:return_code).and_return(0)
@@ -39,7 +39,13 @@ describe SqlService, type: :service do
       sql_service.deactivate_all(employee)
 
       expect(sql_service.results.length).to eq(7)
-      expect(sql_service.results).to eq([0, 0, 0, 0, 0, 0, 0])
+      expect(sql_service.results).to eq({"Admin"=>"success",
+               "Admin_EU"=>"success",
+               "Admin_Asia"=>"success",
+               "OTAnywhere"=>"success",
+               "OTAnywhere_EU"=>"success",
+               "OTAnywhere_Asia"=>"success",
+               "GOD"=>"success"})
     end
 
     it "should deactivate and log charm with correct information on all three databases" do
@@ -79,7 +85,7 @@ describe SqlService, type: :service do
   end
 
   context "offboard services fail" do
-    it "should return an array of results" do
+    it "should return a hash of results" do
       allow(tiny_tds).to receive(:execute).and_return(tiny_tds)
       allow(tiny_tds).to receive(:do)
       allow(tiny_tds).to receive(:return_code).and_return(+1)
@@ -88,7 +94,13 @@ describe SqlService, type: :service do
       sql_service.deactivate_all(employee)
 
       expect(sql_service.results.length).to eq(7)
-      expect(sql_service.results).to eq([+1, +1, +1, +1, +1, +1, +1])
+      expect(sql_service.results).to eq({"Admin"=>"failed",
+               "Admin_EU"=>"failed",
+               "Admin_Asia"=>"failed",
+               "OTAnywhere"=>"failed",
+               "OTAnywhere_EU"=>"failed",
+               "OTAnywhere_Asia"=>"failed",
+               "GOD"=>"failed"})
     end
 
     it "should rescue errors from tiny_tds" do
@@ -99,7 +111,13 @@ describe SqlService, type: :service do
       sql_service.deactivate_all(employee)
 
       expect(Rails.logger.error).to be(true)
-      expect(sql_service.results).to eq([-1, -1, -1, -1, -1, -1, -1])
+      expect(sql_service.results).to eq({"Admin"=>"failed",
+               "Admin_EU"=>"failed",
+               "Admin_Asia"=>"failed",
+               "OTAnywhere"=>"failed",
+               "OTAnywhere_EU"=>"failed",
+               "OTAnywhere_Asia"=>"failed",
+               "GOD"=>"failed"})
     end
   end
 end

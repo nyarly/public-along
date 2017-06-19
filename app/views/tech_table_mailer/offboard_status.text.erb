@@ -11,12 +11,6 @@ EmployeeID: <%= @employee.employee_id %>
 
 Automatic Account Offboarding Status:
 ---------------------------------
-<% @employee.emp_access_levels.each do |al| %>
-  <% @access_level = AccessLevel.find(al.access_level_id) %>
-  <% if al.active %>
-    Active
-  <% else %>
-    Deactivated
-  <% end %>
-  <%= @access_level.name %> <%= Application.find(@access_level.application_id).name %>
+<% @deactivations.each do |key, value| %>
+<%= key %>: <%= value %>
 <% end %>
