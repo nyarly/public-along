@@ -18,7 +18,7 @@ class OffboardingService
     # transfer google apps
     google_apps_service = GoogleAppsService.new
     transfer = google_apps_service.process(employee)
-    results['Google Apps'] = "completed"
+    results['Google Apps'] = transfer
 
     # deactivate sql services
     sql_service = SqlService.new
