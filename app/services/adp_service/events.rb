@@ -136,11 +136,7 @@ module AdpService
 
     def send_offboard_forms(e)
       TechTableMailer.offboard_notice(e).deliver_now
-      if Time.now < 5.business_days.before(e.termination_date)
-        EmployeeWorker.perform_at(5.business_days.before(e.termination_date), "Offboarding", e.id)
-      else
-        EmployeeWorker.perform_async("Offboarding", e.id)
-      end
+      EmployeeWorker.perform_async("Offboarding", e.id)
     end
 
     def del_event(num)
