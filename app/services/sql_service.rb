@@ -75,14 +75,16 @@ class SqlService
     database_name = result_key(log)
 
     begin
-      deactivation = connection.execute(data)
-      deactivation.do
+      if connection
+        deactivation = connection.execute(data)
+        deactivation.do
 
-      # all sql stored proc success codes return 0
-      if deactivation.return_code == 0
-        #update sql server log entry on success
-        send_log(log)
-        status = 'success'
+        # all sql stored proc success codes return 0
+        if deactivation.return_code == 0
+          #update sql server log entry on success
+          send_log(log)
+          status = 'success'
+        end
       end
 
       Rails.logger.info "SQL SERVER RETURNED: #{status} WITH INFO: #{data}"
@@ -133,7 +135,7 @@ class SqlService
       connection_err = "Could not connect to #{host} on #{database} as user #{username} because #{e}"
       Rails.logger.error "SQL SERVER CONNECTION ERROR: #{connection_err}"
       TechTableMailer.alert_email("ERROR: #{connection_err}").deliver_now
-      e
+      nil
     end
   end
 
