@@ -72,21 +72,25 @@
     <% end %>
   </div>
 
-  <% if @employee.home_address_1.present? %>
+  <% if @employee.location.kind == "Remote Location" %>
     <h2>Shipping Address:</h2>
-    <p style="margin-left: 2em">Address 1: <%= @employee.home_address_1 %></p>
-    <p style="margin-left: 2em">
-      Address 2: <%= @employee.home_address_2 if @employee.home_address_2.present? %>
-    </p>
-    <p style="margin-left: 2em">
-      City: <%= @employee.home_city if @employee.home_city.present? %>
-    </p>
-    <p style="margin-left: 2em">
-      State: <%= @employee.home_state if @employee.home_state.present? %>
-    </p>
-    <p style="margin-left: 2em">
-      Zip: <%= @employee.home_zip if @employee.home_zip.present? %>
-    </p>
+    <% if @employee.home_address_1.present? %>
+      <p style="margin-left: 2em">Address 1: <%= @employee.home_address_1 %></p>
+      <p style="margin-left: 2em">
+        Address 2: <%= @employee.home_address_2 if @employee.home_address_2.present? %>
+      </p>
+      <p style="margin-left: 2em">
+        City: <%= @employee.home_city if @employee.home_city.present? %>
+      </p>
+      <p style="margin-left: 2em">
+        State: <%= @employee.home_state if @employee.home_state.present? %>
+      </p>
+      <p style="margin-left: 2em">
+        Zip: <%= @employee.home_zip if @employee.home_zip.present? %>
+      </p>
+    <% else %>
+      <p>Employee will be working from a remote location, but does not have an address on record. Please contact People and Culture for the employee's shipping address.</p>
+    <% end %>
   <% end %>
 
   <% if @employee.personal_mobile_phone.present? %>
