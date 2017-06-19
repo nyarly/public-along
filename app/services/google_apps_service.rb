@@ -30,8 +30,12 @@ class GoogleAppsService
 
   def process(employee)
     transfer = transfer_data(employee)
-    confirm = confirm_transfer(transfer[0].id)
-    confirm.overall_transfer_status_code
+    if transfer.any?
+      confirm = confirm_transfer(transfer[0].id)
+      confirm.overall_transfer_status_code
+    else
+      "failed"
+    end
   end
 
   def transfer_data(employee)
