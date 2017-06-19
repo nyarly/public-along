@@ -33,5 +33,3 @@ class EmpAccessLevelService
   end
 
 end
-
-
