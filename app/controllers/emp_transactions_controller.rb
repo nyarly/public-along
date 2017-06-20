@@ -72,7 +72,7 @@ class EmpTransactionsController < ApplicationController
     def send_email
       if @emp_transaction.kind != "Offboarding"
         if @emp_transaction.kind == "Onboarding"
-          TechTableMailer.onboard_instructions(e).deliver_now
+          TechTableMailer.onboard_instructions(@employee).deliver_now
         else
           TechTableMailer.permissions(@emp_transaction, @employee).deliver_now
         end
