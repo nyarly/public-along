@@ -12,7 +12,9 @@ module TransitionInfo
     end
 
     def emp_transaction
-      EmpTransaction.find(offboarding_info.emp_transaction_id)
+      if offboarding_info.present?
+        EmpTransaction.find(offboarding_info.emp_transaction_id)
+      end
     end
 
     def archive_data
