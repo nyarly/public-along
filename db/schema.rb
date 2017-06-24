@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170614232456) do
+ActiveRecord::Schema.define(version: 20170622230401) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -263,4 +263,12 @@ ActiveRecord::Schema.define(version: 20170614232456) do
 
   add_foreign_key "emp_access_levels", "access_levels"
   add_foreign_key "emp_access_levels", "employees"
+  add_foreign_key "emp_mach_bundles", "employees", on_delete: :cascade
+  add_foreign_key "emp_sec_profiles", "employees", on_delete: :cascade
+  add_foreign_key "employees", "departments"
+  add_foreign_key "employees", "job_titles"
+  add_foreign_key "employees", "locations"
+  add_foreign_key "employees", "worker_types"
+  add_foreign_key "offboarding_infos", "employees", on_delete: :cascade
+  add_foreign_key "onboarding_infos", "employees", on_delete: :cascade
 end

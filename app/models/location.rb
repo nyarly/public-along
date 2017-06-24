@@ -89,4 +89,7 @@ class Location < ActiveRecord::Base
   validates :timezone,
             allow_nil: true,
             inclusion: { in: TIMEZONES + ["Pending Assignment"] }
+
+  has_many :employees
+
 end
