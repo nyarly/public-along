@@ -123,11 +123,7 @@ describe AdpService::Workers, type: :service do
         hire_date: "2013-08-05",
         contract_end_date: nil,
         company: "OpenTable Inc.",
-        job_title_id: 1,
-        worker_type_id: 2,
         manager_id: "101734",
-        department_id: 3,
-        location_id: 4,
         office_phone: "(212) 555-4411",
         personal_mobile_phone: "(212) 555-4411"
       }]

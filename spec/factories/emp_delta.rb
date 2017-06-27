@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :emp_delta, class: 'EmpDelta' do
-    employee_id 1
+    association :employee, factory: :employee
     before ""
     after ""
   end
