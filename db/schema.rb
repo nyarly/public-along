@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170623233151) do
+ActiveRecord::Schema.define(version: 20170614232456) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -261,29 +261,6 @@ ActiveRecord::Schema.define(version: 20170623233151) do
     t.datetime "updated_at", null: false
   end
 
-  add_foreign_key "access_levels", "applications", on_delete: :cascade
-  add_foreign_key "departments", "parent_orgs", on_delete: :cascade
-  add_foreign_key "dept_mach_bundles", "departments", on_delete: :cascade
-  add_foreign_key "dept_mach_bundles", "machine_bundles", on_delete: :cascade
-  add_foreign_key "dept_sec_profs", "departments", on_delete: :cascade
-  add_foreign_key "dept_sec_profs", "security_profiles", on_delete: :cascade
   add_foreign_key "emp_access_levels", "access_levels"
   add_foreign_key "emp_access_levels", "employees"
-  add_foreign_key "emp_delta", "employees", on_delete: :cascade
-  add_foreign_key "emp_mach_bundles", "emp_transactions", on_delete: :cascade
-  add_foreign_key "emp_mach_bundles", "employees", on_delete: :cascade
-  add_foreign_key "emp_mach_bundles", "machine_bundles", on_delete: :cascade
-  add_foreign_key "emp_sec_profiles", "emp_transactions", on_delete: :cascade
-  add_foreign_key "emp_sec_profiles", "employees", on_delete: :cascade
-  add_foreign_key "emp_sec_profiles", "security_profiles", on_delete: :cascade
-  add_foreign_key "employees", "departments"
-  add_foreign_key "employees", "job_titles"
-  add_foreign_key "employees", "locations"
-  add_foreign_key "employees", "worker_types"
-  add_foreign_key "offboarding_infos", "emp_transactions", on_delete: :cascade
-  add_foreign_key "offboarding_infos", "employees", on_delete: :cascade
-  add_foreign_key "onboarding_infos", "emp_transactions", on_delete: :cascade
-  add_foreign_key "onboarding_infos", "employees", on_delete: :cascade
-  add_foreign_key "sec_prof_access_levels", "access_levels", on_delete: :cascade
-  add_foreign_key "sec_prof_access_levels", "security_profiles", on_delete: :cascade
 end
