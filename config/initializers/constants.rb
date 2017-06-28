@@ -9,7 +9,7 @@ OUS = {
   "ou=Field OPS,ou=Users," => { :department => ["Field Operations"], :country => ["US", "CA", "MX", "AU"] },
   "ou=Field OPS,ou=EU,ou=Users," => { :department => ["Field Operations"], :country => ["GB", "DE", "IE"] },
   "ou=Executive,ou=Users," => { :department => ["Executive"], :country => ["US", "JP"]},
-  "ou=IT,ou=Users," => { :department => ["Tech Table", "Infrastructure Engineering"], :country => ["US", "IN"] },
+  "ou=IT,ou=Users," => { :department => ["Tech Table", "Infrastructure Engineering"], :country => ["US", "IN", "JP"] },
   "ou=IT,ou=EU,ou=Users," => { :department => ["Tech Table", "Infrastructure Engineering"], :country => ["GB"] },
   "ou=Marketing,ou=Users," => { :department => ["Brand/General Marketing", "Consumer Marketing", "Restaurant Marketing", "Public Relations", "Product Marketing"], :country => ["US", "CA", "MX", "AU"] },
   "ou=Marketing,ou=EU,ou=Users," => { :department => ["Brand/General Marketing", "Consumer Marketing", "Restaurant Marketing", "Public Relations", "Product Marketing"], :country => ["GB", "DE", "IE"] },
@@ -23,7 +23,7 @@ OUS = {
   "ou=Apollo Blake,ou=Users," => { :department => ["Tier 1 Support - Apollo Blake"], :country => ["US", "DE", "IE"] },
   "ou=Customer Support,ou=Users," => { :department => ["Customer Support", "Customer Support - Contact Center"], :country => ["US", "CA", "MX", "AU"] },
   "ou=Operations,ou=EU,ou=Users," => { :department => ["Customer Support", "Customer Support - Contact Center"], :country => ["GB", "DE", "IE"] },
-  "ou=Japan,ou=Users," => { :department => ["Finance", "Finance Operations", "Sales", "Sales Operations", "Inside Sales", "Restaurant Relations Management", "Field Operations", "Brand/General Marketing", "Consumer Marketing", "Restaurant Marketing", "Public Relations", "Product Marketing", "Customer Support", "Customer Support - Contact Center"], :country => ["JP"] }
+  "ou=Japan,ou=Users," => { :department => ["Finance", "Finance Operations", "Sales", "Sales Operations", "Inside Sales", "Restaurant Relations Management", "Field Operations", "Brand/General Marketing", "Consumer Marketing", "Restaurant Marketing", "Public Relations", "Product Marketing", "Customer Support", "Customer Support - Contact Center", "Tech Table"], :country => ["JP"] }
 }
 
 # In AD, this value indicates that the account never expires
