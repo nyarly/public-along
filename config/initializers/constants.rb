@@ -9,7 +9,7 @@ OUS = {
   "ou=Field OPS,ou=Users," => { :department => ["Field Operations"], :country => ["US", "CA", "MX", "AU"] },
   "ou=Field OPS,ou=EU,ou=Users," => { :department => ["Field Operations"], :country => ["GB", "DE", "IE"] },
   "ou=Executive,ou=Users," => { :department => ["Executive"], :country => ["US", "JP"]},
-  "ou=IT,ou=Users," => { :department => ["Tech Table", "Infrastructure Engineering"], :country => ["US", "IN", "JP"] },
+  "ou=IT,ou=Users," => { :department => ["Tech Table", "Infrastructure Engineering"], :country => ["US", "IN"] },
   "ou=IT,ou=EU,ou=Users," => { :department => ["Tech Table", "Infrastructure Engineering"], :country => ["GB"] },
   "ou=Marketing,ou=Users," => { :department => ["Brand/General Marketing", "Consumer Marketing", "Restaurant Marketing", "Public Relations", "Product Marketing"], :country => ["US", "CA", "MX", "AU"] },
   "ou=Marketing,ou=EU,ou=Users," => { :department => ["Brand/General Marketing", "Consumer Marketing", "Restaurant Marketing", "Public Relations", "Product Marketing"], :country => ["GB", "DE", "IE"] },
