@@ -5,21 +5,21 @@ class Employee < ActiveRecord::Base
   before_validation :downcase_unique_attrs
   before_validation :strip_whitespace
 
-  validates :first_name,
-            presence: true
-  validates :last_name,
-            presence: true
-  validates :hire_date,
-            presence: true
-  validates :department_id,
-            presence: true
-  validates :location_id,
-            presence: true
-  validates :email,
-            allow_nil: true,
-            uniqueness: true
-  validates :employee_id,
-            uniqueness: { message: "Worker ID has already been taken" }
+  # validates :first_name,
+  #           presence: true
+  # validates :last_name,
+  #           presence: true
+  # validates :hire_date,
+  #           presence: true
+  # validates :department_id,
+  #           presence: true
+  # validates :location_id,
+  #           presence: true
+  # validates :email,
+  #           allow_nil: true,
+  #           uniqueness: true
+  # validates :employee_id,
+  #           uniqueness: { message: "Worker ID has already been taken" }
 
   belongs_to :department
   belongs_to :location

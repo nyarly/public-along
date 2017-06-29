@@ -15,10 +15,14 @@ class AddNotNullConstraints < ActiveRecord::Migration
     change_column_null :departments, :code, false, MISSING_VALUE
     change_column_null :departments, :status, false, MISSING_VALUE
     change_column_null :emp_access_levels, :active, false, false
-    change_column_null :emp_transaction, :kind, false, MISSING_VALUE
-    change_column_null :employee, :first_name, false, MISSING_VALUE
-    change_column_null :employee, :last_name, false, MISSING_VALUE
-    change_column_null :employee, :employee_id, false, MISSING_VALUE
+    change_column_null :emp_transactions, :kind, false, MISSING_VALUE
+    change_column_null :employees, :first_name, false, MISSING_VALUE
+    change_column_null :employees, :last_name, false, MISSING_VALUE
+    change_column_null :employees, :employee_id, false, MISSING_VALUE
+    change_column_null :employees, :hire_date, false
+    change_column_null :employees, :department_id, false
+    change_column_null :employees, :location_id, false
+    change_column_null :employees, :worker_type_id, false
     change_column_null :job_titles, :name, false, MISSING_VALUE
     change_column_null :job_titles, :code, false, MISSING_VALUE
     change_column_null :job_titles, :status, false, MISSING_VALUE
@@ -65,6 +69,10 @@ class AddNotNullConstraints < ActiveRecord::Migration
     execute "UPDATE employees SET last_name = NULL WHERE last_name = '#{MISSING_VALUE}'"
     change_column_null :employees, :employee_id, true
     execute "UPDATE employees SET employee_id = NULL WHERE employee_id = '#{MISSING_VALUE}'"
+    change_column_null :employees, :hire_date, true
+    change_column_null :employees, :department_id, true
+    change_column_null :employees, :location_id, true
+    change_column_null :employees, :worker_type_id, true
     change_column_null :job_titles, :name, true
     execute "UPDATE job_titles SET name = NULL WHERE name = '#{MISSING_VALUE}'"
     change_column_null :job_titles, :code, true
