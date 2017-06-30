@@ -30,7 +30,7 @@ class Employee < ActiveRecord::Base
   has_many :emp_transactions, through: :emp_sec_profiles
   has_many :onboarding_infos # on delete, cascade in db
   has_many :offboarding_infos # on delete, cascade in db
-  has_many :emp_deltas
+  has_many :emp_delta
   has_many :emp_access_levels
   has_many :access_levels, through: :emp_access_levels
   has_many :emp_mach_bundles # on delete, cascade in db
