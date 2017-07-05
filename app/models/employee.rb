@@ -40,6 +40,7 @@ class Employee < ActiveRecord::Base
   has_many :access_levels, through: :emp_access_levels
   has_many :emp_mach_bundles # on delete, cascade in db
   has_many :machine_bundles, through: :emp_mach_bundles
+  has_many :emp_transactions
 
   attr_accessor :nearest_time_zone
 

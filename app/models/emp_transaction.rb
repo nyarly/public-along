@@ -6,8 +6,11 @@ class EmpTransaction < ActiveRecord::Base
   validates :kind,
             presence: true,
             inclusion: { in: KINDS }
+  validates :employee_id,
+            presence: true
 
   belongs_to :user
+  belongs_to :employee
   has_many :emp_sec_profiles, :foreign_key => "emp_transaction_id"
   has_many :security_profiles, through: :emp_sec_profiles
   has_many :emp_mach_bundles
