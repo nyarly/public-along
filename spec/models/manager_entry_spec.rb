@@ -125,8 +125,6 @@ RSpec.describe ManagerEntry do
 
     it "should create offboarding info" do
       manager_entry.save
-      puts manager_entry.emp_transaction.inspect
-      puts manager_entry.emp_transaction.offboarding_infos[0].inspect
 
       expect(manager_entry.emp_transaction.offboarding_infos.count).to eq(1)
       expect(manager_entry.emp_transaction.offboarding_infos.first.archive_data).to eq(true)
