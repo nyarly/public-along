@@ -371,7 +371,7 @@ describe "employee rake tasks", type: :tasks do
       Rake::Task["employee:xml_to_ad"].invoke
     end
 
-    it "should create/update the correct amount of Employees in DB and AD" do
+    xit "should create/update the correct amount of Employees in DB and AD" do
       allow(@ldap).to receive(:search).and_return([], [], [], [@ldap_entry_1], [@ldap_entry_2])
       allow(@ldap).to receive(:replace_attribute)
       expect(@ldap).to receive(:add).once.with({

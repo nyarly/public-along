@@ -127,22 +127,6 @@ mach_bundles = [
   {:name => 'Contingent Worker PC', :description => 'PC laptop, model depending on availability' }
 ]
 
-worker_types = [
-  {:name => "Regular Full-Time", :code => "FTR", :kind => "Regular", :status => "Active" },
-  {:name => "Regular Part-Time", :code => "PTR", :kind => "Regular", :status => "Active" },
-  {:name => "Agency Contract Worker", :code => "CTR", :kind => "Temporary", :status => "Active" },
-]
-
-job_titles = [
-  {:name => "Engineer", :code => "ENG", :status => "Active" },
-  {:name => "Administrative Assistant", :code => "ADM", :status => "Active"}
-]
-
-employees = [
-  {:first_name => "Eleanor", :last_name => "Roosevelt", :employee_id => "12345", :hire_date => Date.today, :location => Location.find_by(:status => "Active"), :department => Department.find_by(:status => "Active"), :worker_type => WorkerType.find_by(:status => "Active"), :job_title => JobTitle.find_by(:status => "Active")},
-  {:first_name => "Snow", :last_name => "White", :employee_id => "12346", :hire_date => Date.today, :location => Location.find_by(:status => "Active"), :department => Department.find_by(:status => "Active"), :worker_type => WorkerType.find_by(:status => "Active"), :job_title => JobTitle.find_by(:status => "Active")}
-]
-
 ActiveRecord::Base.transaction do
   depts.each { |attrs|
     dept = Department.find_or_create_by(name: attrs[:name], code: attrs[:code], status: attrs[:status])
@@ -155,13 +139,6 @@ ActiveRecord::Base.transaction do
   mach_bundles.each { |attrs|
     mb = MachineBundle.find_or_create_by(name: attrs[:name])
     mb.update_attributes(attrs)
-  }
-  worker_types.each { |attrs|
-    wt = WorkerType.find_or_create_by(name: attrs[:name], code: attrs[:code], status: attrs[:status])
-    wt.update_attributes(attrs)
-  }
-  job_titles.each { |attrs|
-    jt = JobTitle.find_or_create_by(name: attrs[:name], code: attrs[:code], status: attrs[:status])
   }
 end
 

@@ -9,6 +9,5 @@ RSpec.describe JobTitle, type: :model do
     expect(job_title).to_not allow_value(nil).for(:code)
     expect(job_title).to_not allow_value(nil).for(:name)
     expect(job_title).to_not allow_value(nil).for(:status)
-    expect(job_title).to     validate_uniqueness_of(:code)
   end
 end
