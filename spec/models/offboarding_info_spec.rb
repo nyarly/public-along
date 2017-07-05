@@ -8,6 +8,7 @@ RSpec.describe OffboardingInfo, type: :model do
 
     expect(offboarding_info).to_not allow_value(nil).for(:employee_id)
     expect(offboarding_info).to_not allow_value(nil).for(:forward_email_id)
-    expect(offboarding_info).to_not allow_value(nil).for(:reassign_salesforce_id)
+    expect(offboarding_info).to_not allow_value(nil).for(:archive_data)
+    expect(offboarding_info).to_not allow_value(nil).for(:replacement_hired)
   end
 end

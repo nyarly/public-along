@@ -1,7 +1,7 @@
 FactoryGirl.define do
   factory :access_level do
     name "MyString"
-    application_id 1
+    association :application, factory: :application
     ad_security_group "MyString"
   end
 end

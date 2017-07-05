@@ -110,7 +110,7 @@ describe AdpService::Workers, type: :service do
   end
 
   describe "sync_workers" do
-    let!(:employee) { FactoryGirl.create(:employee, employee_id: "101455", job_title_id: 1, worker_type_id: 2, department_id: 3, location_id: 4)}
+    let!(:employee) { FactoryGirl.create(:employee, employee_id: "101455")}
     let(:json) { JSON.parse(File.read(Rails.root.to_s+"/spec/fixtures/adp_workers.json")) }
     let(:parser) { double(AdpService::WorkerJsonParser) }
     let(:sorted) {
@@ -123,11 +123,7 @@ describe AdpService::Workers, type: :service do
         hire_date: "2013-08-05",
         contract_end_date: nil,
         company: "OpenTable Inc.",
-        job_title_id: 1,
-        worker_type_id: 2,
         manager_id: "101734",
-        department_id: 3,
-        location_id: 4,
         office_phone: "(212) 555-4411",
         personal_mobile_phone: "(212) 555-4411"
       }]
@@ -212,6 +208,7 @@ describe AdpService::Workers, type: :service do
     end
 
     it "should send a security access form on department, worker type, location, or job title" do
+      new_department = FactoryGirl.create(:department)
       sorted = [{
         status: "Active",
         adp_assoc_oid: "G32B8JAXA1W398Z8",
@@ -221,11 +218,8 @@ describe AdpService::Workers, type: :service do
         hire_date: "2013-08-05",
         contract_end_date: nil,
         company: "OpenTable Inc.",
-        job_title_id: 1,
-        worker_type_id: 2,
+        department_id: new_department.id,
         manager_id: "101734",
-        department_id: 3,
-        location_id: 777,
         office_phone: "(212) 555-4411",
         personal_mobile_phone: "(212) 555-4411"
       }]
@@ -245,10 +239,11 @@ describe AdpService::Workers, type: :service do
       expect(ads).to receive(:update).with([employee])
 
       adp.sync_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
-      expect(employee.reload.department_id).to eq(3)
+      expect(employee.reload.department_id).to eq(new_department.id)
     end
 
     it "should not send an email if it did recently" do
+      new_job_title = FactoryGirl.create(:job_title)
       sorted = [{
         status: "Active",
         adp_assoc_oid: "G32B8JAXA1W398Z8",
@@ -258,11 +253,8 @@ describe AdpService::Workers, type: :service do
         hire_date: "2013-08-05",
         contract_end_date: nil,
         company: "OpenTable Inc.",
-        job_title_id: 1,
-        worker_type_id: 2,
+        job_title_id: new_job_title.id,
         manager_id: "101734",
-        department_id: 3,
-        location_id: 777,
         office_phone: "(212) 555-4411",
         personal_mobile_phone: "(212) 555-4411"
       }]
@@ -288,7 +280,7 @@ describe AdpService::Workers, type: :service do
       expect(EmployeeWorker).not_to receive(:perform_async)
 
       adp.sync_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
-      expect(employee.reload.department_id).to eq(3)
+      expect(employee.reload.job_title_id).to eq(new_job_title.id)
     end
   end
 

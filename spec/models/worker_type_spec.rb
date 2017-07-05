@@ -9,6 +9,5 @@ RSpec.describe WorkerType, type: :model do
     expect(worker_type).to_not allow_value(nil).for(:name)
     expect(worker_type).to_not allow_value(nil).for(:code)
     expect(worker_type).to_not allow_value(nil).for(:kind)
-    expect(worker_type).to     validate_uniqueness_of(:code)
   end
 end

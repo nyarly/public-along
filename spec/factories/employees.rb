@@ -17,6 +17,9 @@ FactoryGirl.define do
     office_phone          { Faker::PhoneNumber.phone_number }
     image_code            { IMAGE }
     location_id           { Location.find_by(name: "San Francisco Headquarters").id }
+    association :job_title, factory: :job_title
+    association :worker_type, factory: :worker_type
+
 
     trait :contingent do
       employee_id            { nil }

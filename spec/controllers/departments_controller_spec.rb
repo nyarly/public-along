@@ -26,7 +26,8 @@ RSpec.describe DepartmentsController, type: :controller do
   let(:valid_attributes) {
     {
       name: "Department name",
-      code: "123456"
+      code: "123456",
+      status: "Active"
     }
   }
 

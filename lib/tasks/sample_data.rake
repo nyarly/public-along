@@ -18,7 +18,9 @@ namespace :db do
         business_title: 'The Dude Sr.',
         department_id: Department.find_by(name: "People & Culture-HR & Total Rewards").id,
         location_id: Location.find_by(name: "San Francisco Headquarters").id,
-        hire_date: 10.years.ago
+        hire_date: 10.years.ago,
+        job_title: JobTitle.find_or_create_by!(id: 1, name: "Test", code: "TEST", status: "Active"),
+        worker_type: WorkerType.find_or_create_by!(id: 1, name: "Test", code: "TEST1", status: "Active")
       )
     end
   end
@@ -53,5 +55,7 @@ def create_basic_new_hire(hire_date)
     home_state: nil,
     home_zip: nil,
     image_code: IMAGE,
+    job_title: JobTitle.find_or_create_by!(id: 1, name: "Test", code: "TEST", status: "Active"),
+    worker_type: WorkerType.find_or_create_by!(id: 1, name: "Test", code: "TEST1", status: "Active")
   )
 end

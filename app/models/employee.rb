@@ -15,24 +15,31 @@ class Employee < ActiveRecord::Base
             presence: true
   validates :location_id,
             presence: true
+  validates :worker_type_id,
+            presence: true
+  validates :job_title_id,
+            presence: true
   validates :email,
             allow_nil: true,
             uniqueness: true
   validates :employee_id,
+            presence: true,
             uniqueness: { message: "Worker ID has already been taken" }
 
   belongs_to :department
   belongs_to :location
   belongs_to :worker_type
   belongs_to :job_title
-  has_many :emp_sec_profiles
+  has_many :emp_sec_profiles # on delete, cascade in db
   has_many :security_profiles, through: :emp_sec_profiles
   has_many :emp_transactions, through: :emp_sec_profiles
-  has_many :onboarding_infos
-  has_many :offboarding_infos
+  has_many :onboarding_infos # on delete, cascade in db
+  has_many :offboarding_infos # on delete, cascade in db
   has_many :emp_deltas
   has_many :emp_access_levels
   has_many :access_levels, through: :emp_access_levels
+  has_many :emp_mach_bundles # on delete, cascade in db
+  has_many :machine_bundles, through: :emp_mach_bundles
 
   attr_accessor :nearest_time_zone
 

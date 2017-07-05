@@ -68,7 +68,6 @@ describe SummaryReportHelper, type: :helper do
       emp_trans = FactoryGirl.create(:emp_transaction, :kind => "Offboarding")
       emp_sec_prof = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans.id, employee_id: emp_group[0].id, security_profile_id: sec_prof.id)
       offboarding_info = FactoryGirl.create(:offboarding_info, employee_id: emp_group[0].id, reassign_salesforce_id: salesforce.id, emp_transaction: emp_trans)
-
       expect(helper.salesforce(emp_group[0])).to eq(salesforce)
     end
   end
