@@ -32,11 +32,11 @@ class Employee < ActiveRecord::Base
   belongs_to :job_title
   has_many :emp_sec_profiles # on delete, cascade in db
   has_many :security_profiles, through: :emp_sec_profiles
-  # has_many :emp_transactions, through: :emp_sec_profiles
+  has_many :emp_transactions, through: :emp_sec_profiles #deprecated relationship, retained for legacy data
   has_many :onboarding_infos # on delete, cascade in db
   has_many :offboarding_infos # on delete, cascade in db
-  has_many :emp_deltas
-  has_many :emp_access_levels
+  has_many :emp_deltas # on delete, cascade in db
+  has_many :emp_access_levels # on delete, cascade in db
   has_many :access_levels, through: :emp_access_levels
   has_many :emp_mach_bundles # on delete, cascade in db
   has_many :machine_bundles, through: :emp_mach_bundles

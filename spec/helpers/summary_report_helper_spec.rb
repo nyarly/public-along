@@ -22,7 +22,7 @@ describe SummaryReportHelper, type: :helper do
 
     it "should find buddy" do
       buddy = FactoryGirl.create(:employee)
-      emp_trans = FactoryGirl.create(:emp_transaction, :kind => "Onboarding")
+      emp_trans = FactoryGirl.create(:emp_transaction, :kind => "Onboarding", employee_id: emp_group[0].id)
       emp_sec_prof = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans.id, employee_id: emp_group[0].id, security_profile_id: sec_prof.id)
       onboarding_info = FactoryGirl.create(:onboarding_info, employee_id: emp_group[0].id, buddy_id: buddy.id, emp_transaction: emp_trans)
 

@@ -6,8 +6,6 @@ class EmpTransaction < ActiveRecord::Base
   validates :kind,
             presence: true,
             inclusion: { in: KINDS }
-  validates :employee_id,
-            presence: true
 
   belongs_to :user
   belongs_to :employee

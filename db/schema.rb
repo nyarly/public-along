@@ -113,6 +113,8 @@ ActiveRecord::Schema.define(version: 20170705215750) do
     t.integer  "employee_id"
   end
 
+  add_index "emp_transactions", ["employee_id"], name: "index_emp_transactions_on_employee_id", using: :btree
+
   create_table "employees", force: :cascade do |t|
     t.string   "email"
     t.string   "first_name",             null: false
