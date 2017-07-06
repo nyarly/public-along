@@ -32,6 +32,22 @@ describe Employee, type: :model do
       worker_type_id: reg_worker_type.id
     )}
 
+    it "should meet validations" do
+      expect(employee).to be_valid
+
+      expect(employee).to_not allow_value(nil).for(:first_name)
+      expect(employee).to_not allow_value(nil).for(:last_name)
+      expect(employee).to_not allow_value(nil).for(:hire_date)
+      expect(employee).to_not allow_value(nil).for(:department_id)
+      expect(employee).to_not allow_value(nil).for(:location_id)
+      expect(employee).to_not allow_value(nil).for(:worker_type_id)
+      expect(employee).to_not allow_value(nil).for(:job_title_id)
+      expect(employee).to_not allow_value(nil).for(:employee_id)
+      expect(employee).to     allow_value(nil).for(:email)
+      expect(employee).to     validate_uniqueness_of(:employee_id).with_message(/Worker ID has already been taken/).case_insensitive
+      expect(employee).to     validate_uniqueness_of(:email).case_insensitive
+     end
+
     it "should strip whitespaces" do
       emp = FactoryGirl.create(:employee, first_name: " Walter", last_name: " Sobchak ")
 
