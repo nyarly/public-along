@@ -141,13 +141,11 @@
 
   <p>
     <strong>Reassign SalesForce Cases To:</strong>
-    <% if @emp_transaction.offboarding_infos.first.reassign_salesforce_id %>
-      <%= Employee.find(@emp_transaction.offboarding_infos.first.reassign_salesforce_id).cn %>
-    <% end %>
+    <%= Employee.find(@emp_transaction.offboarding_infos.first.reassign_salesforce_id).cn %>
   </p>
 
   <p>
-    <strong>Transfer GoogleDocs To:</strong>
+    <strong>Transfer Google Docs To:</strong>
     <% if @emp_transaction.offboarding_infos.first.transfer_google_docs_id %>
       <%= Employee.find(@emp_transaction.offboarding_infos.first.transfer_google_docs_id).try(:cn) %>
     <% end %>

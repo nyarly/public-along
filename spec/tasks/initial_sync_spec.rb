@@ -1,6 +1,8 @@
 require 'rails_helper'
 require 'rake'
 
+# This code is no longer in use
+# Retaining specs for reference
 xdescribe "initial sync rake task", type: :tasks do
   context "sync:csv['some/path']" do
     # create managers for the csv to reference

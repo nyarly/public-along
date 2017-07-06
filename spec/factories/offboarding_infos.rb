@@ -5,5 +5,6 @@ FactoryGirl.define do
     archive_data true
     replacement_hired true
     forward_email_id { Employee.first.id }
+    reassign_salesforce_id { Employee.first.id }
   end
 end
