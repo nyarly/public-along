@@ -1,5 +1,7 @@
 require 'rails_helper'
 
+# XMLService is no longer in use
+# Retained for reference
 xdescribe XmlService, type: :service do
   let(:xml) { XmlService.new(file) }
   let!(:reg_worker_type) { FactoryGirl.create(:worker_type, name: "Regular", kind: "Regular") }

@@ -371,6 +371,8 @@ describe "employee rake tasks", type: :tasks do
       Rake::Task["employee:xml_to_ad"].invoke
     end
 
+    # No longer in use
+    # Code retained for reference
     xit "should create/update the correct amount of Employees in DB and AD" do
       allow(@ldap).to receive(:search).and_return([], [], [], [@ldap_entry_1], [@ldap_entry_2])
       allow(@ldap).to receive(:replace_attribute)
