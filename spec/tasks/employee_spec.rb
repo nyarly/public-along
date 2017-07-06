@@ -360,17 +360,6 @@ describe "employee rake tasks", type: :tasks do
       }.each { |k,v| @ldap_entry_2[k] = v }
     end
 
-    it "should pick up the correct xml file" do
-      expect(File).to receive(:new).with("lib/assets/test_20160523_135008.xml")
-      Rake::Task["employee:xml_to_ad"].invoke
-    end
-
-    it "should not run the same file twice" do
-      expect(File).to receive(:new).once.with("lib/assets/test_20160523_135008.xml")
-      Rake::Task["employee:xml_to_ad"].invoke
-      Rake::Task["employee:xml_to_ad"].invoke
-    end
-
     # No longer in use
     # Code retained for reference
     xit "should create/update the correct amount of Employees in DB and AD" do
