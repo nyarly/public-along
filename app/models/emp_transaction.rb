@@ -9,7 +9,7 @@ class EmpTransaction < ActiveRecord::Base
 
   belongs_to :user
   belongs_to :employee
-  has_many :emp_sec_profiles, :foreign_key => "emp_transaction_id"
+  has_many :emp_sec_profiles
   has_many :security_profiles, through: :emp_sec_profiles
   has_many :emp_mach_bundles
   has_many :machine_bundles, through: :emp_mach_bundles

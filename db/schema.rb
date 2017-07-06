@@ -96,8 +96,8 @@ ActiveRecord::Schema.define(version: 20170705215750) do
   end
 
   create_table "emp_sec_profiles", force: :cascade do |t|
-    t.integer  "employee_id"
-    t.integer  "security_profile_id"
+    t.integer  "employee_id",             null: false
+    t.integer  "security_profile_id",     null: false
     t.datetime "created_at",              null: false
     t.datetime "updated_at",              null: false
     t.integer  "emp_transaction_id"
@@ -112,8 +112,6 @@ ActiveRecord::Schema.define(version: 20170705215750) do
     t.text     "notes"
     t.integer  "employee_id"
   end
-
-  add_index "emp_transactions", ["employee_id"], name: "index_emp_transactions_on_employee_id", using: :btree
 
   create_table "employees", force: :cascade do |t|
     t.string   "email"

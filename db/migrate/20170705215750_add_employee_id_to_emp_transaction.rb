@@ -1,6 +1,8 @@
 class AddEmployeeIdToEmpTransaction < ActiveRecord::Migration
   def up
-    add_reference :emp_transactions, :employee, index: true, foreign_key: { on_delete: :cascade }
+    add_reference :emp_transactions, :employee, foreign_key: { on_delete: :cascade }
+    change_column_null :emp_sec_profiles, :employee_id, false
+    change_column_null :emp_sec_profiles, :security_profile_id, false
 
     Employee.all.each do |employee|
       transactions = []
@@ -28,11 +30,13 @@ class AddEmployeeIdToEmpTransaction < ActiveRecord::Migration
         e.employee_id = employee.id
         e.save!
       end
-
     end
+
   end
 
   def down
-    remove_reference :emp_transactions, :employee, index: true
+    remove_reference :emp_transactions, :employee
+    change_column_null :emp_sec_profiles, :employee_id, true
+    change_column_null :emp_sec_profiles, :security_profile_id, true
   end
 end
