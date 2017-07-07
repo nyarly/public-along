@@ -248,6 +248,31 @@ describe AdpService::Events, type: :service do
         expect(Employee.last.status).to eq("Pending")
         expect(Employee.last.contract_end_date).to eq("2017-12-01")
       end
+
+      it "should add the user to the default security group for their worker type" do
+        application = FactoryGirl.create(:application, name: "Security Group")
+        temp_al = FactoryGirl.create(:access_level, name: "OT Temp Workers", application_id: application.id)
+        contract_al = FactoryGirl.create(:access_level, name: "OT Contract Workers", application_id: application.id)
+        regular_al = FactoryGirl.create(:access_level, name: "OT Regular Workers", application_id: application.id)
+        temp_sp = FactoryGirl.create(:security_profile, name: "Basic Temp Worker Profile")
+        contract_sp = FactoryGirl.create(:security_profile, name: "Basic Contract Worker Profile")
+        regular_sp = FactoryGirl.create(:security_profile, name: "Basic Regular Worker Profile")
+        FactoryGirl.create(:sec_prof_access_level, security_profile_id: temp_sp.id, access_level_id: temp_al.id)
+        FactoryGirl.create(:sec_prof_access_level, security_profile_id: contract_sp.id, access_level_id: contract_al.id)
+        FactoryGirl.create(:sec_prof_access_level, security_profile_id: regular_sp.id, access_level_id: regular_al.id)
+
+        expect(ActiveDirectoryService).to receive(:new).and_return(ads)
+        expect(ads).to receive(:create_disabled_accounts)
+
+        adp = AdpService::Events.new
+        adp.token = "a-token-value"
+
+        expect(Employee).to receive(:check_manager)
+        expect{
+          adp.process_hire(parsed_reg_json)
+        }.to change{Employee.last.emp_sec_profiles.count}.from(0).to(1)
+        puts Employee.last.inspect
+      end
     end
 
     describe "termination event" do
