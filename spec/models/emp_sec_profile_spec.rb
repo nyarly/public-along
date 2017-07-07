@@ -4,6 +4,8 @@ RSpec.describe EmpSecProfile, type: :model do
   let(:emp_sec_profile) { FactoryGirl.build(:emp_sec_profile, security_profile_id: security_profile.id, employee_id: employee.id) }
   let(:security_profile) { FactoryGirl.create(:security_profile) }
   let(:employee) { FactoryGirl.create(:employee, id: 23) }
+  let(:user) { FactoryGirl.create(:user) }
+  let(:revoking_transaction) { FactoryGirl.create(:emp_transaction, kind: "Security Access", user_id: user.id)}
 
   it "should meet validations" do
     expect(emp_sec_profile).to be_valid
@@ -26,7 +28,7 @@ RSpec.describe EmpSecProfile, type: :model do
     end
 
     it "should allow a dup esp if the older one has a revoke date" do
-      esp_1.revoking_transaction_id = 1
+      esp_1.revoking_transaction_id = revoking_transaction.id
       esp_1.save!
       esp_1.reload
 
@@ -35,7 +37,7 @@ RSpec.describe EmpSecProfile, type: :model do
     end
 
     it "should reject a dup esp with multiple records with any nil revoke dates" do
-      esp_1.revoking_transaction_id = 1
+      esp_1.revoking_transaction_id = revoking_transaction.id
       esp_1.save!
       esp_1.reload
       expect(esp_1).to be_valid
@@ -50,11 +52,11 @@ RSpec.describe EmpSecProfile, type: :model do
     end
 
     it "should allow a dup esp with multiple records with revoke dates" do
-      esp_1.revoking_transaction_id = 1
+      esp_1.revoking_transaction_id = revoking_transaction.id
       esp_1.save!
       esp_1.reload
 
-      esp_2.revoking_transaction_id = 1
+      esp_2.revoking_transaction_id = revoking_transaction.id
       esp_2.save!
       esp_2.reload
 

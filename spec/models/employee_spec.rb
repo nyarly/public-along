@@ -40,10 +40,13 @@ describe Employee, type: :model do
       expect(employee).to_not allow_value(nil).for(:hire_date)
       expect(employee).to_not allow_value(nil).for(:department_id)
       expect(employee).to_not allow_value(nil).for(:location_id)
+      expect(employee).to_not allow_value(nil).for(:worker_type_id)
+      expect(employee).to_not allow_value(nil).for(:job_title_id)
+      expect(employee).to_not allow_value(nil).for(:employee_id)
       expect(employee).to     allow_value(nil).for(:email)
       expect(employee).to     validate_uniqueness_of(:employee_id).with_message(/Worker ID has already been taken/).case_insensitive
       expect(employee).to     validate_uniqueness_of(:email).case_insensitive
-    end
+     end
 
     it "should strip whitespaces" do
       emp = FactoryGirl.create(:employee, first_name: " Walter", last_name: " Sobchak ")
@@ -209,7 +212,9 @@ describe Employee, type: :model do
       emp = FactoryGirl.create(:employee)
       sec_prof_1 = FactoryGirl.create(:security_profile)
       sec_prof_2 = FactoryGirl.create(:security_profile)
-      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile, employee_id: emp.id, security_profile_id: sec_prof_1.id, revoking_transaction_id: 1)
+      user = FactoryGirl.create(:user)
+      revoking_transaction = FactoryGirl.create(:emp_transaction, user_id: user.id, kind: "Security Access")
+      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile, employee_id: emp.id, security_profile_id: sec_prof_1.id, revoking_transaction_id: revoking_transaction.id)
       emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile, employee_id: emp.id, security_profile_id: sec_prof_2.id, revoking_transaction_id: nil)
 
       expect(emp.active_security_profiles).to include(sec_prof_2)

@@ -12,8 +12,8 @@ RSpec.describe ManagerEntry do
     let(:params) do
       {
         kind: "Onboarding",
-        user_id: 12,
-        buddy_id: 123,
+        user_id: user.id,
+        buddy_id: buddy.id,
         cw_email: 1,
         cw_google_membership: 0,
         notes: "These notes",
@@ -23,6 +23,8 @@ RSpec.describe ManagerEntry do
       }
     end
 
+    let(:user) { FactoryGirl.create(:user) }
+    let(:buddy) { FactoryGirl.create(:employee) }
     let(:manager_entry) { ManagerEntry.new(params) }
     let(:employee) { FactoryGirl.create(:employee) }
     let(:sp_1) { FactoryGirl.create(:security_profile) }
@@ -32,7 +34,7 @@ RSpec.describe ManagerEntry do
 
     it "should create an emp_transaction with the right attrs" do
       expect(manager_entry.emp_transaction.kind).to eq("Onboarding")
-      expect(manager_entry.emp_transaction.user_id).to eq(12)
+      expect(manager_entry.emp_transaction.user_id).to eq(user.id)
       expect(manager_entry.emp_transaction.notes).to eq("These notes")
     end
 
@@ -40,7 +42,7 @@ RSpec.describe ManagerEntry do
       manager_entry.save
 
       expect(manager_entry.emp_transaction.onboarding_infos.count).to eq(1)
-      expect(manager_entry.emp_transaction.onboarding_infos.first.buddy_id).to eq(123)
+      expect(manager_entry.emp_transaction.onboarding_infos.first.buddy_id).to eq(buddy.id)
       expect(manager_entry.emp_transaction.onboarding_infos.first.cw_email).to eq(true)
       expect(manager_entry.emp_transaction.onboarding_infos.first.cw_google_membership).to eq(false)
     end
@@ -72,13 +74,12 @@ RSpec.describe ManagerEntry do
     let(:params) do
       {
         kind: "Security Access",
-        user_id: 12,
-        buddy_id: 123,
+        user_id: user.id,
         employee_id: employee.id,
         security_profile_ids: [sp_1.id, sp_3.id, sp_4.id]
       }
     end
-
+    let(:user) { FactoryGirl.create(:user) }
     let(:manager_entry) { ManagerEntry.new(params) }
     let!(:employee) { FactoryGirl.create(:employee) }
     let(:sp_1) { FactoryGirl.create(:security_profile) }
@@ -104,17 +105,19 @@ RSpec.describe ManagerEntry do
     let(:params) do
       {
         kind: "Offboarding",
-        user_id: 12,
+        user_id: user.id,
         employee_id: employee.id,
         archive_data: true,
         replacement_hired: false,
-        forward_email_id: 456,
-        reassign_salesforce_id: 234,
-        transfer_google_docs_id: 122,
+        forward_email_id: forward.id,
+        reassign_salesforce_id: forward.id,
+        transfer_google_docs_id: forward.id,
         notes: "stuff"
       }
     end
 
+    let(:user) { FactoryGirl.create(:user) }
+    let(:forward) { FactoryGirl.create(:employee)}
     let(:manager_entry) { ManagerEntry.new(params) }
     let!(:employee) { FactoryGirl.create(:employee) }
     let!(:security_profile) { FactoryGirl.create(:security_profile) }
@@ -126,9 +129,9 @@ RSpec.describe ManagerEntry do
       expect(manager_entry.emp_transaction.offboarding_infos.count).to eq(1)
       expect(manager_entry.emp_transaction.offboarding_infos.first.archive_data).to eq(true)
       expect(manager_entry.emp_transaction.offboarding_infos.first.replacement_hired).to eq(false)
-      expect(manager_entry.emp_transaction.offboarding_infos.first.forward_email_id).to eq(456)
-      expect(manager_entry.emp_transaction.offboarding_infos.first.reassign_salesforce_id).to eq(234)
-      expect(manager_entry.emp_transaction.offboarding_infos.first.transfer_google_docs_id).to eq(122)
+      expect(manager_entry.emp_transaction.offboarding_infos.first.forward_email_id).to eq(forward.id)
+      expect(manager_entry.emp_transaction.offboarding_infos.first.reassign_salesforce_id).to eq(forward.id)
+      expect(manager_entry.emp_transaction.offboarding_infos.first.transfer_google_docs_id).to eq(forward.id)
       expect(manager_entry.emp_transaction.notes).to eq("stuff")
 
     end

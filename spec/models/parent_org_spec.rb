@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe ParentOrg, type: :model do
-  let(:parent_org) { FactoryGirl.build(:parent_org) }
+  let(:parent_org) { FactoryGirl.create(:parent_org) }
 
   it "should meet validations" do
     expect(parent_org).to be_valid

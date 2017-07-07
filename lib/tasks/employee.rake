@@ -60,17 +60,6 @@ namespace :employee do
     SummaryReportMailer.offboard_report.deliver_now
   end
 
-  desc "parse latest xml file to active directory"
-  task :xml_to_ad => :environment do
-    xml = XmlService.new
-
-    if xml.doc.present?
-      xml.parse_to_ad
-    else
-      TechTableMailer.alert_email("ERROR: No xml file to parse. Check to see if Workday is sending xml files to the designated sFTP.").deliver_now
-    end
-  end
-
   desc "update active directory against mezzo employee db"
   task :update_ad => :environment do
     ads = ActiveDirectoryService.new

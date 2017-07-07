@@ -22,18 +22,19 @@ RSpec.describe AccessLevelsController, type: :controller do
 
   let!(:access_level) { FactoryGirl.create(:access_level) }
   let!(:user) { FactoryGirl.create(:user, :role_names => ["Admin"]) }
+  let(:application) { FactoryGirl.create(:application) }
 
   let(:valid_attributes) {
     {
       name: "Access Level",
-      application_id: 1
+      application_id: application.id
     }
   }
 
   let(:invalid_attributes) {
     {
       name: nil,
-      application_id: 1
+      application_id: application.id
     }
   }
 
@@ -119,7 +120,7 @@ RSpec.describe AccessLevelsController, type: :controller do
       let(:new_attributes) {
         {
           name: "New Name",
-          application_id: 1
+          application_id: application.id
         }
       }
 

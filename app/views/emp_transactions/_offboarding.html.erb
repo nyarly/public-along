@@ -17,9 +17,9 @@
 <%= f.label :replacement_hired, "No" %>
 <p class="section text-center">Please assign yourself if the worker does not have email, Salesforce or Google Doc accounts. No action will be taken.</strong></p>
 <p>Forward Email to: *</p>
-<%= f.collection_select :forward_email_id, Employee.all - [@employee], :id, :cn, {prompt: "Select from List"}, required:true %>
+<%= f.collection_select :forward_email_id, Employee.all - [@employee], :id, :cn, {prompt: "Select from List"}, required: true %>
 <p>Reassign Salesforce cases to: *</p>
-<%= f.collection_select :reassign_salesforce_id, Employee.all - [@employee], :id, :cn, {prompt: "Select from List"}, required:true %>
+<%= f.collection_select :reassign_salesforce_id, Employee.all - [@employee], :id, :cn, {prompt: "Select from List"}, required: true %>
 <p>Transfer Google Docs to:</p>
 <%= f.collection_select :transfer_google_docs_id, Employee.all - [@employee], :id, :cn, {prompt: "Select from List"} %>
 <hr>
