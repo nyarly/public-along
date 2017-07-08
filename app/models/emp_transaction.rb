@@ -1,8 +1,6 @@
 class EmpTransaction < ActiveRecord::Base
   KINDS = ["Security Access", "Equipment", "Onboarding", "Offboarding", "Service"]
 
-  validates :user_id,
-            presence: true
   validates :kind,
             presence: true,
             inclusion: { in: KINDS }
