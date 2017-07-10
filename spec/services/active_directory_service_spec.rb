@@ -305,6 +305,61 @@ describe ActiveDirectoryService, type: :service do
       ads.update([rem_to_reg_employee])
       expect(rem_to_reg_employee.ad_updated_at).to eq(DateTime.now)
     end
-
   end
+
+  context "terminate employees" do
+    let(:ldap_entry) { Net::LDAP::Entry.new(employee.dn) }
+    let(:employee) { FactoryGirl.create(:employee,
+      :first_name => "Jeffrey",
+      :last_name => "Lebowski",
+      :manager_id => manager.employee_id,
+      :job_title_id => job_title.id,
+      :sam_account_name => "jlebowski",
+      :department_id => Department.find_by(:name => "People & Culture-HR & Total Rewards").id ,
+      :location_id => Location.find_by(:name => "San Francisco Headquarters").id,
+      :worker_type_id => reg_worker_type.id,
+      :termination_date => Date.today - 30.days
+    )}
+    let!(:security_profile) { FactoryGirl.create(:security_profile)}
+    let!(:access_level) { FactoryGirl.create(:access_level, ad_security_group: "cn=test")}
+    let!(:access_level_2) { FactoryGirl.create(:access_level, ad_security_group: nil)}
+    let!(:sec_prof_access_level) { FactoryGirl.create(:sec_prof_access_level, security_profile_id: security_profile.id, access_level_id: access_level.id)}
+    let!(:sec_prof_access_level_2) { FactoryGirl.create(:sec_prof_access_level, security_profile_id: security_profile.id, access_level_id: access_level_2.id)}
+    let!(:emp_sec_profile) { FactoryGirl.create(:emp_sec_profile, employee_id: employee.id, security_profile_id: security_profile.id)}
+
+    before :each do
+      ldap_entry[:cn] = "Jeffrey Lebowski"
+      ldap_entry[:objectClass] = ["top", "person", "organizationalPerson", "user"]
+      ldap_entry[:givenName] = "Jeffrey"
+      ldap_entry[:sn] = "Lebowski"
+      ldap_entry[:displayName] = "Jeffrey Lebowski"
+      ldap_entry[:userPrincipalName] = "jlebowski@opentable.com"
+      ldap_entry[:manager] = manager.dn
+      ldap_entry[:workdayUsername] = employee.workday_username
+      ldap_entry[:co] = "US"
+      ldap_entry[:accountExpires] = "9223372036854775807"
+      ldap_entry[:title] = employee.job_title.name,
+      ldap_entry[:description] = employee.job_title.name,
+      ldap_entry[:employeeType] = employee.worker_type.name,
+      ldap_entry[:physicalDeliveryOfficeName] = employee.location.name
+      ldap_entry[:department] = employee.department.name
+      ldap_entry[:employeeID] = employee.employee_id
+      ldap_entry[:mobile] = employee.personal_mobile_phone
+      ldap_entry[:telephoneNumber] = employee.office_phone
+      ldap_entry[:thumbnailPhoto] = employee.decode_img_code
+
+      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
+    end
+
+    it "should remove the user from security groups and distribution lists" do
+      expect(ldap).to receive(:modify).with({:dn=>access_level.ad_security_group, :operations=>[[:delete, :member, "#{employee.dn}"]]})
+      ads.terminate([employee])
+    end
+
+    it "should not attempt to remove the user if the security group does not have an AD group" do
+      expect(ldap).not_to receive(:modify).with({:dn=>access_level_2.ad_security_group, :operations=>[[:delete, :member, "#{employee.dn}"]]})
+      ads.terminate([employee])
+    end
+  end
+
 end
