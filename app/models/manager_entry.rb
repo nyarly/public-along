@@ -47,7 +47,7 @@ class ManagerEntry
     revoke_profile_ids = old_profile_ids - new_profile_ids
 
     revoke_profile_ids.each do |sp_id|
-      esp_to_revoke = employee.emp_sec_profiles.find_by(security_profile_id: sp_id)
+      esp_to_revoke = employee.emp_sec_profiles.where("security_profile_id = ? AND revoking_transaction_id IS NULL", sp_id).last
       emp_transaction.revoked_emp_sec_profiles << esp_to_revoke
     end unless revoke_profile_ids.blank?
 

@@ -100,7 +100,7 @@ RSpec.describe TechTableMailer, type: :mailer do
     let!(:sp) { FactoryGirl.create(:security_profile) }
     let!(:emp_transaction) { FactoryGirl.create(:emp_transaction, kind: "Onboarding", user_id: user.id) }
     let!(:onboarding_info) { FactoryGirl.create(:onboarding_info, employee_id: employee.id, emp_transaction_id: emp_transaction.id) }
-    let!(:emp_sec_profile) { FactoryGirl.create(:emp_sec_profile, employee_id: employee.id, security_profile_id: sp.id, emp_transaction_id: emp_transaction.id) }
+    let!(:emp_sec_profile) { FactoryGirl.create(:emp_sec_profile, security_profile_id: sp.id, emp_transaction_id: emp_transaction.id) }
     let!(:info) { FactoryGirl.create(:onboard, employee_id: employee.id) }
     let!(:email) { TechTableMailer.onboard_instructions(employee).deliver_now }
 

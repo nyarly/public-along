@@ -16,28 +16,28 @@ RSpec.describe EmpSecProfile, type: :model do
   end
 
   context "should allow dup sec profile if older esps have a revoke date" do
-    let(:employee)        { FactoryGirl.create(:employee) }
-    let(:security_prof_2) { FactoryGirl.create(:security_profile) }
-    let(:emp_transaction) { FactoryGirl.create(:emp_transaction,
+    let!(:employee)        { FactoryGirl.create(:employee, first_name: "bablablblab") }
+    let!(:security_prof_2) { FactoryGirl.create(:security_profile) }
+    let!(:emp_transaction) { FactoryGirl.create(:emp_transaction,
                                                kind: "Service",
-                                               employee: employee) }
+                                               employee_id: employee.id) }
     let(:esp)             { FactoryGirl.create(:emp_sec_profile,
                                                revoking_transaction_id: nil,
-                                               security_profile: security_prof_2,
-                                               emp_transaction: emp_transaction) }
-    let(:emp_trans_2)     { FactoryGirl.create(:emp_transaction,
+                                               security_profile_id: security_prof_2.id,
+                                               emp_transaction_id: emp_transaction.id) }
+    let!(:emp_trans_2)     { FactoryGirl.create(:emp_transaction,
                                                kind: "Onboarding",
-                                               employee: employee)}
+                                               employee_id: employee.id)}
     let(:esp_2)           { FactoryGirl.build(:emp_sec_profile,
-                                              emp_transaction: emp_trans_2,
+                                              emp_transaction_id: emp_trans_2.id,
                                               revoking_transaction_id: nil,
-                                              security_profile: security_prof_2) }
+                                              security_profile_id: security_prof_2.id) }
     let(:esp_3)           { FactoryGirl.build(:emp_sec_profile,
-                                              emp_transaction: emp_trans_2,
+                                              emp_transaction_id: emp_trans_2.id,
                                               revoking_transaction_id: nil,
-                                              security_profile: security_prof_2) }
+                                              security_profile_id: security_prof_2.id) }
     let(:revoking_transaction) { FactoryGirl.create(:emp_transaction,
-                                               employee: employee,
+                                               employee_id: employee.id,
                                                kind: "Security Access")}
 
     it "should reject a dup esp if the older one does not have a revoke date" do

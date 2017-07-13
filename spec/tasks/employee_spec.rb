@@ -49,12 +49,12 @@ describe "employee rake tasks", type: :tasks do
       Timecop.freeze(Time.new(2016, 7, 29, 2, 0, 0, "+00:00"))
 
       sec_prof = FactoryGirl.create(:security_profile)
-      emp_trans_1 = FactoryGirl.create(:emp_transaction, kind: "Onboarding")
+      emp_trans_1 = FactoryGirl.create(:emp_transaction, kind: "Onboarding", employee_id: new_hire_uk.id, )
       onboarding_info_1 = FactoryGirl.create(:onboarding_info, employee_id: new_hire_uk.id, emp_transaction_id: emp_trans_1.id)
-      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_1.id, employee_id: new_hire_uk.id, security_profile_id: sec_prof.id)
-      emp_trans_2 = FactoryGirl.create(:emp_transaction, kind: "Onboarding")
+      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_1.id, security_profile_id: sec_prof.id)
+      emp_trans_2 = FactoryGirl.create(:emp_transaction, kind: "Onboarding", employee_id: returning_uk.id)
       onboarding_info_2 = FactoryGirl.create(:onboarding_info, employee_id: returning_uk.id, emp_transaction_id: emp_trans_2.id)
-      emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_2.id, employee_id: returning_uk.id, security_profile_id: sec_prof.id)
+      emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_2.id, security_profile_id: sec_prof.id)
 
       expect(@ldap).to receive(:replace_attribute).once.with(
         new_hire_uk.dn, :userAccountControl, "512"
@@ -90,10 +90,10 @@ describe "employee rake tasks", type: :tasks do
       sec_prof = FactoryGirl.create(:security_profile)
       emp_trans_1 = FactoryGirl.create(:emp_transaction, kind: "Onboarding")
       onboarding_info_1 = FactoryGirl.create(:onboarding_info, employee_id: new_hire_us.id, emp_transaction_id: emp_trans_1.id)
-      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_1.id, employee_id: new_hire_us.id, security_profile_id: sec_prof.id)
+      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_1.id, security_profile_id: sec_prof.id)
       emp_trans_2 = FactoryGirl.create(:emp_transaction, kind: "Onboarding")
       onboarding_info_2 = FactoryGirl.create(:onboarding_info, employee_id: returning_us.id, emp_transaction_id: emp_trans_2.id)
-      emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_2.id, employee_id: returning_us.id, security_profile_id: sec_prof.id)
+      emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_2.id, security_profile_id: sec_prof.id)
 
       expect(@ldap).to receive(:replace_attribute).once.with(
         new_hire_us.dn, :userAccountControl, "512"

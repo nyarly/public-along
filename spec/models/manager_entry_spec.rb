@@ -133,7 +133,7 @@ RSpec.describe ManagerEntry do
     let(:manager_entry) { ManagerEntry.new(params) }
     let!(:employee) { FactoryGirl.create(:employee) }
     let!(:security_profile) { FactoryGirl.create(:security_profile) }
-    let!(:emp_sec_profile) { FactoryGirl.create(:emp_sec_profile, security_profile_id: security_profile.id, employee_id: employee.id) }
+    let!(:emp_sec_profile) { FactoryGirl.create(:emp_sec_profile, security_profile_id: security_profile.id) }
 
     it "should create offboarding info" do
       manager_entry.save
