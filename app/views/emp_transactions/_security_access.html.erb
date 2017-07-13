@@ -11,7 +11,7 @@
     <% SecurityProfile.find_profiles_for(@employee.department.id).each do |sp| %>
       <div class="column large-4 medium-6 small-12">
 
-        <% if sp.name == "Default OpenTable" %>
+        <% if sp.name == "Default OpenTable" || sp.name == "Basic Regular Worker Profile" %>
           <% if !@employee.is_contingent_worker? %>
             <%= check_box_tag 'security_profile_ids[]', sp.id, true, disabled: true %>
             <%= check_box_tag 'security_profile_ids[]', sp.id, true, style: 'visibility: hidden' %>

@@ -40,19 +40,19 @@ class ManagerEntry
 
     # The security access form automatically understands old department security profiles to be unchecked
     # It will automatically add those to revoke_profile_ids
-    old_profile_ids = employee.active_security_profiles.map(&:id)
+    old_profile_ids = employee.active_security_profiles.pluck(:id)
     new_profile_ids = security_profile_ids
 
     add_profile_ids = new_profile_ids - old_profile_ids
     revoke_profile_ids = old_profile_ids - new_profile_ids
 
     revoke_profile_ids.each do |sp_id|
-      esp = EmpSecProfile.where("employee_id = ? AND security_profile_id = ? AND revoking_transaction_id IS NULL", employee_id, sp_id).first
-      emp_transaction.revoked_emp_sec_profiles << esp
+      esp_to_revoke = employee.emp_sec_profiles.find_by(security_profile_id: sp_id)
+      emp_transaction.revoked_emp_sec_profiles << esp_to_revoke
     end unless revoke_profile_ids.blank?
 
     add_profile_ids.each do |sp_id|
-      emp_transaction.emp_sec_profiles.build(security_profile_id: sp_id, employee_id: employee_id)
+      emp_transaction.emp_sec_profiles.build(security_profile_id: sp_id)
     end unless add_profile_ids.blank?
   end
 

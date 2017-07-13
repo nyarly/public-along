@@ -51,7 +51,7 @@ RSpec.describe ManagerEntry do
       manager_entry.save
 
       expect(manager_entry.emp_transaction.security_profiles.count).to eq(3)
-      expect(manager_entry.emp_transaction.emp_sec_profiles.first.employee_id).to eq(employee.id)
+      expect(manager_entry.emp_transaction.emp_sec_profiles.first.security_profile_id).to eq(sp_1.id)
     end
 
     it "should build machine bundles" do
@@ -88,13 +88,25 @@ RSpec.describe ManagerEntry do
     let(:sp_4) { FactoryGirl.create(:security_profile) }
 
     it "should add and revoke specified security profiles" do
-      esp_1 = FactoryGirl.create(:emp_sec_profile, employee_id: employee.id, security_profile_id: sp_1.id, revoking_transaction_id: nil)
-      esp_2 = FactoryGirl.create(:emp_sec_profile, employee_id: employee.id, security_profile_id: sp_2.id, revoking_transaction_id: nil)
-      esp_3 = FactoryGirl.create(:emp_sec_profile, employee_id: employee.id, security_profile_id: sp_3.id, revoking_transaction_id: nil)
+      et_1 = FactoryGirl.create(:emp_transaction, employee_id: employee.id)
+      esp_1 = FactoryGirl.create(:emp_sec_profile,
+        emp_transaction_id: et_1.id,
+        security_profile_id: sp_1.id,
+        revoking_transaction_id: nil)
+      esp_2 = FactoryGirl.create(:emp_sec_profile,
+        emp_transaction_id: et_1.id,
+        security_profile_id: sp_2.id,
+        revoking_transaction_id: nil)
+      esp_3 = FactoryGirl.create(:emp_sec_profile,
+        emp_transaction_id: et_1.id,
+        security_profile_id: sp_3.id,
+        revoking_transaction_id: nil)
 
       manager_entry.save
 
-      expect(employee.reload.security_profiles.map(&:id)).to eq([sp_1.id, sp_2.id, sp_3.id, sp_4.id])
+      expect(employee.reload.security_profiles.pluck(:id).sort).to eq([sp_1.id, sp_2.id, sp_3.id, sp_4.id])
+      expect(employee.reload.active_security_profiles.pluck(:id).sort).to eq([sp_1.id, sp_3.id, sp_4.id])
+      expect(employee.reload.revoked_security_profiles.pluck(:id).sort).to eq([sp_2.id])
       expect(esp_1.reload.revoking_transaction_id).to be_nil
       expect(esp_2.reload.revoking_transaction_id).to_not be_nil
       expect(esp_3.reload.revoking_transaction_id).to be_nil

@@ -171,25 +171,54 @@ describe "employee rake tasks", type: :tasks do
     end
 
     it "should remove worker from all security groups at 3am, 7 days after termination" do
-      termination = FactoryGirl.create(:employee, :manager_id => "12345", :hire_date => Date.new(2014, 5, 3), :termination_date => Date.new(2016, 8, 21), :department_id => Department.find_by(:name => "Technology/CTO Admin").id, :location_id => sf.id, worker_type_id: worker_type.id)
-      recent_termination = FactoryGirl.create(:employee, :manager_id => "12345", :hire_date => Date.new(2014, 5, 3), :termination_date => Date.new(2016, 8, 20), :department_id => Department.find_by(:name => "Technology/CTO Admin").id, :location_id => sf.id, worker_type_id: worker_type.id)
-      manager = FactoryGirl.create(:employee, :employee_id => "12345")
+      termination = FactoryGirl.create(:employee,
+        :manager_id => "12345",
+        :hire_date => Date.new(2014, 5, 3),
+        :termination_date => Date.new(2016, 8, 21),
+        :department_id => Department.find_by(:name => "Technology/CTO Admin").id,
+        :location_id => sf.id,
+        worker_type_id: worker_type.id)
+      recent_termination = FactoryGirl.create(:employee,
+        :manager_id => "12345",
+        :hire_date => Date.new(2014, 5, 3),
+        :termination_date => Date.new(2016, 8, 20),
+        :department_id => Department.find_by(:name => "Technology/CTO Admin").id,
+        :location_id => sf.id,
+        worker_type_id: worker_type.id)
+      manager = FactoryGirl.create(:employee,
+        :employee_id => "12345")
 
       app_1 = FactoryGirl.create(:application)
       app_2 = FactoryGirl.create(:application)
       sec_prof = FactoryGirl.create(:security_profile)
-      access_level_1 = FactoryGirl.create(:access_level, application_id: app_1.id, ad_security_group: "sec_dn_1")
-      sec_prof_access_level_2 = FactoryGirl.create(:sec_prof_access_level, access_level_id: access_level_1.id, security_profile_id: sec_prof.id)
-      access_level_2 = FactoryGirl.create(:access_level, application_id: app_2.id, ad_security_group: "sec_dn_2")
-      sec_prof_access_level_2 = FactoryGirl.create(:sec_prof_access_level, access_level_id: access_level_2.id, security_profile_id: sec_prof.id)
+      access_level_1 = FactoryGirl.create(:access_level,
+        application_id: app_1.id,
+        ad_security_group: "sec_dn_1")
+      sec_prof_access_level_2 = FactoryGirl.create(:sec_prof_access_level,
+        access_level_id: access_level_1.id,
+        security_profile_id: sec_prof.id)
+      access_level_2 = FactoryGirl.create(:access_level,
+        application_id: app_2.id,
+        ad_security_group: "sec_dn_2")
+      sec_prof_access_level_2 = FactoryGirl.create(:sec_prof_access_level,
+        access_level_id: access_level_2.id,
+        security_profile_id: sec_prof.id)
 
       # Add security profile for termination worker
-      emp_trans_1 = FactoryGirl.create(:emp_transaction, kind: "Onboarding")
-      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_1.id, employee_id: termination.id, security_profile_id: sec_prof.id)
+      emp_trans_1 = FactoryGirl.create(:emp_transaction,
+        employee_id: termination.id,
+        kind: "Onboarding")
+      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile,
+        emp_transaction_id: emp_trans_1.id,
+        security_profile_id: sec_prof.id)
 
       # Add security profile for recent_termination worker
-      emp_trans_2 = FactoryGirl.create(:emp_transaction, kind: "Onboarding")
-      emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_2.id, employee_id: recent_termination.id, security_profile_id: sec_prof.id)
+      emp_trans_2 = FactoryGirl.create(:emp_transaction,
+        employee_id: recent_termination.id,
+        kind: "Onboarding")
+      emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile,
+        emp_transaction_id: emp_trans_2.id,
+        security_profile_id: sec_prof.id)
 
       # 8/28/2016 at 3am PST/10am UTC
       Timecop.freeze(Time.new(2016, 8, 28, 10, 0, 0, "+00:00"))

@@ -14,12 +14,7 @@ class SecAccessService
   end
 
   def set_employee
-    if @emp_transaction.emp_sec_profiles.count > 0
-      emp_id = @emp_transaction.emp_sec_profiles.first.employee_id
-    elsif @emp_transaction.revoked_emp_sec_profiles.count > 0
-      emp_id = @emp_transaction.revoked_emp_sec_profiles.first.employee_id
-    end
-
+    emp_id = @emp_transaction.employee_id
     @employee = Employee.find(emp_id) if emp_id
   end
 

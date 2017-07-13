@@ -172,10 +172,11 @@ module AdpService
 
       emp_trans = EmpTransaction.new(
         kind: "Service",
-        notes: "Initial provisioning by Mezzo"
+        notes: "Initial provisioning by Mezzo",
+        employee_id: employee.id
       )
 
-      emp_trans.emp_sec_profiles.build(security_profile_id: default_sec_group, employee_id: employee.id)
+      emp_trans.emp_sec_profiles.build(security_profile_id: default_sec_group)
 
       emp_trans.save!
 

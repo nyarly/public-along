@@ -30,9 +30,9 @@ class Employee < ActiveRecord::Base
   belongs_to :location
   belongs_to :worker_type
   belongs_to :job_title
-  has_many :emp_sec_profiles # on delete, cascade in db
+  # has_many :emp_sec_profiles # on delete, cascade in db
   has_many :security_profiles, through: :emp_sec_profiles
-  has_many :emp_transactions, through: :emp_sec_profiles #deprecated relationship, retained for legacy data
+  # has_many :emp_transactions, through: :emp_sec_profiles #deprecated relationship, retained for legacy data
   has_many :onboarding_infos # on delete, cascade in db
   has_many :offboarding_infos # on delete, cascade in db
   has_many :emp_deltas # on delete, cascade in db
@@ -41,6 +41,7 @@ class Employee < ActiveRecord::Base
   has_many :emp_mach_bundles # on delete, cascade in db
   has_many :machine_bundles, through: :emp_mach_bundles
   has_many :emp_transactions # on delete, cascade in db
+  has_many :emp_sec_profiles, through: :emp_transactions
 
   attr_accessor :nearest_time_zone
 
@@ -110,11 +111,11 @@ class Employee < ActiveRecord::Base
   end
 
   def active_security_profiles
-    self.security_profiles.references(:emp_sec_profiles).where(emp_sec_profiles: {revoking_transaction_id: nil})
+    self.security_profiles.references(:emp_transactions).references(:emp_sec_profiles).where(emp_sec_profiles: {revoking_transaction_id: nil})
   end
 
   def security_profiles_to_revoke
-    current_sps = self.security_profiles.references(:emp_sec_profiles).where(emp_sec_profiles: {revoking_transaction_id: nil})
+    current_sps = self.security_profiles.references(:emp_transactions).references(:emp_sec_profiles).where(emp_sec_profiles: {revoking_transaction_id: nil})
     current_department_sps = SecurityProfile.find_profiles_for(self.department.id)
     current_sps - current_department_sps
   end
@@ -266,12 +267,22 @@ class Employee < ActiveRecord::Base
     emp = Employee.find_by(employee_id: emp_id)
     if emp.present? && !Employee.managers.include?(emp)
       sp = SecurityProfile.find_by(name: "Basic Manager")
-      emp.security_profiles << sp
 
-      ads = ActiveDirectoryService.new
-      sp.access_levels.each do |al|
-        sg = al.ad_security_group
-        ads.add_to_sec_group(sg, emp) unless sg.blank?
+      emp_trans = EmpTransaction.new(
+        kind: "Service",
+        notes: "Manager permissions added by Mezzo",
+        employee_id: emp.id
+      )
+
+      emp_trans.emp_sec_profiles.build(
+        security_profile_id: sp.id
+      )
+
+      emp_trans.save!
+
+      if emp_trans.emp_sec_profiles.count > 0
+        sas = SecAccessService.new(emp_trans)
+        sas.apply_ad_permissions
       end
     end
   end

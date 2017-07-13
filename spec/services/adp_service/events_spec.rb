@@ -190,13 +190,14 @@ describe AdpService::Events, type: :service do
       let!(:regular_sp) { FactoryGirl.create(:security_profile, name: "Basic Regular Worker Profile") }
       let!(:contract_sp) { FactoryGirl.create(:security_profile, name: "Basic Contract Worker Profile") }
       let!(:regular_spal) { FactoryGirl.create(:sec_prof_access_level, security_profile_id: regular_sp.id, access_level_id: regular_al.id) }
+      let(:sas) { double(SecAccessService) }
+
 
       before :each do
         expect(ActiveDirectoryService).to receive(:new).and_return(ads)
         expect(ads).to receive(:create_disabled_accounts)
-        sas = double(SecAccessService)
-        expect(SecAccessService).to receive(:new).and_return(sas)
         expect(sas).to receive(:apply_ad_permissions)
+        expect(SecAccessService).to receive(:new).and_return(sas)
       end
 
       it "should create Employee w/ pending status if regular hire event" do
@@ -204,6 +205,7 @@ describe AdpService::Events, type: :service do
         adp.token = "a-token-value"
 
         expect(Employee).to receive(:check_manager)
+
         expect{
           adp.process_hire(parsed_reg_json)
         }.to change{Employee.count}.from(0).to(1)
@@ -217,8 +219,8 @@ describe AdpService::Events, type: :service do
         al = FactoryGirl.create(:access_level)
         sp_al = FactoryGirl.create(:sec_prof_access_level, security_profile_id: sp.id, access_level_id: al.id)
 
-        expect(ActiveDirectoryService).to receive(:new).and_return(ads)
-        expect(ads).to receive(:add_to_sec_group)
+        expect(SecAccessService).to receive(:new).and_return(sas)
+        expect(sas).to receive(:apply_ad_permissions)
 
         adp = AdpService::Events.new
         adp.token = "a-token-value"
@@ -231,7 +233,13 @@ describe AdpService::Events, type: :service do
       it "should do nothing if manager is already mgr in mezzo" do
         manager = FactoryGirl.create(:employee, employee_id: "100449")
         sp = FactoryGirl.create(:security_profile, name: "Basic Manager")
-        manager.security_profiles << sp
+        emp_transaction = FactoryGirl.create(:emp_transaction,
+          employee_id: manager.id)
+        FactoryGirl.create(:emp_sec_profile,
+          security_profile_id: sp.id,
+          emp_transaction_id: emp_transaction.id)
+
+        expect(sas).to_not receive(:apply_ad_permissions)
 
         adp = AdpService::Events.new
         adp.token = "a-token-value"
