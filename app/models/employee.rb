@@ -30,9 +30,7 @@ class Employee < ActiveRecord::Base
   belongs_to :location
   belongs_to :worker_type
   belongs_to :job_title
-  # has_many :emp_sec_profiles # on delete, cascade in db
   has_many :security_profiles, through: :emp_sec_profiles
-  # has_many :emp_transactions, through: :emp_sec_profiles #deprecated relationship, retained for legacy data
   has_many :onboarding_infos # on delete, cascade in db
   has_many :offboarding_infos # on delete, cascade in db
   has_many :emp_deltas # on delete, cascade in db
