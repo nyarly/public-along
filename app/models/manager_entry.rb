@@ -60,7 +60,6 @@ class ManagerEntry
     machine_bundle = MachineBundle.find(machine_bundle_id)
     emp_transaction.emp_mach_bundles.build(
       machine_bundle_id: machine_bundle_id,
-      employee_id: employee_id,
       details: {machine_bundle.name.to_sym => machine_bundle.description}
     )
   end

@@ -36,7 +36,7 @@ class Employee < ActiveRecord::Base
   has_many :emp_deltas # on delete, cascade in db
   has_many :emp_access_levels # on delete, cascade in db
   has_many :access_levels, through: :emp_access_levels
-  has_many :emp_mach_bundles # on delete, cascade in db
+  has_many :emp_mach_bundles, through: :emp_transactions
   has_many :machine_bundles, through: :emp_mach_bundles
   has_many :emp_transactions # on delete, cascade in db
   has_many :emp_sec_profiles, through: :emp_transactions

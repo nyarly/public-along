@@ -36,6 +36,7 @@ RSpec.describe ManagerEntry do
       expect(manager_entry.emp_transaction.kind).to eq("Onboarding")
       expect(manager_entry.emp_transaction.user_id).to eq(user.id)
       expect(manager_entry.emp_transaction.notes).to eq("These notes")
+      expect(manager_entry.emp_transaction.employee_id).to eq(employee.id)
     end
 
     it "should create onboarding info" do
@@ -58,7 +59,9 @@ RSpec.describe ManagerEntry do
       manager_entry.save
 
       expect(manager_entry.emp_transaction.machine_bundles.count).to eq(1)
-      expect(manager_entry.emp_transaction.emp_mach_bundles.first.employee_id).to eq(employee.id)
+      expect(manager_entry.emp_transaction.employee_id).to eq(employee.id)
+      expect(employee.emp_mach_bundles.count).to eq(1)
+      expect(employee.emp_mach_bundles[0].machine_bundle).to eq(machine_bundle)
     end
 
     it "should report errors" do
@@ -146,6 +149,28 @@ RSpec.describe ManagerEntry do
       expect(manager_entry.emp_transaction.offboarding_infos.first.transfer_google_docs_id).to eq(forward.id)
       expect(manager_entry.emp_transaction.notes).to eq("stuff")
 
+    end
+  end
+
+  context "Equipment" do
+    let(:params) do
+      {
+        kind: "Equipment",
+        user_id: user.id,
+        employee_id: employee.id,
+        machine_bundle_id: machine_bundle.id
+      }
+    end
+
+    let(:employee) { FactoryGirl.create(:employee) }
+    let(:user) { FactoryGirl.create(:user) }
+    let(:machine_bundle) { FactoryGirl.create(:machine_bundle) }
+    let(:manager_entry) { ManagerEntry.new(params) }
+
+    it "should create equipment request info" do
+      manager_entry.save
+
+      expect(manager_entry.emp_transaction.emp_mach_bundles.first.machine_bundle).to eq(machine_bundle)
     end
   end
 end

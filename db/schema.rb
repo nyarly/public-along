@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170712170723) do
+ActiveRecord::Schema.define(version: 20170714000426) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -87,7 +87,6 @@ ActiveRecord::Schema.define(version: 20170712170723) do
   end
 
   create_table "emp_mach_bundles", force: :cascade do |t|
-    t.integer  "employee_id",        null: false
     t.integer  "machine_bundle_id",  null: false
     t.integer  "emp_transaction_id", null: false
     t.hstore   "details"
@@ -274,7 +273,6 @@ ActiveRecord::Schema.define(version: 20170712170723) do
   add_foreign_key "emp_access_levels", "employees", on_delete: :cascade
   add_foreign_key "emp_delta", "employees", on_delete: :cascade
   add_foreign_key "emp_mach_bundles", "emp_transactions", on_delete: :cascade
-  add_foreign_key "emp_mach_bundles", "employees", on_delete: :cascade
   add_foreign_key "emp_mach_bundles", "machine_bundles", on_delete: :cascade
   add_foreign_key "emp_sec_profiles", "emp_transactions", column: "revoking_transaction_id", on_delete: :nullify
   add_foreign_key "emp_sec_profiles", "emp_transactions", on_delete: :nullify
