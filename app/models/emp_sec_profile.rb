@@ -9,20 +9,13 @@ class EmpSecProfile < ActiveRecord::Base
   belongs_to :revoking_transaction, class_name: "EmpTransaction", inverse_of: :revoked_emp_sec_profiles
 
   def cannot_have_dup_active_security_profiles
-    unless security_profile_id.blank?
-      employee_to_update = nil
+    unless security_profile_id.blank? || emp_transaction_id.blank?
 
-      if defined? employee_id
-        if employee_id.present?
-          employee_to_update = employee_id
-        end
-      elsif emp_transaction_id.present?
-        emp = EmpTransaction.find_by_id(emp_transaction_id)
-        employee_to_update = emp.employee_id
-      end
+      emp = EmpTransaction.find_by_id(emp_transaction_id)
 
-      if employee_to_update.present?
-        employee = Employee.find_by_id(employee_to_update)
+      if emp && emp.employee_id
+        employee = Employee.find_by_id(emp.employee_id)
+
         active_emp_sec_profiles = employee.emp_sec_profiles.where("security_profile_id = ? AND revoking_transaction_id IS NULL", security_profile_id)
 
         if self.persisted?
