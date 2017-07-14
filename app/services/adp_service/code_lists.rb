@@ -19,6 +19,7 @@ module AdpService
       json = JSON.parse(str)
       locs = json["codeLists"].find { |l| l["codeListTitle"] == "locations"}["listItems"]
       Location.update_all(status: "Inactive")
+      new_locations = []
       locs.each do |l|
         code = l["codeValue"]
         name = l["shortName"].present? ? l["shortName"] : l["longName"]
@@ -26,8 +27,12 @@ module AdpService
         if loc.present?
           loc.update_attributes({name: name, status: "Active"})
         else
-          Location.create({code: code, name: name, status: "Active"})
+          new_location = Location.create({code: code, name: name, status: "Active"})
+          new_locations << new_location
         end
+      end
+      if new_locations.present?
+        PeopleAndCultureMailer.code_list_email(new_locations).deliver_now
       end
       #TODO (Netops-763) gather all new locations and send email to P&C notifying them that these location attributes need to be assigned.
     end
@@ -37,6 +42,7 @@ module AdpService
       json = JSON.parse(str)
       depts = json["codeLists"].find { |d| d["codeListTitle"] == "departments"}["listItems"]
       Department.update_all(status: "Inactive")
+      new_departments = []
       depts.each do |d|
         code = d["codeValue"]
         name = d["shortName"].present? ? d["shortName"] : d["longName"]
@@ -51,6 +57,7 @@ module AdpService
       json = JSON.parse(str)
       w_types = json["meta"]["/workers/workAssignments/workerTypeCode"]["codeList"]["listItems"]
       WorkerType.update_all(status: "Inactive")
+      new_worker_types = []
       w_types.each do |wt|
         code = wt["codeValue"]
         name = wt["shortName"].present? ? wt["shortName"] : wt["longName"]
