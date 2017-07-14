@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170714000426) do
+ActiveRecord::Schema.define(version: 20170714203809) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -182,7 +182,6 @@ ActiveRecord::Schema.define(version: 20170714000426) do
   end
 
   create_table "offboarding_infos", force: :cascade do |t|
-    t.integer  "employee_id",                             null: false
     t.integer  "emp_transaction_id",                      null: false
     t.boolean  "archive_data",            default: false, null: false
     t.boolean  "replacement_hired",       default: false, null: false
@@ -194,7 +193,6 @@ ActiveRecord::Schema.define(version: 20170714000426) do
   end
 
   create_table "onboarding_infos", force: :cascade do |t|
-    t.integer  "employee_id",                          null: false
     t.integer  "emp_transaction_id",                   null: false
     t.integer  "buddy_id"
     t.boolean  "cw_email",             default: false, null: false
@@ -287,10 +285,8 @@ ActiveRecord::Schema.define(version: 20170714000426) do
   add_foreign_key "offboarding_infos", "employees", column: "forward_email_id", on_delete: :nullify
   add_foreign_key "offboarding_infos", "employees", column: "reassign_salesforce_id", on_delete: :nullify
   add_foreign_key "offboarding_infos", "employees", column: "transfer_google_docs_id", on_delete: :nullify
-  add_foreign_key "offboarding_infos", "employees", on_delete: :cascade
   add_foreign_key "onboarding_infos", "emp_transactions", on_delete: :cascade
   add_foreign_key "onboarding_infos", "employees", column: "buddy_id", on_delete: :nullify
-  add_foreign_key "onboarding_infos", "employees", on_delete: :cascade
   add_foreign_key "sec_prof_access_levels", "access_levels", on_delete: :cascade
   add_foreign_key "sec_prof_access_levels", "security_profiles", on_delete: :cascade
 end

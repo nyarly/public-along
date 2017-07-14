@@ -30,16 +30,16 @@ class Employee < ActiveRecord::Base
   belongs_to :location
   belongs_to :worker_type
   belongs_to :job_title
+  has_many :emp_transactions # on delete, cascade in db
+  has_many :onboarding_infos, through: :emp_transactions
+  has_many :offboarding_infos, through: :emp_transactions
+  has_many :emp_mach_bundles, through: :emp_transactions
+  has_many :machine_bundles, through: :emp_mach_bundles
+  has_many :emp_sec_profiles, through: :emp_transactions
   has_many :security_profiles, through: :emp_sec_profiles
-  has_many :onboarding_infos # on delete, cascade in db
-  has_many :offboarding_infos # on delete, cascade in db
   has_many :emp_deltas # on delete, cascade in db
   has_many :emp_access_levels # on delete, cascade in db
   has_many :access_levels, through: :emp_access_levels
-  has_many :emp_mach_bundles, through: :emp_transactions
-  has_many :machine_bundles, through: :emp_mach_bundles
-  has_many :emp_transactions # on delete, cascade in db
-  has_many :emp_sec_profiles, through: :emp_transactions
 
   attr_accessor :nearest_time_zone
 

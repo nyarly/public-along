@@ -187,8 +187,8 @@ describe Employee, type: :model do
 
     it "should check onboarding is complete" do
       completed = FactoryGirl.create(:employee)
-      emp_trans_1 = FactoryGirl.create(:emp_transaction, kind: "Onboarding")
-      onboarding_info = FactoryGirl.create(:onboarding_info, employee_id: completed.id, emp_transaction_id: emp_trans_1.id)
+      emp_trans_1 = FactoryGirl.create(:emp_transaction, kind: "Onboarding", employee_id: completed.id)
+      onboarding_info = FactoryGirl.create(:onboarding_info, emp_transaction_id: emp_trans_1.id)
 
       not_completed = FactoryGirl.create(:employee)
 
@@ -199,8 +199,8 @@ describe Employee, type: :model do
 
     it "should check offboarding is complete" do
       completed = FactoryGirl.create(:employee)
-      emp_trans_1 = FactoryGirl.create(:emp_transaction, kind: "Offboarding")
-      offboarding_info = FactoryGirl.create(:offboarding_info, employee_id: completed.id, emp_transaction_id: emp_trans_1.id)
+      emp_trans_1 = FactoryGirl.create(:emp_transaction, kind: "Offboarding", employee_id: completed.id)
+      offboarding_info = FactoryGirl.create(:offboarding_info, emp_transaction_id: emp_trans_1.id)
 
       not_completed = FactoryGirl.create(:employee)
 

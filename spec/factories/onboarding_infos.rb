@@ -1,6 +1,5 @@
 FactoryGirl.define do
   factory :onboarding_info do
-    association :employee, factory: :employee
     association :emp_transaction, factory: :emp_transaction
     association :buddy_id, factory: :employee
     cw_email false

@@ -75,8 +75,8 @@ RSpec.describe TechTableMailer, type: :mailer do
     let!(:manager) { FactoryGirl.create(:employee) }
     let!(:forwarding) { FactoryGirl.create(:employee) }
     let!(:employee) { FactoryGirl.create(:employee, manager_id: manager.employee_id, termination_date: Date.new(2017, 6, 1)) }
-    let!(:emp_transaction) { FactoryGirl.create(:emp_transaction, kind: "Offboarding", user_id: user.id) }
-    let!(:offboarding_info) { FactoryGirl.create(:offboarding_info, employee_id: employee.id, emp_transaction_id: emp_transaction.id, forward_email_id: forwarding.id, reassign_salesforce_id: forwarding.id, transfer_google_docs_id: forwarding.id) }
+    let!(:emp_transaction) { FactoryGirl.create(:emp_transaction, kind: "Offboarding", user_id: user.id, employee_id: employee.id) }
+    let!(:offboarding_info) { FactoryGirl.create(:offboarding_info, emp_transaction_id: emp_transaction.id, forward_email_id: forwarding.id, reassign_salesforce_id: forwarding.id, transfer_google_docs_id: forwarding.id) }
     let!(:info) { FactoryGirl.create(:offboard, employee_id: employee.id) }
     let!(:email) { TechTableMailer.offboard_instructions(employee).deliver_now }
 
@@ -98,8 +98,8 @@ RSpec.describe TechTableMailer, type: :mailer do
     let!(:employee) { FactoryGirl.create(:employee, manager_id: manager.employee_id, worker_type_id: worker_type.id) }
     let!(:worker_type) { FactoryGirl.create(:worker_type) }
     let!(:sp) { FactoryGirl.create(:security_profile) }
-    let!(:emp_transaction) { FactoryGirl.create(:emp_transaction, kind: "Onboarding", user_id: user.id) }
-    let!(:onboarding_info) { FactoryGirl.create(:onboarding_info, employee_id: employee.id, emp_transaction_id: emp_transaction.id) }
+    let!(:emp_transaction) { FactoryGirl.create(:emp_transaction, kind: "Onboarding", user_id: user.id, employee_id: employee.id) }
+    let!(:onboarding_info) { FactoryGirl.create(:onboarding_info, emp_transaction_id: emp_transaction.id) }
     let!(:emp_sec_profile) { FactoryGirl.create(:emp_sec_profile, security_profile_id: sp.id, emp_transaction_id: emp_transaction.id) }
     let!(:info) { FactoryGirl.create(:onboard, employee_id: employee.id) }
     let!(:email) { TechTableMailer.onboard_instructions(employee).deliver_now }

@@ -6,7 +6,6 @@ RSpec.describe OffboardingInfo, type: :model do
   it "should meet validations" do
     expect(offboarding_info).to be_valid
 
-    expect(offboarding_info).to_not allow_value(nil).for(:employee_id)
     expect(offboarding_info).to_not allow_value(nil).for(:forward_email_id)
     expect(offboarding_info).to_not allow_value(nil).for(:archive_data)
     expect(offboarding_info).to_not allow_value(nil).for(:replacement_hired)

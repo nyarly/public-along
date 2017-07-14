@@ -89,7 +89,7 @@ describe ActiveDirectoryService, type: :service do
     it "should activate for properly set contract worker" do
       valid_contract_worker = FactoryGirl.create(:employee, worker_type_id: temp_worker_type.id, contract_end_date: 3.months.from_now)
       emp_trans = FactoryGirl.create(:emp_transaction, kind: "Onboarding", employee_id: valid_contract_worker.id)
-      onboarding_info = FactoryGirl.create(:onboarding_info, employee_id: valid_contract_worker.id, emp_transaction_id: emp_trans.id)
+      onboarding_info = FactoryGirl.create(:onboarding_info, emp_transaction_id: emp_trans.id)
       sec_prof = FactoryGirl.create(:security_profile)
       emp_sec_prof = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans.id, security_profile_id: sec_prof.id)
 

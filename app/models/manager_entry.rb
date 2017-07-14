@@ -66,7 +66,6 @@ class ManagerEntry
 
   def build_onboarding
     emp_transaction.onboarding_infos.build(
-      employee_id: employee_id,
       buddy_id: buddy_id,
       cw_email: cw_email,
       cw_google_membership: cw_google_membership
@@ -75,7 +74,6 @@ class ManagerEntry
 
   def build_offboarding
     emp_transaction.offboarding_infos.build(
-      employee_id: employee_id,
       archive_data: archive_data,
       replacement_hired: replacement_hired,
       forward_email_id: forward_email_id,

@@ -50,10 +50,10 @@ describe "employee rake tasks", type: :tasks do
 
       sec_prof = FactoryGirl.create(:security_profile)
       emp_trans_1 = FactoryGirl.create(:emp_transaction, kind: "Onboarding", employee_id: new_hire_uk.id, )
-      onboarding_info_1 = FactoryGirl.create(:onboarding_info, employee_id: new_hire_uk.id, emp_transaction_id: emp_trans_1.id)
+      onboarding_info_1 = FactoryGirl.create(:onboarding_info, emp_transaction_id: emp_trans_1.id)
       emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_1.id, security_profile_id: sec_prof.id)
       emp_trans_2 = FactoryGirl.create(:emp_transaction, kind: "Onboarding", employee_id: returning_uk.id)
-      onboarding_info_2 = FactoryGirl.create(:onboarding_info, employee_id: returning_uk.id, emp_transaction_id: emp_trans_2.id)
+      onboarding_info_2 = FactoryGirl.create(:onboarding_info, emp_transaction_id: emp_trans_2.id)
       emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_2.id, security_profile_id: sec_prof.id)
 
       expect(@ldap).to receive(:replace_attribute).once.with(
@@ -77,23 +77,50 @@ describe "employee rake tasks", type: :tasks do
     end
 
     it "should call ldap and update only US new hires and returning leave workers at 3am PST" do
-      new_hire_us = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :location_id => sf.id, worker_type_id: worker_type.id)
-      returning_us = FactoryGirl.create(:employee, :hire_date => 5.years.ago, :leave_return_date => Date.new(2016, 7, 29), :location_id => sf.id, worker_type_id: worker_type.id)
+      new_hire_us = FactoryGirl.create(:employee,
+        :hire_date => Date.new(2016, 7, 29),
+        :location_id => sf.id,
+        worker_type_id: worker_type.id)
+      returning_us = FactoryGirl.create(:employee,
+        :hire_date => 5.years.ago,
+        :leave_return_date => Date.new(2016, 7, 29),
+        :location_id => sf.id,
+        worker_type_id: worker_type.id)
 
-      new_hire_uk = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :location_id => london.id, worker_type_id: worker_type.id)
-      returning_uk = FactoryGirl.create(:employee, :hire_date => 5.years.ago, :leave_return_date => Date.new(2016, 7, 29), :location_id => london.id, worker_type_id: worker_type.id)
-      termination = FactoryGirl.create(:employee, :contract_end_date => Date.new(2016, 7, 29), :location_id => sf.id, worker_type_id: worker_type.id)
+      new_hire_uk = FactoryGirl.create(:employee,
+        :hire_date => Date.new(2016, 7, 29),
+        :location_id => london.id,
+        worker_type_id: worker_type.id)
+      returning_uk = FactoryGirl.create(:employee,
+        :hire_date => 5.years.ago,
+        :leave_return_date => Date.new(2016, 7, 29),
+        :location_id => london.id,
+        worker_type_id: worker_type.id)
+      termination = FactoryGirl.create(:employee,
+        :contract_end_date => Date.new(2016, 7, 29),
+        :location_id => sf.id,
+        worker_type_id: worker_type.id)
 
       # 7/29/2016 at 3am PST/10am UTC
       Timecop.freeze(Time.new(2016, 7, 29, 10, 0, 0, "+00:00"))
 
       sec_prof = FactoryGirl.create(:security_profile)
-      emp_trans_1 = FactoryGirl.create(:emp_transaction, kind: "Onboarding")
-      onboarding_info_1 = FactoryGirl.create(:onboarding_info, employee_id: new_hire_us.id, emp_transaction_id: emp_trans_1.id)
-      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_1.id, security_profile_id: sec_prof.id)
-      emp_trans_2 = FactoryGirl.create(:emp_transaction, kind: "Onboarding")
-      onboarding_info_2 = FactoryGirl.create(:onboarding_info, employee_id: returning_us.id, emp_transaction_id: emp_trans_2.id)
-      emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_2.id, security_profile_id: sec_prof.id)
+      emp_trans_1 = FactoryGirl.create(:emp_transaction,
+        kind: "Onboarding",
+        employee_id: new_hire_us.id)
+      onboarding_info_1 = FactoryGirl.create(:onboarding_info,
+        emp_transaction_id: emp_trans_1.id)
+      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile,
+        emp_transaction_id: emp_trans_1.id,
+        security_profile_id: sec_prof.id)
+      emp_trans_2 = FactoryGirl.create(:emp_transaction,
+        kind: "Onboarding",
+        employee_id: new_hire_uk.id)
+      onboarding_info_2 = FactoryGirl.create(:onboarding_info,
+        emp_transaction_id: emp_trans_2.id)
+      emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile,
+        emp_transaction_id: emp_trans_2.id,
+        security_profile_id: sec_prof.id)
 
       expect(@ldap).to receive(:replace_attribute).once.with(
         new_hire_us.dn, :userAccountControl, "512"
