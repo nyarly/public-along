@@ -11,7 +11,7 @@ RSpec.describe ManagerMailer, type: :mailer do
     end
 
     it "should have the right content" do
-      expect(email.from).to eq(["no-reply@opentable.com"])
+      expect(email.from).to eq(["mezzo-no-reply@opentable.com"])
       expect(email.to).to eq(["manager@opentable.com"])
       expect(email.subject).to eq("IMMEDIATE ACTION REQUIRED: Employee Event Form for #{employee.first_name} #{employee.last_name}")
       expect(email.text_part.body).to include("Follow the link below to complete the employee event form")
@@ -29,7 +29,7 @@ RSpec.describe ManagerMailer, type: :mailer do
     end
 
     it "should have the right content" do
-      expect(email.from).to eq(["no-reply@opentable.com"])
+      expect(email.from).to eq(["mezzo-no-reply@opentable.com"])
       expect(email.to).to eq(["manager@opentable.com"])
       expect(email.subject).to eq("IMMEDIATE ACTION REQUIRED: Employee Event Form for #{employee.first_name} #{employee.last_name}")
       expect(email.text_part.body).to include("Follow the link below to complete the employee event form")
@@ -47,7 +47,7 @@ RSpec.describe ManagerMailer, type: :mailer do
     end
 
     it "should have the right content" do
-      expect(email.from).to eq(["no-reply@opentable.com"])
+      expect(email.from).to eq(["mezzo-no-reply@opentable.com"])
       expect(email.to).to eq(["manager@opentable.com"])
       expect(email.subject).to eq("IMMEDIATE ACTION REQUIRED: Employee Event Form for #{employee.first_name} #{employee.last_name}")
       expect(email.text_part.body).to include("Follow the link below to complete the employee event form")
