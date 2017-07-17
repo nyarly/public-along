@@ -114,6 +114,37 @@ describe "employee rake tasks", type: :tasks do
       Rake::Task["employee:change_status"].invoke
     end
 
+    it "should call ldap and update only terminations or workers on leave at 9pm in PST" do
+
+      termination = FactoryGirl.create(:employee,
+        :hire_date => 5.years.ago,
+        :termination_date => Date.new(2016, 7, 29),
+        :location_id => sf.id,
+        worker_type_id: worker_type.id)
+
+      # 7/29/2016 at 9pm PST/3am UTC
+      Timecop.freeze(Time.new(2016, 7, 30, 4, 03, 0, "+00:00"))
+
+      allow(@ldap).to receive(:search).and_return([@ldap_entry])
+      allow(@ldap_entry).to receive(:dn).and_return("the old dn")
+      expect(@ldap).to receive(:replace_attribute).once.with(
+        "the old dn", :userAccountControl, "514"
+      )
+
+      expect(@ldap).to receive(:rename).once.with({
+        :olddn=>"the old dn",
+        :newrdn=>"cn=#{termination.cn}",
+        :delete_attributes=>true,
+        :new_superior=>"ou=Disabled Users,ou=OT,dc=ottest,dc=opentable,dc=com"})
+
+      allow(@ldap).to receive(:get_operation_result)
+
+      expect(OffboardingService).to receive(:new).and_return(@offboarding_service).once
+      expect(@offboarding_service).to receive(:offboard).once.with([termination])
+      Rake::Task["employee:change_status"].invoke
+    end
+
+
     it "should call ldap and update only terminations or workers on leave at 9pm in IST" do
       contract_end = FactoryGirl.create(:employee,
         :hire_date => Date.new(2014, 5, 3),
@@ -161,7 +192,7 @@ describe "employee rake tasks", type: :tasks do
       Rake::Task["employee:change_status"].invoke
     end
 
-    it "should offboard deactivated employee group at 9pm" do
+    it "should offboard deactivated employee group at 9pm in IST" do
       termination = FactoryGirl.create(:employee,
         termination_date: Date.new(2016, 7, 29),
         department_id: Department.find_by(:name => "Technology/CTO Admin").id,
@@ -181,6 +212,22 @@ describe "employee rake tasks", type: :tasks do
       expect(@offboarding_service).to receive(:offboard).once.with([termination])
 
       Rake::Task["employee:change_status"].invoke
+    end
+
+    it "should send tech table offboard instructions at noon on the termination day in IST" do
+      manager = FactoryGirl.create(:employee, :employee_id => "12345")
+
+      termination = FactoryGirl.create(:employee,
+        termination_date: Date.new(2016, 7, 29),
+        department_id: Department.find_by(:name => "Technology/CTO Admin").id,
+        location_id: mumbai.id,
+        worker_type_id: worker_type.id,
+        manager_id: manager.employee_id)
+
+        Timecop.freeze(Time.new(2016, 7, 29, 6, 30, 0, "+00:00"))
+
+        expect(TechTableMailer).to receive_message_chain(:offboard_instructions, :deliver_now)
+        Rake::Task["employee:change_status"].invoke
     end
 
     it "should remove worker from all security groups at 3am, 7 days after termination" do

@@ -16,6 +16,7 @@ namespace :employee do
     end
 
     Employee.deactivation_group.each do |e|
+
       # Collect employees to deactivate if it is 9-10pm on their end date or day before leave start date in their respective nearest time zone
       if e.leave_start_date && in_time_window?(e.leave_start_date - 1.day, 21, e.nearest_time_zone)
         deactivations << e
@@ -25,7 +26,7 @@ namespace :employee do
         deactivations << e
         offboards << e
       # send techtable info around noon
-      elsif e.termination_date && in_time_window?(e.contract_end_date, 12, e.nearest_time_zone)
+      elsif e.termination_date && in_time_window?(e.termination_date, 12, e.nearest_time_zone)
         TechTableMailer.offboard_instructions(e).deliver_now
       end
     end
