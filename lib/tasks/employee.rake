@@ -37,13 +37,13 @@ namespace :employee do
       end
     end
 
-    off = OffboardingService.new
-    off.offboard(offboards)
-
     ads = ActiveDirectoryService.new
     ads.activate(activations)
     ads.deactivate(deactivations)
     ads.terminate(full_terminations)
+
+    off = OffboardingService.new
+    off.offboard(offboards)
   end
 
   desc "send onboarding summary reports"
