@@ -37,7 +37,7 @@ namespace :employee do
     end
 
     off = OffboardingService.new
-    off.offboard(deactivations)
+    off.offboard(offboards)
 
     ads = ActiveDirectoryService.new
     ads.activate(activations)
