@@ -4,13 +4,17 @@ require 'net/sftp'
 class BetterworksService
 
 
-  # include employees with hire date less or equal to today
-  # include employees with termination date >= July 14, 2017
+  # include employees with hire date less or equal to today (don't include pending workers)
+  # include employees with termination date >= July 19, 2017
   # include regular full-time and regular part-time employees only
   def betterworks_users
-    active_emps = Employee.where("hire_date <= ? AND employees.status LIKE 'Active'", Date.today)
-    regular_active_emps = active_emps.joins(:worker_type).where(:worker_types => {:kind => "Regular"}).to_a
-    regular_active_emps
+    # beginning from launch of service
+    launch_date = Date.new(2017, 7, 24)
+
+    user_group = Employee.where("termination_date >= ? OR termination_date IS NULL", launch_date)
+    current_users = user_group.where("hire_date <= ?", Date.today)
+    current_users.joins(:worker_type).where(:worker_types => {:kind => "Regular"}).to_a
+    # regular_active_emps
   end
 
   # betterworks recommends the following columns:
@@ -35,7 +39,9 @@ class BetterworksService
       "department_name",
       "title",
       "manager_email",
-      "deactivation_date"
+      "deactivation_date",
+      "location",
+      "on_leave"
     ]
 
     filename = "tmp/betterworks/OT_Betterworks_Users_" + DateTime.now.strftime('%Y%m%d') + ".csv"
@@ -45,6 +51,7 @@ class BetterworksService
 
       betterworks_users.each do |u|
         manager_email = u.manager ? u.manager.email : ""
+        on_leave = u.status == "Inactive"
 
         csv << [
           u.email,
@@ -53,7 +60,9 @@ class BetterworksService
           u.department.name,
           u.job_title.name,
           manager_email,
-          deactivation_date(u)
+          deactivation_date(u),
+          u.location.name,
+          on_leave
         ]
       end
     end

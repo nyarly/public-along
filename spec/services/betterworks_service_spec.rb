@@ -35,15 +35,15 @@ describe BetterworksService, type: :service do
       ftr_emp = FactoryGirl.create(:employee,
         worker_type: ftr_worker_type,
         status: "Active",
-        hire_date: Date.new(2017, 1, 1))
+        hire_date: 1.year.ago)
       ptr_emp = FactoryGirl.create(:employee,
         worker_type: ptr_worker_type,
         status: "Active",
-        hire_date: Date.new(2017, 1, 1))
+        hire_date: 1.year.ago)
       temp = FactoryGirl.create(:employee,
         worker_type: temp_worker_type,
         status: "Active",
-        hire_date: Date.new(2017, 1, 1))
+        hire_date: 1.year.ago)
 
       expect(service.betterworks_users.count).to eq(2)
       expect(service.betterworks_users).to include(ftr_emp)
@@ -55,7 +55,7 @@ describe BetterworksService, type: :service do
       ftr_emp = FactoryGirl.create(:employee,
         worker_type: ftr_worker_type,
         status: "Active",
-        hire_date: Date.new(2017, 1, 1))
+        hire_date: 1.year.ago)
       ftr_new_emp = FactoryGirl.create(:employee,
         worker_type: ftr_worker_type,
         status: "Pending",
@@ -66,20 +66,40 @@ describe BetterworksService, type: :service do
       expect(service.betterworks_users).not_to include(ftr_new_emp)
     end
 
-    it "should not include terminated employees" do
+    it "should not include old terminated employees" do
       ftr_emp = FactoryGirl.create(:employee,
         worker_type: ftr_worker_type,
         status: "Active",
-        hire_date: Date.new(2017, 1, 1))
+        hire_date: 1.year.ago)
       ftr_termed_emp = FactoryGirl.create(:employee,
         worker_type: ftr_worker_type,
         status: "Terminated",
-        hire_date: Date.new(2017, 1, 1),
+        hire_date: 1.year.ago,
         termination_date: Date.new(2017, 5, 4))
 
       expect(service.betterworks_users.count).to eq(1)
       expect(service.betterworks_users).to include(ftr_emp)
       expect(service.betterworks_users).not_to include(ftr_termed_emp)
+    end
+
+    it "should include terminated workers after the product launch" do
+      scoped_term = FactoryGirl.create(:employee,
+        worker_type: ftr_worker_type,
+        hire_date: 1.year.ago,
+        termination_date: Date.new(2017, 7, 25))
+
+      expect(service.betterworks_users.count).to eq(1)
+      expect(service.betterworks_users).to include(scoped_term)
+    end
+
+    it "should include workers on leave" do
+      leave = FactoryGirl.create(:employee,
+        worker_type: ftr_worker_type,
+        hire_date: 1.year.ago,
+        leave_start_date: 1.month.ago,
+        status: "Inactive")
+
+      expect(service.betterworks_users).to include(leave)
     end
   end
 
@@ -87,6 +107,9 @@ describe BetterworksService, type: :service do
     let(:service) { BetterworksService.new }
     let(:ftr_worker_type) { FactoryGirl.create(:worker_type,
       code: "FTR",
+      kind: "Regular") }
+    let(:ptr_worker_type) { FactoryGirl.create(:worker_type,
+      code: "PTR",
       kind: "Regular") }
     let(:department) { FactoryGirl.create(:department,
       name: "Infrastructure Engineering") }
@@ -109,21 +132,35 @@ describe BetterworksService, type: :service do
       department: department,
       job_title: job_title,
       hire_date: 1.year.ago,
-      status: "Active",
       worker_type: ftr_worker_type,
       manager_id: emp.employee_id,
-      termination_date: Date.today
+      termination_date: Date.new(2017, 7, 24)
       )}
+    let!(:leave_emp) { FactoryGirl.create(:employee,
+      email: "dwallace@example.com",
+      first_name: "David",
+      last_name: "Wallace",
+      department: department,
+      job_title: job_title,
+      hire_date: 1.year.ago,
+      status: "Inactive",
+      worker_type: ptr_worker_type,
+      manager_id: emp.employee_id,
+      leave_start_date: 1.month.ago)}
+
     let(:filepath) { Rails.root.to_s+"/tmp/betterworks/OT_Betterworks_users_#{DateTime.now.strftime('%Y%m%d')}.csv" }
     let(:csv) {
       <<-EOS.strip_heredoc
-      email,first_name,last_name,department_name,title,manager_email,deactivation_date
-      #{term_emp.email},#{term_emp.first_name},#{term_emp.last_name},#{term_emp.department.name},#{term_emp.job_title.name},#{emp.email},#{DateTime.now.strftime('%m/%d/%Y')}
-      #{emp.email},#{emp.first_name},#{emp.last_name},#{emp.department.name},#{emp.job_title.name},"",
+      email,first_name,last_name,department_name,title,manager_email,deactivation_date,location,on_leave
+      #{leave_emp.email},#{leave_emp.first_name},#{leave_emp.last_name},#{leave_emp.department.name},#{leave_emp.job_title.name},#{emp.email},,#{emp.location.name},true
+      #{term_emp.email},#{term_emp.first_name},#{term_emp.last_name},#{term_emp.department.name},#{term_emp.job_title.name},#{emp.email},#{DateTime.now.strftime('%m/%d/%Y')},#{emp.location.name},false
+      #{emp.email},#{emp.first_name},#{emp.last_name},#{emp.department.name},#{emp.job_title.name},"",,#{emp.location.name},false
       EOS
     }
 
     it "should output csv string" do
+      Timecop.freeze(Time.new(2017, 7, 24, 5, 0, 0, "-07:00"))
+
       service.generate_employee_csv
       expect(File.read(filepath)).to eq(csv)
     end
