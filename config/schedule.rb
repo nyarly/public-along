@@ -31,11 +31,7 @@ every [:sunday, :monday, :tuesday, :wednesday, :thursday, :friday], at: '2:10am'
 end
 
 every :day, at: '5:00am' do
-  rake "db:betterworks:generate_csv"
-end
-
-every :day, at: '5:15am' do
-  rake "db:betterworks:sftp_drop"
+  rake "betterworks:sftp_drop"
 end
 
 # Suspended until Workday returns

@@ -124,7 +124,8 @@ describe BetterworksService, type: :service do
       termination_date: nil,
       hire_date: 1.month.ago,
       status: "Active",
-      worker_type: ftr_worker_type) }
+      worker_type: ftr_worker_type,
+      manager_id: nil )}
     let!(:term_emp) { FactoryGirl.create(:employee,
       email: "fparson@example.com",
       first_name: "Fred",

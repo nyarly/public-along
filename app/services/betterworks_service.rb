@@ -49,7 +49,7 @@ class BetterworksService
       csv << headers
 
       betterworks_users.each do |u|
-        manager_email = u.manager ? u.manager.email : ""
+        manager_email = u.manager_id.present? ? u.manager.email : ""
         on_leave = u.status == "Inactive"
 
         csv << [
