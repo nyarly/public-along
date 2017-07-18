@@ -9,7 +9,7 @@ RSpec.describe TechTableMailer, type: :mailer do
     end
 
     it "should have the right content" do
-      expect(email.from).to eq(["no-reply@opentable.com"])
+      expect(email.from).to eq(["mezzo-no-reply@opentable.com"])
       expect(email.to).to include("techtable@opentable.com")
       expect(email.subject).to eq("ALERT: Mezzo Error")
       expect(email.parts.first.body.raw_source).to include("This message that gets passed in")
@@ -28,7 +28,7 @@ RSpec.describe TechTableMailer, type: :mailer do
     end
 
     it "should have the right content" do
-      expect(email.from).to eq(["no-reply@opentable.com"])
+      expect(email.from).to eq(["mezzo-no-reply@opentable.com"])
       expect(email.to).to include("techtable@opentable.com")
       expect(email.subject).to eq("IMMEDIATE ACTION REQUIRED: #{et.kind} request for #{emp.first_name} #{emp.last_name}")
       expect(email.parts.first.body.raw_source).to include("Security Access")
@@ -45,7 +45,7 @@ RSpec.describe TechTableMailer, type: :mailer do
     end
 
     it "should have the right content" do
-      expect(email.from).to eq(["no-reply@opentable.com"])
+      expect(email.from).to eq(["mezzo-no-reply@opentable.com"])
       expect(email.to).to include("techtable@opentable.com")
       expect(email.subject).to eq("Mezzo Offboarding notice for #{emp.first_name} #{emp.last_name}")
       expect(email.parts.first.body.raw_source).to include("Upcoming Offboard Notice")
@@ -63,7 +63,7 @@ RSpec.describe TechTableMailer, type: :mailer do
     end
 
     it "should have the right content" do
-      expect(email.from).to eq(["no-reply@opentable.com"])
+      expect(email.from).to eq(["mezzo-no-reply@opentable.com"])
       expect(email.to).to include("ComputerClub@opentable.com")
       expect(email.subject).to eq("Mezzo Automated Offboarding Status for #{employee.first_name} #{employee.last_name}")
       expect(email.parts.first.body.raw_source).to include("Mezzo Automatic Offboarding Status")
@@ -85,7 +85,7 @@ RSpec.describe TechTableMailer, type: :mailer do
     end
 
     it "should have the right content" do
-      expect(email.from).to eq(["no-reply@opentable.com"])
+      expect(email.from).to eq(["mezzo-no-reply@opentable.com"])
       expect(email.to).to include("techtable@opentable.com")
       expect(email.subject).to eq("Mezzo Offboard Instructions for #{employee.first_name} #{employee.last_name}")
       expect(email.parts.first.body.raw_source).to include("Offboarding Worker Request")
@@ -109,7 +109,7 @@ RSpec.describe TechTableMailer, type: :mailer do
     end
 
     it "should have the right content" do
-      expect(email.from).to eq(["no-reply@opentable.com"])
+      expect(email.from).to eq(["mezzo-no-reply@opentable.com"])
       expect(email.to).to include("techtable@opentable.com")
       expect(email.subject).to eq("Mezzo Onboarding Request for #{employee.first_name} #{employee.last_name}")
       expect(email.parts.first.body.raw_source).to include("Onboarding Worker Request")
