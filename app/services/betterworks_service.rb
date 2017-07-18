@@ -5,7 +5,7 @@ class BetterworksService
 
 
   # include employees with hire date less or equal to today (don't include pending workers)
-  # include employees with termination date >= July 19, 2017
+  # include employees with termination date >= July 24, 2017
   # include regular full-time and regular part-time employees only
   def betterworks_users
     # beginning from launch of service
@@ -14,7 +14,6 @@ class BetterworksService
     user_group = Employee.where("termination_date >= ? OR termination_date IS NULL", launch_date)
     current_users = user_group.where("hire_date <= ?", Date.today)
     current_users.joins(:worker_type).where(:worker_types => {:kind => "Regular"}).to_a
-    # regular_active_emps
   end
 
   # betterworks recommends the following columns:
