@@ -1,0 +1,16 @@
+The following items must be updated in Mezzo:
+
+<% @items.each do |i| %>
+  New <%= i.class.name %>:
+
+  <% i.attributes.each_pair do |k, v| %>
+    <% unless k.in?(["id", "updated_at", "created_at"]) %>
+      <%= k.titleize %>: <%= v %>
+    <% end %>
+  <% end %>
+
+  Go to: <%= url_for([:edit, i]) %>
+
+<% end %>
+
+Note: You must be logged into the OpenTable VPN to access Mezzo. Use your OpenTable user name and password to log in. Please contact the Mezzo development team with any questions.
