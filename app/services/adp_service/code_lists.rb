@@ -19,6 +19,7 @@ module AdpService
       json = JSON.parse(str)
       locs = json["codeLists"].find { |l| l["codeListTitle"] == "locations"}["listItems"]
       Location.update_all(status: "Inactive")
+      new_locations = []
       locs.each do |l|
         code = l["codeValue"]
         name = l["shortName"].present? ? l["shortName"] : l["longName"]
@@ -26,10 +27,13 @@ module AdpService
         if loc.present?
           loc.update_attributes({name: name, status: "Active"})
         else
-          Location.create({code: code, name: name, status: "Active"})
+          new_location = Location.create({code: code, name: name, status: "Active"})
+          new_locations << new_location
         end
       end
-      #TODO (Netops-763) gather all new locations and send email to P&C notifying them that these location attributes need to be assigned.
+      if new_locations.present?
+        PeopleAndCultureMailer.code_list_alert(new_locations).deliver_now
+      end
     end
 
     def sync_departments
@@ -37,13 +41,21 @@ module AdpService
       json = JSON.parse(str)
       depts = json["codeLists"].find { |d| d["codeListTitle"] == "departments"}["listItems"]
       Department.update_all(status: "Inactive")
+      new_departments = []
       depts.each do |d|
         code = d["codeValue"]
         name = d["shortName"].present? ? d["shortName"] : d["longName"]
-        dept = Department.find_or_create_by(code: code)
-        dept.update_attributes({name: name, status: "Active"})
+        dept = Department.find_by(code: code)
+        if dept.present?
+          dept.update_attributes({name: name, status: "Active"})
+        else
+          new_department = Department.create({code: code, name: name, status: "Active"})
+          new_departments << new_department
+        end
       end
-      #TODO (Netops-763) gather all depts without parent orgs and send email to P&C notifying them that these attributes need to be assigned.
+      if new_departments.present?
+        PeopleAndCultureMailer.code_list_alert(new_departments).deliver_now
+      end
     end
 
     def sync_worker_types
@@ -51,6 +63,7 @@ module AdpService
       json = JSON.parse(str)
       w_types = json["meta"]["/workers/workAssignments/workerTypeCode"]["codeList"]["listItems"]
       WorkerType.update_all(status: "Inactive")
+      new_worker_types = []
       w_types.each do |wt|
         code = wt["codeValue"]
         name = wt["shortName"].present? ? wt["shortName"] : wt["longName"]
@@ -58,10 +71,13 @@ module AdpService
         if w_type.present?
           w_type.update_attributes({name: name, status: "Active"})
         else
-          WorkerType.create({code: code, name: name, status: "Active", kind: "Pending Assignment"})
+          new_wt = WorkerType.create({code: code, name: name, status: "Active"})
+          new_worker_types << new_wt
         end
       end
-      #TODO (Netops-763) gather all worker types without :kind attr and send email to P&C notifying them that these attributes need to be assigned.
+      if new_worker_types.present?
+        PeopleAndCultureMailer.code_list_alert(new_worker_types).deliver_now
+      end
     end
   end
 end

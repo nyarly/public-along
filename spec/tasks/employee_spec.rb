@@ -3,13 +3,14 @@ require 'rake'
 
 describe "employee rake tasks", type: :tasks do
 
-  let!(:london) { Location.find_by(:name => "London Office") }
-  let!(:sf) { Location.find_by(:name => "San Francisco Headquarters") }
-  let!(:la) { Location.find_by(:name => "Los Angeles Office") }
-  let!(:mumbai) { Location.find_by(:name => "Mumbai Office") }
-  let!(:melbourne) { Location.find_by(:name => "Melbourne Office") }
-  let!(:illinois) { Location.find_by(:name => "Illinois") }
+  let!(:london) { Location.find_by(name: "London Office") }
+  let!(:sf) { Location.find_by(name: "San Francisco Headquarters") }
+  let!(:la) { Location.find_by(name: "Los Angeles Office") }
+  let!(:mumbai) { Location.find_by(name: "Mumbai Office") }
+  let!(:melbourne) { Location.find_by(name: "Melbourne Office") }
+  let!(:illinois) { Location.find_by(name: "Illinois") }
   let!(:worker_type) { FactoryGirl.create(:worker_type, kind: "Regular")}
+  let!(:contract_worker_type) { FactoryGirl.create(:worker_type, kind: "Contractor") }
 
   let(:mailer) { double(ManagerMailer) }
 
@@ -29,8 +30,6 @@ describe "employee rake tasks", type: :tasks do
       allow(@ldap).to receive(:encryption)
       allow(@ldap).to receive(:auth)
       allow(@ldap).to receive(:bind)
-      allow(OffboardingService).to receive(:new).and_return(@offboarding_service)
-      allow(@offboarding_service).to receive(:offboard)
     end
 
     after :each do
@@ -38,23 +37,55 @@ describe "employee rake tasks", type: :tasks do
     end
 
     it "should call ldap and update only GB new hires and returning leave workers at 3am BST" do
-      new_hire_uk = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :location_id => london.id, worker_type_id: worker_type.id)
-      returning_uk = FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.new(2016, 7, 29), :location_id => london.id, worker_type_id: worker_type.id)
+      new_hire_uk = FactoryGirl.create(:employee,
+        status: "Pending",
+        hire_date: Date.new(2016, 7, 29),
+        location_id: london.id,
+        worker_type_id: worker_type.id)
+      returning_uk = FactoryGirl.create(:employee,
+        status: "Inactive",
+        hire_date: 1.year.ago,
+        leave_return_date: Date.new(2016, 7, 29),
+        location_id: london.id,
+        worker_type_id: worker_type.id)
+      contract_uk = FactoryGirl.create(:employee,
+        status: "Active",
+        contract_end_date: Date.new(2016, 7, 29),
+        location_id: london.id,
+        worker_type_id: contract_worker_type.id)
 
-      new_hire_us = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :location_id => sf.id, worker_type_id: worker_type.id)
-      returning_us = FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.new(2016, 7, 29), :location_id => sf.id, worker_type_id: worker_type.id)
-      termination = FactoryGirl.create(:employee, :contract_end_date => Date.new(2016, 7, 29), :location_id => london.id, worker_type_id: worker_type.id)
+      new_hire_us = FactoryGirl.create(:employee,
+        status: "Pending",
+        hire_date: Date.new(2016, 7, 29),
+        location_id: sf.id,
+        worker_type_id: worker_type.id)
+      returning_us = FactoryGirl.create(:employee,
+        status: "Inactive",
+        hire_date: 1.year.ago,
+        leave_return_date: Date.new(2016, 7, 29),
+        location_id: sf.id,
+        worker_type_id: worker_type.id)
 
       # 7/29/2016 at 3am BST/2am UTC
       Timecop.freeze(Time.new(2016, 7, 29, 2, 0, 0, "+00:00"))
 
       sec_prof = FactoryGirl.create(:security_profile)
-      emp_trans_1 = FactoryGirl.create(:emp_transaction, kind: "Onboarding", employee_id: new_hire_uk.id, )
-      onboarding_info_1 = FactoryGirl.create(:onboarding_info, emp_transaction_id: emp_trans_1.id)
-      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_1.id, security_profile_id: sec_prof.id)
-      emp_trans_2 = FactoryGirl.create(:emp_transaction, kind: "Onboarding", employee_id: returning_uk.id)
-      onboarding_info_2 = FactoryGirl.create(:onboarding_info, emp_transaction_id: emp_trans_2.id)
-      emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_2.id, security_profile_id: sec_prof.id)
+      emp_trans_1 = FactoryGirl.create(:emp_transaction,
+        employee_id: new_hire_uk.id,
+        kind: "Onboarding")
+      onboarding_info_1 = FactoryGirl.create(:onboarding_info,
+        emp_transaction_id: emp_trans_1.id)
+      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile,
+        emp_transaction_id: emp_trans_1.id,
+        security_profile_id: sec_prof.id)
+      emp_trans_2 = FactoryGirl.create(:emp_transaction,
+        employee_id: returning_uk.id,
+        kind: "Onboarding")
+      onboarding_info_2 = FactoryGirl.create(:onboarding_info,
+        emp_transaction_id: emp_trans_2.id)
+      emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile,
+        emp_transaction_id: emp_trans_2.id,
+        security_profile_id: sec_prof.id)
 
       expect(@ldap).to receive(:replace_attribute).once.with(
         new_hire_uk.dn, :userAccountControl, "512"
@@ -69,36 +100,47 @@ describe "employee rake tasks", type: :tasks do
         returning_us.dn, :userAccountControl, "512"
       )
       expect(@ldap).to_not receive(:replace_attribute).with(
-        termination.dn, :userAccountControl, "514"
+        contract_uk.dn, :userAccountControl, "514"
       )
 
       allow(@ldap).to receive(:get_operation_result)
       Rake::Task["employee:change_status"].invoke
+
+      expect(new_hire_uk.reload.status).to eq("Active")
+      expect(returning_uk.reload.status).to eq("Active")
+      expect(contract_uk.reload.status).to eq("Active")
+      expect(new_hire_us.reload.status).to eq("Pending")
+      expect(returning_us.reload.status).to eq("Inactive")
     end
 
     it "should call ldap and update only US new hires and returning leave workers at 3am PST" do
       new_hire_us = FactoryGirl.create(:employee,
-        :hire_date => Date.new(2016, 7, 29),
-        :location_id => sf.id,
+        status: "Pending",
+        hire_date: Date.new(2016, 7, 29),
+        location_id: sf.id,
         worker_type_id: worker_type.id)
       returning_us = FactoryGirl.create(:employee,
-        :hire_date => 5.years.ago,
-        :leave_return_date => Date.new(2016, 7, 29),
-        :location_id => sf.id,
+        status: "Inactive",
+        hire_date: 5.years.ago,
+        leave_return_date: Date.new(2016, 7, 29),
+        location_id: sf.id,
         worker_type_id: worker_type.id)
 
       new_hire_uk = FactoryGirl.create(:employee,
-        :hire_date => Date.new(2016, 7, 29),
-        :location_id => london.id,
+        status: "Pending",
+        hire_date: Date.new(2016, 7, 29),
+        location_id: london.id,
         worker_type_id: worker_type.id)
       returning_uk = FactoryGirl.create(:employee,
-        :hire_date => 5.years.ago,
-        :leave_return_date => Date.new(2016, 7, 29),
-        :location_id => london.id,
+        status: "Inactive",
+        hire_date: 5.years.ago,
+        leave_return_date: Date.new(2016, 7, 29),
+        location_id: london.id,
         worker_type_id: worker_type.id)
       termination = FactoryGirl.create(:employee,
-        :contract_end_date => Date.new(2016, 7, 29),
-        :location_id => sf.id,
+        status: "Active",
+        contract_end_date: Date.new(2016, 7, 29),
+        location_id: sf.id,
         worker_type_id: worker_type.id)
 
       # 7/29/2016 at 3am PST/10am UTC
@@ -140,14 +182,108 @@ describe "employee rake tasks", type: :tasks do
 
       allow(@ldap).to receive(:get_operation_result)
       Rake::Task["employee:change_status"].invoke
+
+      expect(new_hire_us.reload.status).to eq("Active")
+      expect(returning_us.reload.status).to eq("Active")
+      expect(new_hire_uk.reload.status).to eq("Pending")
+      expect(returning_uk.reload.status).to eq("Inactive")
+      expect(termination.reload.status).to eq("Active")
     end
 
+    it "should call ldap and update only terminations or workers on leave at 9pm in PST" do
+
+      termination_us = FactoryGirl.create(:employee,
+        hire_date: 5.years.ago,
+        status: "Active",
+        termination_date: Date.new(2016, 7, 29),
+        location_id: sf.id,
+        worker_type_id: worker_type.id)
+
+      contract_end_us = FactoryGirl.create(:employee,
+        hire_date: 5.years.ago,
+        status: "Active",
+        contract_end_date: Date.new(2016, 7, 29),
+        location_id: sf.id,
+        worker_type_id: contract_worker_type.id)
+
+      leave_us = FactoryGirl.create(:employee,
+        hire_date: 2.years.ago,
+        status: "Active",
+        leave_start_date: Date.new(2016, 7, 30),
+        location_id: sf.id,
+        worker_type_id: worker_type.id)
+
+      # 7/29/2016 at 9pm PST/3am UTC
+      Timecop.freeze(Time.new(2016, 7, 30, 4, 03, 0, "+00:00"))
+
+      allow(@ldap).to receive(:search).and_return([@ldap_entry])
+      allow(@ldap_entry).to receive(:dn).and_return("the old dn")
+
+      expect(@ldap).to receive(:replace_attribute).thrice.with(
+        "the old dn", :userAccountControl, "514"
+      )
+
+      expect(@ldap).to receive(:rename).once.with({
+        :olddn=>"the old dn",
+        :newrdn=>"cn=#{termination_us.cn}",
+        :delete_attributes=>true,
+        :new_superior=>"ou=Disabled Users,ou=OT,dc=ottest,dc=opentable,dc=com"})
+
+      expect(@ldap).to receive(:rename).once.with({
+        :olddn=>"the old dn",
+        :newrdn=>"cn=#{contract_end_us.cn}",
+        :delete_attributes=>true,
+        :new_superior=>"ou=Disabled Users,ou=OT,dc=ottest,dc=opentable,dc=com"})
+
+      expect(@ldap).to receive(:rename).once.with({
+        :olddn=>"the old dn",
+        :newrdn=>"cn=#{leave_us.cn}",
+        :delete_attributes=>true,
+        :new_superior=>"ou=Disabled Users,ou=OT,dc=ottest,dc=opentable,dc=com"})
+
+      allow(@ldap).to receive(:get_operation_result)
+
+      expect(OffboardingService).to receive(:new).and_return(@offboarding_service).once
+      expect(@offboarding_service).to receive(:offboard).once.with([termination_us])
+      Rake::Task["employee:change_status"].invoke
+
+      expect(termination_us.reload.status).to eq("Terminated")
+      expect(contract_end_us.reload.status).to eq("Terminated")
+      # At the moment, users going on leave are being given a "Terminated" status
+      # TODO: Investigate when ADP updates worker status to "Inactive" or "Terminated"
+      # TODO: Move Mezzo worker status update elsewhere
+      # expect(leave_us.reload.status).to eq("Inactive")
+    end
+
+
     it "should call ldap and update only terminations or workers on leave at 9pm in IST" do
-      contract_end = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :contract_end_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "Technology/CTO Admin").id, :location_id => mumbai.id, worker_type_id: worker_type.id)
-      termination = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :termination_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "Technology/CTO Admin").id, :location_id => mumbai.id, worker_type_id: worker_type.id)
-      leave = FactoryGirl.create(:employee, :hire_date => Date.new(2014, 5, 3), :leave_start_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "Infrastructure Engineering").id, :location_id => mumbai.id, worker_type_id: worker_type.id)
-      new_hire_in = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "Data Analytics & Experimentation").id, :location_id => mumbai.id, worker_type_id: worker_type.id)
-      new_hire_us = FactoryGirl.create(:employee, :hire_date => Date.new(2016, 7, 29), :location_id => sf.id, worker_type_id: worker_type.id)
+      contract_end = FactoryGirl.create(:employee,
+        hire_date: Date.new(2014, 5, 3),
+        contract_end_date: Date.new(2016, 7, 29),
+        department_id: Department.find_by(:name => "Technology/CTO Admin").id,
+        location_id: mumbai.id,
+        worker_type_id: contract_worker_type.id)
+      termination = FactoryGirl.create(:employee,
+        hire_date: Date.new(2014, 5, 3),
+        termination_date: Date.new(2016, 7, 29),
+        department_id: Department.find_by(:name => "Technology/CTO Admin").id,
+        location_id: mumbai.id,
+        worker_type_id: worker_type.id)
+      leave = FactoryGirl.create(:employee,
+        hire_date: Date.new(2014, 5, 3),
+        leave_start_date: Date.new(2016, 7, 29),
+        department_id: Department.find_by(:name => "Infrastructure Engineering").id,
+        location_id: mumbai.id,
+        worker_type_id: worker_type.id)
+      new_hire_in = FactoryGirl.create(:employee,
+        hire_date: Date.new(2016, 7, 29),
+        department_id: Department.find_by(:name => "Data Analytics & Experimentation").id,
+        location_id: mumbai.id,
+        worker_type_id: worker_type.id)
+      new_hire_us = FactoryGirl.create(:employee,
+        hire_date: Date.new(2016, 7, 29),
+        location_id: sf.id,
+        worker_type_id: worker_type.id)
 
       # 7/29/2016 at 9pm IST/3:30pm UTC
       Timecop.freeze(Time.new(2016, 7, 29, 15, 30, 0, "+00:00"))
@@ -178,15 +314,27 @@ describe "employee rake tasks", type: :tasks do
       )
 
       allow(@ldap).to receive(:get_operation_result)
+
+      expect(OffboardingService).to receive(:new).and_return(@offboarding_service).once
+      expect(@offboarding_service).to receive(:offboard).once.with([termination])
       Rake::Task["employee:change_status"].invoke
+
+      expect(contract_end.reload.status).to eq("Terminated")
+      expect(termination.reload.status).to eq("Terminated")
+      # expect(leave.reload.status).to eq("Inactive")
     end
 
-    it "should offboard deactivated employee group at 9pm" do
-      termination = FactoryGirl.create(:employee, :termination_date => Date.new(2016, 7, 29), :department_id => Department.find_by(:name => "Technology/CTO Admin").id, :location_id => mumbai.id, worker_type_id: worker_type.id)
+    it "should offboard deactivated employee group at 9pm in IST" do
+      termination = FactoryGirl.create(:employee,
+        termination_date: Date.new(2016, 7, 29),
+        department_id: Department.find_by(:name => "Technology/CTO Admin").id,
+        location_id: mumbai.id,
+        worker_type_id: worker_type.id)
 
       # 7/29/ 2017 at 9pm IST/3:30pm UTC
       Timecop.freeze(Time.new(2016, 7, 29, 15, 30, 0, "+00:00"))
 
+      expect(OffboardingService).to receive(:new).and_return(@offboarding_service).once
       ad = double(ActiveDirectoryService)
       allow(ActiveDirectoryService).to receive(:new).and_return(ad)
       allow(ad).to receive(:deactivate)
@@ -197,23 +345,38 @@ describe "employee rake tasks", type: :tasks do
       Rake::Task["employee:change_status"].invoke
     end
 
+    it "should send tech table offboard instructions at noon on the termination day in IST" do
+      manager = FactoryGirl.create(:employee, employee_id: "12345")
+
+      termination = FactoryGirl.create(:employee,
+        termination_date: Date.new(2016, 7, 29),
+        department_id: Department.find_by(:name => "Technology/CTO Admin").id,
+        location_id: mumbai.id,
+        worker_type_id: worker_type.id,
+        manager_id: manager.employee_id)
+
+        Timecop.freeze(Time.new(2016, 7, 29, 6, 30, 0, "+00:00"))
+
+        expect(TechTableMailer).to receive_message_chain(:offboard_instructions, :deliver_now)
+        Rake::Task["employee:change_status"].invoke
+    end
+
     it "should remove worker from all security groups at 3am, 7 days after termination" do
       termination = FactoryGirl.create(:employee,
-        :manager_id => "12345",
-        :hire_date => Date.new(2014, 5, 3),
-        :termination_date => Date.new(2016, 8, 21),
-        :department_id => Department.find_by(:name => "Technology/CTO Admin").id,
-        :location_id => sf.id,
-        worker_type_id: worker_type.id)
+        manager_id: "12345",
+        hire_date: Date.new(2014, 5, 3),
+         termination_date: Date.new(2016, 8, 21),
+         department_id: Department.find_by(:name => "Technology/CTO Admin").id,
+         location_id: sf.id,
+         worker_type_id: worker_type.id)
       recent_termination = FactoryGirl.create(:employee,
-        :manager_id => "12345",
-        :hire_date => Date.new(2014, 5, 3),
-        :termination_date => Date.new(2016, 8, 20),
-        :department_id => Department.find_by(:name => "Technology/CTO Admin").id,
-        :location_id => sf.id,
+        manager_id: "12345",
+        hire_date: Date.new(2014, 5, 3),
+        termination_date: Date.new(2016, 8, 20),
+        department_id: Department.find_by(:name => "Technology/CTO Admin").id,
+        location_id: sf.id,
         worker_type_id: worker_type.id)
-      manager = FactoryGirl.create(:employee,
-        :employee_id => "12345")
+      manager = FactoryGirl.create(:employee, employee_id: "12345")
 
       app_1 = FactoryGirl.create(:application)
       app_2 = FactoryGirl.create(:application)
@@ -315,48 +478,34 @@ describe "employee rake tasks", type: :tasks do
       allow(@ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
 
       Employee.create(
-      :first_name => "The Big",
-      :last_name => "Lebowski",
-      :workday_username => "biglebowski",
-      :employee_id => "1234567",
-      :hire_date => DateTime.new(2005,2,1),
-      :contract_end_date => nil,
-      :termination_date => nil,
-      :job_family_id => "OT_Internal_Systems",
-      :job_family => "Internal Systems",
-      :job_profile_id => "50100486",
-      :job_profile => "Internal Systems",
-      :business_title => "Rich Guy",
-      :worker_type_id => reg_worker_type.id,
-      :contingent_worker_type => nil,
-      :location_id => la.id,
-      :job_title_id => job_title_1.id,
-      :manager_id => "12100123",
-      :department_id => Department.find_by(:name => "BizOpti/Internal System Engineering").id,
-      :office_phone => nil,
-      :image_code => nil)
+      first_name: "The Big",
+      last_name: "Lebowski",
+      employee_id: "1234567",
+      hire_date: DateTime.new(2005,2,1),
+      contract_end_date: nil,
+      termination_date: nil,
+      worker_type_id: reg_worker_type.id,
+      location_id: la.id,
+      job_title_id: job_title_1.id,
+      manager_id: "12100123",
+      department_id: Department.find_by(:name => "BizOpti/Internal System Engineering").id,
+      office_phone: nil,
+      image_code: nil)
 
       Employee.create(
-      :first_name => "Kylie",
-      :last_name => "Kylie",
-      :workday_username => "kkylie",
-      :employee_id => "109843",
-      :hire_date => DateTime.new(2016,4,7),
-      :contract_end_date => nil,
-      :termination_date => nil,
-      :job_family_id => "OT_Legal",
-      :job_family => "Legal",
-      :job_profile_id => "50100324",
-      :job_profile => "Legal",
-      :business_title => "Fraud Analyst",
-      :worker_type_id => reg_worker_type.id,
-      :contingent_worker_type => nil,
-      :location_id => melbourne.id,
-      :job_title_id => job_title_2.id,
-      :manager_id => "12101034",
-      :department_id => Department.find_by(:name => "Legal").id,
-      :office_phone => "(213) 555-1234",
-      :image_code => nil)
+      first_name: "Kylie",
+      last_name: "Kylie",
+      employee_id: "109843",
+      hire_date: DateTime.new(2016,4,7),
+      contract_end_date: nil,
+      termination_date: nil,
+      worker_type_id: reg_worker_type.id,
+      location_id: melbourne.id,
+      job_title_id: job_title_2.id,
+      manager_id: "12101034",
+      department_id: Department.find_by(:name => "Legal").id,
+      office_phone: "(213) 555-1234",
+      image_code: nil)
 
       @ldap_entry_1 = Net::LDAP::Entry.new("cn=The Big Lebowski,ou=Engineering,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com")
       {
@@ -369,7 +518,6 @@ describe "employee rake tasks", type: :tasks do
         displayName: "The Big Lebowski",
         userPrincipalName: "tlebowski@opentable.com",
         manager: manager_1.dn,
-        workdayUsername: "biglebowski",
         co: "US",
         accountExpires: "9223372036854775807",
         title: "Rich Guy",
@@ -397,7 +545,6 @@ describe "employee rake tasks", type: :tasks do
         sAMAccountName: "kkylie",
         displayName: "Kylie Kylie",
         userPrincipalName: "kkylie@opentable.com",
-        workdayUsername: "kkylie",
         co: "AU",
         accountExpires: "9223372036854775807",
         title: "Fraud Analyst",

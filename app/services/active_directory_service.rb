@@ -74,7 +74,9 @@ class ActiveDirectoryService
     employees.each do |e|
       e.security_profiles.each do |sp|
         sp.access_levels.each do |al|
-          remove_from_sec_group(al.ad_security_group, e)
+          if al.ad_security_group.present?
+            remove_from_sec_group(al.ad_security_group, e)
+          end
         end
       end
     end
