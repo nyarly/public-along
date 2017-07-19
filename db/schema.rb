@@ -212,8 +212,8 @@ ActiveRecord::Schema.define(version: 20170629010209) do
   end
 
   create_table "sec_prof_access_levels", force: :cascade do |t|
-    t.integer  "security_profile_id", null: false
     t.integer  "access_level_id",     null: false
+    t.integer  "security_profile_id", null: false
     t.datetime "created_at",          null: false
     t.datetime "updated_at",          null: false
   end

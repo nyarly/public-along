@@ -30,6 +30,10 @@ every [:sunday, :monday, :tuesday, :wednesday, :thursday, :friday], at: '2:10am'
   rake "db:saba:sftp_drop"
 end
 
+every :day, at: '5:00am' do
+  rake "betterworks:sftp_drop"
+end
+
 # Suspended until Workday returns
 # Every 10 minutes check if a new xml file has been dropped in lib/assets and parse to db & AD if found
 # every 10.minutes do
