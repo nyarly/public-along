@@ -119,6 +119,7 @@ describe BetterworksService, type: :service do
       email: "hgolightly@example.com",
       first_name: "Holly",
       last_name: "Golightly",
+      employee_id: "123A",
       department: department,
       job_title: job_title,
       termination_date: nil,
@@ -130,6 +131,7 @@ describe BetterworksService, type: :service do
       email: "fparson@example.com",
       first_name: "Fred",
       last_name: "Parson",
+      employee_id: "123B",
       department: department,
       job_title: job_title,
       hire_date: 1.year.ago,
@@ -141,6 +143,7 @@ describe BetterworksService, type: :service do
       email: "dwallace@example.com",
       first_name: "David",
       last_name: "Wallace",
+      employee_id: "123C",
       department: department,
       job_title: job_title,
       hire_date: 1.year.ago,
@@ -152,10 +155,10 @@ describe BetterworksService, type: :service do
     let(:filepath) { Rails.root.to_s+"/tmp/betterworks/OT_Betterworks_users_#{DateTime.now.strftime('%Y%m%d')}.csv" }
     let(:csv) {
       <<-EOS.strip_heredoc
-      email,first_name,last_name,department_name,title,manager_email,deactivation_date,location,on_leave
-      #{leave_emp.email},#{leave_emp.first_name},#{leave_emp.last_name},#{leave_emp.department.name},#{leave_emp.job_title.name},#{emp.email},,#{emp.location.name},true
-      #{term_emp.email},#{term_emp.first_name},#{term_emp.last_name},#{term_emp.department.name},#{term_emp.job_title.name},#{emp.email},#{DateTime.now.strftime('%m/%d/%Y')},#{emp.location.name},false
-      #{emp.email},#{emp.first_name},#{emp.last_name},#{emp.department.name},#{emp.job_title.name},"",,#{emp.location.name},false
+      email,employee_id,first_name,last_name,department_name,title,location,deactivation_date,on_leave,manager_email,manager_id
+      #{leave_emp.email},#{leave_emp.employee_id},#{leave_emp.first_name},#{leave_emp.last_name},#{leave_emp.department.name},#{leave_emp.job_title.name},#{emp.location.name},,true,#{leave_emp.manager_id},#{emp.email}
+      #{term_emp.email},#{term_emp.employee_id},#{term_emp.first_name},#{term_emp.last_name},#{term_emp.department.name},#{term_emp.job_title.name},#{term_emp.location.name},#{DateTime.now.strftime('%m/%d/%Y')},false,#{term_emp.manager_id},#{emp.email}
+      #{emp.email},#{emp.employee_id},#{emp.first_name},#{emp.last_name},#{emp.department.name},#{emp.job_title.name},#{emp.location.name},,false,"",""
       EOS
     }
 

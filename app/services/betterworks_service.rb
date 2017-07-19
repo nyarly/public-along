@@ -33,14 +33,16 @@ class BetterworksService
 
     headers = [
       "email",
+      "employee_id",
       "first_name",
       "last_name",
       "department_name",
       "title",
-      "manager_email",
-      "deactivation_date",
       "location",
-      "on_leave"
+      "deactivation_date",
+      "on_leave",
+      "manager_email",
+      "manager_id"
     ]
 
     filename = "tmp/betterworks/OT_Betterworks_Users_" + DateTime.now.strftime('%Y%m%d') + ".csv"
@@ -50,18 +52,21 @@ class BetterworksService
 
       betterworks_users.each do |u|
         manager_email = u.manager_id.present? ? u.manager.email : ""
+        manager_id = u.manager_id.present? ? u.manager_id : ""
         on_leave = u.status == "Inactive"
 
         csv << [
           u.email,
+          u.employee_id,
           u.first_name,
           u.last_name,
           u.department.name,
           u.job_title.name,
-          manager_email,
-          deactivation_date(u),
           u.location.name,
-          on_leave
+          deactivation_date(u),
+          on_leave,
+          manager_id,
+          manager_email
         ]
       end
     end
