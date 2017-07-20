@@ -21,6 +21,7 @@ class BetterworksService
   # deactivation_date should be blank for current employees
   def generate_employee_csv
     dirname = "tmp/betterworks"
+    file_name = "tmp/betterworks/OT_Betterworks_Users_" + DateTime.now.strftime('%Y%m%d') + ".csv"
 
     # delete old file
     Dir["tmp/betterworks/*"].each do |f|
@@ -45,9 +46,7 @@ class BetterworksService
       "manager_id"
     ]
 
-    filename = "tmp/betterworks/OT_Betterworks_Users_" + DateTime.now.strftime('%Y%m%d') + ".csv"
-
-    CSV.open(filename, "w+", {headers: true, col_sep: ","}) do |csv|
+    CSV.open(file_name, "w+", {headers: true, col_sep: ","}) do |csv|
       csv << headers
 
       betterworks_users.each do |u|
@@ -74,8 +73,9 @@ class BetterworksService
 
   def sftp_drop
     uri = URI.parse("sftp://#{SECRETS.betterworks_host}")
+
     Net::SFTP.start(uri.host, SECRETS.betterworks_user, password: SECRETS.betterworks_pw ) do |sftp|
-      sftp.upload!("tmp/saba/OT_Betterworks_Users.csv", SECRETS.betterworks_path)
+      sftp.upload!("tmp/betterworks", "/incoming")
     end
   end
 
