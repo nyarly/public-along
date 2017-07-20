@@ -42,8 +42,8 @@ class BetterworksService
       "location",
       "deactivation_date",
       "on_leave",
-      "manager_email",
-      "manager_id"
+      "manager_id",
+      "manager_email"
     ]
 
     CSV.open(file_name, "w+", {headers: true, col_sep: ","}) do |csv|
