@@ -164,9 +164,7 @@
       </p>
     </div>
     <div class="tabs-panel" id="security-profiles">
-      <p>
-        <strong>Active Security Profiles:</strong>
-      </p>
+      <h3 class="subheader text-left">Active Security Profiles</h3>
       <div class="indent-1">
         <% @employee.active_security_profiles.each do |sp| %>
           <div>
@@ -179,6 +177,8 @@
           </div>
         <% end %>
       </div>
+      <%= link_to "Update Security Profile", controller: "emp_transactions", action: "new", kind: "Security Access", employee_id: @employee.id, user_id: current_user.id %>
+      <a class="button expanded" href="#">Update Security Profile</a>
     </div>
   </div>
 
