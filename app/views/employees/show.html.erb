@@ -177,8 +177,14 @@
           </div>
         <% end %>
       </div>
-      <%= link_to "Update Security Profile", controller: "emp_transactions", action: "new", kind: "Security Access", employee_id: @employee.id, user_id: current_user.id %>
-      <a class="button expanded" href="#">Update Security Profile</a>
+      <%= link_to "Update Security Profile",
+            { controller: "emp_transactions",
+            action: "new",
+            kind: "Security Access",
+            employee_id: @employee.id,
+            user_id: current_user.id,
+            reason: "manager" },
+            class: "button expanded" %>
     </div>
   </div>
 
