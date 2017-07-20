@@ -1,0 +1,17 @@
+<h3 class="text-center">Security Access Update</h3>
+<div class="text-center" style="margin-left: 15%; margin-right: 15%;">
+  <% if @reason == "manager" %>
+    <p>
+      This form can be used by a manager at any time to modify the security profile selections for a worker. Once you submit changes to this form, Mezzo will immediately update OpenTable's Active Directory and/or make a request to TechTable to change account access as indicated in this form.
+    </p>
+  <% else %>
+    <% if @employee.emp_deltas.important_changes.present? %>
+      <p>You are receiving this form because you are listed as the manager of <%= @employee.cn %>, who may need a security profile update because the following information changed on <strong><%= @employee.emp_deltas.important_changes.last.created_at.try(:strftime, "%b %e, %Y") %></strong>:</p>
+        <% @employee.emp_deltas.important_changes.last.format_by_key.each do |e| %>
+          <p><%= e['name'] %> changed from <%= e['before'] %> to <%= e['after'] %></p>
+        <% end %>
+      <p><i>If you do not wish to make any changes, you may disregard this form.</i></p>
+    <% end %>
+  <% end %>
+</div>
+<%= render partial: "security_access", locals: {f: f, employee: @employee, kind: @kind} %>

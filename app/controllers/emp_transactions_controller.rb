@@ -31,6 +31,7 @@ class EmpTransactionsController < ApplicationController
   def new
     @kind = params[:kind]
     @employee = Employee.find params[:employee_id]
+    @reason = params[:reason]
     if params[:user_emp_id]
       @manager_user = User.find_by_employee_id params[:user_emp_id]
     elsif params[:user_id]

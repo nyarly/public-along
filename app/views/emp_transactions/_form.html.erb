@@ -2,7 +2,7 @@
   <%= form_for(@manager_entry, :url => emp_transactions_path(@emp_transaction), :html => {:class => "form"}) do |f| %>
     <% if @manager_entry.errors.any? %>
       <div id="error_explanation">
-        <h2><%= pluralize(@manager_entry.errors.count, "error") %> prohibited this emp_transaction from being saved:</h2>
+        <h4><%= pluralize(@manager_entry.errors.count, "error") %> prohibited this emp_transaction from being saved:</h2>
 
         <ul>
         <% @manager_entry.errors.full_messages.each do |message| %>
@@ -13,31 +13,32 @@
     <% end %>
 
     <div class="section primary">
-      <p class="indent-1"><strong>Name:</strong> <%= @employee.cn %></p>
-      <p class="indent-1"><strong>Title:</strong> <%= @employee.job_title.try(:name) %></p>
-      <p class="indent-1"><strong>Department:</strong> <%= @employee.department.name %></p>
-      <p class="indent-1"><strong>Location:</strong> <%= @employee.location.name %></p>
-      <p class="indent-1"><strong>Manager:</strong> <%= @manager_user.first_name %> <%= @manager_user.last_name %></p>
+      <h3 class="text-center">Employee Form for <%= @employee.cn %></h3>
+      <p class="text-center"><%= @employee.job_title.try(:name) %> &#8226; <%= @employee.department.name %> &#8226; <%= @employee.location.name %></p>
+      <% if @employee.manager.present? %>
+        <p class="text-center">Manager: <%= @employee.manager.cn %></p>
+      <% end %>
     </div>
 
-    <% case @kind %>
-    <% when "Onboarding" %>
-      <%= render partial: "onboarding", locals: {f: f, employee: @employee, manager_user: @manager_user} %>
-    <% when "Offboarding" %>
-      <%= render partial: "offboarding", locals: {f: f, employee: @employee} %>
-    <% when "Security Access" %>
-      <%= render partial: "job_change", locals: {f: f, employee: @employee, kind: @kind} %>
-    <% when "Equipment" %>
-      <%= render partial: "equipment", locals: {f: f} %>
-    <% end %>
+    <div class="section">
+      <% case @kind %>
+      <% when "Onboarding" %>
+        <%= render partial: "onboarding", locals: {f: f, employee: @employee, manager_user: @manager_user} %>
+      <% when "Offboarding" %>
+        <%= render partial: "offboarding", locals: {f: f, employee: @employee} %>
+      <% when "Security Access" %>
+        <%= render partial: "access_change", locals: {f: f, employee: @employee, reason: @reason } %>
+      <% when "Equipment" %>
+        <%= render partial: "equipment", locals: {f: f} %>
+      <% end %>
 
-
-    <%= f.hidden_field :kind, value: @kind %>
-    <%= f.hidden_field :employee_id, value: @employee.id %>
-    <%= f.hidden_field :user_id, value: @manager_user.id %>
-    <%= f.label :notes, "Additional Instructions for TechTable" %>
-    <%= f.text_area :notes %>
-    <p class="help-text">(Any instructions for P&amp;C should be directed to <%= mail_to "peopleandculture@opentable.com" %>)</p>
+      <%= f.hidden_field :kind, value: @kind %>
+      <%= f.hidden_field :employee_id, value: @employee.id %>
+      <%= f.hidden_field :user_id, value: @manager_user.id %>
+      <%= f.label :notes, "Additional Instructions for TechTable:" %>
+      <%= f.text_area :notes %>
+      <p class="help-text">(Any instructions for P&amp;C should be directed to <%= mail_to "peopleandculture@opentable.com" %>)</p>
+    </div>
 
     <div class="actions">
       <%= f.submit "Submit", :class => "button"%>

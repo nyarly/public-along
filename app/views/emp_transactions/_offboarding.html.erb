@@ -1,3 +1,4 @@
+<h1>Employee Offboarding Form</h1>
 <% if @employee.termination_date >= Date.today %>
   <div class="callout danger text-center">
   <p>You are receiving this form because you are listed as the manager of <%= @employee.cn %>, whose last day at OpenTable is listed in ADP as <strong><%= @employee.termination_date.strftime("%b %e, %Y") %></strong>.</p>
