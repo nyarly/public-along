@@ -74,10 +74,9 @@ class BetterworksService
 
   def sftp_drop
     uri = URI.parse("sftp://#{SECRETS.betterworks_host}")
-    file_path = "tmp/betterworks/" + betterworks_filename
 
     Net::SFTP.start(uri.host, SECRETS.betterworks_user, password: SECRETS.betterworks_pw ) do |sftp|
-      sftp.upload!(file_path, SECRETS.betterworks_path)
+      sftp.upload!(betterworks_filename, SECRETS.betterworks_path)
     end
   end
 
