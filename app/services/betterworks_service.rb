@@ -45,8 +45,6 @@ class BetterworksService
       "manager_id"
     ]
 
-    # filename = "tmp/betterworks/OT_Betterworks_Users_" + DateTime.now.strftime('%Y%m%d') + ".csv"
-
     CSV.open(betterworks_filename, "w+", {headers: true, col_sep: ","}) do |csv|
       csv << headers
 
