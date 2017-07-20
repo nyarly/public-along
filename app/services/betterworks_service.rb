@@ -45,9 +45,9 @@ class BetterworksService
       "manager_id"
     ]
 
-    filename = "tmp/betterworks/OT_Betterworks_Users_" + DateTime.now.strftime('%Y%m%d') + ".csv"
+    # filename = "tmp/betterworks/OT_Betterworks_Users_" + DateTime.now.strftime('%Y%m%d') + ".csv"
 
-    CSV.open(filename, "w+", {headers: true, col_sep: ","}) do |csv|
+    CSV.open(betterworks_filename, "w+", {headers: true, col_sep: ","}) do |csv|
       csv << headers
 
       betterworks_users.each do |u|
@@ -74,9 +74,15 @@ class BetterworksService
 
   def sftp_drop
     uri = URI.parse("sftp://#{SECRETS.betterworks_host}")
+    file_path = "tmp/betterworks/" + betterworks_filename
+
     Net::SFTP.start(uri.host, SECRETS.betterworks_user, password: SECRETS.betterworks_pw ) do |sftp|
-      sftp.upload!("tmp/saba/OT_Betterworks_Users.csv", SECRETS.betterworks_path)
+      sftp.upload!(file_path, SECRETS.betterworks_path)
     end
+  end
+
+  def betterworks_filename
+    "tmp/betterworks/OT_Betterworks_Users_" + DateTime.now.strftime('%Y%m%d') + ".csv"
   end
 
   def deactivation_date(emp)

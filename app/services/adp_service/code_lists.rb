@@ -71,8 +71,10 @@ module AdpService
         if w_type.present?
           w_type.update_attributes({name: name, status: "Active"})
         else
-          new_wt = WorkerType.create({code: code, name: name, status: "Active"})
-          new_worker_types << new_wt
+          if code.present?
+            new_wt = WorkerType.create({code: code, name: name, status: "Active"})
+            new_worker_types << new_wt
+          end
         end
       end
       if new_worker_types.present?
