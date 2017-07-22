@@ -13,7 +13,7 @@
     <% end %>
 
     <div class="section primary">
-      <h3 class="text-center">Employee Form for <%= @employee.cn %></h3>
+      <h3 class="text-center"><%= @employee.cn %></h3>
       <p class="text-center"><%= @employee.job_title.try(:name) %> &#8226; <%= @employee.department.name %> &#8226; <%= @employee.location.name %></p>
       <% if @employee.manager.present? %>
         <p class="text-center">Manager: <%= @employee.manager.cn %></p>
@@ -40,9 +40,12 @@
       <p class="help-text">(Any instructions for P&amp;C should be directed to <%= mail_to "peopleandculture@opentable.com" %>)</p>
     </div>
 
-    <div class="actions">
-      <%= f.submit "Submit", :class => "button"%>
-    </div>
+    <% if @kind == "Security Access" %>
+      <%= f.submit "Submit", :class => "button", action: "post", data: { confirm: '{"title":"Are you sure you want to submit this form?","body":"Please note: any permissions controlled by Active Directory will be applied or revoked immediately upon submission. If you are revoking security profiles that control wifi or VPN access, the worker will immediately lose connectivity."}' } %>
+    <% else %>
+      <%= f.submit "Submit", :class => "button", action: "post", data: { confirm: '{"title":"Are you sure you want to submit this form?","body":"Are you really, really sure you want to do that?"}' } %>
+    <% end %>
+
   <% end %>
 <% end %>
 

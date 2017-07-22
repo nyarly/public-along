@@ -1,37 +1,33 @@
-<div class="callout large secondary">
-  <div class="row">
-    <h4 class=" ">How to Choose Security Profiles</h4>
+<div class="callout" style="width: 100%;">
+    <h4 class="">Security Profiles</h4>
     <br>
-  </div>
-  <div class="row">
-    <div class="column large-4 medium-6 small-12">
-      <p>
-        Select ONLY the appropriate security access profiles to apply to the worker. As manager, you will be held responsible for over-permissioning your direct reports.
-      </p>
-    </div>
-    <div class="column large-4 medium-6 small-12">
-      <p>
-        Access controlled by Active Directory will be immediately updated upon submission of this form. All other access requests will be forwarded to TechTable for implementation.
-      </p>
-    </div>
-    <div class="column large-4 medium-6 small-12">
-      <p>
-        If you are not sure what to pick, or if you do not see what you need, please contact <%= mail_to "techtable@opentable.com" %> for guidance.
-      </p>
-    </div>
-    <%if @kind == "Security Access" %>
-<!--       <div class="column large-4 medium-6 small-12">
-        <p class="danger-text ">Please note that if you are revoking security profiles (de-selecting checked boxes), the worker will automatically be removed from those permission groups upon submission. For example, if you revoke a security profile that contains VPN access, the worker will not be able to access the VPN after you submit the form.</p>
-      </div> -->
-    <% end %>
-  </div>
-</div>
+    <ul class="accordion" data-accordion data-allow-all-closed="true">
+    <li class="accordion-item is-active" data-accordion-item>
+      <a href="#" class="accordion-title"><h5>How to Choose Security Profiles</h5></a>
 
-<div class="callout large" style="width: 100%;">
-  <div class="row">
-    <h4 class="">Security Profile Options</h4>
-    <br>
-  </div>
+      <div class="accordion-content" data-tab-content>
+        <div class="row">
+          <div class="column large-4 medium-6 small-12">
+            <p>
+              Select ONLY the appropriate security access profiles to apply to the worker. As manager, you will be held responsible for over-permissioning your direct reports.
+            </p>
+          </div>
+          <div class="column large-4 medium-6 small-12">
+            <p>
+              Access controlled by Active Directory will be immediately updated upon submission of this form. All other access requests will be forwarded to TechTable for implementation.
+            </p>
+          </div>
+          <div class="column large-4 medium-6 small-12">
+            <p>
+              If you are not sure what to pick, or if you do not see what you need, please contact <%= mail_to "techtable@opentable.com" %> for guidance.
+            </p>
+          </div>
+        </div>
+      </div>
+    </li>
+  </ul>
+  <br>
+
   <div class="row">
   <% SecurityProfile.find_profiles_for(@employee.department.id).each do |sp| %>
     <div class="column large-4 medium-6 small-12">
