@@ -1,14 +1,4 @@
 <div class="row">
-  <% if (can? :create, Email) && (@employee.status != "Terminated") %>
-    <div class="float-right small-12 medium-6 large-6 columns">
-      <div class="callout secondary">
-        <div id="email-info"><p>Send Email<span data-tooltip aria-haspopup="true" class="has-tip float-right" data-disable-hover="false" tabindex="1" title="Use this form to immediately resend an email about this employee to their manager.">?</span></p>
-        </div>
-        <%= render'emails/form', employee: @employee %>
-      </div>
-    </div>
-  <% end %>
-
   <div>
     <ul class="tabs" role="tablist" data-active-collapse="true" data-tabs id="employee-info">
       <li class="tabs-title is-active" role="presentation">
@@ -27,6 +17,17 @@
   </div>
   <div class="tabs-content" data-tabs-content="employee-info">
     <div class="tabs-panel is-active" id="basic-info">
+
+      <!-- Begin trigger email section -->
+      <% if (can? :create, Email) && (@employee.status != "Terminated") %>
+        <div class="callout secondary large-4 medium-6 small-12 columns float-right">
+          <div id="email-info"><p>Send Manager Email<span data-tooltip aria-haspopup="true" class="has-tip float-right" data-disable-hover="false" tabindex="1" title="Use this form to immediately resend a form prompt for this employee to their manager.">?</span></p>
+          </div>
+          <%= render'emails/form', employee: @employee %>
+        </div>
+      <% end %>
+      <!-- End trigger email section -->
+
       <p>
         <strong>First Name:</strong>
         <%= @employee.first_name %>
@@ -187,7 +188,6 @@
             class: "button expanded" %>
     </div>
   </div>
-
 </div>
 
 <div class="row">
