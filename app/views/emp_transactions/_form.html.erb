@@ -41,9 +41,9 @@
     </div>
 
     <% if @kind == "Security Access" %>
-      <%= f.submit "Submit", :class => "button", action: "post", data: { confirm: '{"title":"Are you sure you want to submit this form?","body":"Please note: any permissions controlled by Active Directory will be applied or revoked immediately upon submission. If you are revoking security profiles that control wifi or VPN access, the worker will immediately lose connectivity."}' } %>
+      <%= f.submit "Submit", :class => "button", action: "post", data: { confirm: '{"title":"Are you sure you want to submit this form?","body":"Please note: any permissions controlled by Active Directory will be applied or revoked immediately upon submission. If you are revoking security profiles that control Wi-Fi or VPN access, the worker will immediately lose connectivity."}' } %>
     <% else %>
-      <%= f.submit "Submit", :class => "button", action: "post", data: { confirm: '{"title":"Are you sure you want to submit this form?","body":"Are you really, really sure you want to do that?"}' } %>
+      <%= f.submit "Submit", :class => "button" %>
     <% end %>
 
   <% end %>
