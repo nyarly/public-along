@@ -20,6 +20,11 @@ RSpec.describe TransitionInfo, type: :model do
 
   context "offboard with offboarding info" do
 
+    let(:emp_transaction) { FactoryGirl.create(:emp_transaction,
+      employee_id: employee.id,
+      kind: "Offboarding"
+    )}
+
     let(:forward_to_employee) { FactoryGirl.create(:employee,
       first_name: "Steven",
       last_name: "Colbert",
@@ -28,14 +33,14 @@ RSpec.describe TransitionInfo, type: :model do
     )}
 
     let!(:offboarding_info) { FactoryGirl.create(:offboarding_info,
+      emp_transaction_id: emp_transaction.id,
       archive_data: true,
-      employee_id: employee.id,
       forward_email_id: forward_to_employee.id,
       reassign_salesforce_id: forward_to_employee.id,
       transfer_google_docs_id: nil
     )}
 
-    let(:offboard) { FactoryGirl.create(:offboard, employee_id: employee.employee_id) }
+    let(:offboard) { TransitionInfo::Offboard.new(employee.employee_id) }
 
     it "should respond to archive data" do
       expect(offboard.archive_data).to eq(true)
@@ -56,7 +61,7 @@ RSpec.describe TransitionInfo, type: :model do
 
   context "offboard without offboarding info" do
 
-    let(:offboard) { FactoryGirl.create(:offboard, employee_id: employee.employee_id) }
+    let(:offboard) { TransitionInfo::Offboard.new(employee.employee_id) }
 
     it "should respond to archive data" do
       expect(offboard.archive_data).to eq('no info provided')
@@ -80,17 +85,17 @@ RSpec.describe TransitionInfo, type: :model do
     let(:buddy) { FactoryGirl.create(:employee) }
 
     let!(:emp_transaction) { FactoryGirl.create(:emp_transaction,
+      employee_id: employee.id,
       kind: "Onboarding",
       notes: "welcome!"
     )}
 
     let!(:onboarding_info) { FactoryGirl.create(:onboarding_info,
-      employee_id: employee.id,
       emp_transaction_id: emp_transaction.id,
       buddy_id: buddy.id
     )}
 
-    let(:onboard) { FactoryGirl.create(:onboard, employee_id: employee.employee_id) }
+    let(:onboard) { TransitionInfo::Onboard.new(employee.employee_id) }
 
     it "should get onboarding info" do
       expect(onboard.onboarding_info.buddy_id).to eq(buddy.id)

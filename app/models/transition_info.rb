@@ -8,7 +8,7 @@ module TransitionInfo
     include TransitionInfo
 
     def offboarding_info
-      OffboardingInfo.where(employee_id: @employee.id).order("created_at").last
+      @employee.offboarding_infos.order("created_at").last
     end
 
     def emp_transaction
@@ -58,11 +58,13 @@ module TransitionInfo
     include TransitionInfo
 
     def onboarding_info
-      @employee.onboarding_infos.last
+      @employee.onboarding_infos.order("created_at").last
     end
 
     def emp_transaction
-      EmpTransaction.find(onboarding_info.emp_transaction_id)
+      if onboarding_info.present?
+        EmpTransaction.find(onboarding_info.emp_transaction_id)
+      end
     end
   end
 

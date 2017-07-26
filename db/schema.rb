@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170629010209) do
+ActiveRecord::Schema.define(version: 20170714203809) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -87,7 +87,6 @@ ActiveRecord::Schema.define(version: 20170629010209) do
   end
 
   create_table "emp_mach_bundles", force: :cascade do |t|
-    t.integer  "employee_id",        null: false
     t.integer  "machine_bundle_id",  null: false
     t.integer  "emp_transaction_id", null: false
     t.hstore   "details"
@@ -96,8 +95,7 @@ ActiveRecord::Schema.define(version: 20170629010209) do
   end
 
   create_table "emp_sec_profiles", force: :cascade do |t|
-    t.integer  "employee_id"
-    t.integer  "security_profile_id"
+    t.integer  "security_profile_id",     null: false
     t.datetime "created_at",              null: false
     t.datetime "updated_at",              null: false
     t.integer  "emp_transaction_id"
@@ -105,11 +103,12 @@ ActiveRecord::Schema.define(version: 20170629010209) do
   end
 
   create_table "emp_transactions", force: :cascade do |t|
-    t.string   "kind",       null: false
-    t.integer  "user_id",    null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.string   "kind",        null: false
+    t.integer  "user_id"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
     t.text     "notes"
+    t.integer  "employee_id"
   end
 
   create_table "employees", force: :cascade do |t|
@@ -183,7 +182,6 @@ ActiveRecord::Schema.define(version: 20170629010209) do
   end
 
   create_table "offboarding_infos", force: :cascade do |t|
-    t.integer  "employee_id",                             null: false
     t.integer  "emp_transaction_id",                      null: false
     t.boolean  "archive_data",            default: false, null: false
     t.boolean  "replacement_hired",       default: false, null: false
@@ -195,7 +193,6 @@ ActiveRecord::Schema.define(version: 20170629010209) do
   end
 
   create_table "onboarding_infos", force: :cascade do |t|
-    t.integer  "employee_id",                          null: false
     t.integer  "emp_transaction_id",                   null: false
     t.integer  "buddy_id"
     t.boolean  "cw_email",             default: false, null: false
@@ -274,12 +271,11 @@ ActiveRecord::Schema.define(version: 20170629010209) do
   add_foreign_key "emp_access_levels", "employees", on_delete: :cascade
   add_foreign_key "emp_delta", "employees", on_delete: :cascade
   add_foreign_key "emp_mach_bundles", "emp_transactions", on_delete: :cascade
-  add_foreign_key "emp_mach_bundles", "employees", on_delete: :cascade
   add_foreign_key "emp_mach_bundles", "machine_bundles", on_delete: :cascade
   add_foreign_key "emp_sec_profiles", "emp_transactions", column: "revoking_transaction_id", on_delete: :nullify
   add_foreign_key "emp_sec_profiles", "emp_transactions", on_delete: :nullify
-  add_foreign_key "emp_sec_profiles", "employees", on_delete: :cascade
   add_foreign_key "emp_sec_profiles", "security_profiles", on_delete: :cascade
+  add_foreign_key "emp_transactions", "employees", on_delete: :cascade
   add_foreign_key "emp_transactions", "users", on_delete: :nullify
   add_foreign_key "employees", "departments"
   add_foreign_key "employees", "job_titles"
@@ -289,10 +285,8 @@ ActiveRecord::Schema.define(version: 20170629010209) do
   add_foreign_key "offboarding_infos", "employees", column: "forward_email_id", on_delete: :nullify
   add_foreign_key "offboarding_infos", "employees", column: "reassign_salesforce_id", on_delete: :nullify
   add_foreign_key "offboarding_infos", "employees", column: "transfer_google_docs_id", on_delete: :nullify
-  add_foreign_key "offboarding_infos", "employees", on_delete: :cascade
   add_foreign_key "onboarding_infos", "emp_transactions", on_delete: :cascade
   add_foreign_key "onboarding_infos", "employees", column: "buddy_id", on_delete: :nullify
-  add_foreign_key "onboarding_infos", "employees", on_delete: :cascade
   add_foreign_key "sec_prof_access_levels", "access_levels", on_delete: :cascade
   add_foreign_key "sec_prof_access_levels", "security_profiles", on_delete: :cascade
 end

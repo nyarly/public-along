@@ -1,7 +1,6 @@
 FactoryGirl.define do
   factory :emp_sec_profile do
     association :emp_transaction, factory: :emp_transaction
-    association :employee, factory: :employee
     association :security_profile, factory: :security_profile
     revoking_transaction_id nil
   end

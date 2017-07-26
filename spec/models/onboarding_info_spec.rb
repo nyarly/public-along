@@ -5,7 +5,5 @@ RSpec.describe OnboardingInfo, type: :model do
 
   it "should meet validations" do
     expect(onboarding_info).to be_valid
-
-    expect(onboarding_info).to_not allow_value(nil).for(:employee_id)
   end
 end

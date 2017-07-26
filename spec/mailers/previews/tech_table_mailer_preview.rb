@@ -46,7 +46,7 @@ class TechTableMailerPreview < ActionMailer::Preview
 
   def onboard_instructions
     emp_trans = EmpTransaction.where(kind: "Onboarding").last
-    emp = Employee.find(emp_trans.onboarding_infos.first.employee_id)
+    emp = Employee.find(emp_trans.employee_id)
     TechTableMailer.onboard_instructions(emp)
   end
 end

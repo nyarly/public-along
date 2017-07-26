@@ -71,22 +71,20 @@ describe "employee rake tasks", type: :tasks do
 
       sec_prof = FactoryGirl.create(:security_profile)
       emp_trans_1 = FactoryGirl.create(:emp_transaction,
+        employee_id: new_hire_uk.id,
         kind: "Onboarding")
       onboarding_info_1 = FactoryGirl.create(:onboarding_info,
-        employee_id: new_hire_uk.id,
         emp_transaction_id: emp_trans_1.id)
       emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile,
         emp_transaction_id: emp_trans_1.id,
-        employee_id: new_hire_uk.id,
         security_profile_id: sec_prof.id)
       emp_trans_2 = FactoryGirl.create(:emp_transaction,
+        employee_id: returning_uk.id,
         kind: "Onboarding")
       onboarding_info_2 = FactoryGirl.create(:onboarding_info,
-        employee_id: returning_uk.id,
         emp_transaction_id: emp_trans_2.id)
       emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile,
         emp_transaction_id: emp_trans_2.id,
-        employee_id: returning_uk.id,
         security_profile_id: sec_prof.id)
 
       expect(@ldap).to receive(:replace_attribute).once.with(
@@ -150,22 +148,20 @@ describe "employee rake tasks", type: :tasks do
 
       sec_prof = FactoryGirl.create(:security_profile)
       emp_trans_1 = FactoryGirl.create(:emp_transaction,
-        kind: "Onboarding")
+        kind: "Onboarding",
+        employee_id: new_hire_us.id)
       onboarding_info_1 = FactoryGirl.create(:onboarding_info,
-        employee_id: new_hire_us.id,
         emp_transaction_id: emp_trans_1.id)
       emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile,
         emp_transaction_id: emp_trans_1.id,
-        employee_id: new_hire_us.id,
         security_profile_id: sec_prof.id)
       emp_trans_2 = FactoryGirl.create(:emp_transaction,
-        kind: "Onboarding")
+        kind: "Onboarding",
+        employee_id: new_hire_uk.id)
       onboarding_info_2 = FactoryGirl.create(:onboarding_info,
-        employee_id: returning_us.id,
         emp_transaction_id: emp_trans_2.id)
       emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile,
         emp_transaction_id: emp_trans_2.id,
-        employee_id: returning_us.id,
         security_profile_id: sec_prof.id)
 
       expect(@ldap).to receive(:replace_attribute).once.with(
@@ -400,18 +396,18 @@ describe "employee rake tasks", type: :tasks do
 
       # Add security profile for termination worker
       emp_trans_1 = FactoryGirl.create(:emp_transaction,
+        employee_id: termination.id,
         kind: "Onboarding")
       emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile,
         emp_transaction_id: emp_trans_1.id,
-        employee_id: termination.id,
         security_profile_id: sec_prof.id)
 
       # Add security profile for recent_termination worker
       emp_trans_2 = FactoryGirl.create(:emp_transaction,
+        employee_id: recent_termination.id,
         kind: "Onboarding")
       emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile,
         emp_transaction_id: emp_trans_2.id,
-        employee_id: recent_termination.id,
         security_profile_id: sec_prof.id)
 
       # 8/28/2016 at 3am PST/10am UTC

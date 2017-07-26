@@ -64,9 +64,11 @@ module AdpService
       w_hash[:status] = "Pending" # put worker as "Pending" rather than "Active"
       e = Employee.new(w_hash)
       Employee.check_manager(e.manager_id)
+
       if e.save
         ads = ActiveDirectoryService.new
         ads.create_disabled_accounts([e])
+        add_basic_security_profile(e)
         return true
       else
         return false
@@ -155,6 +157,33 @@ module AdpService
         )
       end
       emp_delta
+    end
+
+    def add_basic_security_profile(employee)
+      default_sec_group = ""
+
+      if employee.worker_type.kind == "Regular"
+        default_sec_group = SecurityProfile.find_by(name: "Basic Regular Worker Profile").id
+      elsif employee.worker_type.kind == "Temporary"
+        default_sec_group = SecurityProfile.find_by(name: "Basic Temp Worker Profile").id
+      elsif employee.worker_type.kind == "Contractor"
+        default_sec_group = SecurityProfile.find_by(name: "Basic Contract Worker Profile").id
+      end
+
+      emp_trans = EmpTransaction.new(
+        kind: "Service",
+        notes: "Initial provisioning by Mezzo",
+        employee_id: employee.id
+      )
+
+      emp_trans.emp_sec_profiles.build(security_profile_id: default_sec_group)
+
+      emp_trans.save!
+
+      if emp_trans.emp_sec_profiles.count > 0
+        sas = SecAccessService.new(emp_trans)
+        sas.apply_ad_permissions
+      end
     end
 
     private

@@ -21,7 +21,7 @@ require 'rails_helper'
 RSpec.describe EmpTransactionsController, type: :controller do
 
   let!(:emp_transaction) { FactoryGirl.create(:emp_transaction, user: user) }
-  let!(:emp_mach_bundle) { FactoryGirl.create(:emp_mach_bundle, emp_transaction: emp_transaction, employee: employee) }
+  let!(:emp_mach_bundle) { FactoryGirl.create(:emp_mach_bundle, emp_transaction: emp_transaction) }
   let!(:machine_bundle) { FactoryGirl.create(:machine_bundle) }
   let!(:employee) { FactoryGirl.create(:employee, worker_type_id: worker_type.id) }
   let!(:worker_type) { FactoryGirl.create(:worker_type, kind: "Regular")}

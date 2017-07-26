@@ -183,10 +183,13 @@ describe AdpService::Workers, type: :service do
     end
 
     it "should do nothing if manager already a manager" do
-      manager = FactoryGirl.create(:employee, employee_id: "101734")
+      manager = FactoryGirl.create(:employee, employee_id: "100449")
       sp = FactoryGirl.create(:security_profile, name: "Basic Manager")
-
-      manager.security_profiles << sp
+      emp_transaction = FactoryGirl.create(:emp_transaction,
+        employee_id: manager.id)
+      FactoryGirl.create(:emp_sec_profile,
+        security_profile_id: sp.id,
+        emp_transaction_id: emp_transaction.id)
 
       expect(response).to receive(:body).and_return(json)
 

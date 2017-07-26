@@ -66,7 +66,8 @@ describe Employee, type: :model do
       emp = FactoryGirl.create(:employee)
 
       sp = FactoryGirl.create(:security_profile, name: "Basic Manager")
-      esp = FactoryGirl.create(:emp_sec_profile, security_profile_id: sp.id, employee_id: mgr.id)
+      et = FactoryGirl.create(:emp_transaction, employee_id: mgr.id)
+      esp = FactoryGirl.create(:emp_sec_profile, security_profile_id: sp.id, emp_transaction_id: et.id)
 
       expect(Employee.managers).to include(mgr)
       expect(Employee.managers).to_not include(emp)
@@ -186,8 +187,8 @@ describe Employee, type: :model do
 
     it "should check onboarding is complete" do
       completed = FactoryGirl.create(:employee)
-      emp_trans_1 = FactoryGirl.create(:emp_transaction, kind: "Onboarding")
-      onboarding_info = FactoryGirl.create(:onboarding_info, employee_id: completed.id, emp_transaction_id: emp_trans_1.id)
+      emp_trans_1 = FactoryGirl.create(:emp_transaction, kind: "Onboarding", employee_id: completed.id)
+      onboarding_info = FactoryGirl.create(:onboarding_info, emp_transaction_id: emp_trans_1.id)
 
       not_completed = FactoryGirl.create(:employee)
 
@@ -198,8 +199,8 @@ describe Employee, type: :model do
 
     it "should check offboarding is complete" do
       completed = FactoryGirl.create(:employee)
-      emp_trans_1 = FactoryGirl.create(:emp_transaction, kind: "Offboarding")
-      offboarding_info = FactoryGirl.create(:offboarding_info, employee_id: completed.id, emp_transaction_id: emp_trans_1.id)
+      emp_trans_1 = FactoryGirl.create(:emp_transaction, kind: "Offboarding", employee_id: completed.id)
+      offboarding_info = FactoryGirl.create(:offboarding_info, emp_transaction_id: emp_trans_1.id)
 
       not_completed = FactoryGirl.create(:employee)
 
@@ -213,9 +214,21 @@ describe Employee, type: :model do
       sec_prof_1 = FactoryGirl.create(:security_profile)
       sec_prof_2 = FactoryGirl.create(:security_profile)
       user = FactoryGirl.create(:user)
-      revoking_transaction = FactoryGirl.create(:emp_transaction, user_id: user.id, kind: "Security Access")
-      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile, employee_id: emp.id, security_profile_id: sec_prof_1.id, revoking_transaction_id: revoking_transaction.id)
-      emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile, employee_id: emp.id, security_profile_id: sec_prof_2.id, revoking_transaction_id: nil)
+      emp_transaction = FactoryGirl.create(:emp_transaction,
+        employee_id: emp.id,
+        kind: "Onboarding")
+      revoking_transaction = FactoryGirl.create(:emp_transaction,
+        employee_id: emp.id,
+        user_id: user.id,
+        kind: "Security Access")
+      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile,
+        security_profile_id: sec_prof_1.id,
+        emp_transaction_id: emp_transaction.id,
+        revoking_transaction_id: revoking_transaction.id)
+      emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile,
+        security_profile_id: sec_prof_2.id,
+        emp_transaction_id: emp_transaction.id,
+        revoking_transaction_id: nil)
 
       expect(emp.active_security_profiles).to include(sec_prof_2)
       expect(emp.revoked_security_profiles).to include(sec_prof_1)
@@ -226,9 +239,18 @@ describe Employee, type: :model do
       emp = FactoryGirl.create(:employee, department_id: dept.id)
       sec_prof_1 = FactoryGirl.create(:security_profile)
       sec_prof_2 = FactoryGirl.create(:security_profile)
-      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile, employee_id: emp.id, security_profile_id: sec_prof_1.id, revoking_transaction_id: nil)
-      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile, employee_id: emp.id, security_profile_id: sec_prof_2.id, revoking_transaction_id: nil)
-      dept_sec_prof_1 = FactoryGirl.create(:dept_sec_prof, department_id: dept.id, security_profile_id: sec_prof_1.id)
+      emp_trans = FactoryGirl.create(:emp_transaction, employee_id: emp.id)
+      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile,
+        emp_transaction_id: emp_trans.id,
+        security_profile_id: sec_prof_1.id,
+        revoking_transaction_id: nil)
+      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile,
+        emp_transaction_id: emp_trans.id,
+        security_profile_id: sec_prof_2.id,
+        revoking_transaction_id: nil)
+      dept_sec_prof_1 = FactoryGirl.create(:dept_sec_prof,
+        department_id: dept.id,
+        security_profile_id: sec_prof_1.id)
 
       expect(emp.security_profiles_to_revoke).to include(sec_prof_2)
       expect(emp.security_profiles_to_revoke).to_not include(sec_prof_1)
@@ -641,36 +663,36 @@ describe Employee, type: :model do
       security_profile_id: mgr_profile.id,
       access_level_id: access_level_2.id
     )}
-    let(:ads) { double(ActiveDirectoryService) }
+    let(:sas) { double(SecAccessService) }
 
     before :each do
-      allow(ActiveDirectoryService).to receive(:new).and_return(ads)
+      allow(SecAccessService).to receive(:new).and_return(sas)
     end
 
     it "should add 'Basic Manager' profile to worker if not present" do
-      allow(ads).to receive(:add_to_sec_group)
+      expect(sas).to receive(:apply_ad_permissions)
 
       expect{
         Employee.check_manager(manager.employee_id)
       }.to change{Employee.managers.include?(manager)}.from(false).to(true)
+      expect(manager.emp_sec_profiles.last.security_profile_id).to eq(mgr_profile.id)
+      expect(manager.active_security_profiles).to include(mgr_profile)
     end
 
     it "should apply AD security group if not nil" do
-      expect(ads).to receive(:add_to_sec_group).with(
-        "distinguished name of AD sec group",
-        manager
-      )
+      expect(sas).to receive(:apply_ad_permissions)
 
       Employee.check_manager(manager.employee_id)
     end
 
     it "should do nothing if worker already has 'Basic Manager' profile" do
-      manager.security_profiles << mgr_profile
+      emp_transaction = FactoryGirl.create(:emp_transaction,
+        employee_id: manager.id)
+      FactoryGirl.create(:emp_sec_profile,
+        security_profile_id: mgr_profile.id,
+        emp_transaction_id: emp_transaction.id)
 
-      expect(ads).to_not receive(:add_to_sec_group).with(
-        "distinguished name of AD sec group",
-        manager
-      )
+      expect(sas).to_not receive(:apply_ad_permissions)
 
       expect{
         Employee.check_manager(manager.employee_id)

@@ -22,9 +22,9 @@ describe SummaryReportHelper, type: :helper do
 
     it "should find buddy" do
       buddy = FactoryGirl.create(:employee)
-      emp_trans = FactoryGirl.create(:emp_transaction, :kind => "Onboarding")
-      emp_sec_prof = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans.id, employee_id: emp_group[0].id, security_profile_id: sec_prof.id)
-      onboarding_info = FactoryGirl.create(:onboarding_info, employee_id: emp_group[0].id, buddy_id: buddy.id, emp_transaction: emp_trans)
+      emp_trans = FactoryGirl.create(:emp_transaction, :kind => "Onboarding", employee_id: emp_group[0].id)
+      emp_sec_prof = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans.id, security_profile_id: sec_prof.id)
+      onboarding_info = FactoryGirl.create(:onboarding_info, buddy_id: buddy.id, emp_transaction: emp_trans)
 
       expect(helper.buddy(emp_group[0])).to eq(buddy)
     end
@@ -40,11 +40,11 @@ describe SummaryReportHelper, type: :helper do
       employee = FactoryGirl.create(:employee, created_at: 5.days.ago)
       emp_delta = FactoryGirl.create(:emp_delta, employee_id: employee.id, before: {thing: "thing"}, after: {nothing: "nothing"}, created_at: 4.days.ago)
 
-      old_emp_trans = FactoryGirl.create(:emp_transaction, kind: "Onboarding", created_at: 3.days.ago)
-      old_onboarding = FactoryGirl.create(:onboarding_info, emp_transaction_id: old_emp_trans.id, created_at: 3.days.ago, employee_id: employee.id)
+      old_emp_trans = FactoryGirl.create(:emp_transaction, kind: "Onboarding", created_at: 3.days.ago, employee_id: employee.id)
+      old_onboarding = FactoryGirl.create(:onboarding_info, emp_transaction_id: old_emp_trans.id, created_at: 3.days.ago)
 
-      new_emp_trans = FactoryGirl.create(:emp_transaction, kind: "Onboarding", created_at: 1.day.ago)
-      new_onboarding = FactoryGirl.create(:onboarding_info, emp_transaction_id: new_emp_trans.id, created_at: 1.day.ago, employee_id: employee.id)
+      new_emp_trans = FactoryGirl.create(:emp_transaction, kind: "Onboarding", created_at: 1.day.ago, employee_id: employee.id)
+      new_onboarding = FactoryGirl.create(:onboarding_info, emp_transaction_id: new_emp_trans.id, created_at: 1.day.ago)
 
       expect(helper.last_changed(employee)).to eq(new_onboarding.created_at)
     end
@@ -65,9 +65,9 @@ describe SummaryReportHelper, type: :helper do
 
     it "should find employee assigned to take over salesforce cases" do
       salesforce = FactoryGirl.create(:employee)
-      emp_trans = FactoryGirl.create(:emp_transaction, :kind => "Offboarding")
-      emp_sec_prof = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans.id, employee_id: emp_group[0].id, security_profile_id: sec_prof.id)
-      offboarding_info = FactoryGirl.create(:offboarding_info, employee_id: emp_group[0].id, reassign_salesforce_id: salesforce.id, emp_transaction: emp_trans)
+      emp_trans = FactoryGirl.create(:emp_transaction, :kind => "Offboarding", employee_id: emp_group[0].id,)
+      emp_sec_prof = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans.id, security_profile_id: sec_prof.id)
+      offboarding_info = FactoryGirl.create(:offboarding_info, reassign_salesforce_id: salesforce.id, emp_transaction: emp_trans)
       expect(helper.salesforce(emp_group[0])).to eq(salesforce)
     end
   end

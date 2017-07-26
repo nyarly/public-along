@@ -77,9 +77,9 @@ describe ActiveDirectoryService, type: :service do
 
     it "should fail and send alert email if it is a contract worker and there is no contract end date set" do
       invalid_contract_worker = FactoryGirl.create(:employee, worker_type_id: temp_worker_type.id, contract_end_date: nil)
-      emp_trans = FactoryGirl.create(:emp_transaction, kind: "Onboarding")
+      emp_trans = FactoryGirl.create(:emp_transaction, kind: "Onboarding", employee_id: invalid_contract_worker.id)
       sec_prof = FactoryGirl.create(:security_profile)
-      emp_sec_prof = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans.id, employee_id: invalid_contract_worker.id, security_profile_id: sec_prof.id)
+      emp_sec_prof = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans.id, security_profile_id: sec_prof.id)
 
       expect(TechTableMailer).to receive(:alert_email).once.and_return(mailer)
       expect(mailer).to receive(:deliver_now).once
@@ -88,10 +88,10 @@ describe ActiveDirectoryService, type: :service do
 
     it "should activate for properly set contract worker" do
       valid_contract_worker = FactoryGirl.create(:employee, worker_type_id: temp_worker_type.id, contract_end_date: 3.months.from_now)
-      emp_trans = FactoryGirl.create(:emp_transaction, kind: "Onboarding")
-      onboarding_info = FactoryGirl.create(:onboarding_info, employee_id: valid_contract_worker.id, emp_transaction_id: emp_trans.id)
+      emp_trans = FactoryGirl.create(:emp_transaction, kind: "Onboarding", employee_id: valid_contract_worker.id)
+      onboarding_info = FactoryGirl.create(:onboarding_info, emp_transaction_id: emp_trans.id)
       sec_prof = FactoryGirl.create(:security_profile)
-      emp_sec_prof = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans.id, employee_id: valid_contract_worker.id, security_profile_id: sec_prof.id)
+      emp_sec_prof = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans.id, security_profile_id: sec_prof.id)
 
       allow(ldap).to receive(:replace_attribute).once
       expect(TechTableMailer).to_not receive(:alert_email).with("ERROR: #{valid_contract_worker.first_name} #{valid_contract_worker.last_name} is a contract worker and needs a contract_end_date. Account not activated.")
@@ -100,8 +100,8 @@ describe ActiveDirectoryService, type: :service do
 
     it "should activate for properly set contract worker with no security profiles" do
       valid_contract_worker = FactoryGirl.create(:employee, worker_type_id: temp_worker_type.id, contract_end_date: 3.months.from_now)
-      emp_trans = FactoryGirl.create(:emp_transaction, kind: "Onboarding")
-      onboarding_info = FactoryGirl.create(:onboarding_info, employee_id: valid_contract_worker.id, emp_transaction_id: emp_trans.id)
+      emp_trans = FactoryGirl.create(:emp_transaction, kind: "Onboarding", employee_id: valid_contract_worker.id)
+      onboarding_info = FactoryGirl.create(:onboarding_info, emp_transaction_id: emp_trans.id)
 
       allow(ldap).to receive(:replace_attribute).once
       expect(TechTableMailer).to_not receive(:alert_email).with("ERROR: #{valid_contract_worker.first_name} #{valid_contract_worker.last_name} is a contract worker and needs a contract_end_date. Account not activated.")
@@ -320,12 +320,13 @@ describe ActiveDirectoryService, type: :service do
       :worker_type_id => reg_worker_type.id,
       :termination_date => Date.today - 30.days
     )}
+    let!(:emp_transaction) { FactoryGirl.create(:emp_transaction, kind: "Onboarding", employee_id: employee.id) }
     let!(:security_profile) { FactoryGirl.create(:security_profile)}
     let!(:access_level) { FactoryGirl.create(:access_level, ad_security_group: "cn=test")}
     let!(:access_level_2) { FactoryGirl.create(:access_level, ad_security_group: nil)}
     let!(:sec_prof_access_level) { FactoryGirl.create(:sec_prof_access_level, security_profile_id: security_profile.id, access_level_id: access_level.id)}
     let!(:sec_prof_access_level_2) { FactoryGirl.create(:sec_prof_access_level, security_profile_id: security_profile.id, access_level_id: access_level_2.id)}
-    let!(:emp_sec_profile) { FactoryGirl.create(:emp_sec_profile, employee_id: employee.id, security_profile_id: security_profile.id)}
+    let!(:emp_sec_profile) { FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_transaction.id, security_profile_id: security_profile.id)}
 
     before :each do
       ldap_entry[:cn] = "Jeffrey Lebowski"

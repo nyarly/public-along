@@ -116,8 +116,8 @@ module SummaryReportHelper
       changed = []
 
       deltas = EmpDelta.where("employee_id = ? AND before != '' AND after != ''", employee.id)
-      onboards = OnboardingInfo.where(employee_id: employee.id)
-      offboards = OffboardingInfo.where(employee_id: employee.id)
+      onboards = employee.onboarding_infos
+      offboards = employee.offboarding_infos
 
       if deltas.present?
         changed << deltas.order('created_at ASC').last.created_at
