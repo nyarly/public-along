@@ -8,8 +8,6 @@ class TechTableMailerPreview < ActionMailer::Preview
     emp_delta = EmpDelta.important_changes.last
     employee = Employee.find(emp_delta.employee_id)
     emp_trans = employee.emp_transactions.where(kind: "Security Access").last
-    puts emp_trans.inspect
-    # employee = Employee.find(emp_trans.employee_id)
     TechTableMailer.permissions(emp_trans, employee)
   end
 
