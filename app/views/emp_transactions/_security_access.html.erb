@@ -9,42 +9,26 @@
 
   <div class="callout row">
     <% SecurityProfile.find_profiles_for(@employee.department.id).each do |sp| %>
-      <div class="column large-4 medium-6 small-12">
-
-        <% if sp.name == "Default OpenTable" %>
-          <% if !@employee.is_contingent_worker? %>
+      <% if @employee.is_contingent_worker? && sp.name == "Default OpenTable"%>
+        <%= check_box_tag 'security_profile_ids[]', sp.id, false, style: 'display: none' %>
+      <% elsif !@employee.is_contingent_worker? && sp.name == "Basic Contingent Worker"%>
+        <%= check_box_tag 'security_profile_ids[]', sp.id, false, style: 'display: none' %>
+      <% else %>
+        <div class="column large-4 medium-6 small-12">
+          <% if !@employee.is_contingent_worker? && sp.name == "Default OpenTable" %>
             <%= check_box_tag 'security_profile_ids[]', sp.id, true, disabled: true %>
             <%= check_box_tag 'security_profile_ids[]', sp.id, true, style: 'visibility: hidden' %>
           <% else %>
-            <%= check_box_tag 'security_profile_ids[]', sp.id, false, style: 'display: none' %>
+            <%= check_box_tag 'security_profile_ids[]', sp.id, @employee.active_security_profiles.include?(sp) %>
           <% end %>
-
-        <% elsif sp.name == "Basic Contract Worker Profile" %>
-          <% if @employee.worker_type.kind == "Contractor" %>
-            <%= check_box_tag 'security_profile_ids[]', sp.id, true, disabled: true %>
-            <%= check_box_tag 'security_profile_ids[]', sp.id, true, style: 'visibility: hidden' %>
-          <% else %>
-            <%= check_box_tag 'security_profile_ids[]', sp.id, false, disabled: true %>
-          <% end %>
-
-        <% elsif sp.name == "Basic Temp Worker Profile" %>
-          <% if @employee.worker_type.kind == "Temporary" %>
-            <%= check_box_tag 'security_profile_ids[]', sp.id, true, disabled: true %>
-            <%= check_box_tag 'security_profile_ids[]', sp.id, true, style: 'visibility: hidden' %>
-          <% else %>
-            <%= check_box_tag 'security_profile_ids[]', sp.id, false, disabled: true %>
-          <% end %>
-        <% else %>
-          <%= check_box_tag 'security_profile_ids[]', sp.id, @employee.active_security_profiles.include?(sp) %>
-        <% end %>
-
-        <%= f.label 'security_profile_ids[]', "#{sp.name}" %><br>
-        <ul>
-          <% sp.access_levels.find_each do |al| %>
-            <li class="indent-1"><small><%= al.name %> <%= al.application.name %></small></li>
-          <% end %>
-        </ul>
-      </div>
+          <%= f.label 'security_profile_ids[]', "#{sp.name}" %><br>
+          <ul>
+            <% sp.access_levels.find_each do |al| %>
+              <li class="indent-1"><small><%= al.name %> <%= al.application.name %></small></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
     <% end %>
   </div>
 

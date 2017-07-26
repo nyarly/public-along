@@ -1,13 +1,14 @@
 class EmpTransaction < ActiveRecord::Base
-  KINDS = ["Security Access", "Equipment", "Onboarding", "Offboarding", "Service"]
+  KINDS = ["Security Access", "Equipment", "Onboarding", "Offboarding"]
 
+  validates :user_id,
+            presence: true
   validates :kind,
             presence: true,
             inclusion: { in: KINDS }
 
   belongs_to :user
-  belongs_to :employee
-  has_many :emp_sec_profiles
+  has_many :emp_sec_profiles, :foreign_key => "emp_transaction_id"
   has_many :security_profiles, through: :emp_sec_profiles
   has_many :emp_mach_bundles
   has_many :machine_bundles, through: :emp_mach_bundles
