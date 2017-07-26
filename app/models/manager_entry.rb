@@ -30,8 +30,7 @@ class ManagerEntry
     @emp_transaction ||= EmpTransaction.new(
       kind: kind,
       user_id: user_id,
-      notes: notes,
-      employee_id: employee_id
+      notes: notes
     )
   end
 

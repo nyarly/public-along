@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170707224031) do
+ActiveRecord::Schema.define(version: 20170629010209) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -96,8 +96,8 @@ ActiveRecord::Schema.define(version: 20170707224031) do
   end
 
   create_table "emp_sec_profiles", force: :cascade do |t|
-    t.integer  "employee_id",             null: false
-    t.integer  "security_profile_id",     null: false
+    t.integer  "employee_id"
+    t.integer  "security_profile_id"
     t.datetime "created_at",              null: false
     t.datetime "updated_at",              null: false
     t.integer  "emp_transaction_id"
@@ -105,12 +105,11 @@ ActiveRecord::Schema.define(version: 20170707224031) do
   end
 
   create_table "emp_transactions", force: :cascade do |t|
-    t.string   "kind",        null: false
-    t.integer  "user_id"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.string   "kind",       null: false
+    t.integer  "user_id",    null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.text     "notes"
-    t.integer  "employee_id"
   end
 
   create_table "employees", force: :cascade do |t|
@@ -281,7 +280,6 @@ ActiveRecord::Schema.define(version: 20170707224031) do
   add_foreign_key "emp_sec_profiles", "emp_transactions", on_delete: :nullify
   add_foreign_key "emp_sec_profiles", "employees", on_delete: :cascade
   add_foreign_key "emp_sec_profiles", "security_profiles", on_delete: :cascade
-  add_foreign_key "emp_transactions", "employees", on_delete: :cascade
   add_foreign_key "emp_transactions", "users", on_delete: :nullify
   add_foreign_key "employees", "departments"
   add_foreign_key "employees", "job_titles"
