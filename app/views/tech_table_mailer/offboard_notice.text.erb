@@ -17,6 +17,22 @@ Manager: <%= @manager.first_name %> <%= @manager.last_name %>
 
 Manager Email: <%= @manager.email %>
 
+<% if @employee.location.kind == "Remote Location" %>
+**********
+Employee location is listed as remote.
+Retrieve equipment from:
+<% if @employee.home_address_1.present? %>
+Address 1: <%= @employee.home_address_1 %>
+Address 2: <%= @employee.home_address_2 if @employee.home_address_2.present? %>
+City: <%= @employee.home_city if @employee.home_city.present? %>
+State: <%= @employee.home_state if @employee.home_state.present? %>
+Zip: <%= @employee.home_zip if @employee.home_zip.present? %>
+<% else %>
+Employee is working from a remote location, but does not have an address on file in Mezzo. Please contact People and Culture for the employee's shipping address if it is needed for equipment retrieval.
+<% end %>
+**********
+<% end %>
+
 Current Active Security Profiles:
 ---------------------------------
 <% @employee.active_security_profiles.each do |sp| %>
