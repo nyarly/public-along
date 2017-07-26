@@ -6,7 +6,6 @@ RSpec.describe EmpTransaction, type: :model do
   it "should meet validations" do
   expect(emp_transaction).to be_valid
 
-  expect(emp_transaction).to_not allow_value(nil).for(:user_id)
   expect(emp_transaction).to_not allow_value(nil).for(:kind)
   end
 end

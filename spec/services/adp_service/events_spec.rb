@@ -45,8 +45,8 @@ describe AdpService::Events, type: :service do
 
   describe "events" do
 
-    let!(:worker_type_1) { FactoryGirl.create(:worker_type, name: "Contractor", code: "CONT") }
-    let!(:worker_type_2) { FactoryGirl.create(:worker_type, name: "Regular Full-Time", code: "OLFR") }
+    let!(:worker_type_1) { FactoryGirl.create(:worker_type, name: "Contractor", code: "CONT", kind: "Contractor") }
+    let!(:worker_type_2) { FactoryGirl.create(:worker_type, name: "Regular Full-Time", code: "OLFR", kind: "Regular") }
     let(:ads) { double(ActiveDirectoryService) }
 
     before :each do
@@ -185,11 +185,21 @@ describe AdpService::Events, type: :service do
     describe "hire event" do
       let(:parsed_reg_json) { JSON.parse(hire_json) }
       let(:parsed_contract_json) { JSON.parse(contract_hire_json) }
+      let(:application) { FactoryGirl.create(:application, name: "Security Group") }
+      let(:regular_al) { FactoryGirl.create(:access_level, name: "OT Regular Workers", application_id: application.id) }
+      let!(:regular_sp) { FactoryGirl.create(:security_profile, name: "Basic Regular Worker Profile") }
+      let!(:contract_sp) { FactoryGirl.create(:security_profile, name: "Basic Contract Worker Profile") }
+      let!(:regular_spal) { FactoryGirl.create(:sec_prof_access_level, security_profile_id: regular_sp.id, access_level_id: regular_al.id) }
 
-      it "should create Employee w/ pending status if regular hire event" do
+      before :each do
         expect(ActiveDirectoryService).to receive(:new).and_return(ads)
         expect(ads).to receive(:create_disabled_accounts)
+        sas = double(SecAccessService)
+        expect(SecAccessService).to receive(:new).and_return(sas)
+        expect(sas).to receive(:apply_ad_permissions)
+      end
 
+      it "should create Employee w/ pending status if regular hire event" do
         adp = AdpService::Events.new
         adp.token = "a-token-value"
 
@@ -204,9 +214,11 @@ describe AdpService::Events, type: :service do
       it "should make indicated manager if not already a manager" do
         manager_to_be = FactoryGirl.create(:employee, employee_id: "100449")
         sp = FactoryGirl.create(:security_profile, name: "Basic Manager")
+        al = FactoryGirl.create(:access_level)
+        sp_al = FactoryGirl.create(:sec_prof_access_level, security_profile_id: sp.id, access_level_id: al.id)
 
-        expect(ActiveDirectoryService).to receive(:new).twice.and_return(ads)
-        expect(ads).to receive(:create_disabled_accounts)
+        expect(ActiveDirectoryService).to receive(:new).and_return(ads)
+        expect(ads).to receive(:add_to_sec_group)
 
         adp = AdpService::Events.new
         adp.token = "a-token-value"
@@ -221,9 +233,6 @@ describe AdpService::Events, type: :service do
         sp = FactoryGirl.create(:security_profile, name: "Basic Manager")
         manager.security_profiles << sp
 
-        expect(ActiveDirectoryService).to receive(:new).once.and_return(ads)
-        expect(ads).to receive(:create_disabled_accounts)
-
         adp = AdpService::Events.new
         adp.token = "a-token-value"
 
@@ -234,9 +243,6 @@ describe AdpService::Events, type: :service do
       end
 
       it "should have worker end date if contract hire event" do
-        expect(ActiveDirectoryService).to receive(:new).and_return(ads)
-        expect(ads).to receive(:create_disabled_accounts)
-
         adp = AdpService::Events.new
         adp.token = "a-token-value"
 
@@ -247,6 +253,18 @@ describe AdpService::Events, type: :service do
         expect(Employee.last.employee_id).to eq("8vheos3zl")
         expect(Employee.last.status).to eq("Pending")
         expect(Employee.last.contract_end_date).to eq("2017-12-01")
+      end
+
+      it "should add the user to the default security group for their worker type" do
+        adp = AdpService::Events.new
+        adp.token = "a-token-value"
+
+        expect(Employee).to receive(:check_manager)
+        expect{
+          adp.process_hire(parsed_reg_json)
+        }.to change{Employee.count}.from(0).to(1)
+        expect(Employee.last.reload.active_security_profiles[0]).to eq(regular_sp)
+        expect(Employee.last.reload.active_security_profiles[0].access_levels[0]).to eq(regular_al)
       end
     end
 
