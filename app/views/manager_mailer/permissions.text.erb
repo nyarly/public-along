@@ -10,16 +10,23 @@ Department: <%= @employee.department.name %>
 Location: <%= @employee.location.name %>
 
 =======================================
-<% if @kind == "Onboarding" %>
+<% if @kind == "Security Access" %>
+<% if @employee.emp_deltas.important_changes.present? %>
+You are receiving this form because you are listed as the manager of <%= @employee.cn %>, who may need a security profile update because the following information changed on <%= @employee.emp_deltas.important_changes.last.created_at.try(:strftime, "%b %e, %Y") %>:
+<% @employee.emp_deltas.important_changes.last.format_by_key.each do |e| %>
+  <%= e['name'] %> changed from <%= e['before'] %> to <%= e['after'] %></p>
+<% end %>
+<% end %>
+If you do not wish to make any changes, you may disregard this email.
+<% elsif @kind == "Onboarding" %>
 You must complete this form by <%= @employee.onboarding_due_date %>.
 ------------------------------------------------------
 Submissions after the due date may cause your employee’s access to be compromised and delayed.
-<% end %>
-
-<% if @kind == "Offboarding" %>
+<% elsif @kind == "Offboarding" %>
 You must complete this form by noon on <%= @employee.termination_date.strftime("%b %e, %Y") %>.
 ------------------------------------------------------
 <% end %>
+
 
 Please note you must be logged into the OpenTable VPN to access Mezzo. Use your OpenTable user name and password to log in. Follow the link below to complete the employee event form:
 

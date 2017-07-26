@@ -13,7 +13,8 @@ class ManagerMailerPreview < ActionMailer::Preview
   end
 
   def sec_access_permissions
-    employee = Employee.unscoped.order('created_at ASC').last
+    important_change = EmpDelta.important_changes.last
+    employee = Employee.find(important_change.employee_id)
     manager = Employee.find_by(employee_id: employee.manager_id) if employee && employee.manager_id
     ManagerMailer.permissions(manager, employee, "Security Access")
   end

@@ -5,14 +5,12 @@ class TechTableMailerPreview < ActionMailer::Preview
   end
 
   def security_access_permissions
-    emp_trans = EmpTransaction.where(kind: "Security Access").last
-    if emp_trans.emp_sec_profiles.count > 0
-      emp_id = emp_trans.emp_sec_profiles.first.employee_id
-    elsif emp_trans.revoked_emp_sec_profiles.count > 0
-      emp_id = emp_trans.revoked_emp_sec_profiles.first.employee_id
-    end
-    emp = Employee.find(emp_id)
-    TechTableMailer.permissions(emp_trans, emp)
+    emp_delta = EmpDelta.important_changes.last
+    employee = Employee.find(emp_delta.employee_id)
+    emp_trans = employee.emp_transactions.where(kind: "Security Access").last
+    puts emp_trans.inspect
+    # employee = Employee.find(emp_trans.employee_id)
+    TechTableMailer.permissions(emp_trans, employee)
   end
 
   def equipment_permissions
