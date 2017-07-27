@@ -10,15 +10,15 @@ every 1.hour do
 end
 
 every :weekday, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Time.parse("9:00")) do
-  rake "employee:onboard_report"
+  rake "report:onboards"
 end
 
 every :weekday, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Time.parse("16:00")) do
-  rake "employee:offboard_report"
+  rake "report:offboards"
 end
 
 every :day, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Time.parse("9:00")) do
-  rake "employee:job_change_report"
+  rake "report:job_changes"
 end
 
 # This is at UTC time so it runs at 6pm PST every day of the week except on Fridays
