@@ -14,8 +14,7 @@ class AuditService
 
     employees_to_audit.uniq.each do |employee|
       adp_status = get_adp_status(employee)
-      employee_hash = generate_employee_hash(employee, adp_status)
-
+      employee_hash = generate_employee_hash(employee, {'adp_status' => adp_status})
       audit << employee_hash
     end unless employees_to_audit.empty?
 
@@ -23,25 +22,26 @@ class AuditService
   end
 
   def confirm_ad_deactivation
+    audit = []
     terminated_employees = Employee.where(status: "Terminated")
     ads = ActiveDirectoryService.new
 
-    terminated_employees.all.each do |t|
-      ad_entry = ads.find_entry("sAMAccountName", e.sam_account_name).first
+    terminated_employees.each do |t|
+      ad_entry = ads.find_entry("sAMAccountName", t.sam_account_name).first
 
-      if ad_entry.dn.include? "OU=Disabled Users" and ad_entry.userAccountControl == ["514"]
-        # do the things
+      if ad_entry.present?
+        ldap_dn = ad_entry[:dn][0].downcase
+        usr_acct_ctrl = ad_entry[:useraccountcontrol][0]
+
+        if ldap_dn != t.dn.downcase and usr_acct_ctrl != "514"
+          employee_hash = generate_employee_hash(t, {'ldap_dn'=>ldap_dn})
+          audit << employee_hash
+        end
       end
     end
+
+    audit
   end
-
-  # check for workers with contract end date in past but no termination date
-    # check disabled and email p&c
-
-  # check for workers on leave
-    # inactive workers should have leave start date
-    # inactive workers should be disabled in active directory
-
 
   private
 
@@ -57,7 +57,7 @@ class AuditService
     status
   end
 
-  def employee_hash(employee, adp_status)
+  def generate_employee_hash(employee, opts={})
     employee_record = {}
 
     employee_record['name'] = employee.cn
@@ -65,10 +65,12 @@ class AuditService
     employee_record['location'] = employee.location.name
     employee_record['job_title'] = employee.job_title.name
     employee_record['manager'] = employee.manager_id.present? ? "#{employee.manager.first_name} #{employee.manager.last_name}" : ""
-    employee_record['adp_status'] = adp_status
     employee_record['mezzo_status'] = employee.status
     employee_record['termination_date'] = employee.termination_date.present? ? employee.termination_date : ""
     employee_record['contract_end_date'] = employee.contract_end_date.present? ? employee.contract_end_date : ""
+    opts.each do |k,v|
+      employee_record[k] = v
+    end unless opts.empty?
 
     employee_record
   end
