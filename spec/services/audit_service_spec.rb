@@ -53,19 +53,20 @@ describe AuditService, type: :service do
   context "checking for missed terminations" do
     it "should find the missed offboards" do
       allow(adp_service).to receive(:worker).and_return(JSON.parse(terminated_worker_json))
-      missing_terminations = audit_service.check_for_missed_terminations
+      missing_terminations = audit_service.missed_terminations
       expect(missing_terminations.length).to eq(3)
-      expect(missing_terminations.any? { |hash| hash["name"] == "#{missed_termination.cn}"}).to eq(true)
-      expect(missing_terminations.any? { |hash| hash["name"] == "#{missed_offboard.cn}"}).to eq(true)
-      expect(missing_terminations.any? { |hash| hash["name"] == "#{missed_contract_end.cn}"}).to eq(true)
-      expect(missing_terminations.any? { |hash| hash["name"] == "#{regular_termination.cn}"}).to eq(false)
-      expect(missing_terminations.any? { |hash| hash["name"] == "#{regular_employee.cn}"}).to eq(false)
+      expect(missing_terminations.any? { |hash| hash[:name] == "#{missed_termination.cn}"}).to eq(true)
+      expect(missing_terminations.any? { |hash| hash[:name] == "#{missed_offboard.cn}"}).to eq(true)
+      expect(missing_terminations.any? { |hash| hash[:name] == "#{missed_contract_end.cn}"}).to eq(true)
+      expect(missing_terminations.any? { |hash| hash[:name] == "#{regular_termination.cn}"}).to eq(false)
+      expect(missing_terminations.any? { |hash| hash[:name] == "#{regular_employee.cn}"}).to eq(false)
     end
 
     it "should check the adp status" do
       expect(adp_service).to receive(:worker).and_return(JSON.parse(terminated_worker_json)).thrice
-      missing_terminations = audit_service.check_for_missed_terminations
-      expect(missing_terminations.any? { |hash| hash["adp_status"] == "Terminated"}).to eq(true)
+      missing_terminations = audit_service.missed_terminations
+      expect(missing_terminations.any? { |hash| hash[:adp_status] == "Terminated"}).to eq(true)
+      expect(missing_terminations.any? { |hash| hash[:adp_term_date] == "2017-06-01"}).to eq(true)
     end
   end
 
@@ -80,11 +81,36 @@ describe AuditService, type: :service do
     it "should should check all terminated users" do
       expect(ad_service).to receive(:find_entry).with("sAMAccountName", regular_termination.sam_account_name).and_return(disabled_ldap_entry)
       expect(ad_service).to receive(:find_entry).with("sAMAccountName", missed_deactivation.sam_account_name).and_return(enabled_ldap_entry)
-
-      missed_deactivations = audit_service.confirm_ad_deactivation
+      missed_deactivations = audit_service.ad_deactivation
       expect(missed_deactivations.length).to eq(1)
-      expect(missed_deactivations.any? { |hash| hash["name"] == "#{missed_deactivation.cn}"}).to eq(true)
-      expect(missed_deactivations.any? { |hash| hash["name"] == "#{regular_termination.cn}"}).to eq(false)
+      expect(missed_deactivations.any? { |hash| hash[:name] == "#{missed_deactivation.cn}"}).to eq(true)
+      expect(missed_deactivations.any? { |hash| hash[:name] == "#{regular_termination.cn}"}).to eq(false)
+    end
+  end
+
+  context "generating csv" do
+    let(:term_csv) {
+      <<-EOS.strip_heredoc
+      name,job_title,department,location,manager,mezzo_status,mezzo_term_date,contract_end_date,adp_status,adp_term_date
+      EOS
+    }
+
+    let(:ad_csv) {
+      <<-EOS.strip_heredoc
+      name,job_title,location,manager,mezzo_status,mezzo_term_date,contract_end_date,adp_status,adp_term_date
+      EOS
+    }
+
+    it "should output csv string for missed offboards" do
+      allow(adp_service).to receive(:worker).and_return(JSON.parse(terminated_worker_json))
+
+      missed_terminations = audit_service.missed_terminations
+      generated_term_csv = audit_service.generate_csv(missed_terminations)
+      puts term_csv
+      expect(generated_term_csv).to eq(term_csv)
+    end
+
+    it "should output csv string for missed AD deactivations" do
     end
   end
 end
