@@ -46,21 +46,6 @@ namespace :employee do
     off.offboard(offboards)
   end
 
-  desc "send onboarding summary reports"
-  task :onboard_report => :environment do
-    SummaryReportMailer.onboard_report.deliver_now
-  end
-
-  desc "send job change summary reports"
-  task :job_change_report => :environment do
-    SummaryReportMailer.job_change_report.deliver_now if EmpDelta.report_group.count > 0
-  end
-
-  desc "send offboarding summary reports"
-  task :offboard_report => :environment do
-    SummaryReportMailer.offboard_report.deliver_now
-  end
-
   desc "update active directory against mezzo employee db"
   task :update_ad => :environment do
     ads = ActiveDirectoryService.new
