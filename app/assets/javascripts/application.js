@@ -61,7 +61,6 @@ function toggleContract() {
         body: 'This action cannot be undone.',
         body_class: '',
         password: false,
-        prompt: 'Type <strong>%s</strong> to continue:',
         footer_class: '',
         ok: 'Confirm',
         ok_class: 'button',
