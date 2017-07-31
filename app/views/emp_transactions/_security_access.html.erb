@@ -77,7 +77,7 @@
       <br>
     </div>
     <div class="row">
-      <p class="help-text">Please note: because the worker's department has changed, the following access levels will be immediately revoked on submission of this form. The worker will automatically be removed from those permission groups. For example, if you revoke a security profile that contains VPN access, the worker will not be able to access the VPN when you submit the form. Make sure the new permissions selected include all necessary access.</p>
+      <p class="help-text">Please note: because the worker's department has changed, the following access levels are no longer able to be assigned to this worker and will be revoked on submission of this form. This will be effective immedately. Please note that if revoked access includes Wi-Fi or VPN access, you should make sure the worker is assigned a security group that includes necessary Wi-Fi and VPN groups.</p>
     </div>
     <div class="row">
       <% @employee.security_profiles_to_revoke.each do |sp| %>
