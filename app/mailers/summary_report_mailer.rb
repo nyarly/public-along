@@ -26,9 +26,8 @@ class SummaryReportMailer < ApplicationMailer
   def termination_audit_report
     audit = AuditService.new
     missed_terminations = audit.missed_terminations
-
     attachments.inline["audit_summary_#{DateTime.now}.csv"] = audit.generate_csv(missed_terminations)
-    mail(to: "pburke@opentable.com", subject: "Mezzo Missed Termination Audit")
+    mail(to: Rails.application.secrets.tt_email, subject: "Mezzo Missed Termination Audit")
   end
 
   def deactivation_audit_report
