@@ -13,4 +13,14 @@ namespace :report do
   task :offboards => :environment do
     SummaryReportMailer.offboard_report.deliver_now
   end
+
+  desc "audit terminations and send report"
+  task :missed_terminations => :environment do
+    SummaryReportMailer.termination_audit_report.deliver_now
+  end
+
+  desc "audit deactivations and send report"
+  task :missed_deactivations => :environment do
+    SummaryReportMailer.deactivation_audit_report.deliver_now
+  end
 end

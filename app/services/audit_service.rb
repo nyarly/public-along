@@ -45,7 +45,7 @@ class AuditService
       data.each do |e|
         row = []
         e.each do |k,v|
-          row << v.to_s + ","
+          row << v
         end
         csv << row
       end

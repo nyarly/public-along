@@ -51,6 +51,15 @@ describe AuditService, type: :service do
   end
 
   context "checking for missed terminations" do
+    let(:term_csv) {
+      <<-EOS.strip_heredoc
+      name,job_title,department,location,manager,mezzo_status,mezzo_term_date,contract_end_date,adp_status,adp_term_date
+      #{missed_offboard.cn},#{missed_offboard.job_title.name},#{missed_offboard.department.name},#{missed_offboard.location.name},#{missed_offboard.manager.first_name} #{missed_offboard.manager.last_name},Active,#{missed_offboard.termination_date.strftime('%Y-%m-%d')},"",Terminated,2017-06-01
+      #{missed_termination.cn},#{missed_termination.job_title.name},#{missed_termination.department.name},#{missed_termination.location.name},#{missed_termination.manager.first_name} #{missed_termination.manager.last_name},Active,"","",Terminated,2017-06-01
+      #{missed_contract_end.cn},#{missed_contract_end.job_title.name},#{missed_contract_end.department.name},#{missed_contract_end.location.name},#{missed_contract_end.manager.first_name} #{missed_contract_end.manager.last_name},Active,"",#{missed_contract_end.contract_end_date.strftime('%Y-%m-%d')},Terminated,2017-06-01
+      EOS
+    }
+
     it "should find the missed offboards" do
       allow(adp_service).to receive(:worker).and_return(JSON.parse(terminated_worker_json))
       missing_terminations = audit_service.missed_terminations
@@ -68,15 +77,29 @@ describe AuditService, type: :service do
       expect(missing_terminations.any? { |hash| hash[:adp_status] == "Terminated"}).to eq(true)
       expect(missing_terminations.any? { |hash| hash[:adp_term_date] == "2017-06-01"}).to eq(true)
     end
+
+    it "should output csv string for missed offboards" do
+      allow(adp_service).to receive(:worker).and_return(JSON.parse(terminated_worker_json))
+      missed_terminations = audit_service.missed_terminations
+      generated_csv = audit_service.generate_csv(missed_terminations)
+      expect(generated_csv).to eq(term_csv)
+    end
   end
 
   context "confirming AD deactivation for terminated users" do
-    disabled_ldap_entry = [{
+
+    let(:disabled_ldap_entry) do [{
       :dn=>["CN=Diane Sawyer,OU=Disabled Users,OU=Users,OU=OT,DC=ottest,DC=opentable,DC=com"],
-      :useraccountcontrol=>["514"]}]
-    enabled_ldap_entry = [{
+      :useraccountcontrol=>["514"]}] end
+    let(:enabled_ldap_entry) do [{
       :dn=>["CN=Tom Browkaw,OU=IT,OU=Users,OU=OT,DC=ottest,DC=opentable,DC=com"],
-      :useraccountcontrol=>["512"]}]
+      :useraccountcontrol=>["512"]}] end
+    let(:ad_csv) {
+      <<-EOS.strip_heredoc
+      name,job_title,department,location,manager,mezzo_status,mezzo_term_date,contract_end_date,ldap_dn
+      #{missed_deactivation.cn},#{missed_deactivation.job_title.name},#{missed_deactivation.department.name},#{missed_deactivation.location.name},#{missed_deactivation.manager.first_name} #{missed_deactivation.manager.last_name},Terminated,#{missed_deactivation.termination_date.strftime('%Y-%m-%d')},"","cn=tom browkaw,ou=it,ou=users,ou=ot,dc=ottest,dc=opentable,dc=com"
+      EOS
+    }
 
     it "should should check all terminated users" do
       expect(ad_service).to receive(:find_entry).with("sAMAccountName", regular_termination.sam_account_name).and_return(disabled_ldap_entry)
@@ -86,31 +109,13 @@ describe AuditService, type: :service do
       expect(missed_deactivations.any? { |hash| hash[:name] == "#{missed_deactivation.cn}"}).to eq(true)
       expect(missed_deactivations.any? { |hash| hash[:name] == "#{regular_termination.cn}"}).to eq(false)
     end
-  end
-
-  context "generating csv" do
-    let(:term_csv) {
-      <<-EOS.strip_heredoc
-      name,job_title,department,location,manager,mezzo_status,mezzo_term_date,contract_end_date,adp_status,adp_term_date
-      EOS
-    }
-
-    let(:ad_csv) {
-      <<-EOS.strip_heredoc
-      name,job_title,location,manager,mezzo_status,mezzo_term_date,contract_end_date,adp_status,adp_term_date
-      EOS
-    }
-
-    it "should output csv string for missed offboards" do
-      allow(adp_service).to receive(:worker).and_return(JSON.parse(terminated_worker_json))
-
-      missed_terminations = audit_service.missed_terminations
-      generated_term_csv = audit_service.generate_csv(missed_terminations)
-      puts term_csv
-      expect(generated_term_csv).to eq(term_csv)
-    end
 
     it "should output csv string for missed AD deactivations" do
+      expect(ad_service).to receive(:find_entry).with("sAMAccountName", regular_termination.sam_account_name).and_return(disabled_ldap_entry)
+      expect(ad_service).to receive(:find_entry).with("sAMAccountName", missed_deactivation.sam_account_name).and_return(enabled_ldap_entry)
+      missed_ad_deactivations = audit_service.ad_deactivation
+      generated_csv = audit_service.generate_csv(missed_ad_deactivations)
+      expect(generated_csv).to eq(ad_csv)
     end
   end
 end
