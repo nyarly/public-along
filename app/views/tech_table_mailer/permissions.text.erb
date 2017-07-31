@@ -1,43 +1,43 @@
-<%= @emp_transaction.kind %> Request
-====================================
+Security Profile Change Requested for <%= @employee.cn %> on <%= @emp_transaction.created_at.strftime("%b %e, %Y") %>
+=================================================
 
-Submission Date: <%= @emp_transaction.created_at.strftime("%b %e, %Y") %>
+<% if @emp_transaction.security_profiles.count > 0 %>
+<% if Application.for_emp_transaction(@emp_transaction).where('ad_controls IS FALSE').count == 0 %>
+NO ACTION NEEDED -- FOR REVIEW ONLY
 
-Start Date: <%= @employee.hire_date.strftime("%b %e, %Y") %>
-<% if @emp_transaction.kind == "Onboarding" && @employee.contract_end_date.present? %>
+Permissions were automatically updated by Mezzo. Please review notes for any changes requested by the manager.
+<% else %>
+ACTION NEEDED
 
-Contract End Date: <%= @employee.contract_end_date.strftime("%b %e, %Y") %>
+Please update access for the applications not controlled by Mezzo.
 <% end %>
 
-Name: <%= @employee.cn %>
+<% if @employee.emp_deltas.important_changes.present? %>
+This security access change was requested after the following employee information was updated on <%= @employee.emp_deltas.important_changes.last.created_at.try(:strftime, "%b %e, %Y") %>:
+<% @employee.emp_deltas.important_changes.last.format_by_key.each do |e| %>
+- <%= e['name'] %> changed from <%= e['before'] %> to <%= e['after'] %>
+<% end %>
+<% end %>
+<% else %>
+NO CHANGES MADE. PLEASE REVIEW FOR MANAGER NOTES.
+<% end %>
 
-EmployeeID: <%= @employee.employee_id %>
-
-Title: <%= @employee.job_title.try(:name) %>
-
-Department: <%= @employee.department.name %>
-
-Location: <%= @employee.location.name %>
-
-Manager: <%= @manager.first_name %> <%= @manager.last_name %>
-
-Manager Email: <%= @manager.email %>
-
-<% if @emp_transaction.kind == "Onboarding" %>
-Contingent Worker:
+WORKER INFO
 ------------------
-  <% if  @employee.is_contingent_worker? %>
-Create OpenTable Email: <%= @emp_transaction.onboarding_infos.first.cw_email %>
-Create Google Group Membership: <%= @emp_transaction.onboarding_infos.first.cw_google_membership %>
-  <% else %>
-false
-  <% end %>
-<% end %>
-<% if @emp_transaction.kind == "Onboarding" || @emp_transaction.kind == "Security Access" %>
-  <% if @emp_transaction.security_profiles.count > 0 %>
+Name: <%= @employee.cn %>
+Email: <%= @employee.email %>
+Employee ID: <%= @employee.employee_id %>
+Title: <%= @employee.job_title.try(:name) %>
+Department: <%= @employee.department.name %>
+Location: <%= @employee.location.name %>
+Manager: <%= @manager.first_name %> <%= @manager.last_name %> - <%= @manager.email %>
+
+<% if @emp_transaction.security_profiles.count > 0 %>
+SECURITY PROFILE CHANGES
+------------------
 
 Apply Security Profiles:
-------------------------
+------------------
 <% @emp_transaction.security_profiles.each do |sp| %>
 <%= sp.name %>
 <% sp.access_levels.find_each do |al| %>
@@ -50,11 +50,11 @@ Apply Security Profiles:
     <% end %>
   <% end %>
 <% end %>
-  <% end %>
-  <% if @emp_transaction.revoked_security_profiles.count > 0 %>
+<% end %>
+<% if @emp_transaction.revoked_security_profiles.count > 0 %>
 
 Revoke Security Profiles:
--------------------------
+------------------
 <% @emp_transaction.revoked_security_profiles.each do |sp| %>
 <%= sp.name %>
 <% sp.access_levels.find_each do |al| %>
@@ -68,11 +68,10 @@ Revoke Security Profiles:
   <% end %>
 <% end %>
 <% end %>
-<% end %>
 
-<% if @emp_transaction.kind == "Onboarding" || @emp_transaction.kind == "Equipment" %>
+<% if @emp_transaction.kind == "Equipment" %>
 Machine Bundle:
----------------
+------------------
 <% @emp_transaction.machine_bundles.each do |mb| %>
   <%= mb.name %>
     - <%= mb.description %>
@@ -89,4 +88,10 @@ Machine Bundle:
   Personal Mobile: <%= @employee.personal_mobile_phone if @employee.personal_mobile_phone.present? %>
 <% end %>
 
-Additional Instructions: <%= @emp_transaction.notes %>
+ADDITIONAL INSTRUCTIONS
+------------------
+<% if @emp_transaction.notes.present? %>
+<%= @emp_transaction.notes %>
+<% else %>
+None.
+<% end %>

@@ -22,20 +22,24 @@
     <%= @employee.location.name %>
   </p>
 
-
-  <% if @kind == "Onboarding" %>
+  <% if @kind == "Security Access" %>
+    <% if @employee.emp_deltas.important_changes.present? %>
+      <p>You are receiving this form because you are listed as the manager of <%= @employee.cn %>, who may need a security profile update because the following information changed on <strong><%= @employee.emp_deltas.important_changes.last.created_at.try(:strftime, "%b %e, %Y") %></strong>:</p>
+        <% @employee.emp_deltas.important_changes.last.format_by_key.each do |e| %>
+          <p><%= e['name'] %> changed from <%= e['before'] %> to <%= e['after'] %></p>
+        <% end %>
+      <p><i>If you do not wish to make any changes, you may disregard this email.</i></p>
+    <% end %>
+  <% elsif @kind == "Onboarding" %>
     <p>
       <strong style="color: red; text-decoration: underline">
         You must complete this form by <%= @employee.onboarding_due_date %>.
       </strong>
     </p>
-
     <p>
       <strong style="color: red">Submissions after the due date may cause your employee’s access to be compromised and delayed.</strong>
     </p>
-  <% end %>
-
-  <% if @kind == "Offboarding" %>
+  <% elsif @kind == "Offboarding" %>
     <p>
       <strong style="color: red; text-decoration: underline">
         You must complete this form by noon on <%= @employee.termination_date.strftime("%b %e, %Y") %>.

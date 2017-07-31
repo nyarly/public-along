@@ -10,7 +10,7 @@ class TechTableMailer < ApplicationMailer
     @emp_transaction = emp_transaction
     @employee = employee
     @manager = User.find(@emp_transaction.user_id)
-    mail(subject: "IMMEDIATE ACTION REQUIRED: #{emp_transaction.kind} request for #{employee.first_name} #{employee.last_name}")
+    mail(subject: "#{emp_transaction.kind} request for #{employee.first_name} #{employee.last_name}")
   end
 
   def offboard_notice(employee)

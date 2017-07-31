@@ -30,8 +30,8 @@ RSpec.describe TechTableMailer, type: :mailer do
     it "should have the right content" do
       expect(email.from).to eq(["mezzo-no-reply@opentable.com"])
       expect(email.to).to include("techtable@opentable.com")
-      expect(email.subject).to eq("IMMEDIATE ACTION REQUIRED: #{et.kind} request for #{emp.first_name} #{emp.last_name}")
-      expect(email.parts.first.body.raw_source).to include("Security Access")
+      expect(email.subject).to eq("#{et.kind} request for #{emp.first_name} #{emp.last_name}")
+      expect(email.parts.first.body.raw_source).to include("Security Profile Change Requested")
     end
   end
 
