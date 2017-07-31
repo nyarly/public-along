@@ -422,35 +422,6 @@ describe "employee rake tasks", type: :tasks do
     end
   end
 
-  context "Employee event reports" do
-    let(:mailer) { double(SummaryReportMailer) }
-
-    it "should send onboarding report" do
-      expect(SummaryReportMailer).to receive(:onboard_report).and_return(mailer)
-      expect(mailer).to receive(:deliver_now)
-      Rake::Task["employee:onboard_report"].invoke
-    end
-
-    it "should send offboarding report" do
-      expect(SummaryReportMailer).to receive(:offboard_report).and_return(mailer)
-      expect(mailer).to receive(:deliver_now)
-      Rake::Task["employee:offboard_report"].invoke
-    end
-
-    it "should send job change report if EmpDelta.report_group count > 0" do
-      expect(EmpDelta).to receive_message_chain(:report_group, :count).and_return(4)
-      expect(SummaryReportMailer).to receive(:job_change_report).and_return(mailer)
-      expect(mailer).to receive(:deliver_now)
-      Rake::Task["employee:job_change_report"].invoke
-    end
-
-    it "should send job change report if EmpDelta.report_group count = 0" do
-      expect(EmpDelta).to receive_message_chain(:report_group, :count).and_return(0)
-      expect(SummaryReportMailer).to_not receive(:job_change_report)
-      Rake::Task["employee:job_change_report"].execute
-    end
-  end
-
   context "employee:xml_to_ad" do
     # create managers for the xml to reference
     let!(:manager_1) { FactoryGirl.create(:employee, employee_id: "12100123", sam_account_name: "samaccountname1", worker_type_id: worker_type.id)}
