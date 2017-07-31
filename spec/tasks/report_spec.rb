@@ -47,6 +47,7 @@ describe "report rake tasks", type: :tasks do
 
     it "should send a deactivation audit report", type: :tasks do
       expect(SummaryReportMailer).to receive(:deactivation_audit_report).and_return(mailer)
+      expect(mailer).to receive(:deliver_now)
       Rake::Task["report:missed_deactivations"].execute
     end
   end
