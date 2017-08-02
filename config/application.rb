@@ -9,7 +9,6 @@ require "action_controller/railtie"
 require "action_mailer/railtie"
 require "action_view/railtie"
 require "sprockets/railtie"
-require 'rack/ssl-enforcer'
 # require "rails/test_unit/railtie"
 
 # Require the gems listed in Gemfile, including any gems
@@ -33,6 +32,5 @@ module Mezzo
 
     # Do not swallow errors in after_commit/after_rollback callbacks.
     config.active_record.raise_in_transactional_callbacks = true
-    config.middleware.use Rack::SslEnforcer, :only_environments => ['production']
   end
 end
