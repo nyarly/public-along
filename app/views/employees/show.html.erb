@@ -114,7 +114,7 @@
         <%= @employee.office_phone %>
       </p>
 
-      <% if can? :manager, Employee %>
+      <% if can? :manage, Employee %>
         <p>
           <strong>Home Address 1:</strong>
           <%= @employee.home_address_1 %>
