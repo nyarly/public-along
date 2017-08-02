@@ -114,30 +114,32 @@
         <%= @employee.office_phone %>
       </p>
 
-      <p>
-        <strong>Home Address 1:</strong>
-        <%= @employee.home_address_1 %>
-      </p>
+      <% if can? :manager, Employee %>
+        <p>
+          <strong>Home Address 1:</strong>
+          <%= @employee.home_address_1 %>
+        </p>
 
-      <p>
-        <strong>Home Address 2:</strong>
-        <%= @employee.home_address_2 %>
-      </p>
+        <p>
+          <strong>Home Address 2:</strong>
+          <%= @employee.home_address_2 %>
+        </p>
 
-      <p>
-        <strong>Home City:</strong>
-        <%= @employee.home_city %>
-      </p>
+        <p>
+          <strong>Home City:</strong>
+          <%= @employee.home_city %>
+        </p>
 
-      <p>
-        <strong>Home State:</strong>
-        <%= @employee.home_state %>
-      </p>
+        <p>
+          <strong>Home State:</strong>
+          <%= @employee.home_state %>
+        </p>
 
-      <p>
-        <strong>Home Zip:</strong>
-        <%= @employee.home_zip %>
-      </p>
+        <p>
+          <strong>Home Zip:</strong>
+          <%= @employee.home_zip %>
+        </p>
+      <% end %>
     </div>
     <div class="tabs-panel" id="important-dates">
       <p>
@@ -178,14 +180,16 @@
           </div>
         <% end %>
       </div>
-      <%= link_to "Update Security Profile",
-            { controller: "emp_transactions",
-            action: "new",
-            kind: "Security Access",
-            employee_id: @employee.id,
-            user_id: current_user.id,
-            reason: "manager" },
-            class: "button expanded" %>
+      <% if @employee.status == "Active" %>
+        <%= link_to "Update Security Profile",
+              { controller: "emp_transactions",
+              action: "new",
+              kind: "Security Access",
+              employee_id: @employee.id,
+              user_id: current_user.id,
+              reason: "manager" },
+              class: "button expanded" %>
+      <% end %>
     </div>
   </div>
 </div>

@@ -35,7 +35,11 @@
       <%= f.hidden_field :kind, value: @kind %>
       <%= f.hidden_field :employee_id, value: @employee.id %>
       <%= f.hidden_field :user_id, value: @manager_user.id %>
-      <%= f.label :notes, "Additional Instructions for TechTable:" %>
+      <% if @kind != "Offboarding" %>
+        <%= f.label :notes, "Additional requests for TechTable (Distribution Lists? Special Printers? Equipment? Other tools?):" %>
+      <% else %>
+        <%= f.label :notes, "Additional Instructions for TechTable:" %>
+      <% end %>
       <%= f.text_area :notes %>
       <p class="help-text">(Any instructions for P&amp;C should be directed to <%= mail_to "peopleandculture@opentable.com" %>)</p>
     </div>
