@@ -26,14 +26,16 @@ class SummaryReportMailer < ApplicationMailer
   def termination_audit_report
     audit = AuditService.new
     missed_terminations = audit.missed_terminations
-    attachments.inline["audit_summary_#{DateTime.now.strftime('%Y%m%d')}.csv"] = audit.generate_csv(missed_terminations)
+    csv = audit.generate_csv(missed_terminations)
+    attachments.inline["term_audit_summary_#{DateTime.now.strftime('%Y%m%d')}.csv"] = csv
     mail(to: Rails.application.secrets.tt_email, subject: "Mezzo Missed Termination Audit")
   end
 
   def deactivation_audit_report
     audit = AuditService.new
     missed_deactivations = audit.ad_deactivation
-    attachments.inline["audit_summary_#{DateTime.now.strftime('%Y%m%d')}.csv"] = audit.generate_csv(missed_deactivations)
+    csv = audit.generate_csv(missed_deactivations)
+    attachments.inline["deactiv_audit_summary_#{DateTime.now.strftime('%Y%m%d')}.csv"] = csv
     mail(to: Rails.application.secrets.tt_email, subject: "Mezzo Missed Deactivation Audit")
   end
 end
