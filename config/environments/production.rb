@@ -1,3 +1,4 @@
+Rails.application.routes.default_url_options[:protocol] = 'https'
 Rails.application.configure do
   # config.middleware.use Rack::SslEnforcer
 
@@ -45,7 +46,6 @@ Rails.application.configure do
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
   config.force_ssl = true
-  config.routes.default_url_options[:protocol] = 'https'
 
   # Use the lowest log level to ensure availability of diagnostic information
   # when problems arise.

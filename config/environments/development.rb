@@ -1,5 +1,6 @@
 # set preview interceptor to show images in preview mode
 ActionMailer::Base.register_preview_interceptor(ActionMailer::InlinePreviewInterceptor)
+Rails.application.routes.default_url_options[:protocol] = 'http'
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
@@ -38,8 +39,6 @@ Rails.application.configure do
   # Checks for improperly declared sprockets dependencies.
   # Raises helpful error messages.
   config.assets.raise_runtime_errors = true
-
-  config.routes.default_url_options[:protocol] = 'http'
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
