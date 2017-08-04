@@ -103,7 +103,9 @@ class ActiveDirectoryService
     [:objectclass, :sAMAccountName, :mail, :userPrincipalName, :unicodePwd].each { |k| attrs.delete(k) }
     # Only update attrs that differ
     attrs.each { |k,v|
-      if (ldap_entry.try(k).present? && ldap_entry.try(k).include?(v)) || (ldap_entry.try(k).blank? && v.blank?)
+      # LDAP returns ASCII-8BIT, coerce Mezzo data to this format for compare
+      val = v.present? ? v.force_encoding(Encoding::ASCII_8BIT) : v
+      if (ldap_entry.try(k).present? && ldap_entry.try(k).include?(val)) || (ldap_entry.try(k).blank? && val.blank?)
         attrs.delete(k)
       end
     }
