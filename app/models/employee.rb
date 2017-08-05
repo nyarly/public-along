@@ -1,5 +1,4 @@
 class Employee < ActiveRecord::Base
-  TYPES = ["Agency Contractor", "Independent Contractor", "Service Provider", "Intern", "Regular", "Temporary"]
   EMAIL_OPTIONS = ["Onboarding", "Offboarding", "Security Access"]
 
   before_validation :downcase_unique_attrs
@@ -43,7 +42,7 @@ class Employee < ActiveRecord::Base
 
   attr_accessor :nearest_time_zone
 
-  default_scope { order('first_name ASC') }
+  default_scope { order('last_name ASC') }
 
   def downcase_unique_attrs
     self.email = email.downcase if email.present?
@@ -167,7 +166,8 @@ class Employee < ActiveRecord::Base
   def generated_email
     if email.present?
       email
-    elsif sam_account_name.present? && worker_type.name != "Vendor"
+    elsif sam_account_name.present?
+      # TODO: this is always running, what kind of workers shouldn't have email addresses?
       gen_email = sam_account_name + "@opentable.com"
       update_attribute(:email, gen_email)
       gen_email
@@ -227,7 +227,6 @@ class Employee < ActiveRecord::Base
       manager: manager.try(:dn),
       mail: generated_email,
       unicodePwd: encode_password,
-      workdayUsername: workday_username,
       co: location.country,
       accountExpires: generated_account_expires,
       title: job_title.try(:name),

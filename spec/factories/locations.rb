@@ -7,4 +7,8 @@ FactoryGirl.define do
     country "US"
     timezone "(GMT-08:00) Pacific Time (US & Canada), Tijuana"
   end
+
+  trait :remote do
+    kind "Remote Location"
+  end
 end

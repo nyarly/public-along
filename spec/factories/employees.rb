@@ -2,36 +2,26 @@ FactoryGirl.define do
   factory :employee do
     first_name            { Faker::Name.first_name }
     last_name             { Faker::Name.last_name }
-    workday_username      { (first_name[0,1] + last_name).downcase }
     employee_id           { Faker::Number.number(10) }
     hire_date             { 1.week.from_now}
-    job_family_id         { Faker::Number.number(10) }
-    job_family            { Faker::Lorem.sentence(3) }
-    job_profile_id        { Faker::Number.number(10) }
-    job_profile           { Faker::Lorem.sentence(3) }
     business_title        { Faker::Name.title }
-    employee_type         { "Regular" }
     manager_id            { Faker::Number.number(10) }
-    department_id         { Department.all.map(&:id).sample || 1 }
     personal_mobile_phone { Faker::PhoneNumber.phone_number }
     office_phone          { Faker::PhoneNumber.phone_number }
     image_code            { IMAGE }
-    location_id           { Location.find_by(name: "San Francisco Headquarters").id }
+    association :department, factory: :department
     association :job_title, factory: :job_title
     association :worker_type, factory: :worker_type
-
+    association :location, factory: :location
 
     trait :contingent do
-      employee_id            { nil }
-      employee_type          { "Agency Contractor" }
-      contingent_worker_id   { Faker::Number.number(10) }
-      contingent_worker_type { "Agency Contractor" }
-      contract_end_date      { 1.month.from_now }
+      email { nil }
+      contract_end_date { 1.month.from_now }
+      association :worker_type, :factory => [:worker_type, :contractor]
     end
 
     trait :remote do
-      # location_type  { "Remote Location" }
-      # location       { "Remote Location" }
+      association :location, :factory => [:location, :remote]
       home_address_1 { Faker::Address.street_address }
       home_city      { Faker::Address.city }
       home_state     { Faker::Address.state_abbr }

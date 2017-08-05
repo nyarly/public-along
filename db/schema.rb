@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170714203809) do
+ActiveRecord::Schema.define(version: 20170804221602) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -113,21 +113,13 @@ ActiveRecord::Schema.define(version: 20170714203809) do
 
   create_table "employees", force: :cascade do |t|
     t.string   "email"
-    t.string   "first_name",             null: false
-    t.string   "last_name",              null: false
-    t.string   "workday_username"
-    t.string   "employee_id",            null: false
-    t.datetime "hire_date",              null: false
+    t.string   "first_name",            null: false
+    t.string   "last_name",             null: false
+    t.string   "employee_id",           null: false
+    t.datetime "hire_date",             null: false
     t.datetime "contract_end_date"
     t.datetime "termination_date"
-    t.string   "job_family_id"
-    t.string   "job_family"
-    t.string   "job_profile_id"
-    t.string   "job_profile"
     t.string   "business_title"
-    t.string   "employee_type"
-    t.string   "contingent_worker_id"
-    t.string   "contingent_worker_type"
     t.string   "manager_id"
     t.string   "personal_mobile_phone"
     t.string   "office_phone"
@@ -137,19 +129,19 @@ ActiveRecord::Schema.define(version: 20170714203809) do
     t.string   "home_state"
     t.string   "home_zip"
     t.string   "image_code"
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
+    t.datetime "created_at",            null: false
+    t.datetime "updated_at",            null: false
     t.datetime "ad_updated_at"
     t.datetime "leave_start_date"
     t.datetime "leave_return_date"
-    t.integer  "department_id",          null: false
-    t.integer  "location_id",            null: false
+    t.integer  "department_id",         null: false
+    t.integer  "location_id",           null: false
     t.string   "sam_account_name"
     t.string   "company"
     t.string   "status"
     t.string   "adp_assoc_oid"
-    t.integer  "worker_type_id",         null: false
-    t.integer  "job_title_id",           null: false
+    t.integer  "worker_type_id",        null: false
+    t.integer  "job_title_id",          null: false
   end
 
   add_index "employees", ["email"], name: "index_employees_on_email", unique: true, using: :btree

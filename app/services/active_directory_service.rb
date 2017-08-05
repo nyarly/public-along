@@ -120,6 +120,7 @@ class ActiveDirectoryService
   def replace_attrs(employee, ldap_entry, attrs)
     attrs.each do |k,v|
       if k == :dn
+        puts ldap.dn
         ldap.rename(
           :olddn => ldap_entry.dn,
           :newrdn => "cn=#{employee.cn}",
