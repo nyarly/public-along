@@ -53,6 +53,10 @@ module AdpService
         if process_leave(json)
           adp_event.update_attributes(status: "Processed")
         end
+      when "worker.rehire"
+        if process_rehire(json)
+          adp_event.update_attributes(status: "Processed")
+        end
       end
       del_event(adp_event.msg_id)
     end
@@ -114,6 +118,29 @@ module AdpService
         return true
       else
         return false
+      end
+    end
+
+    def process_rehire(json)
+      worker_id = json.dig("events", 0, "data", "output", "worker", "workerID", "idValue").downcase
+      e = Employee.find_by(employee_id: worker_id)
+
+      if e.present?
+        parser = WorkerJsonParser.new
+        worker_json = json.dig("events", 0, "data", "output", "worker")
+        w_hash = parser.gen_worker_hash(worker_json)
+        e.assign_attributes(w_hash.except(:status))
+        e.status = "Pending"
+        delta = build_emp_delta(e)
+
+        if e.save
+          Employee.check_manager(e.manager_id)
+          delta.save if delta.present?
+          # send onboarding form
+          # update active directory
+        end
+      else
+        process_hire(json)
       end
     end
 

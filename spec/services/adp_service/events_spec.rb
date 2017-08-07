@@ -15,6 +15,7 @@ describe AdpService::Events, type: :service do
   let(:contract_hire_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_contract_hire_event.json") }
   let(:term_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_terminate_event.json") }
   let(:leave_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_leave_event.json") }
+  let(:rehire_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_rehire_event.json") }
 
   before :each do
     allow(uri).to receive(:host).and_return(host)
@@ -318,6 +319,31 @@ describe AdpService::Events, type: :service do
         expect(leave_emp.reload.leave_start_date).to eq("2017-01-23")
         expect(leave_emp.emp_deltas.last.before).to eq({"leave_start_date"=>nil})
         expect(leave_emp.emp_deltas.last.after).to eq({"leave_start_date"=>"2017-01-23 00:00:00 UTC"})
+      end
+    end
+
+    describe "rehire event" do
+      let(:parsed_json) { JSON.parse(rehire_json) }
+      let!(:worker_type) { FactoryGirl.create(:worker_type, code: "FTR", kind: "Regular") }
+
+      context "for worker with a mezzo record" do
+        let!(:rehired_emp) { FactoryGirl.create(:employee,
+          employee_id: "123456",
+          termination_date: 1.year.ago,
+          status: "Terminated")}
+
+        it "finds and updates account with new position" do
+          adp = AdpService::Events.new
+          adp.token = "a-token-value"
+
+          expect{
+            adp.process_rehire(parsed_json)
+          }.to_not change{Employee.count}
+          expect(rehired_emp.reload.status).to eq("Pending")
+        end
+      end
+
+      context "for worker without a mezzo record" do
       end
     end
   end
