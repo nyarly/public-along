@@ -4,11 +4,15 @@ describe ActiveDirectoryService, type: :service do
   let(:ldap) { double(Net::LDAP) }
   let(:ads) { ActiveDirectoryService.new }
 
-  let(:manager) { FactoryGirl.create(:employee) }
   let(:job_title) { FactoryGirl.create(:job_title) }
   let(:reg_worker_type) { FactoryGirl.create(:worker_type) }
   let(:temp_worker_type) { FactoryGirl.create(:worker_type, :temporary) }
-  let(:contract_worker_type) { FactoryGirl.create(:worker_type, :contractor) }
+  let(:department) { Department.find_or_create_by(:name => "People & Culture-HR & Total Rewards") }
+  let(:location) { Location.find_or_create_by(:name => "San Francisco Headquarters") }
+  let(:manager) { FactoryGirl.create(:employee,
+    location: location,
+    department: department,
+    worker_type: reg_worker_type) }
 
   before :each do
     allow(Net::LDAP).to receive(:new).and_return(ldap)
@@ -25,10 +29,8 @@ describe ActiveDirectoryService, type: :service do
     Timecop.return
   end
 
-  context "create disabled employee accounts" do
-    let!(:employees) { FactoryGirl.create_list(:employee, 1,
-      :first_name => "Donny",
-      :last_name => "Kerabatsos") }
+  context "create disabled employees" do
+    let!(:employees) { FactoryGirl.create_list(:employee, 1, :first_name => "Donny", :last_name => "Kerabatsos", :manager_id => manager.employee_id, :job_title_id => job_title.id, worker_type_id: reg_worker_type.id) }
 
     it "should call ldap.add with correct info for regular employee" do
       allow(ldap).to receive(:search).and_return([]) # Mock search not finding conflicting existing sAMAccountName
@@ -79,10 +81,11 @@ describe ActiveDirectoryService, type: :service do
     let(:mailer) { double(TechTableMailer) }
 
     it "should fail and send alert email if it is a contract worker and there is no contract end date set" do
-      invalid_contract_worker = FactoryGirl.create(:employee, worker_type_id: contract_worker_type.id, contract_end_date: nil)
+      invalid_contract_worker = FactoryGirl.create(:employee, worker_type_id: temp_worker_type.id, contract_end_date: nil)
       emp_trans = FactoryGirl.create(:emp_transaction, kind: "Onboarding", employee_id: invalid_contract_worker.id)
       sec_prof = FactoryGirl.create(:security_profile)
       emp_sec_prof = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans.id, security_profile_id: sec_prof.id)
+      allow(invalid_contract_worker).to receive(:ou).and_return("ou=Valid OU")
 
       expect(TechTableMailer).to receive(:alert_email).once.and_return(mailer)
       expect(mailer).to receive(:deliver_now).once
@@ -90,14 +93,14 @@ describe ActiveDirectoryService, type: :service do
     end
 
     it "should activate for properly set contract worker" do
-      valid_contract_worker = FactoryGirl.create(:employee, worker_type_id: contract_worker_type.id, contract_end_date: 3.months.from_now)
+      valid_contract_worker = FactoryGirl.create(:employee, worker_type_id: temp_worker_type.id, contract_end_date: 3.months.from_now)
       emp_trans = FactoryGirl.create(:emp_transaction, kind: "Onboarding", employee_id: valid_contract_worker.id)
       onboarding_info = FactoryGirl.create(:onboarding_info, emp_transaction_id: emp_trans.id)
       sec_prof = FactoryGirl.create(:security_profile)
       emp_sec_prof = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans.id, security_profile_id: sec_prof.id)
       allow(valid_contract_worker).to receive(:ou).and_return("ou=Valid OU")
 
-      expect(ldap).to receive(:replace_attribute).with(valid_contract_worker.dn, :userAccountControl, "512")
+      allow(ldap).to receive(:replace_attribute).once
       expect(TechTableMailer).to_not receive(:alert_email).with("ERROR: #{valid_contract_worker.first_name} #{valid_contract_worker.last_name} is a contract worker and needs a contract_end_date. Account not activated.")
       ads.activate([valid_contract_worker])
     end
@@ -107,14 +110,14 @@ describe ActiveDirectoryService, type: :service do
       emp_trans = FactoryGirl.create(:emp_transaction, kind: "Onboarding", employee_id: valid_contract_worker.id)
       onboarding_info = FactoryGirl.create(:onboarding_info, emp_transaction_id: emp_trans.id)
       allow(valid_contract_worker).to receive(:ou).and_return("ou=Valid OU")
-      allow(ldap).to receive(:replace_attribute).once
 
+      allow(ldap).to receive(:replace_attribute).once
       expect(TechTableMailer).to_not receive(:alert_email).with("ERROR: #{valid_contract_worker.first_name} #{valid_contract_worker.last_name} is a contract worker and needs a contract_end_date. Account not activated.")
       ads.activate([valid_contract_worker])
     end
 
     it "should fail if the manager has not completed the onboarding forms" do
-      invalid_worker = FactoryGirl.create(:employee)
+      invalid_worker = FactoryGirl.create(:employee, worker_type_id: reg_worker_type.id)
 
       expect(TechTableMailer).to receive(:alert_email).once.and_return(mailer)
       expect(mailer).to receive(:deliver_now).once
@@ -152,8 +155,7 @@ describe ActiveDirectoryService, type: :service do
   end
 
   context "update attributes" do
-    let(:ldap_entry) { Net::LDAP::Entry.new(employee.dn) }
-    let(:employee) { FactoryGirl.create(:employee,
+    let!(:employee) { FactoryGirl.create(:employee,
       :first_name => "Jeffrey",
       :last_name => "Lebowski",
       :manager_id => manager.employee_id,
@@ -164,6 +166,7 @@ describe ActiveDirectoryService, type: :service do
       :worker_type_id => reg_worker_type.id
     )}
     let(:new_job_title) { FactoryGirl.create(:job_title) }
+    let(:ldap_entry) { Net::LDAP::Entry.new(employee.dn) }
 
     before :each do
       ldap_entry[:cn] = "Jeffrey Lebowski"
@@ -205,6 +208,7 @@ describe ActiveDirectoryService, type: :service do
         :delete_attributes => true,
         :new_superior => "ou=People and Culture,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com"
       )
+
       ads.update([employee])
       expect(employee.ad_updated_at).to eq(DateTime.now)
     end
@@ -250,18 +254,16 @@ describe ActiveDirectoryService, type: :service do
     it "should send an alert email when account update fails" do
       employee.office_phone = "323-999-5555"
       allow(ldap).to receive(:search).and_return([ldap_entry])
-      allow(ldap).to receive(:dn).and_return(employee.dn)
       allow(ldap).to receive(:replace_attribute)
       allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(67) # Simulate AD LDAP error
 
-      # expect(TechTableMailer).to receive_message_chain(:alert_email, :deliver_now)
+      expect(TechTableMailer).to receive_message_chain(:alert_email, :deliver_now)
       expect(TechTableMailer).not_to receive(:alert_email)
       ads.update([employee])
     end
 
     it "should send an alert email when account update to delete attribute fails" do
       employee.office_phone = nil
-      allow(employee).to receive(:ou).and_return("ou=Valid OU")
       allow(ldap).to receive(:search).and_return([ldap_entry])
       allow(ldap).to receive(:delete_attribute)
       allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(67) # Simulate AD LDAP error
