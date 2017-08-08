@@ -325,6 +325,8 @@ describe AdpService::Events, type: :service do
     describe "rehire event" do
       let(:parsed_json) { JSON.parse(rehire_json) }
       let!(:worker_type) { FactoryGirl.create(:worker_type, code: "FTR", kind: "Regular") }
+      let!(:security_profile) { FactoryGirl.create(:security_profile, name: "Basic Regular Worker Profile") }
+      let!(:sas) { double(SecAccessService) }
 
       context "for worker with a mezzo record" do
         let!(:rehired_emp) { FactoryGirl.create(:employee,
@@ -333,6 +335,9 @@ describe AdpService::Events, type: :service do
           status: "Terminated")}
 
         it "finds and updates account with new position" do
+          expect(ActiveDirectoryService).to receive(:new).and_return(ads)
+          expect(ads).to receive(:update)
+
           adp = AdpService::Events.new
           adp.token = "a-token-value"
 
@@ -340,10 +345,28 @@ describe AdpService::Events, type: :service do
             adp.process_rehire(parsed_json)
           }.to_not change{Employee.count}
           expect(rehired_emp.reload.status).to eq("Pending")
+          expect(rehired_emp.reload.location.code).to eq("SF")
+          expect(rehired_emp.reload.job_title.code).to eq("SPMASR")
         end
       end
 
       context "for worker without a mezzo record" do
+        it "creates a new employee record" do
+          expect(ActiveDirectoryService).to receive(:new).and_return(ads)
+          expect(SecAccessService).to receive(:new).and_return(sas)
+          expect(ads).to receive(:create_disabled_accounts)
+          expect(sas).to receive(:apply_ad_permissions)
+
+          adp = AdpService::Events.new
+          adp.token = "a-token-value"
+
+          expect{
+            adp.process_rehire(parsed_json)
+          }.to change{Employee.count}.by(1)
+          expect(Employee.last.job_title.code).to eq("SPMASR")
+          expect(Employee.last.status).to eq("Pending")
+          expect(Employee.last.location.code).to eq("SF")
+        end
       end
     end
   end

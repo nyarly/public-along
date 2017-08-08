@@ -133,11 +133,12 @@ module AdpService
         e.status = "Pending"
         delta = build_emp_delta(e)
 
-        if e.save
+        if e.save!
           Employee.check_manager(e.manager_id)
           delta.save if delta.present?
-          # send onboarding form
-          # update active directory
+          ads = ActiveDirectoryService.new
+          ads.update([e])
+          EmployeeWorker.perform_async("Onboarding", e.id)
         end
       else
         process_hire(json)
