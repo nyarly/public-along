@@ -1,19 +1,22 @@
 class Profile < ActiveRecord::Base
-  validates :start_date,
+  validates :adp_employee_id,
             presence: true
   validates :department_id,
             presence: true
-  validates :location_id,
-            presence: true
-  validates :worker_type_id,
+  validates :employee_id,
             presence: true
   validates :job_title_id,
             presence: true
-  validates :employee_id,
+  validates :location_id,
             presence: true
-  validates :adp_employee_id,
+  validates :start_date,
+            presence: true
+  validates :worker_type_id,
             presence: true
 
+  belongs_to :department
   belongs_to :employee
-  has_one :department
+  belongs_to :job_title
+  belongs_to :location
+  belongs_to :worker_type
 end
