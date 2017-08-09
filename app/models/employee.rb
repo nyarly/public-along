@@ -19,8 +19,7 @@ class Employee < ActiveRecord::Base
   validates :job_title_id,
             presence: true
   validates :email,
-            allow_nil: true,
-            uniqueness: true
+            allow_nil: true
   validates :employee_id,
             presence: true,
             uniqueness: { message: "Worker ID has already been taken" }
@@ -39,6 +38,7 @@ class Employee < ActiveRecord::Base
   has_many :emp_deltas # on delete, cascade in db
   has_many :emp_access_levels # on delete, cascade in db
   has_many :access_levels, through: :emp_access_levels
+  has_many :profiles
 
   attr_accessor :nearest_time_zone
 

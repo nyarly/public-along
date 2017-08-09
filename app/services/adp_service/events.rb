@@ -133,7 +133,7 @@ module AdpService
         e.status = "Pending"
         delta = build_emp_delta(e)
 
-        if e.save!
+        if e.save
           Employee.check_manager(e.manager_id)
           delta.save if delta.present?
           ads = ActiveDirectoryService.new

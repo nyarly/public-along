@@ -26,11 +26,7 @@ module AdpService
       work_assignment = find_work_assignment(w)
 
       hire_date = work_assignment["hireDate"]
-      custom_dates = w.dig("customFieldGroup","dateFields")
-      if custom_dates
-        w_end_date_json = custom_dates.find { |f| f["nameCode"]["codeValue"] == "Worker End Date"}
-        worker_end_date = w_end_date_json.try(:dig, "dateValue")
-      end
+      worker_end_date = find_worker_end_date(w)
 
       biz_unit = work_assignment["homeOrganizationalUnits"].find { |ou| ou["typeCode"]["codeValue"] == "Business Unit"}
       company = find_biz_unit(biz_unit)
@@ -177,6 +173,15 @@ module AdpService
         end
         dept
       end
+    end
+
+    def find_worker_end_date(json)
+      custom_dates = json.dig("customFieldGroup","dateFields")
+      if custom_dates
+        w_end_date_json = custom_dates.find { |f| f["nameCode"]["codeValue"] == "Worker End Date"}
+        worker_end_date = w_end_date_json.try(:dig, "dateValue")
+      end
+      worker_end_date
     end
   end
 end

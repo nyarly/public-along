@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170804221602) do
+ActiveRecord::Schema.define(version: 20170808235325) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -198,6 +198,22 @@ ActiveRecord::Schema.define(version: 20170804221602) do
     t.string   "code",       null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "profiles", force: :cascade do |t|
+    t.integer  "employee_id",     null: false
+    t.string   "status"
+    t.datetime "start_date",      null: false
+    t.datetime "end_date"
+    t.string   "business_title"
+    t.string   "manager_id"
+    t.string   "department_id",   null: false
+    t.string   "location_id",     null: false
+    t.string   "worker_type_id",  null: false
+    t.string   "job_title_id",    null: false
+    t.string   "company"
+    t.string   "adp_assoc_oid"
+    t.string   "adp_employee_id", null: false
   end
 
   create_table "sec_prof_access_levels", force: :cascade do |t|
