@@ -18,8 +18,6 @@ class Employee < ActiveRecord::Base
             presence: true
   validates :job_title_id,
             presence: true
-  validates :email,
-            allow_nil: true
   validates :employee_id,
             presence: true,
             uniqueness: { message: "Worker ID has already been taken" }

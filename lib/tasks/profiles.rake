@@ -1,12 +1,12 @@
 namespace :profiles do
   desc "move data from employee model to profile model"
-  task :populate_from_employee => :environment do
+  task :initial_population => :environment do
     employees = Employee.all
     puts "Updating #{employees.count} employee records"
 
     ActiveRecord::Base.transaction do
       adp    = AdpService::Base.new
-      parser = WorkerJsonParser.new
+      parser = AdpService::WorkerJsonParser.new
 
       employees.each do |employee|
 
@@ -17,7 +17,8 @@ namespace :profiles do
         dept_str        = work_assignment["homeOrganizationalUnits"].find { |ou| ou["typeCode"]["codeValue"] == "Department"}
         biz_unit        = work_assignment["homeOrganizationalUnits"].find { |ou| ou["typeCode"]["codeValue"] == "Business Unit"}
 
-        employee.profiles.build(
+        profile = Profile.new(
+          employee_id: employee.id,
           status: employee.status,
           start_date: work_assignment["actualStartDate"],
           end_date: end_date,
@@ -31,9 +32,9 @@ namespace :profiles do
           adp_employee_id: worker_json["workerID"]["idValue"].downcase
         )
 
-        employee.hire_date = worker_json["person"]["workerDates"]["originalHireDate"]
+        employee.hire_date = worker_json["workerDates"]["originalHireDate"]
 
-        if employee.save!
+        if profile.save!
           puts "#{employee.first_name} #{employee.last_name} account updated"
         else
           puts "#{employee.first_name} #{employee.last_name} account failed"

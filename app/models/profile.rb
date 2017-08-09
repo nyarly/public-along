@@ -1,8 +1,6 @@
 class Profile < ActiveRecord::Base
   validates :start_date,
             presence: true
-  validates :end_date,
-            presence: true
   validates :department_id,
             presence: true
   validates :location_id,
@@ -17,4 +15,5 @@ class Profile < ActiveRecord::Base
             presence: true
 
   belongs_to :employee
+  has_one :department
 end
