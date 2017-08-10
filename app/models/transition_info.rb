@@ -1,7 +1,7 @@
 module TransitionInfo
 
   def initialize(employee_id)
-    @employee ||= Employee.find_by(employee_id: employee_id)
+    @employee ||= Employee.find_by_employee_id(employee_id)
   end
 
   class Offboard

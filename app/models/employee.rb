@@ -1,4 +1,7 @@
 class Employee < ActiveRecord::Base
+
+
+
   EMAIL_OPTIONS = ["Onboarding", "Offboarding", "Security Access"]
 
   before_validation :downcase_unique_attrs
@@ -10,22 +13,22 @@ class Employee < ActiveRecord::Base
             presence: true
   validates :hire_date,
             presence: true
-  validates :department_id,
-            presence: true
-  validates :location_id,
-            presence: true
-  validates :worker_type_id,
-            presence: true
-  validates :job_title_id,
-            presence: true
-  validates :employee_id,
-            presence: true,
-            uniqueness: { message: "Worker ID has already been taken" }
+  # validates :department_id,
+  #           presence: true
+  # validates :location_id,
+  #           presence: true
+  # validates :worker_type_id,
+  #           presence: true
+  # validates :job_title_id,
+  #           presence: true
+  # validates :employee_id,
+  #           presence: true,
+  #           uniqueness: { message: "Worker ID has already been taken" }
 
-  belongs_to :department
-  belongs_to :location
-  belongs_to :worker_type
-  belongs_to :job_title
+  # belongs_to :department
+  # belongs_to :location
+  # belongs_to :worker_type
+  # belongs_to :job_title
   has_many :emp_transactions # on delete, cascade in db
   has_many :onboarding_infos, through: :emp_transactions
   has_many :offboarding_infos, through: :emp_transactions
@@ -42,9 +45,23 @@ class Employee < ActiveRecord::Base
 
   default_scope { order('last_name ASC') }
 
+  [:manager_id, :department, :worker_type, :location, :job_title, :company, :adp_assoc_oid].each do |attribute|
+    define_method :"#{attribute}" do
+      self.profiles.last.send("#{attribute}")
+    end
+  end
+
+  def employee_id
+    self.profiles.last.adp_employee_id if self.profiles.present?
+  end
+
+  def self.find_by_employee_id(value)
+    all.find {|emp| emp.employee_id == value}
+  end
+
   def downcase_unique_attrs
     self.email = email.downcase if email.present?
-    self.employee_id = employee_id.downcase if employee_id.present?
+    # self.employee_id = employee_id.downcase if employee_id.present?
   end
 
   def strip_whitespace

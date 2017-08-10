@@ -17,7 +17,7 @@ namespace :profiles do
         dept_str        = work_assignment["homeOrganizationalUnits"].find { |ou| ou["typeCode"]["codeValue"] == "Department"}
         biz_unit        = work_assignment["homeOrganizationalUnits"].find { |ou| ou["typeCode"]["codeValue"] == "Business Unit"}
 
-        profile = Profile.new(
+        employee.profiles.build(
           employee_id: employee.id,
           status: employee.status,
           start_date: work_assignment["actualStartDate"],
@@ -34,7 +34,7 @@ namespace :profiles do
 
         employee.hire_date = worker_json["workerDates"]["originalHireDate"]
 
-        if profile.save!
+        if employee.save!
           puts "#{employee.first_name} #{employee.last_name} account updated"
         else
           puts "#{employee.first_name} #{employee.last_name} account failed"

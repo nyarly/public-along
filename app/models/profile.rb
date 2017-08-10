@@ -15,7 +15,7 @@ class Profile < ActiveRecord::Base
             presence: true
 
   belongs_to :department
-  belongs_to :employee
+  belongs_to :employee # on_delete, cascade
   belongs_to :job_title
   belongs_to :location
   belongs_to :worker_type
