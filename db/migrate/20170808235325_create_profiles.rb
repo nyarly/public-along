@@ -2,7 +2,7 @@ class CreateProfiles < ActiveRecord::Migration
   def change
     create_table :profiles do |t|
       t.references :employee, null: false
-      t.string :status
+      t.string :profile_status
       t.datetime :start_date, null: false
       t.datetime :end_date
       t.string :business_title

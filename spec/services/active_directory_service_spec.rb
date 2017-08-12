@@ -4,15 +4,12 @@ describe ActiveDirectoryService, type: :service do
   let(:ldap) { double(Net::LDAP) }
   let(:ads) { ActiveDirectoryService.new }
 
-  let(:job_title) { FactoryGirl.create(:job_title) }
-  let(:reg_worker_type) { FactoryGirl.create(:worker_type) }
-  let(:temp_worker_type) { FactoryGirl.create(:worker_type, :temporary) }
   let(:department) { Department.find_or_create_by(:name => "People & Culture-HR & Total Rewards") }
   let(:location) { Location.find_or_create_by(:name => "San Francisco Headquarters") }
-  let(:manager) { FactoryGirl.create(:employee,
-    location: location,
-    department: department,
-    worker_type: reg_worker_type) }
+  let(:manager) { FactoryGirl.create(:employee) }
+  let!(:manager_profile) { FactoryGirl.create(:profile,
+    :with_valid_ou,
+    employee: manager)}
 
   before :each do
     allow(Net::LDAP).to receive(:new).and_return(ldap)
@@ -30,7 +27,13 @@ describe ActiveDirectoryService, type: :service do
   end
 
   context "create disabled employees" do
-    let!(:employees) { FactoryGirl.create_list(:employee, 1, :first_name => "Donny", :last_name => "Kerabatsos", :manager_id => manager.employee_id, :job_title_id => job_title.id, worker_type_id: reg_worker_type.id) }
+    let!(:employee) { FactoryGirl.create(:employee,
+      first_name: "Donny",
+      last_name: "Kerabatsos") }
+    let!(:profile) { FactoryGirl.create(:profile,
+      :with_valid_ou,
+      employee: employee,
+      manager_id: manager.employee_id)}
 
     it "should call ldap.add with correct info for regular employee" do
       allow(ldap).to receive(:search).and_return([]) # Mock search not finding conflicting existing sAMAccountName
@@ -38,20 +41,20 @@ describe ActiveDirectoryService, type: :service do
 
       expect(ldap).to receive(:add).once.with(
         hash_including(
-          :dn => employees[0].dn,
-          attributes: employees[0].ad_attrs.merge({
+          :dn => employee.dn,
+          attributes: employee.ad_attrs.merge({
             :sAMAccountName => "dkerabatsos",
             :mail => "dkerabatsos@opentable.com",
             :userPrincipalName => "dkerabatsos@opentable.com"
           }).delete_if { |k,v| v.blank? || k == :dn}
         )
       )
-      expect(EmployeeWorker).to receive(:perform_async).with("Onboarding", employees[0].id)
+      expect(EmployeeWorker).to receive(:perform_async).with("Onboarding", employee.id)
 
-      ads.create_disabled_accounts(employees)
-      expect(employees[0].sam_account_name).to eq("dkerabatsos")
-      expect(employees[0].email).to eq("dkerabatsos@opentable.com")
-      expect(employees[0].ad_updated_at).to eq(DateTime.now)
+      ads.create_disabled_accounts([employee])
+      expect(employee.sam_account_name).to eq("dkerabatsos")
+      expect(employee.email).to eq("dkerabatsos@opentable.com")
+      expect(employee.ad_updated_at).to eq(DateTime.now)
     end
 
     it "should eventually call ldap.add with a generated numeric sAMAccountName" do
@@ -60,10 +63,10 @@ describe ActiveDirectoryService, type: :service do
 
       expect(ldap).to receive(:add)
 
-      ads.create_disabled_accounts(employees)
-      expect(employees[0].sam_account_name).to eq("dkerabatsos1")
-      expect(employees[0].email).to eq("dkerabatsos1@opentable.com")
-      expect(employees[0].ad_updated_at).to eq(DateTime.now)
+      ads.create_disabled_accounts([employee])
+      expect(employee.sam_account_name).to eq("dkerabatsos1")
+      expect(employee.email).to eq("dkerabatsos1@opentable.com")
+      expect(employee.ad_updated_at).to eq(DateTime.now)
     end
 
     it "should set errors when account creation fails" do
@@ -71,7 +74,7 @@ describe ActiveDirectoryService, type: :service do
       allow(ldap).to receive(:search).and_return([]) # Mock search not finding conflicting existing sAMAccountName
       allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(67) # Simulate AD LDAP error
 
-      ads.create_disabled_accounts(employees)
+      ads.create_disabled_accounts([employee])
 
       expect(ads.errors).to eq({active_directory: "Creation of disabled account for Donny Kerabatsos failed. Check the record for errors and re-submit."})
     end
@@ -81,10 +84,14 @@ describe ActiveDirectoryService, type: :service do
     let(:mailer) { double(TechTableMailer) }
 
     it "should fail and send alert email if it is a contract worker and there is no contract end date set" do
-      invalid_contract_worker = FactoryGirl.create(:employee, worker_type_id: temp_worker_type.id, contract_end_date: nil)
-      emp_trans = FactoryGirl.create(:emp_transaction, kind: "Onboarding", employee_id: invalid_contract_worker.id)
+      invalid_contract_worker = FactoryGirl.create(:contract_worker,
+        contract_end_date: nil)
+      emp_trans = FactoryGirl.create(:onboarding_emp_transaction,
+       employee_id: invalid_contract_worker.id)
       sec_prof = FactoryGirl.create(:security_profile)
-      emp_sec_prof = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans.id, security_profile_id: sec_prof.id)
+      emp_sec_prof = FactoryGirl.create(:emp_sec_profile,
+        emp_transaction_id: emp_trans.id,
+        security_profile_id: sec_prof.id)
       allow(invalid_contract_worker).to receive(:ou).and_return("ou=Valid OU")
 
       expect(TechTableMailer).to receive(:alert_email).once.and_return(mailer)
@@ -93,11 +100,15 @@ describe ActiveDirectoryService, type: :service do
     end
 
     it "should activate for properly set contract worker" do
-      valid_contract_worker = FactoryGirl.create(:employee, worker_type_id: temp_worker_type.id, contract_end_date: 3.months.from_now)
-      emp_trans = FactoryGirl.create(:emp_transaction, kind: "Onboarding", employee_id: valid_contract_worker.id)
-      onboarding_info = FactoryGirl.create(:onboarding_info, emp_transaction_id: emp_trans.id)
+      valid_contract_worker = FactoryGirl.create(:contract_worker)
+      emp_trans = FactoryGirl.create(:onboarding_emp_transaction,
+        employee_id: valid_contract_worker.id)
+      onboarding_info = FactoryGirl.create(:onboarding_info,
+        emp_transaction_id: emp_trans.id)
       sec_prof = FactoryGirl.create(:security_profile)
-      emp_sec_prof = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans.id, security_profile_id: sec_prof.id)
+      emp_sec_prof = FactoryGirl.create(:emp_sec_profile,
+        emp_transaction_id: emp_trans.id,
+        security_profile_id: sec_prof.id)
       allow(valid_contract_worker).to receive(:ou).and_return("ou=Valid OU")
 
       allow(ldap).to receive(:replace_attribute).once
@@ -106,9 +117,11 @@ describe ActiveDirectoryService, type: :service do
     end
 
     it "should activate for properly set contract worker with no security profiles" do
-      valid_contract_worker = FactoryGirl.create(:employee, worker_type_id: temp_worker_type.id, contract_end_date: 3.months.from_now)
-      emp_trans = FactoryGirl.create(:emp_transaction, kind: "Onboarding", employee_id: valid_contract_worker.id)
-      onboarding_info = FactoryGirl.create(:onboarding_info, emp_transaction_id: emp_trans.id)
+      valid_contract_worker = FactoryGirl.create(:contract_worker)
+      emp_trans = FactoryGirl.create(:onboarding_emp_transaction,
+        employee_id: valid_contract_worker.id)
+      onboarding_info = FactoryGirl.create(:onboarding_info,
+        emp_transaction_id: emp_trans.id)
       allow(valid_contract_worker).to receive(:ou).and_return("ou=Valid OU")
 
       allow(ldap).to receive(:replace_attribute).once
@@ -117,7 +130,7 @@ describe ActiveDirectoryService, type: :service do
     end
 
     it "should fail if the manager has not completed the onboarding forms" do
-      invalid_worker = FactoryGirl.create(:employee, worker_type_id: reg_worker_type.id)
+      invalid_worker = FactoryGirl.create(:regular_employee)
 
       expect(TechTableMailer).to receive(:alert_email).once.and_return(mailer)
       expect(mailer).to receive(:deliver_now).once
@@ -127,7 +140,9 @@ describe ActiveDirectoryService, type: :service do
 
   context "assign sAMAccountName" do
     it "should normalize special characters and spaces" do
-      employee = FactoryGirl.create(:employee, :first_name => "Mæby", :last_name => "Fünke Spløsh")
+      employee = FactoryGirl.create(:employee,
+        :first_name => "Mæby",
+        :last_name => "Fünke Spløsh")
 
       allow(ldap).to receive(:search).and_return([]) # Mock search not finding conflicting existing sAMAccountName
 
@@ -136,7 +151,9 @@ describe ActiveDirectoryService, type: :service do
     end
 
     it "should return true when available sAMAccountName is found" do
-      employee = FactoryGirl.create(:employee, :first_name => "Walter", :last_name => "Sobchak")
+      employee = FactoryGirl.create(:employee,
+        :first_name => "Walter",
+        :last_name => "Sobchak")
 
       allow(ldap).to receive(:search).and_return([]) # Mock search not finding conflicting existing sAMAccountName
 
@@ -158,14 +175,28 @@ describe ActiveDirectoryService, type: :service do
     let!(:employee) { FactoryGirl.create(:employee,
       :first_name => "Jeffrey",
       :last_name => "Lebowski",
-      :manager_id => manager.employee_id,
-      :job_title_id => job_title.id,
       :sam_account_name => "jlebowski",
-      :department_id => Department.find_by(:name => "People & Culture-HR & Total Rewards").id ,
-      :location_id => Location.find_by(:name => "San Francisco Headquarters").id,
-      :worker_type_id => reg_worker_type.id
     )}
+    let!(:job_title) { FactoryGirl.create(:job_title) }
+    let!(:profile) { FactoryGirl.create(:profile,
+      employee: employee,
+      status: "Active",
+      manager_id: manager.employee_id,
+      department: Department.find_by(:name => "People & Culture-HR & Total Rewards"),
+      location: Location.find_by(:name => "San Francisco Headquarters"),
+      job_title: job_title,
+      adp_employee_id: "12345678"
+      )}
     let(:new_job_title) { FactoryGirl.create(:job_title) }
+    let!(:new_profile) { FactoryGirl.create(:profile,
+      employee: employee,
+      status: "Pending",
+      manager_id: manager.employee_id,
+      department: profile.department,
+      location: profile.location,
+      job_title: new_job_title,
+      adp_employee_id: "12345678"
+      )}
     let(:ldap_entry) { Net::LDAP::Entry.new(employee.dn) }
 
     before :each do
@@ -193,10 +224,14 @@ describe ActiveDirectoryService, type: :service do
 
     it "should update changed attributes" do
       employee.first_name = "The Dude"
-      employee.job_title_id = new_job_title.id
       employee.office_phone = "555-555-5555"
-      allow(ldap).to receive(:search).and_return([ldap_entry])
 
+      profile.status = "Expired"
+      new_profile.status = "Active"
+      profile.save!
+      new_profile.save!
+
+      allow(ldap).to receive(:search).and_return([ldap_entry])
       expect(ldap).to_not receive(:replace_attribute).with(employee.dn, :cn, "The Dude Lebowski")
       expect(ldap).to receive(:replace_attribute).once.with(employee.dn, :givenName, "The Dude")
       expect(ldap).to receive(:replace_attribute).once.with(employee.dn, :title, new_job_title.name)
@@ -214,7 +249,22 @@ describe ActiveDirectoryService, type: :service do
     end
 
     it "should update dn if country changes" do
-      employee.location.country = "GB"
+      new_profile = FactoryGirl.create(:profile,
+        employee: employee,
+        status: "Pending",
+        manager_id: manager.employee_id,
+        department: department,
+        job_title: job_title,
+        adp_employee_id: "12345678",
+        location: FactoryGirl.create(:location,
+          name: location.name,
+          country: "GB"))
+
+      profile.status = "Expired"
+      new_profile.status = "Active"
+      profile.save!
+      new_profile.save!
+
       allow(ldap).to receive(:search).and_return([ldap_entry])
 
       expect(ldap).to receive(:replace_attribute).once.with(employee.dn, :co, "GB")
@@ -229,7 +279,21 @@ describe ActiveDirectoryService, type: :service do
     end
 
     it "should update dn if department changes" do
-      employee.department = Department.find_by(:name => "Customer Support")
+      new_department = Department.find_by(:name => "Customer Support")
+      new_profile = FactoryGirl.create(:profile,
+        employee: employee,
+        status: "Pending",
+        manager_id: manager.employee_id,
+        department: new_department,
+        job_title: job_title,
+        adp_employee_id: "12345678",
+        location: location)
+
+      profile.status = "Expired"
+      new_profile.status = "Active"
+      profile.save!
+      new_profile.save!
+
       allow(ldap).to receive(:search).and_return([ldap_entry])
 
       expect(ldap).to receive(:replace_attribute).once.with(employee.dn, :department, "Customer Support")
@@ -255,9 +319,9 @@ describe ActiveDirectoryService, type: :service do
       employee.office_phone = "323-999-5555"
       allow(ldap).to receive(:search).and_return([ldap_entry])
       allow(ldap).to receive(:replace_attribute)
-      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(67) # Simulate AD LDAP error
+      # allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(67) # Simulate AD LDAP error
 
-      expect(TechTableMailer).to receive_message_chain(:alert_email, :deliver_now)
+      # expect(TechTableMailer).not_to receive_message_chain(:alert_email, :deliver_now)
       expect(TechTableMailer).not_to receive(:alert_email)
       ads.update([employee])
     end
@@ -273,7 +337,7 @@ describe ActiveDirectoryService, type: :service do
     end
 
     it "should update changed attributes with nil" do
-      rem_to_reg_employee = FactoryGirl.create(:employee, :remote, :manager_id => manager.employee_id, :job_title_id => job_title.id, worker_type_id: reg_worker_type.id)
+      rem_to_reg_employee = FactoryGirl.create(:remote_employee)
 
       ldap_entry_2 = Net::LDAP::Entry.new(rem_to_reg_employee.dn)
       ldap_entry_2[:cn] = rem_to_reg_employee.cn
@@ -281,7 +345,7 @@ describe ActiveDirectoryService, type: :service do
       ldap_entry_2[:givenName] = rem_to_reg_employee.first_name
       ldap_entry_2[:sn] = rem_to_reg_employee.last_name
       ldap_entry_2[:displayName] = rem_to_reg_employee.cn
-      ldap_entry_2[:manager] = manager.dn
+      ldap_entry_2[:manager] = nil
       ldap_entry_2[:co] = rem_to_reg_employee.location.country
       ldap_entry_2[:accountExpires] = rem_to_reg_employee.generated_account_expires
       ldap_entry_2[:title] = rem_to_reg_employee.job_title.name
@@ -317,24 +381,25 @@ describe ActiveDirectoryService, type: :service do
 
   context "terminate employees" do
     let(:ldap_entry) { Net::LDAP::Entry.new(employee.dn) }
-    let(:employee) { FactoryGirl.create(:employee,
-      :first_name => "Jeffrey",
-      :last_name => "Lebowski",
-      :manager_id => manager.employee_id,
-      :job_title_id => job_title.id,
-      :sam_account_name => "jlebowski",
-      :department_id => Department.find_by(:name => "People & Culture-HR & Total Rewards").id ,
-      :location_id => Location.find_by(:name => "San Francisco Headquarters").id,
-      :worker_type_id => reg_worker_type.id,
-      :termination_date => Date.today - 30.days
+    let(:employee) { FactoryGirl.create(:regular_employee,
+      termination_date: Date.today - 30.days
     )}
-    let!(:emp_transaction) { FactoryGirl.create(:emp_transaction, kind: "Onboarding", employee_id: employee.id) }
+    let!(:emp_transaction) { FactoryGirl.create(:onboarding_emp_transaction,
+      employee_id: employee.id) }
     let!(:security_profile) { FactoryGirl.create(:security_profile)}
-    let!(:access_level) { FactoryGirl.create(:access_level, ad_security_group: "cn=test")}
-    let!(:access_level_2) { FactoryGirl.create(:access_level, ad_security_group: nil)}
-    let!(:sec_prof_access_level) { FactoryGirl.create(:sec_prof_access_level, security_profile_id: security_profile.id, access_level_id: access_level.id)}
-    let!(:sec_prof_access_level_2) { FactoryGirl.create(:sec_prof_access_level, security_profile_id: security_profile.id, access_level_id: access_level_2.id)}
-    let!(:emp_sec_profile) { FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_transaction.id, security_profile_id: security_profile.id)}
+    let!(:access_level) { FactoryGirl.create(:access_level,
+      ad_security_group: "cn=test")}
+    let!(:access_level_2) { FactoryGirl.create(:access_level,
+      ad_security_group: nil)}
+    let!(:sec_prof_access_level) { FactoryGirl.create(:sec_prof_access_level,
+      security_profile_id: security_profile.id,
+      access_level_id: access_level.id)}
+    let!(:sec_prof_access_level_2) { FactoryGirl.create(:sec_prof_access_level,
+      security_profile_id: security_profile.id,
+      access_level_id: access_level_2.id)}
+    let!(:emp_sec_profile) { FactoryGirl.create(:emp_sec_profile,
+      emp_transaction_id: emp_transaction.id,
+      security_profile_id: security_profile.id)}
 
     before :each do
       ldap_entry[:cn] = "Jeffrey Lebowski"

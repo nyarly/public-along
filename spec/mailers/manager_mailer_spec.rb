@@ -1,9 +1,14 @@
 require "rails_helper"
 
 RSpec.describe ManagerMailer, type: :mailer do
+  let!(:manager) { FactoryGirl.create(:regular_employee,
+    email: "manager@opentable.com") }
+  let!(:employee) { FactoryGirl.create(:employee) }
+  let!(:profile) { FactoryGirl.create(:profile,
+    employee: employee,
+    manager_id: manager.employee_id) }
+
   context "Security Access" do
-    let(:manager) { FactoryGirl.create(:employee, email: "manager@opentable.com") }
-    let(:employee) { FactoryGirl.create(:employee, manager_id: manager.employee_id) }
     let!(:email) { ManagerMailer.permissions(manager, employee, "Security Access").deliver_now }
 
     it "should queue to send" do
@@ -20,8 +25,6 @@ RSpec.describe ManagerMailer, type: :mailer do
   end
 
   context "Equipment" do
-    let(:manager) { FactoryGirl.create(:employee, email: "manager@opentable.com") }
-    let(:employee) { FactoryGirl.create(:employee, manager_id: manager.employee_id) }
     let!(:email) { ManagerMailer.permissions(manager, employee, "Equipment").deliver_now }
 
     it "should queue to send" do
@@ -38,8 +41,6 @@ RSpec.describe ManagerMailer, type: :mailer do
   end
 
   context "Onboarding" do
-    let(:manager) { FactoryGirl.create(:employee, email: "manager@opentable.com") }
-    let(:employee) { FactoryGirl.create(:employee, manager_id: manager.employee_id) }
     let!(:email) { ManagerMailer.permissions(manager, employee, "Onboarding").deliver_now }
 
     it "should queue to send" do

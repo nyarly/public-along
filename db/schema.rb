@@ -192,7 +192,7 @@ ActiveRecord::Schema.define(version: 20170809231542) do
 
   create_table "profiles", force: :cascade do |t|
     t.integer  "employee_id",     null: false
-    t.string   "status"
+    t.string   "profile_status"
     t.datetime "start_date",      null: false
     t.datetime "end_date"
     t.string   "business_title"

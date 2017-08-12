@@ -45,9 +45,8 @@ describe AdpService::Events, type: :service do
   end
 
   describe "events" do
-
-    let!(:worker_type_1) { FactoryGirl.create(:worker_type, name: "Contractor", code: "CONT", kind: "Contractor") }
-    let!(:worker_type_2) { FactoryGirl.create(:worker_type, name: "Regular Full-Time", code: "OLFR", kind: "Regular") }
+    # let!(:worker_type_1) { FactoryGirl.create(:worker_type, name: "Contractor", code: "CONT", kind: "Contractor") }
+    # let!(:worker_type_2) { FactoryGirl.create(:worker_type, name: "Regular Full-Time", code: "OLFR", kind: "Regular") }
     let(:ads) { double(ActiveDirectoryService) }
 
     before :each do
@@ -186,11 +185,18 @@ describe AdpService::Events, type: :service do
     describe "hire event" do
       let(:parsed_reg_json) { JSON.parse(hire_json) }
       let(:parsed_contract_json) { JSON.parse(contract_hire_json) }
-      let(:application) { FactoryGirl.create(:application, name: "Security Group") }
-      let(:regular_al) { FactoryGirl.create(:access_level, name: "OT Regular Workers", application_id: application.id) }
-      let!(:regular_sp) { FactoryGirl.create(:security_profile, name: "Basic Regular Worker Profile") }
-      let!(:contract_sp) { FactoryGirl.create(:security_profile, name: "Basic Contract Worker Profile") }
-      let!(:regular_spal) { FactoryGirl.create(:sec_prof_access_level, security_profile_id: regular_sp.id, access_level_id: regular_al.id) }
+      let(:application) { FactoryGirl.create(:application,
+        name: "Security Group") }
+      let(:regular_al) { FactoryGirl.create(:access_level,
+        name: "OT Regular Workers",
+        application_id: application.id) }
+      let!(:regular_sp) { FactoryGirl.create(:security_profile,
+        name: "Basic Regular Worker Profile") }
+      let!(:contract_sp) { FactoryGirl.create(:security_profile,
+        name: "Basic Contract Worker Profile") }
+      let!(:regular_spal) { FactoryGirl.create(:sec_prof_access_level,
+        security_profile_id: regular_sp.id,
+        access_level_id: regular_al.id) }
       let(:sas) { double(SecAccessService) }
 
 

@@ -8,7 +8,7 @@ namespace :restore_employees do
 
         employee.profiles.build(
           employee_id: employee.id,
-          status: employee.status,
+          profile_status: employee.status,
           start_date: employee.hire_date,
           end_date: employee.termination_date,
           manager_id: employee.manager_id,
@@ -47,7 +47,9 @@ namespace :restore_employees do
         employee.job_title_id = employee.profiles.first.job_title_id
 
         if employee.save!
-          puts "restored"
+          puts "#{employee.last_name}"
+        else
+          puts "#{employee.profiles.count} #{employee.last_name}"
         end
       end
     end

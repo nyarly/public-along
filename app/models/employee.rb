@@ -1,7 +1,5 @@
 class Employee < ActiveRecord::Base
 
-
-
   EMAIL_OPTIONS = ["Onboarding", "Offboarding", "Security Access"]
 
   before_validation :downcase_unique_attrs
@@ -39,7 +37,7 @@ class Employee < ActiveRecord::Base
   has_many :emp_deltas # on delete, cascade in db
   has_many :emp_access_levels # on delete, cascade in db
   has_many :access_levels, through: :emp_access_levels
-  has_many :profiles
+  has_many :profiles # on delete, cascade in db
 
   attr_accessor :nearest_time_zone
 
@@ -47,16 +45,19 @@ class Employee < ActiveRecord::Base
 
   [:manager_id, :department, :worker_type, :location, :job_title, :company, :adp_assoc_oid].each do |attribute|
     define_method :"#{attribute}" do
-      self.profiles.last.send("#{attribute}")
+      self.profiles.active.send("#{attribute}")
     end
   end
 
-  def employee_id
-    self.profiles.last.adp_employee_id if self.profiles.present?
-  end
+    def employee_id
+      self.profiles.active.adp_employee_id if self.profiles.present?
+    end
 
   def self.find_by_employee_id(value)
-    all.find {|emp| emp.employee_id == value}
+    profile = Profile.find_by(adp_employee_id: value)
+    if profile.present?
+      profile.employee
+    end
   end
 
   def downcase_unique_attrs
@@ -103,7 +104,7 @@ class Employee < ActiveRecord::Base
   end
 
   def self.direct_reports_of(manager_emp_id)
-    where('manager_id = ?', manager_emp_id)
+    joins(:profiles).where("profiles.manager_id LIKE ?", manager_emp_id)
   end
 
   def self.onboarding_report_group
@@ -175,7 +176,7 @@ class Employee < ActiveRecord::Base
   end
 
   def manager
-    Employee.find_by(employee_id: manager_id) if manager_id
+    Employee.find_by_employee_id(manager_id) if manager_id
   end
 
   def generated_email
@@ -276,7 +277,7 @@ class Employee < ActiveRecord::Base
   end
 
   def self.check_manager(emp_id)
-    emp = Employee.find_by(employee_id: emp_id)
+    emp = Employee.find_by_employee_id(emp_id)
     if emp.present? && !Employee.managers.include?(emp)
       sp = SecurityProfile.find_by(name: "Basic Manager")
 

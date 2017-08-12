@@ -33,11 +33,16 @@ module AdpService
 
       job_title = find_job_title(work_assignment["jobCode"])
       worker_type = find_worker_type(work_assignment)
+
       manager_id = work_assignment.dig("reportsTo",0,"workerID","idValue")
       location = find_location(work_assignment["homeWorkLocation"])
+      work_assignment_status = find_work_assignment_status(work_assignment["assignmentStatus"]["statusCode"])
 
       dept_str = work_assignment["homeOrganizationalUnits"].find { |ou| ou["typeCode"]["codeValue"] == "Department"}
       dept = find_dept(dept_str)
+
+      start_date = work_assignment["actualStartDate"]
+      end_date = work_assignment["terminationDate"].present? if work_assignment["terminationDate"].present?
 
       home_address_1 = w.dig("person","legalAddress","lineOne")
       home_address_2 = w.dig("person","legalAddress","lineTwo")
@@ -47,21 +52,24 @@ module AdpService
 
       worker = {
         status: status,
-        adp_assoc_oid: adp_assoc_oid,
         first_name: first_name,
         last_name: last_name,
-        employee_id: employee_id,
         hire_date: hire_date,
         contract_end_date: worker_end_date,
-        company: company,
-        job_title_id: job_title.id,
-        worker_type_id: worker_type.id,
-        manager_id: manager_id,
-        department_id: dept.id,
-        location_id: location.id,
         office_phone: office_phone,
         personal_mobile_phone: personal_mobile_phone,
         # image_code: , (eventually)
+        start_date: start_date,
+        end_date: end_date,
+        adp_assoc_oid: adp_assoc_oid,
+        adp_employee_id: employee_id,
+        company: company,
+        department_id: dept.id,
+        job_title_id: job_title.id,
+        location_id: location.id,
+        manager_id: manager_id,
+        profile_status: work_assignment_status,
+        worker_type_id: worker_type.id,
       }
 
       if location.kind == "Remote Location"
@@ -122,6 +130,12 @@ module AdpService
       if json
         biz_unit = json["nameCode"]
         biz_unit["shortName"].present? ? biz_unit["shortName"] : biz_unit["longName"]
+      end
+    end
+
+    def find_work_assignment_status(json)
+      if json.present?
+        name = json["shortName"].present? ? json["shortName"] : json["codeValue"]
       end
     end
 

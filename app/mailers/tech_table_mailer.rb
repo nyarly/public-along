@@ -15,7 +15,7 @@ class TechTableMailer < ApplicationMailer
 
   def offboard_notice(employee)
     @employee = employee
-    @manager = Employee.find_by(employee_id: @employee.manager_id)
+    @manager = @employee.manager
     mail(subject: "Mezzo Offboarding notice for #{employee.first_name} #{employee.last_name}")
   end
 

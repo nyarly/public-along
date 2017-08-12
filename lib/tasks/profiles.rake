@@ -19,7 +19,7 @@ namespace :profiles do
 
         employee.profiles.build(
           employee_id: employee.id,
-          status: employee.status,
+          profile_status: employee.status,
           start_date: work_assignment["actualStartDate"],
           end_date: end_date,
           manager_id: manager_id = work_assignment.dig("reportsTo",0,"workerID","idValue"),
