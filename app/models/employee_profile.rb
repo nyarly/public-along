@@ -31,69 +31,64 @@ class EmployeeProfile
   attribute :worker_type_id, Integer
   attribute :profile_status, String
 
-  # is there an employee with the employee id?
-    # if yes, get active profile
-    #   is the active profile different?
-    #     if yes, is there a pending profile that is a match?
-    #       if no, make a new profile
-    #       if yes, activate that profile
-    #     if no, make a new profile
-    #       if start date is in future, assign pending
-    #         if not, make active
-    #           and deactivate active profile
-
-  def do_stuff(hash)
+  def process_employee(hash)
     employee = Employee.find_by_employee_id(hash[:adp_employee_id])
 
     if employee.present?
       profile = employee.profiles.active
-      employee_attrs, profile_attrs = hash.partition{ |k,v| employee.has_attribute?(k) }
-
+      employee_attrs, profile_attrs = hash.partition{ |k,v| Employee.column_names.include?(k.to_s) }
       employee.assign_attributes(employee_attrs.to_h)
-
       profile.assign_attributes(profile_attrs.to_h)
 
+      delta = build_emp_delta(profile)
+
       if profile.changed?
-        puts "profile changes"
-        puts profile.changed_attributes
         old_profile = employee.profiles.active
         old_profile.profile_status = "Expired"
         old_profile.end_date = Date.today
-        if old_profile.save!
-          puts "saved?"
-        else
-          puts "whatever"
-        end
-        # puts employee.profiles.active.profile_status
-        # puts employee.profiles.active.end_date
-        employee.profiles.build(profile_attrs.to_h)
-        if employee.save!
-          puts "saved!"
+        new_profile = employee.profiles.build(profile_attrs.to_h)
+
+        if old_profile.save! and new_profile.save!
+          puts "saved"
         else
           puts "didn't save?"
         end
       end
-      if employee.changed?
-        puts "changes to employee"
-        puts employee.changed_attributes
-        employee.save!
+
+      employee.save!
+      if delta.present?
+        delta.save!
       end
     else
-      puts "???"
+      employee_attrs, profile_attrs = hash.partition{ |k,v| Employee.column_names.include?(k.to_s) }
+      employee = Employee.new(employee_attrs.to_h)
+      employee.status = "Pending"
+      employee.save!
+
+      profile = employee.profiles.build(profile_attrs.to_h)
+      employee.save!
     end
+    employee
   end
 
-  def employee
+  def build_emp_delta(prof)
+    emp_before  = prof.employee.changed_attributes.deep_dup
+    emp_after   = Hash[prof.employee.changes.map { |k,v| [k, v[1]] }]
+    prof_before = prof.changed_attributes.deep_dup
+    prof_after  = Hash[prof.changes.map { |k,v| [k, v[1]] }]
+    before      = emp_before.merge!(prof_before)
+    after       = emp_after.merge!(prof_after)
 
+    if before.present? and after.present?
+      emp_delta = EmpDelta.new(
+        employee: prof.employee,
+        before: before,
+        after: after
+      )
+    end
+    emp_delta
   end
 
-  def profile
-
-  end
-
-  def save
-
-  end
 
   def errors
     return @errors ||= {}

@@ -37,31 +37,36 @@ RSpec.describe EmployeeProfile do
   let(:parser) { AdpService::WorkerJsonParser.new }
 
   context "existing employee with updated employee info" do
+    it "should update the info" do
+      employee.last_name = "Good All"
+      employee.save
+      w_hash = parser.gen_worker_hash(json["workers"][0])
+      profiler = EmployeeProfile.new
+      profiler.process_employee(w_hash)
 
-      it "should update the info" do
-        employee.last_name = "Good All"
-        w_hash = parser.gen_worker_hash(json["workers"][0])
-        profiler = EmployeeProfile.new
-        stuff = profiler.do_stuff(w_hash)
-        expect(employee.reload.last_name).to eq("Goodall")
-      end
+      expect(employee.reload.last_name).to eq("Goodall")
+      expect(employee.emp_deltas.last.before).to eq({"last_name"=>"Good All"})
+      expect(employee.emp_deltas.last.after).to eq({"last_name"=>"Goodall"})
+    end
 
-      it "should not create a new profile" do
-        employee.last_name = "Good All"
-        w_hash = parser.gen_worker_hash(json["workers"][0])
-        profiler = EmployeeProfile.new
-        stuff = profiler.do_stuff(w_hash)
-        expect(Employee.count).to eq(1)
-        expect(employee.profiles.count).to eq(1)
-      end
+    it "should not create a new profile" do
+      employee.last_name = "Good All"
+      employee.save
+      w_hash = parser.gen_worker_hash(json["workers"][0])
+      profiler = EmployeeProfile.new
+      profiler.process_employee(w_hash)
 
+      expect(Employee.count).to eq(1)
+      expect(employee.profiles.count).to eq(1)
+    end
   end
 
   context "existing employee with no change to profile" do
-    it "should do the thing" do
+    it "should not make any changes" do
       w_hash = parser.gen_worker_hash(json["workers"][0])
       profiler = EmployeeProfile.new
-      stuff = profiler.do_stuff(w_hash)
+      profiler.process_employee(w_hash)
+
       expect(Employee.count).to eq(1)
       expect(employee.worker_type).to eq(worker_type)
       expect(employee.profiles.count).to eq(1)
@@ -89,10 +94,52 @@ RSpec.describe EmployeeProfile do
     it "should create a new profile when given a new worker type" do
       w_hash = parser.gen_worker_hash(json["workers"][0])
       profiler = EmployeeProfile.new
-      stuff = profiler.do_stuff(w_hash)
+      profiler.process_employee(w_hash)
+
       expect(Employee.count).to eq(1)
       expect(employee.profiles.count).to eq(2)
       expect(employee.profiles.active.worker_type).to eq(worker_type)
+      expect(employee.profiles.active.profile_status).to eq("Active")
+      expect(employee.worker_type).to eq(worker_type)
+      expect(employee.profiles.expired.count).to eq(1)
+      expect(employee.profiles.expired[0].profile_status).to eq("Expired")
+      expect(employee.profiles.expired[0].worker_type).to eq(old_worker_type)
+      expect(employee.profiles.expired[0].end_date).to eq(Date.today)
+      expect(employee.emp_deltas.last.before).to eq({})
+      expect(employee.emp_deltas.last.after).to eq({})
+    end
+  end
+
+  context "existing employee with employee info and profile change" do
+    let!(:old_worker_type) { FactoryGirl.create(:worker_type,
+      code: "OLD",
+      name: "Contractor")}
+    let!(:profile) { FactoryGirl.create(:profile,
+      employee: employee,
+      adp_assoc_oid: "AAABBBCCCDDD",
+      adp_employee_id: "123456",
+      company: "OpenTable, Inc.",
+      department: department,
+      job_title: job_title,
+      location: location,
+      manager_id: "654321",
+      profile_status: "Active",
+      start_date: Date.new(2016, 6, 1),
+      worker_type: old_worker_type )}
+
+    it "should update employee info" do
+      employee.last_name = "Good All"
+      employee.save
+      w_hash = parser.gen_worker_hash(json["workers"][0])
+      profiler = EmployeeProfile.new
+      profiler.process_employee(w_hash)
+
+      expect(Employee.count).to eq(1)
+      expect(employee.profiles.count).to eq(2)
+      expect(employee.reload.last_name).to eq("Goodall")
+      expect(employee.emp_deltas.count).to eq(1)
+      expect(employee.emp_deltas.last.before).to eq({"last_name"=>"Good All", "start_date"=>"2016-06-01 00:00:00 UTC", "worker_type_id"=>"#{old_worker_type.id}"})
+      expect(employee.emp_deltas.last.after).to eq({"last_name"=>"Goodall", "start_date"=>"2017-01-01 00:00:00 UTC", "worker_type_id"=>"#{worker_type.id}"})
       expect(employee.profiles.active.profile_status).to eq("Active")
       expect(employee.worker_type).to eq(worker_type)
       expect(employee.profiles.expired.count).to eq(1)
@@ -103,5 +150,30 @@ RSpec.describe EmployeeProfile do
   end
 
   context "new employee" do
+    let(:hire_json) { JSON.parse(File.read(Rails.root.to_s+"/spec/fixtures/adp_hire_event.json")) }
+    let!(:new_hire_wt) { FactoryGirl.create(:worker_type, code: "OLFR")}
+
+    it "should create a new employee record" do
+      worker_json = hire_json.dig("events", 0, "data", "output", "worker")
+      w_hash = parser.gen_worker_hash(worker_json)
+      profiler = EmployeeProfile.new
+      profiler.process_employee(w_hash)
+      new_employee = Employee.reorder(:created_at).last
+
+      expect(Employee.count).to eq(2)
+      expect(new_employee.first_name).to eq("Hire")
+      expect(new_employee.last_name).to eq("Testone")
+      expect(new_employee.status).to eq("Pending")
+      expect(new_employee.hire_date).to eq(Date.new(2017, 1, 23))
+      expect(new_employee.contract_end_date).to eq(nil)
+      expect(new_employee.home_state).to eq("MA")
+      expect(new_employee.worker_type.code).to eq("OLFR")
+      expect(new_employee.profiles.count).to eq(1)
+      expect(new_employee.profiles.active.adp_employee_id).to eq("if0rcdig4")
+      expect(new_employee.profiles.active.worker_type.code).to eq("OLFR")
+      expect(new_employee.profiles.active.profile_status).to eq("Active")
+      expect(new_employee.profiles.active.start_date).to eq(Date.new(2017, 1, 23))
+      expect(new_employee.profiles.active.end_date).to eq(nil)
+    end
   end
 end
