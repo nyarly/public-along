@@ -43,7 +43,7 @@ module AdpService
         workers = parser.sort_workers(json)
 
         workers.each do |w|
-          e = Employee.find_by(employee_id: w[:employee_id])
+          e = Employee.find_by_employee_id(w[:employee_id])
           if e.present?
             e.assign_attributes(w)
             delta = build_emp_delta(e)
