@@ -31,6 +31,10 @@ class EmployeeProfile
   attribute :worker_type_id, Integer
   attribute :profile_status, String
 
+  # def initialize(hash)
+  #   @employee = employee
+  # end
+
   def process_employee(hash)
     employee = Employee.find_by_employee_id(hash[:adp_employee_id])
 
@@ -67,9 +71,33 @@ class EmployeeProfile
 
       profile = employee.profiles.build(profile_attrs.to_h)
       employee.save!
+
     end
     employee
   end
+
+  def new_employee(event_json)
+    parser = AdpService::WorkerJsonParser.new
+    json = JSON.parse(event_json)
+    worker_json = json.dig("events", 0, "data", "output", "worker")
+    worker_hash = parser.gen_worker_hash(worker_json)
+    puts worker_hash
+    employee_attrs, profile_attrs = worker_hash.partition{ |k,v| Employee.column_names.include?(k.to_s) }
+    employee = Employee.new(employee_attrs.to_h)
+    profile = employee.profiles.build(profile_attrs.to_h)
+    employee.status = "Pending"
+    employee
+  end
+
+  # def new_profile
+  #   employee.
+  # end
+
+  # def save
+  #   ActiveRecord::Base.transaction do
+
+  #   end
+  # end
 
   def build_emp_delta(prof)
     emp_before  = prof.employee.changed_attributes.deep_dup

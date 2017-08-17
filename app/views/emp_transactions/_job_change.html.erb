@@ -1,0 +1,32 @@
+<div class="callout">
+  <h4>Link OpenTable Accounts</h4>
+  <p class="help-text">This worker may already have an existing Active Directory account. Would you like us to try to link these accounts?</p>
+  <div class="switch">
+    <input class="switch-input" id="link-account" type="checkbox" name="manager_entry[link_email]"  data-toggle="find_email">
+    <label class="switch-paddle" for="link-account">
+      <span class="show-for-sr">Link Accounts</span>
+      <span class="switch-active" aria-hidden="true">Yes</span>
+      <span class="switch-inactive" aria-hidden="true">No</span>
+    </label>
+  </div>
+  <div id="find_email" class="is-hidden" data-toggler="is-hidden">
+    <%= f.hidden_field :event_id, value: @event.id %>
+    <%= f.autocomplete_field :employee_email, autocomplete_email_employees_path, :id_element => "#employee_email", :update_elements => {}, :placeholder => "Search by OpenTable email" %>
+  </div>
+  <div id="show_linked_employee" class="callout primary" style="display:none;">
+    <span id="linked_emp_fn"></span> <span id="linked_emp_ln"></span><br>
+    <span id="linked_emp_jt"></span><br>
+    Hire Date: <span id="linked_emp_hd"></span><br>
+    Termination Date: <span id="linked_emp_td"></span>
+    <p>
+    <fieldset>
+      <legend>Is this the correct account?</legend>
+      <input type="radio" name="link_email" id="use_account" value="true" required><label for="use_account">Yes</label>
+      <input type="radio" name="link_email" id="create_account" value="false"><label for="create_account">No</label>
+    </fieldset>
+    </p>
+  </div>
+  <div id="no_linked_employee" class="callout secondary" style="display:none;">
+    <span>A new email address and Active Directory account will be created for this employee.</span>
+  </div>
+</div>

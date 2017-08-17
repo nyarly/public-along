@@ -64,20 +64,32 @@ module AdpService
     def process_hire(json)
       parser = WorkerJsonParser.new
       worker_json = json.dig("events", 0, "data", "output", "worker")
+      custom_indicators = json.dig("events", 0, "data", "output", "worker", "customFieldGroup", "indicatorFields")
+
+      if custom_indicators.present?
+        rehire_json = custom_indicators.find { |f| f["nameCode"]["codeValue"] == "Category Change or Rehire?"}
+        rehire = rehire_json.try(:dig, "indicatorValue")
+      end
+
+      if rehire.present? and rehire == true
+        puts "yes"
+      end
+
       w_hash = parser.gen_worker_hash(worker_json)
       w_hash[:status] = "Pending" # put worker as "Pending" rather than "Active"
       # e = Employee.new(w_hash)
-      e = EmployeeProfile.new(w_hash)
+      profiler = EmployeeProfile.new
+      e = profiler.process_employee(w_hash)
       Employee.check_manager(e.manager_id)
-
-      if e.save
-        ads = ActiveDirectoryService.new
-        ads.create_disabled_accounts([e])
-        add_basic_security_profile(e)
-        return true
-      else
-        return false
-      end
+      e
+      # if e.save
+      #   ads = ActiveDirectoryService.new
+      #   ads.create_disabled_accounts([e])
+      #   add_basic_security_profile(e)
+      #   return true
+      # else
+      #   return false
+      # end
     end
 
     def process_term(json)

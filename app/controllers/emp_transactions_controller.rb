@@ -30,8 +30,16 @@ class EmpTransactionsController < ApplicationController
   # GET /emp_transactions/new
   def new
     @kind = params[:kind]
-    @employee = Employee.find params[:employee_id]
     @reason = params[:reason]
+
+    if params[:employee_id]
+      @employee = Employee.find params[:employee_id]
+    elsif params[:event_id]
+      @event = AdpEvent.find params[:event_id]
+      profiler = EmployeeProfile.new
+      @employee = profiler.new_employee(@event.json)
+    end
+
     if params[:user_emp_id]
       @manager_user = User.find_by_employee_id params[:user_emp_id]
     elsif params[:user_id]
@@ -51,8 +59,12 @@ class EmpTransactionsController < ApplicationController
   def create
     @manager_entry = ManagerEntry.new(manager_entry_params)
     @emp_transaction = @manager_entry.emp_transaction
-    emp_id = manager_entry_params[:employee_id]
-    @employee = Employee.find emp_id if emp_id
+    # emp_id = manager_entry_params[:employee_id]
+    # if emp_id
+    #   @employee = Employee.find emp_id if emp_id
+    # else
+    #   puts "idk"
+    # end
 
     authorize! :create, @manager_entry.emp_transaction
 
@@ -106,7 +118,10 @@ class EmpTransactionsController < ApplicationController
         :forward_email_id,
         :reassign_salesforce_id,
         :transfer_google_docs_id,
-        :notes
+        :notes,
+        :event_id,
+        :employee_email,
+        :link_email
       ).tap do |allowed|
         allowed[:security_profile_ids] = params[:security_profile_ids]
         allowed[:machine_bundle_id] = params[:machine_bundle_id]

@@ -16,6 +16,7 @@ describe AdpService::Events, type: :service do
   let(:term_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_terminate_event.json") }
   let(:leave_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_leave_event.json") }
   let(:rehire_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_rehire_event.json") }
+  let(:cat_change_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_cat_change_hire_event.json") }
 
   before :each do
     allow(uri).to receive(:host).and_return(host)
@@ -199,7 +200,6 @@ describe AdpService::Events, type: :service do
         access_level_id: regular_al.id) }
       let(:sas) { double(SecAccessService) }
 
-
       before :each do
         expect(ActiveDirectoryService).to receive(:new).and_return(ads)
         expect(ads).to receive(:create_disabled_accounts)
@@ -280,6 +280,20 @@ describe AdpService::Events, type: :service do
         }.to change{Employee.count}.from(0).to(1)
         expect(Employee.last.reload.active_security_profiles[0]).to eq(regular_sp)
         expect(Employee.last.reload.active_security_profiles[0].access_levels[0]).to eq(regular_al)
+      end
+    end
+
+    describe "hire event with cat change indicator" do
+      let!(:worker_type) { FactoryGirl.create(:worker_type, code: "ACW") }
+      let(:parsed_json) { JSON.parse(cat_change_json) }
+
+      it "should do the thing" do
+        adp = AdpService::Events.new
+        adp.token = "a-token-value"
+
+        expect{
+          adp.process_hire(parsed_json)
+        }.to change{Employee.count}.from(0).to(1)
       end
     end
 

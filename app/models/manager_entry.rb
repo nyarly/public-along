@@ -21,6 +21,8 @@ class ManagerEntry
   attribute :security_profile_ids, Array[Integer]
   attribute :machine_bundle_id, Integer
   attribute :notes, String
+  attribute :event_id, Integer
+  attribute :employee_email, String
 
   def errors
     return @errors ||= {}

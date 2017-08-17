@@ -26,6 +26,10 @@
   </div>
 <% end %>
 
+<% if params[:event_id] %>
+  <%= render partial: "job_change", locals: {f: f} %>
+<% end %>
+
 <%= render partial: "security_access", locals: {f: f, employee: @employee, kind: @kind} %>
 <%= render partial: "equipment", locals: {f: f} %>
 

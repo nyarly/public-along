@@ -45,7 +45,11 @@ class Employee < ActiveRecord::Base
 
   [:manager_id, :department, :worker_type, :location, :job_title, :company, :adp_assoc_oid].each do |attribute|
     define_method :"#{attribute}" do
-      self.profiles.active.send("#{attribute}")
+      if self.profiles.active.present?
+        self.profiles.active.send("#{attribute}")
+      else
+        self.profiles.last.send("#{attribute}")
+      end
     end
   end
 

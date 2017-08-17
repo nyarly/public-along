@@ -4,6 +4,7 @@ class EmployeesController < ApplicationController
   before_action :set_employee, only: :show
 
   autocomplete :employee, :name, :extra_data => [:employee_id]
+  autocomplete :employee, :email, :extra_data => [:first_name, :last_name, :job_title, :hire_date, :termination_date]
 
   def index
     if current_user.role_names.count == 1 && current_user.role_names.include?("Manager")
@@ -29,6 +30,16 @@ class EmployeesController < ApplicationController
       term = {}
     end
     render :json => json_for_autocomplete(@employees, :fn , [:employee_id])
+  end
+
+  def autocomplete_email
+    term = params[:term]
+    if term and !term.empty?
+      @employees = Employee.search(params[:term])
+    else
+      term = {}
+    end
+    render :json => json_for_autocomplete(@employees, :email, [:first_name, :last_name, :job_title, :hire_date, :termination_date])
   end
 
   private
