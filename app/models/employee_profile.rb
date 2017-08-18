@@ -93,11 +93,12 @@ class EmployeeProfile
   #   employee.
   # end
 
-  # def save
-  #   ActiveRecord::Base.transaction do
+  def save
+    puts "stuff like that"
+    # ActiveRecord::Base.transaction do
 
-  #   end
-  # end
+    # end
+  end
 
   def build_emp_delta(prof)
     emp_before  = prof.employee.changed_attributes.deep_dup

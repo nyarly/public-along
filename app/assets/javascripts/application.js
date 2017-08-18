@@ -82,7 +82,7 @@ function selectLinkedAccount() {
 }
 
 function clearLinkedAccount() {
-  $('.clear_linked_employee').click(function(event) {
+  $('.clear_linked_account').click(function(event) {
     event.preventDefault();
     $('#show_selected_employee').hide();
     $('#manager_entry_employee_email').val("");

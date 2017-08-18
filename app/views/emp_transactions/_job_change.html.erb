@@ -35,10 +35,13 @@
   <div id="show_selected_employee" class="callout primary" style="display:none;">
     <p>
       <strong><span id="linked_emp_fn"></span> <span id="linked_emp_ln"></span></strong><br>
-      <span id="linked_emp_jt"></span><br>
-      Email: <span id="linked_emp_email"></span><br>
-      Hire Date: <span id="linked_emp_hd"></span><br>
-      Termination Date: <span id="linked_emp_td"></span>
+      <span id="linked_emp_email"></span><br>
+    </p>
+    <p>
+      <strong>Previous Tenure Information:</strong><br>
+      Last Job Title: <span id="linked_emp_jt"></span><br>
+      Last Worker Type: <span id="linked_emp_wt"></span><br>
+      Original Hire Date: <span id="linked_emp_hd"></span><br>
     </p>
     <p><a href="" id="select_linked_account" class="button">Select Account</a>  <a href="" class="clear_linked_account button alert">Search Again</a></p>
   </div>
@@ -55,7 +58,7 @@
 
   <!-- Final confirmation of linked worker -->
   <div id="linked_employee" class="callout warning" style="display:none;">
-    <p>You have selected to link this worker with the existing email account <strong><span id="reuse_email"></span></strong> associated with <strong><span id="linked_name"></span></strong>. This account will be assigned to the worker for accessing all OpenTable systems. This action cannot be undone.</p>
+    <p>You have decided to reuse the email address <strong><span id="reuse_email"></span></strong> associated with <strong><span id="linked_name"></span></strong>. This email address and username will be assigned to the worker for accessing all OpenTable systems. This action cannot be undone.</p>
 <!--     <p id="confirmation_options">
       <a id="confirm_linked_account" class="button warning" data-confirm>Confirm</a> <a class="clear_linked_employee button">Cancel</a>
     </p> -->

@@ -59,12 +59,15 @@ class EmpTransactionsController < ApplicationController
   def create
     @manager_entry = ManagerEntry.new(manager_entry_params)
     @emp_transaction = @manager_entry.emp_transaction
-    # emp_id = manager_entry_params[:employee_id]
-    # if emp_id
-    #   @employee = Employee.find emp_id if emp_id
-    # else
-    #   puts "idk"
-    # end
+
+    emp_id = manager_entry_params[:employee_id]
+    if emp_id.present?
+      @employee = Employee.find emp_id
+    else
+      @event = AdpEvent.find params[:event_id]
+      profiler = EmployeeProfile.new
+      @employee = profiler.new_employee(@event.json)
+    end
 
     authorize! :create, @manager_entry.emp_transaction
 
