@@ -1,32 +1,65 @@
+<!-- Linked account panel for onboarding forms with rehires or job changes -->
 <div class="callout">
-  <h4>Link OpenTable Accounts</h4>
-  <p class="help-text">This worker may already have an existing Active Directory account. Would you like us to try to link these accounts?</p>
-  <div class="switch">
-    <input class="switch-input" id="link-account" type="checkbox" name="manager_entry[link_email]"  data-toggle="find_email">
-    <label class="switch-paddle" for="link-account">
-      <span class="show-for-sr">Link Accounts</span>
-      <span class="switch-active" aria-hidden="true">Yes</span>
-      <span class="switch-inactive" aria-hidden="true">No</span>
-    </label>
+  <div class="row">
+    <h4>Rehire or Worker Type Change</h4>
+    <p>This worker is a rehire or their worker type is changing from contract to regular/regular to contract. Would you like us to use their previous email address and account name?</p>
   </div>
-  <div id="find_email" class="is-hidden" data-toggler="is-hidden">
-    <%= f.hidden_field :event_id, value: @event.id %>
-    <%= f.autocomplete_field :employee_email, autocomplete_email_employees_path, :id_element => "#employee_email", :update_elements => {}, :placeholder => "Search by OpenTable email" %>
+
+  <div class="row">
+    <!-- Toggle controls to hide or show account link options -->
+    <div class="switch large column small-2 medium-2 large-1">
+      <input id="link-account"
+             class="switch-input"
+             type="checkbox"
+             name="manager_entry[link_email]"
+             data-toggle="find_email">
+      <label class="switch-paddle" for="link-account">
+        <span class="show-for-sr">Link Accounts</span>
+        <span class="switch-active" aria-hidden="true">Yes</span>
+        <span class="switch-inactive" aria-hidden="true">No</span>
+      </label>
+    </div>
+    <!-- End toggle controls -->
+
+    <!-- Autocomplete employee email search -->
+    <div id="find_email"
+         class="column small-10 medium-10 large-11 is-hidden"
+         data-toggler="is-hidden">
+      <%= f.hidden_field :event_id, value: @event.id %>
+      <%= f.autocomplete_field :employee_email, autocomplete_email_employees_path, :id_element => "#employee_email", :update_elements => {}, :placeholder => "Search by OpenTable email" %>
+    </div>
+    <!-- End autocomplete email -->
   </div>
-  <div id="show_linked_employee" class="callout primary" style="display:none;">
-    <span id="linked_emp_fn"></span> <span id="linked_emp_ln"></span><br>
-    <span id="linked_emp_jt"></span><br>
-    Hire Date: <span id="linked_emp_hd"></span><br>
-    Termination Date: <span id="linked_emp_td"></span>
+
+  <!-- Display linked worker info after search -->
+  <div id="show_selected_employee" class="callout primary" style="display:none;">
     <p>
-    <fieldset>
-      <legend>Is this the correct account?</legend>
-      <input type="radio" name="link_email" id="use_account" value="true" required><label for="use_account">Yes</label>
-      <input type="radio" name="link_email" id="create_account" value="false"><label for="create_account">No</label>
-    </fieldset>
+      <strong><span id="linked_emp_fn"></span> <span id="linked_emp_ln"></span></strong><br>
+      <span id="linked_emp_jt"></span><br>
+      Email: <span id="linked_emp_email"></span><br>
+      Hire Date: <span id="linked_emp_hd"></span><br>
+      Termination Date: <span id="linked_emp_td"></span>
     </p>
+    <p><a href="" id="select_linked_account" class="button">Select Account</a>  <a href="" class="clear_linked_account button alert">Search Again</a></p>
   </div>
-  <div id="no_linked_employee" class="callout secondary" style="display:none;">
-    <span>A new email address and Active Directory account will be created for this employee.</span>
+  <!-- End display linked worker info -->
+
+  <!-- Help toggle and info -->
+  <div id="help-section">
+    <a class="help-text" id="link_to_help" data-toggle="help_link_account">Help, I can't find it!</a>
+    <div id="help_link_account" class="callout secondary is-hidden" data-toggler="is-hidden">
+      <p>Can't find the email address or worker you're looking for? If this worker left OpenTable before Mezzo's birthday (November 2016), we can't link their account right now. You can either choose to create a new account or, if they must have their old account, contact TechTable for assistance <strong>before</strong> submitting this form.</p>
+    </div>
   </div>
+  <!-- End help toggle and info -->
+
+  <!-- Final confirmation of linked worker -->
+  <div id="linked_employee" class="callout warning" style="display:none;">
+    <p>You have selected to link this worker with the existing email account <strong><span id="reuse_email"></span></strong> associated with <strong><span id="linked_name"></span></strong>. This account will be assigned to the worker for accessing all OpenTable systems. This action cannot be undone.</p>
+<!--     <p id="confirmation_options">
+      <a id="confirm_linked_account" class="button warning" data-confirm>Confirm</a> <a class="clear_linked_employee button">Cancel</a>
+    </p> -->
+  </div>
+  <!-- End final confirmation -->
 </div>
+<!-- End linked account panel -->
