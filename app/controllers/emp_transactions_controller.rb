@@ -2,6 +2,8 @@ class EmpTransactionsController < ApplicationController
 
   before_action :set_emp_transaction, only: [:show]
 
+  autocomplete :employee, :email, :full => true, :extra_data => [:first_name, :last_name, :hire_date, :termination_date]
+
   # GET /emp_transactions
   # GET /emp_transactions.json
   def index
@@ -15,16 +17,18 @@ class EmpTransactionsController < ApplicationController
   def show
     authorize! :show, EmpTransaction
 
-    emp_id = params[:emp_id]
+    @employee = @emp_transaction.employee
 
-    if @emp_transaction.kind == "Onboarding"
-      buddy_id = @emp_transaction.onboarding_infos.first.buddy_id
-    end
+    # emp_id = params[:emp_id]
 
-    mgr_id = @emp_transaction.user_id
-    @employee = Employee.find(emp_id)
-    @manager = User.find(mgr_id)
-    @buddy = Employee.find(buddy_id) if buddy_id
+    # if @emp_transaction.kind == "Onboarding"
+    #   buddy_id = @emp_transaction.onboarding_infos.first.buddy_id
+    # end
+
+    # mgr_id = @emp_transaction.user_id
+    # @employee = Employee.find(emp_id)
+    # @manager = User.find(mgr_id)
+    # @buddy = Employee.find(buddy_id) if buddy_id
   end
 
   # GET /emp_transactions/new
@@ -32,12 +36,20 @@ class EmpTransactionsController < ApplicationController
     @kind = params[:kind]
     @reason = params[:reason]
 
-    if params[:employee_id]
-      @employee = Employee.find params[:employee_id]
-    elsif params[:event_id]
+    @manager_entry = ManagerEntry.new(params)
+    @emp_transaction = @manager_entry.emp_transaction
+    @employee = @manager_entry.find_employee
+
+    # if params[:employee_id].present?
+    #   @employee = Employee.find params[:employee_id]
+    # elsif params[:event_id]
+    #   @event = AdpEvent.find params[:event_id]
+    #   # profiler = EmployeeProfile.new
+    #   # @employee = profiler.new_employee(@event.json)
+    # end
+
+    if params[:event_id].present?
       @event = AdpEvent.find params[:event_id]
-      profiler = EmployeeProfile.new
-      @employee = profiler.new_employee(@event.json)
     end
 
     if params[:user_emp_id]
@@ -48,33 +60,36 @@ class EmpTransactionsController < ApplicationController
 
     set_machine_bundles
 
-    @manager_entry = ManagerEntry.new
-    @emp_transaction = @manager_entry.emp_transaction
-
     authorize! :new, @manager_entry.emp_transaction
   end
 
   # POST /emp_transactions
   # POST /emp_transactions.json
   def create
+    linked_account_id = manager_entry_params[:linked_account_id]
+    emp_id = manager_entry_params[:employee_id]
+    event_id = manager_entry_params[:event_id]
+
+    # if emp_id.present?
+    #   @employee = Employee.find emp_id
+    # elsif linked_account_id.present? and event_id.present?
+    #   profiler = EmployeeProfile.new
+    #   @employee = profiler.update_employee(linked_account_id, event_id)
+    #   manager_entry_params[:employee_id] = @employee.id
+    #   puts @employee.id
+    #   puts manager_entry_params[:employee_id]
+    # end
+    # puts manager_entry_params
     @manager_entry = ManagerEntry.new(manager_entry_params)
     @emp_transaction = @manager_entry.emp_transaction
 
-    emp_id = manager_entry_params[:employee_id]
-    if emp_id.present?
-      @employee = Employee.find emp_id
-    else
-      @event = AdpEvent.find params[:event_id]
-      profiler = EmployeeProfile.new
-      @employee = profiler.new_employee(@event.json)
-    end
-
+    # authorize! :create, @employee
     authorize! :create, @manager_entry.emp_transaction
 
     respond_to do |format|
       if @manager_entry.save
         send_email
-        format.html { redirect_to emp_transaction_path(@emp_transaction, emp_id: @employee.id), notice: 'Success! TechTable will be notified with the details of your request.' }
+        format.html { redirect_to emp_transaction_path(@emp_transaction), notice: 'Success! TechTable will be notified with the details of your request.' }
         format.json { render :show, status: :created, location: @emp_transaction }
       else
         format.html { redirect_to new_emp_transaction_path(manager_entry_params) }
@@ -86,13 +101,13 @@ class EmpTransactionsController < ApplicationController
   private
 
     def send_email
-      if @emp_transaction.kind != "Offboarding"
-        if @emp_transaction.kind == "Onboarding"
-          TechTableMailer.onboard_instructions(@employee).deliver_now
-        else
-          TechTableMailer.permissions(@emp_transaction, @employee).deliver_now
-        end
-      end
+      # if @emp_transaction.kind != "Offboarding"
+      #   if @emp_transaction.kind == "Onboarding"
+      #     TechTableMailer.onboard_instructions(@employee).deliver_now
+      #   else
+      #     TechTableMailer.permissions(@emp_transaction, @employee).deliver_now
+      #   end
+      # end
     end
     # Use callbacks to share common setup or constraints between actions.
     def set_emp_transaction
@@ -123,7 +138,7 @@ class EmpTransactionsController < ApplicationController
         :transfer_google_docs_id,
         :notes,
         :event_id,
-        :employee_email,
+        :linked_account_id,
         :link_email
       ).tap do |allowed|
         allowed[:security_profile_ids] = params[:security_profile_ids]

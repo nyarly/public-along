@@ -27,7 +27,6 @@ $(document).ready(function(){
   showLinkedEmployee();
   selectLinkedAccount();
   clearLinkedAccount();
-  confirmLinkedAccount();
 });
 
 function toggleContract() {
@@ -45,24 +44,18 @@ function toggleContract() {
 }
 
 function showLinkedEmployee() {
-  $('#manager_entry_employee_email').bind('railsAutocomplete.select', function(event, data){
+  $('#manager_entry_linked_account_id').bind('railsAutocomplete.select', function(event, data){
     if (data.item.value == "no existing match") {
       $('#show_selected_employee').hide()
     } else {
       $('#show_selected_employee').show()
       date_options = { year: 'numeric', month: 'long', day: 'numeric' };
       hire_date = new Date(data.item.hire_date)
-      term_date = data.item.termination_date ? new Date(data.item.termination_date) : ""
-
+      console.log(data)
       $('#linked_emp_fn').text(data.item.first_name)
       $('#linked_emp_ln').text(data.item.last_name)
-      $('#linked_emp_jt').text(data.item.job_title.name)
       $('#linked_emp_email').text(data.item.value)
       $('#linked_emp_hd').text(hire_date.toLocaleDateString("en-US", date_options))
-
-      if (term_date != "") {
-        $('#linked_emp_td').text(term_date.toLocaleDateString("en-US", date_options))
-      }
     }
   });
 }
@@ -71,13 +64,13 @@ function selectLinkedAccount() {
   $('#select_linked_account').click(function(event) {
     event.preventDefault();
     $('#linked_employee').show();
-    email = $('#manager_entry_employee_email').val();
+    email = $('#manager_entry_linked_account_id').val();
     acct_name = $('#linked_emp_fn').text() + " " + $('#linked_emp_ln').text();
     $('#reuse_email').text(email);
     $('#linked_name').text(acct_name);
     $('#show_selected_employee').hide();
     $('#help-section').hide();
-    $("#manager_entry_employee_email").attr("disabled", true);
+    $('#manager_entry_linked_account_id').attr('disabled', true);
   })
 }
 
@@ -85,17 +78,9 @@ function clearLinkedAccount() {
   $('.clear_linked_account').click(function(event) {
     event.preventDefault();
     $('#show_selected_employee').hide();
-    $('#manager_entry_employee_email').val("");
+    $('#manager_entry_linked_account_id').val("");
     $('#linked_employee').hide();
     $("#manager_entry_employee_email").attr("disabled", false);
-  })
-}
-
-function confirmLinkedAccount() {
-  $('#confirm_linked_account').click(function(event) {
-    console.log("you did it!")
-    $('#confirmed_account').show();
-    $('#confirmation_options').hide();
   })
 }
 

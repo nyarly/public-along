@@ -45,17 +45,17 @@ class Employee < ActiveRecord::Base
 
   [:manager_id, :department, :worker_type, :location, :job_title, :company, :adp_assoc_oid].each do |attribute|
     define_method :"#{attribute}" do
-      if self.profiles.active.present?
-        self.profiles.active.send("#{attribute}")
-      else
+      # if self.profiles.where(profile_status: "Active").count == 1
+      #   self.profiles.active.send("#{attribute}")
+      # else
         self.profiles.last.send("#{attribute}")
-      end
+      # end
     end
   end
 
-    def employee_id
-      self.profiles.active.adp_employee_id if self.profiles.present?
-    end
+  def employee_id
+    has_active_profile? ? self.profiles.active.adp_employee_id : self.profiles.last.adp_employee_id
+  end
 
   def self.find_by_employee_id(value)
     profile = Profile.find_by(adp_employee_id: value)

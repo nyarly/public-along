@@ -3,7 +3,9 @@ require 'sidekiq/web'
 Rails.application.routes.draw do
   resources :worker_types
   resources :parent_orgs
-  resources :emp_transactions, :except => [:edit, :update, :destroy]
+  resources :emp_transactions, :except => [:edit, :update, :destroy] do
+    get :autocomplete_employee_email, :on => :collection
+  end
   resources :access_levels
   resources :applications
   resources :security_profiles

@@ -20,6 +20,10 @@ class Profile < ActiveRecord::Base
   belongs_to :location
   belongs_to :worker_type
 
-  scope :active, -> { find_by profile_status: 'Active' }
+  # scope :active, -> { find_by(profile_status: 'Active') }
   scope :expired, -> { where(profile_status: 'Expired') }
+
+  def self.active
+    self.profile_status == "Active"
+  end
 end

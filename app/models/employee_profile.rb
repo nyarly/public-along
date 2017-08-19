@@ -31,9 +31,38 @@ class EmployeeProfile
   attribute :worker_type_id, Integer
   attribute :profile_status, String
 
-  # def initialize(hash)
-  #   @employee = employee
-  # end
+  def update_employee(emp_id, event_id)
+    event = AdpEvent.find event_id
+    json = JSON.parse(event.json)
+    parser = AdpService::WorkerJsonParser.new
+    worker_json = json.dig("events", 0, "data", "output", "worker")
+    w_hash = parser.gen_worker_hash(worker_json)
+
+    employee = Employee.find emp_id
+    profile = employee.profiles.active
+
+    employee_attrs, profile_attrs = w_hash.partition{ |k,v| Employee.column_names.include?(k.to_s) }
+    employee.assign_attributes(employee_attrs.to_h)
+    profile.assign_attributes(profile_attrs.to_h)
+
+    if profile.changed?
+      old_profile = employee.profiles.active
+      old_profile.profile_status = "Expired"
+      old_profile.end_date = Date.today
+      new_profile = employee.profiles.build(profile_attrs.to_h)
+
+      if old_profile.save! and new_profile.save!
+        puts "saved"
+      else
+        puts "didn't save?"
+      end
+    end
+    puts employee.inspect
+    puts old_profile.inspect
+    puts new_profile.inspect
+    employee.save!
+    employee
+  end
 
   def process_employee(hash)
     employee = Employee.find_by_employee_id(hash[:adp_employee_id])
@@ -81,12 +110,12 @@ class EmployeeProfile
     json = JSON.parse(event_json)
     worker_json = json.dig("events", 0, "data", "output", "worker")
     worker_hash = parser.gen_worker_hash(worker_json)
-    puts worker_hash
     employee_attrs, profile_attrs = worker_hash.partition{ |k,v| Employee.column_names.include?(k.to_s) }
     employee = Employee.new(employee_attrs.to_h)
     profile = employee.profiles.build(profile_attrs.to_h)
     employee.status = "Pending"
-    employee
+    @employee = employee
+    @employee
   end
 
   # def new_profile
@@ -94,10 +123,8 @@ class EmployeeProfile
   # end
 
   def save
-    puts "stuff like that"
-    # ActiveRecord::Base.transaction do
-
-    # end
+    puts "calling save"
+    @employee.save!
   end
 
   def build_emp_delta(prof)
