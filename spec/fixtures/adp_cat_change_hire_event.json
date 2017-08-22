@@ -161,8 +161,8 @@
                   "itemID": "1734282698_11353",
                   "indicatorValue": true,
                   "nameCode": {
-                    "codeValue": "Category Change or Rehire?",
-                    "longName": "Category Change or Rehire?"
+                    "codeValue": "Is this a Worker Type Change or a Rehire?",
+                    "longName": "Is this a Worker Type Change or a Rehire?"
                   }
                 }
               ],

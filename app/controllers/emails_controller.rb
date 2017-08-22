@@ -16,7 +16,7 @@ class EmailsController < ApplicationController
 
   def send_now
     @employee = Employee.find(@email.employee_id)
-    @manager = Employee.find_by(employee_id: @employee.manager_id)
+    @manager = Employee.find_by_employee_id(@employee.manager_id)
     ManagerMailer.permissions(@manager, @employee, @email.email_option).deliver_now
   end
 

@@ -19,16 +19,14 @@ class EmpTransactionsController < ApplicationController
 
     @employee = @emp_transaction.employee
 
-    # emp_id = params[:emp_id]
-
-    # if @emp_transaction.kind == "Onboarding"
-    #   buddy_id = @emp_transaction.onboarding_infos.first.buddy_id
-    # end
+    if @emp_transaction.kind == "Onboarding"
+      buddy_id = @emp_transaction.onboarding_infos.first.buddy_id
+      @buddy = Employee.find(buddy_id) if buddy_id
+    end
 
     # mgr_id = @emp_transaction.user_id
     # @employee = Employee.find(emp_id)
     # @manager = User.find(mgr_id)
-    # @buddy = Employee.find(buddy_id) if buddy_id
   end
 
   # GET /emp_transactions/new
@@ -101,13 +99,13 @@ class EmpTransactionsController < ApplicationController
   private
 
     def send_email
-      # if @emp_transaction.kind != "Offboarding"
-      #   if @emp_transaction.kind == "Onboarding"
-      #     TechTableMailer.onboard_instructions(@employee).deliver_now
-      #   else
-      #     TechTableMailer.permissions(@emp_transaction, @employee).deliver_now
-      #   end
-      # end
+      if @emp_transaction.kind != "Offboarding"
+        if @emp_transaction.kind == "Onboarding"
+          TechTableMailer.onboard_instructions(@employee).deliver_now
+        else
+          TechTableMailer.permissions(@emp_transaction, @employee).deliver_now
+        end
+      end
     end
     # Use callbacks to share common setup or constraints between actions.
     def set_emp_transaction

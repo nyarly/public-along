@@ -36,24 +36,18 @@ module AdpService
 
       unless str == nil
         json = JSON.parse(str)
-        parser = AdpService::WorkerJsonParser.new
-
+        parser = WorkerJsonParser.new
         workers_to_update = []
         adp_only = []
         workers = parser.sort_workers(json)
 
         workers.each do |w|
-          e = Employee.find_by_employee_id(w[:employee_id])
+          e = Employee.find_by_employee_id(w[:adp_employee_id])
           if e.present?
-            e.assign_attributes(w)
-            delta = build_emp_delta(e)
-            send_email = send_email?(e)
-            if e.save
-              Employee.check_manager(e.manager_id)
-              workers_to_update << e
-              delta.save if delta.present?
-              EmployeeWorker.perform_async("Security Access", e.id) if send_email == true
-            end
+            profiler = EmployeeProfile.new
+            e = profiler.process_employee(w)
+            Employee.check_manager(e.manager_id)
+            workers_to_update << e
           else
             adp_only << "{ first_name: #{w[:first_name]}, last_name: #{w[:last_name]}, employee_id: #{w[:employee_id]})"
           end
@@ -85,7 +79,8 @@ module AdpService
           end
 
           if w_hash.present?
-            e.assign_attributes(w_hash.except(:status))
+            profiler = EmployeeProfile.new
+            e = profiler.process_employee(w_hash)
           else
             TechTableMailer.alert_email("Cannot get updated ADP info for new contract hire #{e.cn}, employee id: #{e.employee_id}.\nPlease contact the developer to help diagnose the problem.").deliver_now
           end
@@ -114,13 +109,9 @@ module AdpService
         json = get_worker_json(e, as_of_date)
 
         block.call(e, json, as_of_date)
-        delta = build_emp_delta(e)
 
-        if e.changed? && e.save
-          Employee.check_manager(e.manager_id)
-          delta.save if delta.present?
-          update_emps << e
-        end
+        Employee.check_manager(e.manager_id)
+        update_emps << e
       end
 
       update_ads(update_emps)

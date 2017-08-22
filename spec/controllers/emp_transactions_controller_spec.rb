@@ -43,7 +43,8 @@ RSpec.describe EmpTransactionsController, type: :controller do
   let(:invalid_attributes) {
     {
       user_id: "12345",
-      kind: "Something else"
+      kind: "Something else",
+      employee_id: employee.id
     }
   }
 
@@ -100,7 +101,7 @@ RSpec.describe EmpTransactionsController, type: :controller do
       it "redirects to the created emp_transaction" do
         allow(TechTableMailer).to receive_message_chain(:permissions, :deliver_now)
         post :create, {:manager_entry => valid_attributes}
-        expect(response).to redirect_to(emp_transaction_path(EmpTransaction.last, emp_id: employee.id))
+        expect(response).to redirect_to(emp_transaction_path(EmpTransaction.last))
       end
 
       it "sends an email to Tech Table" do
@@ -117,7 +118,7 @@ RSpec.describe EmpTransactionsController, type: :controller do
 
       it "re-renders the 'new' template" do
         post :create, {:manager_entry => invalid_attributes}
-        expect(response).to redirect_to("http://test.host/emp_transactions/new?kind=Something+else&user_id=12345")
+        expect(response).to redirect_to("http://test.host/emp_transactions/new?employee_id=#{employee.id}&kind=Something+else&user_id=12345")
       end
 
       it "does not send an email to Tech Table" do

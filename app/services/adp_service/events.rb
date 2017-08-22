@@ -42,7 +42,7 @@ module AdpService
       kind =  json.dig("events", 0, "eventNameCode", "codeValue")
       case kind
       when "worker.hire"
-        if process_hire(json)
+        if process_hire(json, adp_event)
           adp_event.update_attributes(status: "Processed")
         end
       when "worker.terminate"
@@ -54,48 +54,40 @@ module AdpService
           adp_event.update_attributes(status: "Processed")
         end
       when "worker.rehire"
-        if process_rehire(json)
+        if process_rehire(json, adp_event)
           adp_event.update_attributes(status: "Processed")
         end
       end
       del_event(adp_event.msg_id)
     end
 
-    def process_hire(json)
-      parser = WorkerJsonParser.new
+    def process_hire(json, event)
       worker_json = json.dig("events", 0, "data", "output", "worker")
       custom_indicators = json.dig("events", 0, "data", "output", "worker", "customFieldGroup", "indicatorFields")
 
       if custom_indicators.present?
-        rehire_json = custom_indicators.find { |f| f["nameCode"]["codeValue"] == "Category Change or Rehire?"}
+        rehire_json = custom_indicators.find { |f| f["nameCode"]["codeValue"] == "Is this a Worker Type Change or a Rehire?"}
         rehire = rehire_json.try(:dig, "indicatorValue")
       end
 
       if rehire.present? and rehire == true
-        puts "yes"
+        # TODO: send onboard form w/ event
+        return false
+      else
+        profiler = EmployeeProfile.new
+        employee = profiler.new_employee(json)
+        Employee.check_manager(employee.manager_id)
+        ads = ActiveDirectoryService.new
+        ads.create_disabled_accounts([employee])
+        add_basic_security_profile(employee)
+        return true
       end
-
-      w_hash = parser.gen_worker_hash(worker_json)
-      w_hash[:status] = "Pending" # put worker as "Pending" rather than "Active"
-      # e = Employee.new(w_hash)
-      profiler = EmployeeProfile.new
-      e = profiler.process_employee(w_hash)
-      Employee.check_manager(e.manager_id)
-      e
-      # if e.save
-      #   ads = ActiveDirectoryService.new
-      #   ads.create_disabled_accounts([e])
-      #   add_basic_security_profile(e)
-      #   return true
-      # else
-      #   return false
-      # end
     end
 
     def process_term(json)
       worker_id = json.dig("events", 0, "data", "output", "worker", "workerID", "idValue").downcase
       term_date = json.dig("events", 0, "data", "output", "worker", "workerDates", "terminationDate")
-      e = Employee.find_by(employee_id: worker_id)
+      e = Employee.find_by_employee_id(worker_id)
       if e.present? && !job_change?(e, term_date)
         e.assign_attributes(termination_date: term_date)
         delta = build_emp_delta(e)
@@ -117,7 +109,7 @@ module AdpService
     def process_leave(json)
       worker_id = json.dig("events", 0, "data", "output", "worker", "workerID", "idValue").downcase
       leave_date = json.dig("events", 0, "data", "output", "worker", "workerStatus", "effectiveDate")
-      e = Employee.find_by(employee_id: worker_id)
+      e = Employee.find_by_employee_id(worker_id)
 
       if e.present?
         e.assign_attributes(leave_start_date: leave_date)
@@ -134,27 +126,25 @@ module AdpService
       end
     end
 
-    def process_rehire(json)
+    def process_rehire(json, event)
       worker_id = json.dig("events", 0, "data", "output", "worker", "workerID", "idValue").downcase
-      e = Employee.find_by(employee_id: worker_id)
+      e = Employee.find_by_employee_id(worker_id)
 
       if e.present?
-        parser = WorkerJsonParser.new
-        worker_json = json.dig("events", 0, "data", "output", "worker")
-        w_hash = parser.gen_worker_hash(worker_json)
-        e.assign_attributes(w_hash.except(:status))
-        e.status = "Pending"
-        delta = build_emp_delta(e)
+        puts "employee is present"
+        profiler = EmployeeProfile.new
+        employee = profiler.update_employee(e.id, event.id)
+        employee.status = "Pending"
+        employee.save!
 
-        if e.save
-          Employee.check_manager(e.manager_id)
-          delta.save if delta.present?
-          ads = ActiveDirectoryService.new
-          ads.update([e])
-          EmployeeWorker.perform_async("Onboarding", e.id)
-        end
+        Employee.check_manager(e.manager_id)
+        ads = ActiveDirectoryService.new
+        ads.update([e])
+        EmployeeWorker.perform_async("Onboarding", e.id)
+        return true
       else
-        process_hire(json)
+        # TODO: send onboard form w/ event
+        return false
       end
     end
 

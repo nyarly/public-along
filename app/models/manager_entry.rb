@@ -66,7 +66,7 @@ class ManagerEntry
       end
     else
       # no employee or event
-      puts "wtf"
+      emp_transaction.errors.add(:base, :employee_blank, message: "Employee can not be blank. Please revisit email link to refresh page.")
     end
     employee
   end
@@ -81,6 +81,7 @@ class ManagerEntry
   end
 
   def build_security_profiles
+    security_profile_ids = []
     # The security access form automatically understands old department security profiles to be unchecked
     # It will automatically add those to revoke_profile_ids
     old_profile_ids = @employee.active_security_profiles.pluck(:id)
@@ -161,7 +162,6 @@ class ManagerEntry
 
     rescue ActiveRecord::RecordInvalid => e
       @errors = emp_transaction.errors
-      puts @errors.inspect
       errors.blank?
   end
 

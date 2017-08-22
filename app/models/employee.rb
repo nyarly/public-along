@@ -45,28 +45,29 @@ class Employee < ActiveRecord::Base
 
   [:manager_id, :department, :worker_type, :location, :job_title, :company, :adp_assoc_oid].each do |attribute|
     define_method :"#{attribute}" do
-      # if self.profiles.where(profile_status: "Active").count == 1
-      #   self.profiles.active.send("#{attribute}")
-      # else
-        self.profiles.last.send("#{attribute}")
-      # end
+      active_profile.send("#{attribute}")
     end
   end
 
+  def active_profile
+    @active_profile ||= self.profiles.active
+  end
+
   def employee_id
-    has_active_profile? ? self.profiles.active.adp_employee_id : self.profiles.last.adp_employee_id
+    active_profile.send(:adp_employee_id)
   end
 
   def self.find_by_employee_id(value)
-    profile = Profile.find_by(adp_employee_id: value)
-    if profile.present?
-      profile.employee
+    p = Profile.includes(:employee).find_by(adp_employee_id: value)
+    if p.present?
+      p.employee
+    else
+      nil
     end
   end
 
   def downcase_unique_attrs
     self.email = email.downcase if email.present?
-    # self.employee_id = employee_id.downcase if employee_id.present?
   end
 
   def strip_whitespace
@@ -282,6 +283,7 @@ class Employee < ActiveRecord::Base
 
   def self.check_manager(emp_id)
     emp = Employee.find_by_employee_id(emp_id)
+
     if emp.present? && !Employee.managers.include?(emp)
       sp = SecurityProfile.find_by(name: "Basic Manager")
 

@@ -110,7 +110,10 @@ describe AdpService::Workers, type: :service do
   end
 
   describe "sync_workers" do
-    let!(:employee) { FactoryGirl.create(:employee, employee_id: "101455")}
+    let!(:employee) { FactoryGirl.create(:employee)}
+    let!(:profile) { FactoryGirl.create(:profile,
+      employee: employee,
+      adp_employee_id: "101455")}
     let(:json) { JSON.parse(File.read(Rails.root.to_s+"/spec/fixtures/adp_workers.json")) }
     let(:parser) { double(AdpService::WorkerJsonParser) }
     let(:sorted) {
@@ -119,16 +122,23 @@ describe AdpService::Workers, type: :service do
         adp_assoc_oid: "G32B8JAXA1W398Z8",
         first_name: "Sally Jesse",
         last_name: "Allansberg",
-        employee_id: "101455",
+        adp_employee_id: "101455",
         hire_date: "2013-08-05",
         contract_end_date: nil,
         company: "OpenTable Inc.",
         manager_id: "101734",
         office_phone: "(212) 555-4411",
-        personal_mobile_phone: "(212) 555-4411"
+        personal_mobile_phone: "(212) 555-4411",
+        department: FactoryGirl.create(:department),
+        location: FactoryGirl.create(:location),
+        worker_type: FactoryGirl.create(:worker_type),
+        job_title: FactoryGirl.create(:job_title),
+        start_date: Date.today,
+        profile_status: "Active"
       }]
     }
-    let(:emp_delta) { double(EmpDelta) }
+    # let(:emp_delta) { EmpDelta.new }
+    let(:ep) { EmployeeProfile.new }
 
     before :each do
       expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers?$top=25&$skip=25").and_return(uri)
@@ -148,8 +158,10 @@ describe AdpService::Workers, type: :service do
       expect(JSON).to receive(:parse).with(json)
       expect(AdpService::WorkerJsonParser).to receive(:new).and_return(parser)
       expect(parser).to receive(:sort_workers).and_return(sorted)
-      expect(EmpDelta).to receive(:new).and_return(emp_delta)
-      expect(emp_delta).to receive(:save)
+      expect(EmployeeProfile).to receive(:new).and_return(ep)
+      # expect(ep).to receive(:process_employee).and_return(employee)
+      # expect(EmpDelta).to receive(:new).and_return(emp_delta)
+      # expect(emp_delta).to receive(:save)
       expect(ActiveDirectoryService).to receive(:new).and_return(ads)
       expect(ads).to receive(:update).with([employee])
 
@@ -160,7 +172,10 @@ describe AdpService::Workers, type: :service do
     end
 
     it "should make indicated manager if not already a manager" do
-      manager_to_be = FactoryGirl.create(:employee, employee_id: "101734")
+      manager_to_be = FactoryGirl.create(:employee)
+      profile = FactoryGirl.create(:profile,
+        employee: manager_to_be,
+        adp_employee_id: "101734")
       sp = FactoryGirl.create(:security_profile, name: "Basic Manager")
 
       expect(response).to receive(:body).and_return(json)
@@ -171,8 +186,6 @@ describe AdpService::Workers, type: :service do
       expect(JSON).to receive(:parse).with(json)
       expect(AdpService::WorkerJsonParser).to receive(:new).and_return(parser)
       expect(parser).to receive(:sort_workers).and_return(sorted)
-      expect(EmpDelta).to receive(:new).and_return(emp_delta)
-      expect(emp_delta).to receive(:save)
       expect(EmployeeWorker).not_to receive(:perform_async)
       expect(ActiveDirectoryService).to receive(:new).twice.and_return(ads)
       expect(ads).to receive(:update).with([employee])
@@ -183,7 +196,10 @@ describe AdpService::Workers, type: :service do
     end
 
     it "should do nothing if manager already a manager" do
-      manager = FactoryGirl.create(:employee, employee_id: "100449")
+      manager = FactoryGirl.create(:employee)
+      m_prof = FactoryGirl.create(:profile,
+        employee: manager,
+        adp_employee_id: "100449")
       sp = FactoryGirl.create(:security_profile, name: "Basic Manager")
       emp_transaction = FactoryGirl.create(:emp_transaction,
         employee_id: manager.id)
@@ -199,8 +215,6 @@ describe AdpService::Workers, type: :service do
       expect(JSON).to receive(:parse).with(json)
       expect(AdpService::WorkerJsonParser).to receive(:new).and_return(parser)
       expect(parser).to receive(:sort_workers).and_return(sorted)
-      expect(EmpDelta).to receive(:new).and_return(emp_delta)
-      expect(emp_delta).to receive(:save)
       expect(EmployeeWorker).not_to receive(:perform_async)
       expect(ActiveDirectoryService).to receive(:new).and_return(ads)
       expect(ads).to receive(:update).with([employee])
@@ -217,14 +231,19 @@ describe AdpService::Workers, type: :service do
         adp_assoc_oid: "G32B8JAXA1W398Z8",
         first_name: "Sally Jesse",
         last_name: "Allansberg",
-        employee_id: "101455",
+        adp_employee_id: "101455",
         hire_date: "2013-08-05",
         contract_end_date: nil,
         company: "OpenTable Inc.",
-        department_id: new_department.id,
         manager_id: "101734",
         office_phone: "(212) 555-4411",
-        personal_mobile_phone: "(212) 555-4411"
+        personal_mobile_phone: "(212) 555-4411",
+        department: new_department,
+        location: FactoryGirl.create(:location),
+        worker_type: FactoryGirl.create(:worker_type),
+        job_title: FactoryGirl.create(:job_title),
+        start_date: Date.today,
+        profile_status: "Active"
       }]
 
       expect(response).to receive(:body).and_return(json)
@@ -235,14 +254,12 @@ describe AdpService::Workers, type: :service do
       expect(JSON).to receive(:parse).with(json)
       expect(AdpService::WorkerJsonParser).to receive(:new).and_return(parser)
       expect(parser).to receive(:sort_workers).and_return(sorted)
-      expect(EmpDelta).to receive(:new).and_return(emp_delta)
-      expect(emp_delta).to receive(:save)
       expect(EmployeeWorker).to receive(:perform_async)
       expect(ActiveDirectoryService).to receive(:new).and_return(ads)
       expect(ads).to receive(:update).with([employee])
 
       adp.sync_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
-      expect(employee.reload.department_id).to eq(new_department.id)
+      expect(employee.reload.department).to eq(new_department)
     end
 
     it "should not send an email if it did recently" do
@@ -252,14 +269,19 @@ describe AdpService::Workers, type: :service do
         adp_assoc_oid: "G32B8JAXA1W398Z8",
         first_name: "Sally Jesse",
         last_name: "Allansberg",
-        employee_id: "101455",
+        adp_employee_id: "101455",
         hire_date: "2013-08-05",
         contract_end_date: nil,
         company: "OpenTable Inc.",
-        job_title_id: new_job_title.id,
         manager_id: "101734",
         office_phone: "(212) 555-4411",
-        personal_mobile_phone: "(212) 555-4411"
+        personal_mobile_phone: "(212) 555-4411",
+        department: FactoryGirl.create(:department),
+        location: FactoryGirl.create(:location),
+        worker_type: FactoryGirl.create(:worker_type),
+        job_title: new_job_title,
+        start_date: Date.today,
+        profile_status: "Active"
       }]
 
       previous_change = FactoryGirl.create(:emp_delta,
@@ -276,21 +298,37 @@ describe AdpService::Workers, type: :service do
       expect(JSON).to receive(:parse).with(json)
       expect(AdpService::WorkerJsonParser).to receive(:new).and_return(parser)
       expect(parser).to receive(:sort_workers).and_return(sorted)
-      expect(EmpDelta).to receive(:new).and_return(emp_delta)
-      expect(emp_delta).to receive(:save)
       expect(ActiveDirectoryService).to receive(:new).and_return(ads)
       expect(ads).to receive(:update).with([employee])
       expect(EmployeeWorker).not_to receive(:perform_async)
 
       adp.sync_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
-      expect(employee.reload.job_title_id).to eq(new_job_title.id)
+      expect(employee.reload.job_title.id).to eq(new_job_title.id)
     end
   end
 
   describe "check leave return" do
-    let!(:leave_emp) {FactoryGirl.create(:employee, status: "Inactive", adp_assoc_oid: "123456", leave_return_date: nil) }
-    let!(:leave_cancel_emp) {FactoryGirl.create(:employee, status: "Inactive", adp_assoc_oid: "123457", leave_return_date: Date.today + 2.days) }
-    let!(:do_nothing_emp) {FactoryGirl.create(:employee, status: "Inactive", adp_assoc_oid: "123458", leave_return_date: nil) }
+    let!(:leave_emp) {FactoryGirl.create(:employee,
+      status: "Inactive",
+      leave_return_date: nil) }
+    let!(:profile) { FactoryGirl.create(:profile,
+      employee: leave_emp,
+      profile_status: "Active",
+      adp_assoc_oid: "123456") }
+    let!(:leave_cancel_emp) {FactoryGirl.create(:employee,
+      status: "Inactive",
+      leave_return_date: Date.today + 2.days) }
+    let!(:lce_profile) {FactoryGirl.create(:profile,
+      employee: leave_cancel_emp,
+      profile_status: "Active",
+      adp_assoc_oid: "123457") }
+    let!(:do_nothing_emp) {FactoryGirl.create(:employee,
+      status: "Inactive",
+      leave_return_date: nil) }
+    let!(:dn_profile) { FactoryGirl.create(:profile,
+      employee: do_nothing_emp,
+      profile_status: "Active",
+      adp_assoc_oid: "123458")}
     let!(:future_date) { 1.day.from_now.change(:usec => 0) }
 
     before :each do
@@ -355,11 +393,13 @@ describe AdpService::Workers, type: :service do
 
   describe "check new hire changes" do
     let!(:new_hire) {FactoryGirl.create(:employee,
-      adp_assoc_oid: "G3NQ5754ETA080N",
-      employee_id: "100015",
-      status: "Pending",
       first_name: "Robert",
-      hire_date: Date.today + 2.weeks
+      hire_date: Date.today + 2.weeks,
+      status: "Pending") }
+    let!(:profile) { FactoryGirl.create(:profile,
+      employee: new_hire,
+      adp_assoc_oid: "G3NQ5754ETA080N",
+      adp_employee_id: "100015"
     )}
     let!(:future_date) { 1.year.from_now.change(:usec => 0) }
     let!(:regular_w_type) { FactoryGirl.create(:worker_type, code: "FTR")}
@@ -433,13 +473,14 @@ describe AdpService::Workers, type: :service do
       check_contract_end_date = contract_end_date - 1.day
 
       let!(:new_hire) {FactoryGirl.create(:employee,
-        adp_assoc_oid: "TESTOID",
-        employee_id: "100015",
         status: "Pending",
         first_name: "Robert",
         contract_end_date: contract_end_date,
-        hire_date: Date.today + 2.weeks
-      )}
+        hire_date: Date.today + 2.weeks)}
+      let!(:profile) { FactoryGirl.create(:profile,
+        employee: new_hire,
+        adp_employee_id: "100015",
+        adp_assoc_oid: "TESTOID")}
 
       before :each do
         # return worker json with status "Terminated" on first try
@@ -479,15 +520,22 @@ describe AdpService::Workers, type: :service do
 
       check_date = 1.year.from_now.change(:usec => 0)
 
-      let!(:new_manager) { FactoryGirl.create(:employee, employee_id: "100345") }
-      let!(:basic_manager_sec_prof) { FactoryGirl.create(:security_profile, name: "Basic Manager") }
+      let!(:new_manager) { FactoryGirl.create(:employee)}
+      let!(:manager_prof) { FactoryGirl.create(:profile,
+        employee: new_manager,
+        profile_status: "Active",
+        adp_employee_id: "100345") }
+      let!(:basic_manager_sec_prof) { FactoryGirl.create(:security_profile,
+        name: "Basic Manager") }
       let!(:new_hire) { FactoryGirl.create(:employee,
-        adp_assoc_oid: "TESTOID",
-        employee_id: "123456",
         status: "Pending",
-        manager_id: new_manager.employee_id,
-        hire_date: Date.today + 4.days
-      )}
+        hire_date: Date.today + 4.days)}
+      let!(:profile) { FactoryGirl.create(:profile,
+        employee: new_hire,
+        profile_status: "Active",
+        adp_employee_id: "123456",
+        adp_assoc_oid: "TESTOID",
+        manager_id: "100345")}
 
       before :each do
         expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers/TESTOID?asOfDate=#{check_date.strftime('%m')}%2F#{check_date.strftime('%d')}%2F#{check_date.strftime('%Y')}").and_return(uri)

@@ -20,10 +20,13 @@ class Profile < ActiveRecord::Base
   belongs_to :location
   belongs_to :worker_type
 
-  # scope :active, -> { find_by(profile_status: 'Active') }
+  scope :active, -> { where(profile_status: 'Active').first }
   scope :expired, -> { where(profile_status: 'Expired') }
 
-  def self.active
-    self.profile_status == "Active"
-  end
+  # def self.active
+  #   self.where(profile_status == "Active").first
+  # end
+
+  # self.employee_id = employee_id.downcase if employee_id.present?
+
 end
