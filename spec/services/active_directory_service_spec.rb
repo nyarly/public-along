@@ -6,6 +6,8 @@ describe ActiveDirectoryService, type: :service do
 
   let(:department) { Department.find_or_create_by(:name => "People & Culture-HR & Total Rewards") }
   let(:location) { Location.find_or_create_by(:name => "San Francisco Headquarters") }
+      let!(:job_title) { FactoryGirl.create(:job_title) }
+    let!(:new_job_title) { FactoryGirl.create(:job_title) }
   let(:manager) { FactoryGirl.create(:employee) }
   let!(:manager_profile) { FactoryGirl.create(:profile,
     :with_valid_ou,
@@ -172,31 +174,21 @@ describe ActiveDirectoryService, type: :service do
   end
 
   context "update attributes" do
+    let!(:worker_type) { FactoryGirl.create(:worker_type) }
     let!(:employee) { FactoryGirl.create(:employee,
       :first_name => "Jeffrey",
       :last_name => "Lebowski",
-      :sam_account_name => "jlebowski",
-    )}
-    let!(:job_title) { FactoryGirl.create(:job_title) }
+      :office_phone => "123-456-7890",
+      :sam_account_name => "jlebowski")}
     let!(:profile) { FactoryGirl.create(:profile,
       employee: employee,
-      status: "Active",
+      profile_status: "Active",
       manager_id: manager.employee_id,
-      department: Department.find_by(:name => "People & Culture-HR & Total Rewards"),
-      location: Location.find_by(:name => "San Francisco Headquarters"),
+      department: department,
+      location: location,
       job_title: job_title,
-      adp_employee_id: "12345678"
-      )}
-    let(:new_job_title) { FactoryGirl.create(:job_title) }
-    let!(:new_profile) { FactoryGirl.create(:profile,
-      employee: employee,
-      status: "Pending",
-      manager_id: manager.employee_id,
-      department: profile.department,
-      location: profile.location,
-      job_title: new_job_title,
-      adp_employee_id: "12345678"
-      )}
+      adp_employee_id: "12345678")}
+
     let(:ldap_entry) { Net::LDAP::Entry.new(employee.dn) }
 
     before :each do
@@ -209,27 +201,33 @@ describe ActiveDirectoryService, type: :service do
       ldap_entry[:manager] = manager.dn
       ldap_entry[:co] = "US"
       ldap_entry[:accountExpires] = "9223372036854775807"
-      ldap_entry[:title] = employee.job_title.name,
-      ldap_entry[:description] = employee.job_title.name,
-      ldap_entry[:employeeType] = employee.worker_type.name,
-      ldap_entry[:physicalDeliveryOfficeName] = employee.location.name
-      ldap_entry[:department] = employee.department.name
-      ldap_entry[:employeeID] = employee.employee_id
-      ldap_entry[:mobile] = employee.personal_mobile_phone
-      ldap_entry[:telephoneNumber] = employee.office_phone
+      ldap_entry[:title] = job_title.name,
+      ldap_entry[:description] = job_title.name,
+      ldap_entry[:employeeType] = worker_type.name,
+      ldap_entry[:physicalDeliveryOfficeName] = "San Francisco Headquarters"
+      ldap_entry[:department] = "People & Culture-HR & Total Rewards"
+      ldap_entry[:employeeID] = "12345678"
+      ldap_entry[:mobile] = "123-456-7890"
+      ldap_entry[:telephoneNumber] = "123-456-7890"
       ldap_entry[:thumbnailPhoto] = employee.decode_img_code
 
       allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
     end
 
     it "should update changed attributes" do
-      employee.first_name = "The Dude"
-      employee.office_phone = "555-555-5555"
-
-      profile.status = "Expired"
-      new_profile.status = "Active"
-      profile.save!
-      new_profile.save!
+      employee = FactoryGirl.create(:employee,
+        :first_name => "The Dude",
+        :last_name => "Lebowski",
+        :office_phone => "555-555-5555",
+        :sam_account_name => "jlebowski")
+      profile = FactoryGirl.create(:profile,
+        employee: employee,
+        profile_status: "Active",
+        manager_id: manager.employee_id,
+        department: department,
+        location: location,
+        job_title: new_job_title,
+        adp_employee_id: "12345678")
 
       allow(ldap).to receive(:search).and_return([ldap_entry])
       expect(ldap).to_not receive(:replace_attribute).with(employee.dn, :cn, "The Dude Lebowski")
@@ -249,21 +247,22 @@ describe ActiveDirectoryService, type: :service do
     end
 
     it "should update dn if country changes" do
-      new_profile = FactoryGirl.create(:profile,
+      new_location = FactoryGirl.create(:location,
+        name: location.name,
+        country: "GB")
+      employee = FactoryGirl.create(:employee,
+        :first_name => "Jeffrey",
+        :last_name => "Lebowski",
+        :office_phone => "123-456-7890",
+        :sam_account_name => "jlebowski")
+      profile = FactoryGirl.create(:profile,
         employee: employee,
-        status: "Pending",
+        profile_status: "Active",
         manager_id: manager.employee_id,
         department: department,
+        location: new_location,
         job_title: job_title,
-        adp_employee_id: "12345678",
-        location: FactoryGirl.create(:location,
-          name: location.name,
-          country: "GB"))
-
-      profile.status = "Expired"
-      new_profile.status = "Active"
-      profile.save!
-      new_profile.save!
+        adp_employee_id: "12345678")
 
       allow(ldap).to receive(:search).and_return([ldap_entry])
 
@@ -280,19 +279,19 @@ describe ActiveDirectoryService, type: :service do
 
     it "should update dn if department changes" do
       new_department = Department.find_by(:name => "Customer Support")
-      new_profile = FactoryGirl.create(:profile,
+      employee = FactoryGirl.create(:employee,
+        :first_name => "Jeffrey",
+        :last_name => "Lebowski",
+        :office_phone => "123-456-7890",
+        :sam_account_name => "jlebowski")
+      profile = FactoryGirl.create(:profile,
         employee: employee,
-        status: "Pending",
+        profile_status: "Active",
         manager_id: manager.employee_id,
         department: new_department,
         job_title: job_title,
         adp_employee_id: "12345678",
         location: location)
-
-      profile.status = "Expired"
-      new_profile.status = "Active"
-      profile.save!
-      new_profile.save!
 
       allow(ldap).to receive(:search).and_return([ldap_entry])
 

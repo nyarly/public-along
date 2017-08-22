@@ -1,8 +1,11 @@
 require 'rails_helper'
 
 RSpec.describe EmployeeWorker, type: :worker do
-  let!(:employee) { FactoryGirl.create(:employee, manager_id: manager.employee_id) }
-  let!(:manager) { FactoryGirl.create(:employee) }
+  let!(:manager) { FactoryGirl.create(:regular_employee) }
+  let!(:employee) { FactoryGirl.create(:employee) }
+  let!(:profile) { FactoryGirl.create(:profile,
+    employee: employee,
+    manager_id: manager.employee_id)}
   let(:worker) { EmployeeWorker.new }
   let(:mailer) { double(ManagerMailer) }
 
@@ -16,7 +19,7 @@ RSpec.describe EmployeeWorker, type: :worker do
     allow(ManagerMailer).to receive(:permissions).and_return(mailer)
     allow(mailer).to receive(:deliver_now)
 
-    expect(Employee).to receive(:find_by).with(employee_id: employee.manager_id).and_call_original
+    expect(Employee).to receive(:find_by_employee_id).with(employee.manager_id).and_call_original
 
     worker.perform("Onboarding", employee.id)
   end

@@ -131,9 +131,8 @@ module AdpService
       e = Employee.find_by_employee_id(worker_id)
 
       if e.present?
-        puts "employee is present"
         profiler = EmployeeProfile.new
-        employee = profiler.update_employee(e.id, event.id)
+        employee = profiler.link_accounts(employee.id, event.id)
         employee.status = "Pending"
         employee.save!
 

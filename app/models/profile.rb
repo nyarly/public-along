@@ -22,6 +22,7 @@ class Profile < ActiveRecord::Base
 
   scope :active, -> { where(profile_status: 'Active').first }
   scope :expired, -> { where(profile_status: 'Expired') }
+  scope :active_regular, -> { joins(:worker_type).where(:profile_status => "Active", :worker_types => {:kind => "Regular"})}
 
   # def self.active
   #   self.where(profile_status == "Active").first

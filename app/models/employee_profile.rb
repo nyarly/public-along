@@ -34,40 +34,36 @@ class EmployeeProfile
   attribute :start_date, DateTime
   attribute :end_date, DateTime
 
-  def update_employee(employee_id, event_id)
-    event = AdpEvent.find event_id
-    json = JSON.parse(event.json)
-
-    parser = AdpService::WorkerJsonParser.new
-    worker_json = json.dig("events", 0, "data", "output", "worker")
-    w_hash = parser.gen_worker_hash(worker_json)
-
+  def link_accounts(employee_id, event_id)
     employee = Employee.find employee_id
-    last_profile = employee.profiles.active.last || employee.profiles.last
+    event = AdpEvent.find event_id
+    w_hash = parse_event(event.json)
 
-    employee_attrs, profile_attrs = w_hash.partition{ |k,v| Employee.column_names.include?(k.to_s) }
-    employee.assign_attributes(employee_attrs.to_h)
-    last_profile.assign_attributes(profile_attrs.to_h)
+    employee = update_employee(employee, w_hash)
 
-    delta = build_emp_delta(last_profile)
+    # employee_attrs, profile_attrs = w_hash.partition{ |k,v| Employee.column_names.include?(k.to_s) }
+    # employee.assign_attributes(employee_attrs.to_h)
+    # last_profile.assign_attributes(profile_attrs.to_h)
 
-    if last_profile.changed?
-      last_profile.profile_status = "Expired"
-      last_profile.end_date = Date.today
-      new_profile = employee.profiles.build(profile_attrs.to_h)
+    # delta = build_emp_delta(last_profile)
 
-      if last_profile.save! and new_profile.save!
-        puts "saved"
-      else
-        puts "didn't save?"
-      end
-    end
+    # if last_profile.changed?
+    #   last_profile.profile_status = "Expired"
+    #   last_profile.end_date = Date.today
+    #   new_profile = employee.profiles.build(profile_attrs.to_h)
 
-    if delta.present?
-      delta.save!
-    end
+    #   if last_profile.save! and new_profile.save!
+    #     puts "saved"
+    #   else
+    #     puts "didn't save?"
+    #   end
+    # end
 
-    employee.save!
+    # if delta.present?
+    #   delta.save!
+    # end
+
+    # employee.save!
     employee
   end
 
@@ -89,53 +85,55 @@ class EmployeeProfile
 #     end
 #   end
 
-  def process_employee(emp_hash)
-    employee = Employee.find_by_employee_id(emp_hash[:adp_employee_id])
-    if employee.present?
-      profile = employee.profiles.active
-      employee_attrs, profile_attrs = emp_hash.partition{ |k,v| Employee.column_names.include?(k.to_s) }
-      employee.assign_attributes(employee_attrs.to_h)
-      profile.assign_attributes(profile_attrs.to_h)
+  def update_employee(employee, employee_hash)
+    profile = employee.profiles.active
 
-      delta = build_emp_delta(profile)
+    employee_attrs, profile_attrs = employee_hash.partition{ |k,v| Employee.column_names.include?(k.to_s) }
+    employee.assign_attributes(employee_attrs.to_h)
+    profile.assign_attributes(profile_attrs.to_h)
 
-      if profile.changed?
-        old_profile = employee.profiles.active
-        old_profile.profile_status = "Expired"
-        old_profile.end_date = Date.today
-        new_profile = employee.profiles.build(profile_attrs.to_h)
-        puts old_profile.inspect
-        puts new_profile.inspect
-        if old_profile.save! and new_profile.save!
-          puts "saved"
-        else
-          puts "didn't save?"
-        end
+    delta = build_emp_delta(profile)
+
+    if profile.changed?
+      old_profile = employee.profiles.active
+      old_profile.profile_status = "Expired"
+      old_profile.end_date = Date.today
+      new_profile = employee.profiles.build(profile_attrs.to_h)
+      if old_profile.save! and new_profile.save!
+        puts "saved"
+      else
+        puts "didn't save?"
       end
+    end
 
-      employee.save!
-      if delta.present?
-        puts delta.inspect
-        delta.save!
-      end
+    employee.save!
+    if delta.present?
+      delta.save!
     end
     employee
   end
 
   def new_employee(event_json)
-    parser = AdpService::WorkerJsonParser.new
-    # json = JSON.parse(event_json)
-    worker_json = event_json.dig("events", 0, "data", "output", "worker")
-    worker_hash = parser.gen_worker_hash(worker_json)
-    employee_attrs, profile_attrs = worker_hash.partition{ |k,v| Employee.column_names.include?(k.to_s) }
-    employee = Employee.new(employee_attrs.to_h)
+    employee = build_employee(event_json)
     employee.status = "Pending"
     employee.save!
+    employee
+  end
+
+  def parse_event(event)
+    json_str = event.json
+    event_json = JSON.parse(json_str)
+    parser = AdpService::WorkerJsonParser.new
+    worker_json = event_json.dig("events", 0, "data", "output", "worker")
+    worker_hash = parser.gen_worker_hash(worker_json)
+    worker_hash
+  end
+
+  def build_employee(event_json)
+    worker_hash = parse_event(event_json)
+    employee_attrs, profile_attrs = worker_hash.partition{ |k,v| Employee.column_names.include?(k.to_s) }
+    employee = Employee.new(employee_attrs.to_h)
     profile = employee.profiles.build(profile_attrs.to_h)
-    profile.save!
-    puts employee.inspect
-    puts profile.inspect
-    # profile.save!
     employee
   end
 

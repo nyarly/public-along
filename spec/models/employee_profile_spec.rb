@@ -13,7 +13,7 @@ RSpec.describe EmployeeProfile do
   let(:job_title) { FactoryGirl.create(:job_title,
     code: "SADEN",
     name: "Sales Associate")}
-  let!(:employee) { FactoryGirl.create(:employee,
+  let(:employee) { FactoryGirl.create(:employee,
     first_name: "Jane",
     last_name: "Goodall",
     status: "Active",
@@ -42,7 +42,7 @@ RSpec.describe EmployeeProfile do
       employee.save
       w_hash = parser.gen_worker_hash(json["workers"][0])
       profiler = EmployeeProfile.new
-      profiler.process_employee(w_hash)
+      profiler.update_employee(employee, w_hash)
 
       expect(employee.reload.last_name).to eq("Goodall")
       expect(employee.emp_deltas.last.before).to eq({"last_name"=>"Good All"})
@@ -54,7 +54,7 @@ RSpec.describe EmployeeProfile do
       employee.save
       w_hash = parser.gen_worker_hash(json["workers"][0])
       profiler = EmployeeProfile.new
-      profiler.process_employee(w_hash)
+      profiler.update_employee(employee, w_hash)
 
       expect(Employee.count).to eq(1)
       expect(employee.profiles.count).to eq(1)
@@ -65,7 +65,7 @@ RSpec.describe EmployeeProfile do
     it "should not make any changes" do
       w_hash = parser.gen_worker_hash(json["workers"][0])
       profiler = EmployeeProfile.new
-      profiler.process_employee(w_hash)
+      profiler.update_employee(employee, w_hash)
 
       expect(Employee.count).to eq(1)
       expect(employee.worker_type).to eq(worker_type)
@@ -91,10 +91,10 @@ RSpec.describe EmployeeProfile do
       start_date: Date.new(2016, 6, 1),
       worker_type: old_worker_type )}
 
-    it "should create a new profile when given a new worker type" do
+    it "should create a new profile when going from contract to full-time" do
       w_hash = parser.gen_worker_hash(json["workers"][0])
       profiler = EmployeeProfile.new
-      profiler.process_employee(w_hash)
+      profiler.update_employee(employee, w_hash)
 
       expect(Employee.count).to eq(1)
       expect(employee.profiles.count).to eq(2)
@@ -105,8 +105,8 @@ RSpec.describe EmployeeProfile do
       expect(employee.profiles.expired[0].profile_status).to eq("Expired")
       expect(employee.profiles.expired[0].worker_type).to eq(old_worker_type)
       expect(employee.profiles.expired[0].end_date).to eq(Date.today)
-      expect(employee.emp_deltas.last.before).to eq({})
-      expect(employee.emp_deltas.last.after).to eq({})
+      expect(employee.emp_deltas.last.before).to eq({"start_date"=>"2016-06-01 00:00:00 UTC", "worker_type_id"=>"#{old_worker_type.id}"})
+      expect(employee.emp_deltas.last.after).to eq({"start_date"=>"2017-01-01 00:00:00 UTC", "worker_type_id"=>"#{worker_type.id}"})
     end
   end
 
@@ -132,7 +132,7 @@ RSpec.describe EmployeeProfile do
       employee.save
       w_hash = parser.gen_worker_hash(json["workers"][0])
       profiler = EmployeeProfile.new
-      profiler.process_employee(w_hash)
+      profiler.update_employee(employee, w_hash)
 
       expect(Employee.count).to eq(1)
       expect(employee.profiles.count).to eq(2)
@@ -157,7 +157,7 @@ RSpec.describe EmployeeProfile do
       worker_json = hire_json.dig("events", 0, "data", "output", "worker")
       w_hash = parser.gen_worker_hash(worker_json)
       profiler = EmployeeProfile.new
-      profiler.process_employee(w_hash)
+      profiler.new_employee(w_hash)
       new_employee = Employee.reorder(:created_at).last
 
       expect(Employee.count).to eq(2)

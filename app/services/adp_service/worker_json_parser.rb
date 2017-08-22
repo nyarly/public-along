@@ -17,16 +17,18 @@ module AdpService
     def gen_worker_hash(w)
       status = w["workerStatus"]["statusCode"]["codeValue"]
       adp_assoc_oid = w["associateOID"]
+      adp_employee_id = w["workerID"]["idValue"].downcase
       first_name = w["person"]["legalName"]["nickName"].present? ? w["person"]["legalName"]["nickName"] : w["person"]["legalName"]["givenName"]
       last_name = find_last_name(w)
-      employee_id = w["workerID"]["idValue"].downcase
       personal_mobile_phone = find_mobile(w["person"])
       office_phone = find_office_phone(w["businessCommunication"])
 
-      work_assignment = find_work_assignment(w)
-
-      hire_date = work_assignment["hireDate"]
+      hire_date = w["workerDates"]["originalHireDate"]
       worker_end_date = find_worker_end_date(w)
+
+      work_assignment = find_work_assignment(w)
+      start_date = work_assignment["actualStartDate"]
+      end_date = work_assignment["terminationDate"].present? if work_assignment["terminationDate"].present?
 
       biz_unit = work_assignment["homeOrganizationalUnits"].find { |ou| ou["typeCode"]["codeValue"] == "Business Unit"}
       company = find_biz_unit(biz_unit)
@@ -40,9 +42,6 @@ module AdpService
 
       dept_str = work_assignment["homeOrganizationalUnits"].find { |ou| ou["typeCode"]["codeValue"] == "Department"}
       dept = find_dept(dept_str)
-
-      start_date = work_assignment["actualStartDate"]
-      end_date = work_assignment["terminationDate"].present? if work_assignment["terminationDate"].present?
 
       home_address_1 = w.dig("person","legalAddress","lineOne")
       home_address_2 = w.dig("person","legalAddress","lineTwo")
@@ -62,7 +61,7 @@ module AdpService
         start_date: start_date,
         end_date: end_date,
         adp_assoc_oid: adp_assoc_oid,
-        adp_employee_id: employee_id,
+        adp_employee_id: adp_employee_id,
         company: company,
         department_id: dept.id,
         job_title_id: job_title.id,

@@ -151,37 +151,49 @@ describe SabaService, type: :service do
     let(:loc) { FactoryGirl.create(:location)}
     let(:dept) { FactoryGirl.create(:department)}
     let!(:emp1) {FactoryGirl.create(:employee,
-                                    status: "Active",
-                                    email: "test1@opentable.com",
-                                    job_title_id: job_title.id,
-                                    worker_type_id: contractor_type.id,
-                                    location_id: loc.id,
-                                    department_id: dept.id,
-                                    company: "OpenTable, Inc.")}
+      status: "Active",
+      email: "test1@opentable.com")}
+    let!(:profile_1) { FactoryGirl.create(:profile,
+      employee: emp1,
+      profile_status: "Active",
+      job_title_id: job_title.id,
+      worker_type_id: contractor_type.id,
+      location_id: loc.id,
+      department_id: dept.id,
+      company: "OpenTable, Inc.")}
     let!(:emp2) {FactoryGirl.create(:employee,
-                                    status: "Inactive",
-                                    email: "test2@opentable.com",
-                                    job_title_id: job_title.id,
-                                    worker_type_id: reg_type.id,
-                                    location_id: loc.id,
-                                    department_id: dept.id,
-                                    company: "OpenTable, Inc.")}
+      status: "Inactive",
+      email: "test2@opentable.com")}
+    let!(:profile_2) { FactoryGirl.create(:profile,
+      employee: emp2,
+      profile_status: "Active",
+      job_title_id: job_title.id,
+      worker_type_id: reg_type.id,
+      location_id: loc.id,
+      department_id: dept.id,
+      company: "OpenTable, Inc.")}
     let!(:emp3) {FactoryGirl.create(:employee,
-                                    status: "Terminated",
-                                    email: "test3@opentable.com",
-                                    job_title_id: job_title.id,
-                                    worker_type_id: reg_type.id,
-                                    location_id: loc.id,
-                                    department_id: dept.id,
-                                    company: "OpenTable, Inc.")}
+      status: "Terminated",
+      email: "test3@opentable.com")}
+    let!(:profile_3) { FactoryGirl.create(:profile,
+      employee: emp3,
+      profile_status: "Active",
+      job_title_id: job_title.id,
+      worker_type_id: reg_type.id,
+      location_id: loc.id,
+      department_id: dept.id,
+      company: "OpenTable, Inc.")}
     let!(:emp4) {FactoryGirl.create(:employee,
-                                    status: "Pending",
-                                    email: "test4@opentable.com",
-                                    job_title_id: job_title.id,
-                                    worker_type_id: reg_type.id,
-                                    location_id: loc.id,
-                                    department_id: dept.id,
-                                    company: "OpenTable, Inc.")}
+      status: "Pending",
+      email: "test4@opentable.com")}
+    let!(:profile_4) { FactoryGirl.create(:profile,
+      employee: emp4,
+      profile_status: "Active",
+      job_title_id: job_title.id,
+      worker_type_id: reg_type.id,
+      location_id: loc.id,
+      department_id: dept.id,
+      company: "OpenTable, Inc.")}
     let(:person_csv) {
       <<-EOS.strip_heredoc
       PERSON_NO|STATUS|MANAGER|PERSON_TYPE|HIRED_ON|TERMINATED_ON|JOB_TYPE|SECURITY_DOMAIN|RATE|LOCATION|GENDER|HOME_DOMAIN|LOCALE|TIMEZONE|COMPANY|FNAME|LNAME|EMAIL|USERNAME|JOB_TITLE|HOME_COMPANY|CUSTOM0

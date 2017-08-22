@@ -30,20 +30,31 @@ describe BetterworksService, type: :service do
     let(:temp_worker_type) { FactoryGirl.create(:worker_type,
       code: "FTT",
       kind: "Temporary") }
+    let(:contractor_worker_type) { FactoryGirl.create(:worker_type,
+      code: "CONT",
+      kind: "Contractor") }
 
     it "should scope only regular employees" do
-      ftr_emp = FactoryGirl.create(:employee,
-        worker_type: ftr_worker_type,
-        status: "Active",
+      ftr_emp = FactoryGirl.create(:regular_employee,
         hire_date: 1.year.ago)
+      old_ftr_prof = FactoryGirl.create(:profile,
+        employee: ftr_emp,
+        profile_status: "Expired",
+        worker_type: contractor_worker_type)
       ptr_emp = FactoryGirl.create(:employee,
+        status: "Active",
+        hire_date: 1.year.ago)
+      ptr_prf = FactoryGirl.create(:profile,
+        employee: ptr_emp,
         worker_type: ptr_worker_type,
-        status: "Active",
-        hire_date: 1.year.ago)
+        profile_status: "Active")
       temp = FactoryGirl.create(:employee,
-        worker_type: temp_worker_type,
         status: "Active",
         hire_date: 1.year.ago)
+      temp_prf = FactoryGirl.create(:profile,
+        employee: temp,
+        worker_type: temp_worker_type,
+        profile_status: "Active")
 
       expect(service.betterworks_users.count).to eq(2)
       expect(service.betterworks_users).to include(ftr_emp)
@@ -52,12 +63,9 @@ describe BetterworksService, type: :service do
     end
 
     it "should not include employees who have not started" do
-      ftr_emp = FactoryGirl.create(:employee,
-        worker_type: ftr_worker_type,
-        status: "Active",
+      ftr_emp = FactoryGirl.create(:regular_employee,
         hire_date: 1.year.ago)
-      ftr_new_emp = FactoryGirl.create(:employee,
-        worker_type: ftr_worker_type,
+      ftr_new_emp = FactoryGirl.create(:regular_employee,
         status: "Pending",
         hire_date: Date.today + 2.weeks)
 
@@ -67,12 +75,10 @@ describe BetterworksService, type: :service do
     end
 
     it "should not include old terminated employees" do
-      ftr_emp = FactoryGirl.create(:employee,
-        worker_type: ftr_worker_type,
+      ftr_emp = FactoryGirl.create(:regular_employee,
         status: "Active",
         hire_date: 1.year.ago)
-      ftr_termed_emp = FactoryGirl.create(:employee,
-        worker_type: ftr_worker_type,
+      ftr_termed_emp = FactoryGirl.create(:regular_employee,
         status: "Terminated",
         hire_date: 1.year.ago,
         termination_date: Date.new(2017, 5, 4))
@@ -83,8 +89,7 @@ describe BetterworksService, type: :service do
     end
 
     it "should include terminated workers after the product launch" do
-      scoped_term = FactoryGirl.create(:employee,
-        worker_type: ftr_worker_type,
+      scoped_term = FactoryGirl.create(:regular_employee,
         hire_date: 1.year.ago,
         termination_date: Date.new(2017, 7, 25))
 
@@ -93,11 +98,14 @@ describe BetterworksService, type: :service do
     end
 
     it "should include workers on leave" do
-      leave = FactoryGirl.create(:employee,
-        worker_type: ftr_worker_type,
+      leave = FactoryGirl.create(:regular_employee,
         hire_date: 1.year.ago,
         leave_start_date: 1.month.ago,
         status: "Inactive")
+      leave_prof = FactoryGirl.create(:profile,
+        employee: leave,
+        profile_status: "Active",
+        worker_type: ftr_worker_type)
 
       expect(service.betterworks_users).to include(leave)
     end
@@ -119,38 +127,46 @@ describe BetterworksService, type: :service do
       email: "hgolightly@example.com",
       first_name: "Holly",
       last_name: "Golightly",
-      employee_id: "123A",
-      department: department,
-      job_title: job_title,
       termination_date: nil,
       hire_date: 1.month.ago,
-      status: "Active",
+      status: "Active")}
+    let!(:emp_prof) { FactoryGirl.create(:profile,
+      employee: emp,
+      profile_status: "Active",
+      adp_employee_id: "123A",
+      department: department,
+      job_title: job_title,
       worker_type: ftr_worker_type,
       manager_id: nil )}
     let!(:term_emp) { FactoryGirl.create(:employee,
       email: "fparson@example.com",
       first_name: "Fred",
       last_name: "Parson",
-      employee_id: "123B",
+      hire_date: 1.year.ago,
+      termination_date: Date.new(2017, 7, 24))}
+    let!(:term_emp_prof) { FactoryGirl.create(:profile,
+      employee: term_emp,
+      profile_status: "Active",
+      adp_employee_id: "123B",
       department: department,
       job_title: job_title,
-      hire_date: 1.year.ago,
       worker_type: ftr_worker_type,
-      manager_id: emp.employee_id,
-      termination_date: Date.new(2017, 7, 24)
-      )}
+      manager_id: emp.employee_id)}
     let!(:leave_emp) { FactoryGirl.create(:employee,
       email: "dwallace@example.com",
       first_name: "David",
       last_name: "Wallace",
-      employee_id: "123C",
-      department: department,
-      job_title: job_title,
       hire_date: 1.year.ago,
       status: "Inactive",
-      worker_type: ptr_worker_type,
-      manager_id: emp.employee_id,
       leave_start_date: 1.month.ago)}
+    let!(:leave_emp_prof) { FactoryGirl.create(:profile,
+      employee: leave_emp,
+      profile_status: "Active",
+      adp_employee_id: "123C",
+      department: department,
+      job_title: job_title,
+      worker_type: ptr_worker_type,
+      manager_id: emp.employee_id)}
 
     let(:filepath) { Rails.root.to_s+"/tmp/betterworks/OT_Betterworks_users_#{DateTime.now.strftime('%Y%m%d')}.csv" }
     let(:csv) {
@@ -158,7 +174,7 @@ describe BetterworksService, type: :service do
       email,employee_id,first_name,last_name,department_name,title,location,deactivation_date,on_leave,manager_id,manager_email
       #{emp.email},#{emp.employee_id},#{emp.first_name},#{emp.last_name},#{emp.department.name},#{emp.job_title.name},#{emp.location.name},,false,"",""
       #{term_emp.email},#{term_emp.employee_id},#{term_emp.first_name},#{term_emp.last_name},#{term_emp.department.name},#{term_emp.job_title.name},#{term_emp.location.name},#{DateTime.now.strftime('%m/%d/%Y')},false,#{term_emp.manager_id},#{emp.email}
-      #{leave_emp.email},#{leave_emp.employee_id},#{leave_emp.first_name},#{leave_emp.last_name},#{leave_emp.department.name},#{leave_emp.job_title.name},#{emp.location.name},,true,#{leave_emp.manager_id},#{emp.email}
+      #{leave_emp.email},#{leave_emp.employee_id},#{leave_emp.first_name},#{leave_emp.last_name},#{leave_emp.department.name},#{leave_emp.job_title.name},#{leave_emp.location.name},,true,#{leave_emp.manager_id},#{emp.email}
       EOS
     }
 

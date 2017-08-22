@@ -64,7 +64,7 @@ RSpec.describe TechTableMailer, type: :mailer do
       email: "manager@opentable.com") }
     let(:employee) { FactoryGirl.create(:employee,
       termination_date: 2.days.from_now) }
-    let(:profile) { FactoryGirl.create(:profile,
+    let!(:profile) { FactoryGirl.create(:profile,
       employee: employee,
       manager_id: manager.employee_id) }
     let!(:email) { TechTableMailer.offboard_status(employee, results).deliver_now }

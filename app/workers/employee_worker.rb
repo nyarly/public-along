@@ -3,7 +3,7 @@ class EmployeeWorker
 
   def perform(action, employee_id)
     @employee = Employee.find(employee_id)
-    @manager = Employee.find_by(employee_id: @employee.manager_id)
+    @manager = Employee.find_by_employee_id(@employee.manager_id)
 
     @mailer = ManagerMailer.permissions(@manager, @employee, action) if @manager.present?
     @mailer.deliver_now if @mailer.present?

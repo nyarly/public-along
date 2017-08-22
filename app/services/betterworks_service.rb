@@ -13,7 +13,7 @@ class BetterworksService
 
     user_group = Employee.where("termination_date >= ? OR termination_date IS NULL", launch_date)
     current_users = user_group.where("hire_date <= ?", Date.today)
-    current_users.joins(:worker_type).where(:worker_types => {:kind => "Regular"}).to_a
+    current_users.joins(:profiles).merge(Profile.active_regular).to_a
   end
 
   # betterworks recommends the following columns:

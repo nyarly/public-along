@@ -5,44 +5,58 @@ describe AuditService, type: :service do
   let(:audit_service) { AuditService.new }
   let(:adp_service) { double(AdpService::Base) }
   let(:ad_service) { double(ActiveDirectoryService) }
-  let(:worker_type) { FactoryGirl.create(:worker_type)}
 
   let!(:manager) { FactoryGirl.create(:employee) }
-  let!(:regular_employee) { FactoryGirl.create(:employee,
+  let!(:manager_prof) { FactoryGirl.create(:profile,
+    employee: manager)}
+  let!(:regular_employee) { FactoryGirl.create(:regular_employee)}
+  let!(:profile) { FactoryGirl.create(:profile,
+    employee: regular_employee,
     manager_id: manager.employee_id,
-    status: "Active",
-    worker_type_id: worker_type.id)}
+    profile_status: "Active")}
   let!(:regular_termination) { FactoryGirl.create(:employee,
     first_name: "Diane",
     last_name: "Sawyer",
-    sam_account_name: "dsawyer",
-    manager_id: manager.employee_id,
     status: "Terminated",
     termination_date: 1.week.ago,
-    worker_type_id: worker_type.id)}
+    sam_account_name: "dsawyer")}
+  let!(:reg_term_prof) { FactoryGirl.create(:profile,
+    employee: regular_termination,
+    manager_id: manager.employee_id,
+    profile_status: "Active")}
   let!(:missed_deactivation) { FactoryGirl.create(:employee,
     first_name: "Tom",
     last_name: "Brokaw",
     sam_account_name: "tbrowkow",
-    manager_id: manager.employee_id,
     status: "Terminated",
-    termination_date: 3.days.ago,
-    worker_type_id: worker_type.id)}
+    termination_date: 3.days.ago)}
+  let!(:md_profile) { FactoryGirl.create(:profile,
+    employee: missed_deactivation,
+    profile_status: "Active",
+    manager_id: manager.employee_id)}
   let!(:missed_offboard) { FactoryGirl.create(:employee,
-    manager_id: manager.employee_id,
     status: "Active",
-    termination_date: 3.days.ago,
-    worker_type_id: worker_type.id)}
+    termination_date: 3.days.ago)}
+  let!(:m_o_profile) { FactoryGirl.create(:profile,
+    employee: missed_offboard,
+    manager_id: manager.employee_id,
+    profile_status: "Active")}
   let!(:missed_termination) { FactoryGirl.create(:employee,
-    manager_id: manager.employee_id,
     status: "Active",
-    updated_at: 3.days.ago,
-    worker_type_id: worker_type.id)}
+    termination_date: nil,
+    updated_at: 3.days.ago)}
+  let!(:mt_profile) { FactoryGirl.create(:profile,
+    employee: missed_termination,
+    manager_id: manager.employee_id,
+    profile_status: "Active")}
   let!(:missed_contract_end) { FactoryGirl.create(:employee,
-    manager_id: manager.employee_id,
     status: "Active",
-    worker_type_id: worker_type.id,
     contract_end_date: 1.week.ago)}
+  let!(:mc_profile) { FactoryGirl.create(:profile,
+    employee: missed_contract_end,
+    manager_id: manager.employee_id,
+    profile_status: "Active",
+    )}
   let!(:terminated_worker_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_termed_worker.json")}
 
   before :each do

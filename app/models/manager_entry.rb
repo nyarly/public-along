@@ -43,13 +43,12 @@ class ManagerEntry
 
     # employee transaction for rehire or job change
     elsif event_id.present?
-      event = AdpEvent.find event_id
       profiler = EmployeeProfile.new
 
       # if linking hire or rehire event to existing employee record
       if link_email == "on"
         if linked_account_id.present?
-          employee = profiler.update_employee(linked_account_id, event_id)
+          employee = profiler.link_accounts(linked_account_id, event_id)
         else
           emp_transaction.errors.add(:base, :employee_blank, message: "You didn't chose an email to reuse. Did you mean to create a new email? If so, please select 'no' in the Rehire or Worker Type Change.")
         end
@@ -57,12 +56,11 @@ class ManagerEntry
       # if rehire or job change, but wish to have new record/email
       elsif link_email == "off"
         employee = profiler.new_employee(event.json)
-        employee.save!
         employee
       else
 
         # for new emp transactions before form filled out
-        employee = profiler.new_employee(event.json)
+        employee = profiler.build_employee(event.json)
       end
     else
       # no employee or event
