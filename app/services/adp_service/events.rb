@@ -66,7 +66,7 @@ module AdpService
       custom_indicators = json.dig("events", 0, "data", "output", "worker", "customFieldGroup", "indicatorFields")
 
       if custom_indicators.present?
-        rehire_json = custom_indicators.find { |f| f["nameCode"]["codeValue"] == "Is this a Worker Type Change or a Rehire?"}
+        rehire_json = custom_indicators.find { |f| f["nameCode"]["codeValue"] == "Is this a Worker Type Change?"}
         rehire = rehire_json.try(:dig, "indicatorValue")
       end
 
@@ -75,7 +75,7 @@ module AdpService
         return false
       else
         profiler = EmployeeProfile.new
-        employee = profiler.new_employee(json)
+        employee = profiler.new_employee(event)
         Employee.check_manager(employee.manager_id)
         ads = ActiveDirectoryService.new
         ads.create_disabled_accounts([employee])
@@ -127,19 +127,20 @@ module AdpService
     end
 
     def process_rehire(json, event)
+      rehire_event = event
       worker_id = json.dig("events", 0, "data", "output", "worker", "workerID", "idValue").downcase
       e = Employee.find_by_employee_id(worker_id)
 
       if e.present?
         profiler = EmployeeProfile.new
-        employee = profiler.link_accounts(employee.id, event.id)
-        employee.status = "Pending"
-        employee.save!
+        updated_account = profiler.link_accounts(e.id, rehire_event.id)
+        updated_account.status = "Pending"
+        updated_account.save!
 
-        Employee.check_manager(e.manager_id)
+        Employee.check_manager(updated_account.manager_id)
         ads = ActiveDirectoryService.new
-        ads.update([e])
-        EmployeeWorker.perform_async("Onboarding", e.id)
+        ads.update([updated_account])
+        EmployeeWorker.perform_async("Onboarding", updated_account.id)
         return true
       else
         # TODO: send onboard form w/ event

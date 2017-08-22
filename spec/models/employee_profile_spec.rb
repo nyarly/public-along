@@ -150,14 +150,15 @@ RSpec.describe EmployeeProfile do
   end
 
   context "new employee" do
-    let(:hire_json) { JSON.parse(File.read(Rails.root.to_s+"/spec/fixtures/adp_hire_event.json")) }
+    let(:hire_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_hire_event.json") }
     let!(:new_hire_wt) { FactoryGirl.create(:worker_type, code: "OLFR")}
 
     it "should create a new employee record" do
-      worker_json = hire_json.dig("events", 0, "data", "output", "worker")
-      w_hash = parser.gen_worker_hash(worker_json)
+      event = FactoryGirl.create(:adp_event,
+        status: "New",
+        json: hire_json)
       profiler = EmployeeProfile.new
-      profiler.new_employee(w_hash)
+      profiler.new_employee(event)
       new_employee = Employee.reorder(:created_at).last
 
       expect(Employee.count).to eq(2)

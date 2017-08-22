@@ -45,9 +45,6 @@ describe AdpService::Events, type: :service do
   end
 
   describe "events" do
-
-    # let!(:worker_type_1) { FactoryGirl.create(:worker_type, name: "Contractor", code: "CONT", kind: "Contractor") }
-    # let!(:worker_type_2) { FactoryGirl.create(:worker_type, name: "Regular Full-Time", code: "OLFR", kind: "Regular") }
     let(:ads) { double(ActiveDirectoryService) }
 
     before :each do
@@ -286,7 +283,7 @@ describe AdpService::Events, type: :service do
 
         event = FactoryGirl.create(:adp_event,
           status: "New",
-          json: hire_json
+          json: contract_hire_json
         )
 
         expect(Employee).to receive(:check_manager)
@@ -321,6 +318,8 @@ describe AdpService::Events, type: :service do
       let!(:cont_worker_type) { FactoryGirl.create(:worker_type, code: "CONT") }
       let!(:acw_wt) { FactoryGirl.create(:worker_type, code: "ACW") }
       let(:parsed_json) { JSON.parse(cat_change_json) }
+      let!(:regular_sp) { FactoryGirl.create(:security_profile,
+        name: "Basic Regular Worker Profile") }
 
       it "should not create a new employee" do
         adp = AdpService::Events.new
@@ -443,7 +442,7 @@ describe AdpService::Events, type: :service do
         let!(:profile) { FactoryGirl.create(:profile,
           employee: rehired_emp,
           adp_employee_id: "123456",
-          profile_status: "Expired")}
+          profile_status: "Active")}
 
         it "finds and updates account with new position" do
           expect(ActiveDirectoryService).to receive(:new).and_return(ads)
@@ -456,7 +455,6 @@ describe AdpService::Events, type: :service do
             status: "New",
             json: rehire_json
           )
-
           expect{
             adp.process_rehire(parsed_json, event)
           }.to_not change{Employee.count}

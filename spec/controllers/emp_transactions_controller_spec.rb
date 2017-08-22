@@ -20,12 +20,13 @@ require 'rails_helper'
 
 RSpec.describe EmpTransactionsController, type: :controller do
 
+  let!(:employee) { FactoryGirl.create(:regular_employee) }
   let!(:emp_transaction) { FactoryGirl.create(:emp_transaction,
+    employee: employee,
     user: user) }
   let!(:emp_mach_bundle) { FactoryGirl.create(:emp_mach_bundle,
     emp_transaction: emp_transaction) }
   let!(:machine_bundle)  { FactoryGirl.create(:machine_bundle) }
-  let!(:employee) { FactoryGirl.create(:regular_employee) }
   let!(:buddy) { FactoryGirl.create(:regular_employee) }
   let!(:user) { FactoryGirl.create(:user,
     :role_names => ["Admin"],

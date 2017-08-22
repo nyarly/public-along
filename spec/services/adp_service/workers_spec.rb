@@ -114,7 +114,7 @@ describe AdpService::Workers, type: :service do
     let!(:profile) { FactoryGirl.create(:profile,
       employee: employee,
       adp_employee_id: "101455")}
-    let(:json) { JSON.parse(File.read(Rails.root.to_s+"/spec/fixtures/adp_workers.json")) }
+    let(:json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_workers.json") }
     let(:parser) { double(AdpService::WorkerJsonParser) }
     let(:sorted) {
       [{
@@ -137,8 +137,6 @@ describe AdpService::Workers, type: :service do
         profile_status: "Active"
       }]
     }
-    # let(:emp_delta) { EmpDelta.new }
-    let(:ep) { EmployeeProfile.new }
 
     before :each do
       expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers?$top=25&$skip=25").and_return(uri)
@@ -155,20 +153,17 @@ describe AdpService::Workers, type: :service do
       adp = AdpService::Workers.new
       adp.token = "a-token-value"
 
-      expect(JSON).to receive(:parse).with(json)
       expect(AdpService::WorkerJsonParser).to receive(:new).and_return(parser)
       expect(parser).to receive(:sort_workers).and_return(sorted)
-      expect(EmployeeProfile).to receive(:new).and_return(ep)
-      # expect(ep).to receive(:process_employee).and_return(employee)
-      # expect(EmpDelta).to receive(:new).and_return(emp_delta)
-      # expect(emp_delta).to receive(:save)
+      expect(Employee).to receive(:check_manager)
       expect(ActiveDirectoryService).to receive(:new).and_return(ads)
       expect(ads).to receive(:update).with([employee])
-
+      expect(EmployeeWorker).to receive(:perform_async)
       allow(Employee).to receive(:check_manager)
 
       adp.sync_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
       expect(employee.reload.first_name).to eq("Sally Jesse")
+      expect(employee.reload.emp_deltas.count).to eq(1)
     end
 
     it "should make indicated manager if not already a manager" do
@@ -183,10 +178,8 @@ describe AdpService::Workers, type: :service do
       adp = AdpService::Workers.new
       adp.token = "a-token-value"
 
-      expect(JSON).to receive(:parse).with(json)
       expect(AdpService::WorkerJsonParser).to receive(:new).and_return(parser)
       expect(parser).to receive(:sort_workers).and_return(sorted)
-      expect(EmployeeWorker).not_to receive(:perform_async)
       expect(ActiveDirectoryService).to receive(:new).twice.and_return(ads)
       expect(ads).to receive(:update).with([employee])
 
@@ -212,10 +205,8 @@ describe AdpService::Workers, type: :service do
       adp = AdpService::Workers.new
       adp.token = "a-token-value"
 
-      expect(JSON).to receive(:parse).with(json)
       expect(AdpService::WorkerJsonParser).to receive(:new).and_return(parser)
       expect(parser).to receive(:sort_workers).and_return(sorted)
-      expect(EmployeeWorker).not_to receive(:perform_async)
       expect(ActiveDirectoryService).to receive(:new).and_return(ads)
       expect(ads).to receive(:update).with([employee])
 
@@ -310,21 +301,24 @@ describe AdpService::Workers, type: :service do
   describe "check leave return" do
     let!(:leave_emp) {FactoryGirl.create(:employee,
       status: "Inactive",
-      leave_return_date: nil) }
+      leave_return_date: nil,
+      updated_at: 1.day.ago) }
     let!(:profile) { FactoryGirl.create(:profile,
       employee: leave_emp,
       profile_status: "Active",
       adp_assoc_oid: "123456") }
     let!(:leave_cancel_emp) {FactoryGirl.create(:employee,
       status: "Inactive",
-      leave_return_date: Date.today + 2.days) }
+      leave_return_date: Date.today + 2.days,
+      updated_at: 1.day.ago) }
     let!(:lce_profile) {FactoryGirl.create(:profile,
       employee: leave_cancel_emp,
       profile_status: "Active",
       adp_assoc_oid: "123457") }
     let!(:do_nothing_emp) {FactoryGirl.create(:employee,
       status: "Inactive",
-      leave_return_date: nil) }
+      leave_return_date: nil,
+      updated_at: 1.day.ago) }
     let!(:dn_profile) { FactoryGirl.create(:profile,
       employee: do_nothing_emp,
       profile_status: "Active",
@@ -453,6 +447,7 @@ describe AdpService::Workers, type: :service do
       end
 
       it "should send an error message to TechTable if worker is not found" do
+        puts "this is intentionally failing as the code sending an error message is currently disabled"
         expect(ActiveDirectoryService).to_not receive(:new)
 
         adp = AdpService::Workers.new

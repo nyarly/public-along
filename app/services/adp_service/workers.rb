@@ -47,6 +47,7 @@ module AdpService
             profiler = EmployeeProfile.new
             e = profiler.update_employee(e, w)
             Employee.check_manager(e.manager_id)
+
             workers_to_update << e
           else
             adp_only << "{ first_name: #{w[:first_name]}, last_name: #{w[:last_name]}, employee_id: #{w[:employee_id]})"
@@ -80,7 +81,7 @@ module AdpService
 
           if w_hash.present?
             profiler = EmployeeProfile.new
-            e = profiler.update_employee(w_hash)
+            employee = profiler.update_employee(e, w_hash.except(:status))
           else
             TechTableMailer.alert_email("Cannot get updated ADP info for new contract hire #{e.cn}, employee id: #{e.employee_id}.\nPlease contact the developer to help diagnose the problem.").deliver_now
           end
@@ -96,8 +97,10 @@ module AdpService
 
         if adp_status == "Active" && e.leave_return_date.blank?
           e.assign_attributes(leave_return_date: date)
+          e.save!
         elsif e.leave_return_date.present? && adp_status == "Inactive"
           e.assign_attributes(leave_return_date: nil)
+          e.save!
         end
       }
     end
@@ -111,7 +114,10 @@ module AdpService
         block.call(e, json, as_of_date)
 
         Employee.check_manager(e.manager_id)
-        update_emps << e
+
+        if e.updated_at >= 5.minutes.ago
+          update_emps << e
+        end
       end
 
       update_ads(update_emps)

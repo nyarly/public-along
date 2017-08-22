@@ -34,57 +34,17 @@ class EmployeeProfile
   attribute :start_date, DateTime
   attribute :end_date, DateTime
 
+  # link accounts takes an employee pk and event pk
   def link_accounts(employee_id, event_id)
     employee = Employee.find employee_id
     event = AdpEvent.find event_id
-    w_hash = parse_event(event.json)
+    w_hash = parse_event(event)
 
     employee = update_employee(employee, w_hash)
-
-    # employee_attrs, profile_attrs = w_hash.partition{ |k,v| Employee.column_names.include?(k.to_s) }
-    # employee.assign_attributes(employee_attrs.to_h)
-    # last_profile.assign_attributes(profile_attrs.to_h)
-
-    # delta = build_emp_delta(last_profile)
-
-    # if last_profile.changed?
-    #   last_profile.profile_status = "Expired"
-    #   last_profile.end_date = Date.today
-    #   new_profile = employee.profiles.build(profile_attrs.to_h)
-
-    #   if last_profile.save! and new_profile.save!
-    #     puts "saved"
-    #   else
-    #     puts "didn't save?"
-    #   end
-    # end
-
-    # if delta.present?
-    #   delta.save!
-    # end
-
-    # employee.save!
     employee
   end
 
-# EmployeeWorker.perform_async("Security Access", e.id)
-#   def send_email?(employee)
-#     has_changed = employee.changed? && employee.valid?
-#     has_triggering_change = employee.department_id_changed? || employee.location_id_changed? || employee.worker_type_id_changed? || employee.job_title_id_changed?
-#     no_previous_changes = employee.emp_deltas.important_changes.blank?
-
-#     if has_changed && has_triggering_change
-#       if no_previous_changes
-#         true
-#       else
-#         last_emailed_on = employee.emp_deltas.important_changes.last.created_at
-#         if last_emailed_on <= 1.day.ago
-#           true
-#         end
-#       end
-#     end
-#   end
-
+  # takes employee object and employee hash from the parser
   def update_employee(employee, employee_hash)
     profile = employee.profiles.active
 
@@ -100,41 +60,52 @@ class EmployeeProfile
       old_profile.end_date = Date.today
       new_profile = employee.profiles.build(profile_attrs.to_h)
       if old_profile.save! and new_profile.save!
-        puts "saved"
-      else
-        puts "didn't save?"
+        if send_email?(profile)
+          EmployeeWorker.perform_async("Security Access", employee.id)
+          employee
+        end
       end
     end
 
-    employee.save!
+    if employee.changed?
+      employee.save!
+    end
+
     if delta.present?
       delta.save!
     end
     employee
   end
 
-  def new_employee(event_json)
-    employee = build_employee(event_json)
+  # new employee takes an event object and returns saved employee
+  def new_employee(event)
+    worker_hash = parse_event(event)
+    employee_attrs, profile_attrs = worker_hash.partition{ |k,v| Employee.column_names.include?(k.to_s) }
+    employee = Employee.new(employee_attrs.to_h)
     employee.status = "Pending"
     employee.save!
+    profile = employee.profiles.build(profile_attrs.to_h)
+    profile.save!
     employee
   end
 
-  def parse_event(event)
-    json_str = event.json
-    event_json = JSON.parse(json_str)
-    parser = AdpService::WorkerJsonParser.new
-    worker_json = event_json.dig("events", 0, "data", "output", "worker")
-    worker_hash = parser.gen_worker_hash(worker_json)
-    worker_hash
-  end
-
-  def build_employee(event_json)
-    worker_hash = parse_event(event_json)
+  # takes json attribute from event object and returns unsaved employee
+  def build_employee(event)
+    worker_hash = parse_event(event)
     employee_attrs, profile_attrs = worker_hash.partition{ |k,v| Employee.column_names.include?(k.to_s) }
     employee = Employee.new(employee_attrs.to_h)
     profile = employee.profiles.build(profile_attrs.to_h)
     employee
+  end
+
+  # takes an event object and returns the worker hash
+  def parse_event(event)
+    json = event.json
+    event_json = JSON.parse(json)
+    parser = AdpService::WorkerJsonParser.new
+    worker_json = event_json.dig("events", 0, "data", "output", "worker")
+    worker_hash = parser.gen_worker_hash(worker_json)
+    worker_hash
   end
 
   def build_emp_delta(prof)
@@ -155,8 +126,21 @@ class EmployeeProfile
     emp_delta
   end
 
-  def save
+  def send_email?(profile)
+    has_changed = profile.changed? && profile.valid?
+    has_triggering_change = profile.department_id_changed? || profile.location_id_changed? || profile.worker_type_id_changed? || profile.job_title_id_changed?
+    no_previous_changes = profile.employee.emp_deltas.important_changes.blank?
 
+    if has_changed && has_triggering_change
+      if no_previous_changes
+        true
+      else
+        last_emailed_on = profile.employee.emp_deltas.important_changes.last.created_at
+        if last_emailed_on <= 1.day.ago
+          true
+        end
+      end
+    end
   end
 
   def errors

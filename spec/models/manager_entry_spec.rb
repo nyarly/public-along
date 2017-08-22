@@ -8,7 +8,15 @@ RSpec.describe ManagerEntry do
     allow(sas).to receive(:apply_ad_permissions)
   end
 
-  context "New Hire/Re-hire" do
+  context "Onboarding New Hire" do
+    let(:user) { FactoryGirl.create(:user) }
+    let(:buddy) { FactoryGirl.create(:regular_employee) }
+    let!(:employee) { FactoryGirl.create(:regular_employee) }
+    let(:sp_1) { FactoryGirl.create(:security_profile) }
+    let(:sp_2) { FactoryGirl.create(:security_profile) }
+    let(:sp_3) { FactoryGirl.create(:security_profile) }
+    let(:machine_bundle) { FactoryGirl.create(:machine_bundle) }
+
     let(:params) do
       {
         kind: "Onboarding",
@@ -23,16 +31,8 @@ RSpec.describe ManagerEntry do
       }
     end
 
-    let(:user) { FactoryGirl.create(:user) }
-    let(:buddy) { FactoryGirl.create(:employee) }
-    let(:manager_entry) { ManagerEntry.new(params) }
-    let(:employee) { FactoryGirl.create(:employee) }
-    let(:sp_1) { FactoryGirl.create(:security_profile) }
-    let(:sp_2) { FactoryGirl.create(:security_profile) }
-    let(:sp_3) { FactoryGirl.create(:security_profile) }
-    let(:machine_bundle) { FactoryGirl.create(:machine_bundle) }
-
     it "should create an emp_transaction with the right attrs" do
+      manager_entry = ManagerEntry.new(params)
       expect(manager_entry.emp_transaction.kind).to eq("Onboarding")
       expect(manager_entry.emp_transaction.user_id).to eq(user.id)
       expect(manager_entry.emp_transaction.notes).to eq("These notes")
@@ -40,6 +40,7 @@ RSpec.describe ManagerEntry do
     end
 
     it "should create onboarding info" do
+      manager_entry = ManagerEntry.new(params)
       manager_entry.save
 
       expect(manager_entry.emp_transaction.onboarding_infos.count).to eq(1)
@@ -49,6 +50,7 @@ RSpec.describe ManagerEntry do
     end
 
     it "should create security profiles" do
+      manager_entry = ManagerEntry.new(params)
       manager_entry.save
 
       expect(manager_entry.emp_transaction.security_profiles.count).to eq(3)
@@ -56,6 +58,7 @@ RSpec.describe ManagerEntry do
     end
 
     it "should build machine bundles" do
+      manager_entry = ManagerEntry.new(params)
       manager_entry.save
 
       expect(manager_entry.emp_transaction.machine_bundles.count).to eq(1)
@@ -66,6 +69,8 @@ RSpec.describe ManagerEntry do
 
     it "should report errors" do
       params[:employee_id] = nil
+      params[:event_id] = nil
+      manager_entry = ManagerEntry.new(params)
 
       manager_entry.save
 
