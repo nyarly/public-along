@@ -252,16 +252,19 @@ describe Employee, type: :model do
         hire_date: Date.new(2016, 7, 25, 2))
       prof_1 = FactoryGirl.create(:profile,
         employee: emp_1,
+        start_date: Date.new(2016, 7, 25),
         location: Location.find_by_name("San Francisco Headquarters"))
       emp_2 = FactoryGirl.create(:employee,
         hire_date: Date.new(2016, 7, 25, 2))
       prof_2 = FactoryGirl.create(:profile,
         employee: emp_2,
+        start_date: Date.new(2016, 7, 25),
         location: Location.find_by_name("London Office"))
       emp_3 = FactoryGirl.create(:employee,
         hire_date: Date.new(2016, 7, 25, 2))
       prof_3 = FactoryGirl.create(:profile,
         employee: emp_3,
+        start_date: Date.new(2016, 7, 25),
         location: Location.find_by_name("Mumbai Office"))
 
       expect(emp_1.onboarding_due_date).to eq("Jul 18, 2016")

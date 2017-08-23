@@ -337,6 +337,7 @@ describe AdpService::Events, type: :service do
       end
 
       it "should generate an onboarding form with the event" do
+
         adp = AdpService::Events.new
         adp.token = "a-token-value"
 
@@ -344,11 +345,11 @@ describe AdpService::Events, type: :service do
           status: "New",
           json: cat_change_json
         )
-
+        expect(EmployeeWorker).to receive(:perform_async)
         expect{
           adp.process_hire(parsed_json, event)
         }.not_to change{Employee.count}
-        # TODO: test that correct email is sent with correct link
+        expect(Employee.count).to eq(0)
       end
     end
 
@@ -418,19 +419,35 @@ describe AdpService::Events, type: :service do
       let!(:sas) { double(SecAccessService) }
 
       context "for worker without a mezzo record" do
-        it "does not create a new employee record" do
+        it "should not create a new employee record" do
           adp = AdpService::Events.new
           adp.token = "a-token-value"
 
-          event = FactoryGirl.create(:adp_event,
+          rehire_event = FactoryGirl.create(:adp_event,
             status: "New",
             json: rehire_json
           )
 
           expect{
-            adp.process_rehire(parsed_json, event)
+            adp.process_rehire(parsed_json, rehire_event)
           }.not_to change{Employee.count}
-          # TODO: test that correct email is sent with correct link
+        end
+
+        it "should generate an onboarding form with the event" do
+          adp = AdpService::Events.new
+          adp.token = "a-token-value"
+
+          rehire_event = FactoryGirl.create(:adp_event,
+            status: "New",
+            json: rehire_json
+          )
+
+          expect(EmployeeWorker).to receive(:perform_async)
+
+          expect{
+            adp.process_rehire(parsed_json, rehire_event)
+          }.not_to change{Employee.count}
+          expect(Employee.count).to eq(0)
         end
 
       end

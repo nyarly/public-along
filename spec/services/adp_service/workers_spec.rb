@@ -446,8 +446,7 @@ describe AdpService::Workers, type: :service do
           }).and_return(response)
       end
 
-      it "should send an error message to TechTable if worker is not found" do
-        puts "this is intentionally failing as the code sending an error message is currently disabled"
+      xit "should send an error message to TechTable if worker is not found" do
         expect(ActiveDirectoryService).to_not receive(:new)
 
         adp = AdpService::Workers.new

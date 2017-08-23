@@ -51,7 +51,6 @@ describe ActiveDirectoryService, type: :service do
           }).delete_if { |k,v| v.blank? || k == :dn}
         )
       )
-      expect(EmployeeWorker).to receive(:perform_async).with("Onboarding", employee.id)
 
       ads.create_disabled_accounts([employee])
       expect(employee.sam_account_name).to eq("dkerabatsos")

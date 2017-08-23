@@ -7,11 +7,11 @@ class EmployeeWorker
       @manager = Employee.find_by_employee_id(@employee.manager_id)
       @mailer = ManagerMailer.permissions(action, @manager, @employee) if @manager.present?
     elsif opts[:event_id].present?
-      profiler = EmployeeProfiler.new
+      profiler = EmployeeProfile.new
       @event = AdpEvent.find opts[:event_id]
-      @employee = profiler.build_employee(event)
-      @manager = employee.manager
-      @mailer = ManagerMailer.permissions(action, @manager, @employee, {:event => @event}) if @manager.present?
+      @employee = profiler.build_employee(@event)
+      @manager = @employee.manager
+      @mailer = ManagerMailer.permissions(action, @manager, @employee, {:event => @event})
     end
 
     @mailer.deliver_now if @mailer.present?

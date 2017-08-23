@@ -72,13 +72,12 @@ module AdpService
 
       if rehire.present? and rehire == true
         parser = WorkerJsonParser.new
-        worker_hash = parser.gen_worker_hash(json)
+        worker_hash = parser.gen_worker_hash(worker_json)
 
         if worker_hash[:manager_id].present?
           EmployeeWorker.perform_async("Onboarding", event_id: event.id)
           return false
         else
-          # log error?
           return false
         end
       else
@@ -88,7 +87,7 @@ module AdpService
         ads = ActiveDirectoryService.new
         ads.create_disabled_accounts([employee])
         add_basic_security_profile(employee)
-        EmployeeWorker.perform_async("Onboarding", employee_id: e.id)
+        EmployeeWorker.perform_async("Onboarding", employee_id: employee.id)
         return true
       end
     end
@@ -152,7 +151,7 @@ module AdpService
         EmployeeWorker.perform_async("Onboarding", employee_id: updated_account.id)
         return true
       else
-        # TODO: send onboard form w/ event
+        EmployeeWorker.perform_async("Onboarding", event_id: event.id)
         return false
       end
     end

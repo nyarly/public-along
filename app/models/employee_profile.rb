@@ -71,9 +71,6 @@ class EmployeeProfile
       employee.save!
     end
 
-    ads = ActiveDirectoryService.new
-    ads.update([e])
-
     if delta.present?
       delta.save!
     end
@@ -95,7 +92,7 @@ class EmployeeProfile
   # takes json attribute from event object and returns unsaved employee
   def build_employee(event)
     worker_hash = parse_event(event)
-    employee_attrs, profile_attrs = worker_hash.partition{ |k,v| Employee.column_names.include?(k.to_s) }
+    employee_attrs, profile_attrs = worker_hash.except.partition{ |k,v| Employee.column_names.include?(k.to_s) }
     employee = Employee.new(employee_attrs.to_h)
     profile = employee.profiles.build(profile_attrs.to_h)
     employee
@@ -103,10 +100,10 @@ class EmployeeProfile
 
   # takes an event object and returns the worker hash
   def parse_event(event)
-    json = event.json
-    event_json = JSON.parse(json)
+    data = event.json
+    json = JSON.parse(data)
+    worker_json = json.dig("events", 0, "data", "output", "worker")
     parser = AdpService::WorkerJsonParser.new
-    worker_json = event_json.dig("events", 0, "data", "output", "worker")
     worker_hash = parser.gen_worker_hash(worker_json)
     worker_hash
   end

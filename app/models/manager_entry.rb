@@ -50,6 +50,8 @@ class ManagerEntry
       if link_email == "on"
         if linked_account_id.present?
           employee = profiler.link_accounts(linked_account_id, event_id)
+          ads = ActiveDirectoryService.new
+          ads.create_disabled_accounts([employee])
           event.status = "Processed"
           event.save!
           employee

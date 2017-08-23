@@ -1,7 +1,12 @@
 require 'rails_helper'
 
 RSpec.describe EmployeeWorker, type: :worker do
-  let!(:manager) { FactoryGirl.create(:regular_employee) }
+  let!(:manager) { FactoryGirl.create(:employee,
+    email: "manager@opentable.com") }
+  let!(:man_profile) { FactoryGirl.create(:profile,
+    employee: manager,
+    profile_status: "Active",
+    adp_employee_id: "654321")}
   let!(:employee) { FactoryGirl.create(:employee) }
   let!(:profile) { FactoryGirl.create(:profile,
     employee: employee,
@@ -39,8 +44,17 @@ RSpec.describe EmployeeWorker, type: :worker do
   end
 
   it "should send the right mailer for rehire" do
-    expect(ManagerMailer).to receive(:permissions).with("Onboarding", manager, employee, ).and_return(mailer)
+    worker_type = FactoryGirl.create(:worker_type, code: "FTR")
+    rehire_json = File.read(Rails.root.to_s+"/spec/fixtures/adp_rehire_event.json")
+    event = FactoryGirl.create(:adp_event, status: "New", json: rehire_json)
+    profile = EmployeeProfile.new
+    employee = profile.build_employee(event)
+    manager = employee.manager
 
+    expect(ManagerMailer).to receive(:permissions).with("Onboarding", manager, employee, event: event).and_return(mailer)
+    expect(mailer).to receive(:deliver_now)
+
+    worker.perform("Onboarding", event_id: event.id)
   end
 
 end

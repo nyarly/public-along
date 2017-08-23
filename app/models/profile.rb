@@ -34,7 +34,7 @@ class Profile < ActiveRecord::Base
   end
 
   def self.terminated
-    where(:profile_status => "Terminated").last
+    where(:profile_status => "Terminated")
   end
 
   def downcase_unique_attrs

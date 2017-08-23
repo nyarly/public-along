@@ -45,7 +45,7 @@ module AdpService
           e = Employee.find_by_employee_id(w[:adp_employee_id])
           if e.present?
             profiler = EmployeeProfile.new
-            e = profiler.update_employee(e, w)
+            profiler.update_employee(e, w)
             Employee.check_manager(e.manager_id)
 
             workers_to_update << e
@@ -81,7 +81,7 @@ module AdpService
 
           if w_hash.present?
             profiler = EmployeeProfile.new
-            employee = profiler.update_employee(e, w_hash.except(:status))
+            profiler.update_employee(e, w_hash.except(:status))
           else
             TechTableMailer.alert_email("Cannot get updated ADP info for new contract hire #{e.cn}, employee id: #{e.employee_id}.\nPlease contact the developer to help diagnose the problem.").deliver_now
           end

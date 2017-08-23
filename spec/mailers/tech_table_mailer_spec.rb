@@ -135,7 +135,7 @@ RSpec.describe TechTableMailer, type: :mailer do
     let!(:emp_sec_profile) { FactoryGirl.create(:emp_sec_profile,
       security_profile_id: sp.id,
       emp_transaction_id: emp_transaction.id) }
-    let!(:email) { TechTableMailer.onboard_instructions(employee).deliver_now }
+    let!(:email) { TechTableMailer.onboard_instructions(emp_transaction).deliver_now }
 
     it "should queue to send" do
       expect(ActionMailer::Base.deliveries).to_not be_empty
