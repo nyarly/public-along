@@ -20,14 +20,24 @@ class Profile < ActiveRecord::Base
   belongs_to :location
   belongs_to :worker_type
 
-  scope :active, -> { where(profile_status: 'Active').first }
-  scope :expired, -> { where(profile_status: 'Expired') }
+  # scope :active, -> { where(profile_status: 'Active').first }
+  # scope :expired, -> { where(profile_status: 'Expired') }
+  # scope :pending, -> { where("profiles.start_date >= ?", Date.today).last }
   scope :active_regular, -> { joins(:worker_type).where(:profile_status => "Active", :worker_types => {:kind => "Regular"})}
 
-  # def self.active
-  #   self.where(profile_status == "Active").first
-  # end
+  def self.active
+    where(:profile_status => "Active").last
+  end
 
-  # self.employee_id = employee_id.downcase if employee_id.present?
+  def self.pending
+    where(:profile_status => "Pending").last
+  end
 
+  def self.terminated
+    where(:profile_status => "Terminated").last
+  end
+
+  def downcase_unique_attrs
+    self.adp_employee_id = adp_employee_id.downcase if adp_employee_id.present?
+  end
 end

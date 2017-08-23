@@ -11,22 +11,7 @@ class Employee < ActiveRecord::Base
             presence: true
   validates :hire_date,
             presence: true
-  # validates :department_id,
-  #           presence: true
-  # validates :location_id,
-  #           presence: true
-  # validates :worker_type_id,
-  #           presence: true
-  # validates :job_title_id,
-  #           presence: true
-  # validates :employee_id,
-  #           presence: true,
-  #           uniqueness: { message: "Worker ID has already been taken" }
 
-  # belongs_to :department
-  # belongs_to :location
-  # belongs_to :worker_type
-  # belongs_to :job_title
   has_many :emp_transactions # on delete, cascade in db
   has_many :onboarding_infos, through: :emp_transactions
   has_many :offboarding_infos, through: :emp_transactions
@@ -50,7 +35,11 @@ class Employee < ActiveRecord::Base
   end
 
   def active_profile
-    @active_profile ||= self.profiles.active
+    if self.persisted?
+      @active_profile ||= self.profiles.active
+    else
+      @active_profile ||= self.profiles.last
+    end
   end
 
   def employee_id
@@ -273,11 +262,17 @@ class Employee < ActiveRecord::Base
   end
 
   def onboarding_due_date
+    if self.profiles.pending.present?
+      puts self.profiles.pending.inspect
+      start_date = self.profiles.pending.start_date
+    else
+      start_date = self.profiles.last.start_date
+    end
     # plus 9.hours to account for the beginning of the business day
     if location.country == "US" || location.country == "GB"
-      5.business_days.before(hire_date + 9.hours).strftime("%b %e, %Y")
+      5.business_days.before(start_date + 9.hours).strftime("%b %e, %Y")
     else
-      10.business_days.before(hire_date + 9.hours).strftime("%b %e, %Y")
+      10.business_days.before(start_date + 9.hours).strftime("%b %e, %Y")
     end
   end
 

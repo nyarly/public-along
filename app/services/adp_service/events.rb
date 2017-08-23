@@ -71,8 +71,16 @@ module AdpService
       end
 
       if rehire.present? and rehire == true
-        # TODO: send onboard form w/ event
-        return false
+        parser = WorkerJsonParser.new
+        worker_hash = parser.gen_worker_hash(json)
+
+        if worker_hash[:manager_id].present?
+          EmployeeWorker.perform_async("Onboarding", event_id: event.id)
+          return false
+        else
+          # log error?
+          return false
+        end
       else
         profiler = EmployeeProfile.new
         employee = profiler.new_employee(event)
@@ -80,6 +88,7 @@ module AdpService
         ads = ActiveDirectoryService.new
         ads.create_disabled_accounts([employee])
         add_basic_security_profile(employee)
+        EmployeeWorker.perform_async("Onboarding", employee_id: e.id)
         return true
       end
     end
@@ -140,7 +149,7 @@ module AdpService
         Employee.check_manager(updated_account.manager_id)
         ads = ActiveDirectoryService.new
         ads.update([updated_account])
-        EmployeeWorker.perform_async("Onboarding", updated_account.id)
+        EmployeeWorker.perform_async("Onboarding", employee_id: updated_account.id)
         return true
       else
         # TODO: send onboard form w/ event
@@ -169,7 +178,7 @@ module AdpService
 
     def send_offboard_forms(e)
       TechTableMailer.offboard_notice(e).deliver_now
-      EmployeeWorker.perform_async("Offboarding", e.id)
+      EmployeeWorker.perform_async("Offboarding", employee_id: e.id)
     end
 
     def del_event(num)

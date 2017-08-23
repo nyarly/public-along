@@ -44,11 +44,15 @@ class ManagerEntry
     # employee transaction for rehire or job change
     elsif event_id.present?
       profiler = EmployeeProfile.new
+      event = AdpEvent.find event_id
 
       # if linking hire or rehire event to existing employee record
       if link_email == "on"
         if linked_account_id.present?
           employee = profiler.link_accounts(linked_account_id, event_id)
+          event.status = "Processed"
+          event.save!
+          employee
         else
           emp_transaction.errors.add(:base, :employee_blank, message: "You didn't chose an email to reuse. Did you mean to create a new email? If so, please select 'no' in the Rehire or Worker Type Change.")
         end
@@ -56,15 +60,17 @@ class ManagerEntry
       # if rehire or job change, but wish to have new record/email
       elsif link_email == "off"
         employee = profiler.new_employee(event)
+        event.status = "Processed"
+        event.save!
         employee
       else
 
         # for new emp transactions before form filled out
-        employee = profiler.build_employee(event.json)
+        employee = profiler.build_employee(event)
       end
     else
       # no employee or event
-      # errors.add(:base, :employee_blank, message: "Employee can not be blank. Please revisit email link to refresh page.")
+      errors.add(:base, :employee_blank, message: "Employee can not be blank. Please revisit email link to refresh page.")
       return nil
     end
     employee

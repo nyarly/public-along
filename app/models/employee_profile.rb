@@ -56,12 +56,12 @@ class EmployeeProfile
 
     if profile.changed?
       old_profile = employee.profiles.active
-      old_profile.profile_status = "Expired"
+      old_profile.profile_status = "Terminated"
       old_profile.end_date = Date.today
       new_profile = employee.profiles.build(profile_attrs.to_h)
       if old_profile.save! and new_profile.save!
         if send_email?(profile)
-          EmployeeWorker.perform_async("Security Access", employee.id)
+          EmployeeWorker.perform_async("Security Access", employee_id: employee.id)
           employee
         end
       end
@@ -70,6 +70,9 @@ class EmployeeProfile
     if employee.changed?
       employee.save!
     end
+
+    ads = ActiveDirectoryService.new
+    ads.update([e])
 
     if delta.present?
       delta.save!

@@ -27,7 +27,7 @@ module AdpService
       worker_end_date = find_worker_end_date(w)
 
       work_assignment = find_work_assignment(w)
-      start_date = work_assignment["actualStartDate"]
+      start_date = work_assignment["actualStartDate"].present? ? work_assignment["actualStartDate"] : hire_date
       end_date = work_assignment["terminationDate"].present? if work_assignment["terminationDate"].present?
 
       biz_unit = work_assignment["homeOrganizationalUnits"].find { |ou| ou["typeCode"]["codeValue"] == "Business Unit"}

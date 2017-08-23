@@ -10,7 +10,7 @@ RSpec.describe EmployeeWorker, type: :worker do
   let(:mailer) { double(ManagerMailer) }
 
   it "should perform right away" do
-    EmployeeWorker.perform_async("Onboarding", employee.id)
+    EmployeeWorker.perform_async("Onboarding", employee_id: employee.id)
 
     expect(EmployeeWorker.jobs.size).to eq(1)
   end
@@ -21,21 +21,26 @@ RSpec.describe EmployeeWorker, type: :worker do
 
     expect(Employee).to receive(:find_by_employee_id).with(employee.manager_id).and_call_original
 
-    worker.perform("Onboarding", employee.id)
+    worker.perform("Onboarding", employee_id: employee.id)
   end
 
   it "should send the right Mailer for Onboarding action" do
-    expect(ManagerMailer).to receive(:permissions).with(manager, employee, "Onboarding").and_return(mailer)
+    expect(ManagerMailer).to receive(:permissions).with("Onboarding", manager, employee).and_return(mailer)
     expect(mailer).to receive(:deliver_now)
 
-    worker.perform("Onboarding", employee.id)
+    worker.perform("Onboarding", employee_id: employee.id)
   end
 
   it "should send the right Mailer for job change" do
-    expect(ManagerMailer).to receive(:permissions).with(manager, employee, "Security Access").and_return(mailer)
+    expect(ManagerMailer).to receive(:permissions).with("Security Access", manager, employee).and_return(mailer)
     expect(mailer).to receive(:deliver_now)
 
-    worker.perform("Security Access", employee.id)
+    worker.perform("Security Access", employee_id: employee.id)
+  end
+
+  it "should send the right mailer for rehire" do
+    expect(ManagerMailer).to receive(:permissions).with("Onboarding", manager, employee, ).and_return(mailer)
+
   end
 
 end

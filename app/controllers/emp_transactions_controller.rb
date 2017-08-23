@@ -98,49 +98,49 @@ class EmpTransactionsController < ApplicationController
 
   private
 
-    def send_email
-      if @emp_transaction.kind != "Offboarding"
-        if @emp_transaction.kind == "Onboarding"
-          TechTableMailer.onboard_instructions(@employee).deliver_now
-        else
-          TechTableMailer.permissions(@emp_transaction, @employee).deliver_now
-        end
-      end
-    end
-    # Use callbacks to share common setup or constraints between actions.
-    def set_emp_transaction
-      @emp_transaction = EmpTransaction.find(params[:id])
-    end
-
-    def set_machine_bundles
-      if @employee.worker_type.kind == "Regular"
-        @machine_bundles = MachineBundle.find_bundles_for(@employee.department.id) - MachineBundle.contingent_bundles
+  def send_email
+    if @emp_transaction.kind != "Offboarding"
+      if @emp_transaction.kind == "Onboarding"
+        TechTableMailer.onboard_instructions(@emp_transaction).deliver_now
       else
-        @machine_bundles = MachineBundle.contingent_bundles
+        TechTableMailer.permissions(@emp_transaction, @employee).deliver_now
       end
     end
+  end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_emp_transaction
+    @emp_transaction = EmpTransaction.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def manager_entry_params
-      params.require(:manager_entry).permit(
-        :kind,
-        :user_id,
-        :employee_id,
-        :buddy_id,
-        :cw_email,
-        :cw_google_membership,
-        :archive_data,
-        :replacement_hired,
-        :forward_email_id,
-        :reassign_salesforce_id,
-        :transfer_google_docs_id,
-        :notes,
-        :event_id,
-        :linked_account_id,
-        :link_email
-      ).tap do |allowed|
-        allowed[:security_profile_ids] = params[:security_profile_ids]
-        allowed[:machine_bundle_id] = params[:machine_bundle_id]
-      end
+  def set_machine_bundles
+    if @employee.worker_type.kind == "Regular"
+      @machine_bundles = MachineBundle.find_bundles_for(@employee.department.id) - MachineBundle.contingent_bundles
+    else
+      @machine_bundles = MachineBundle.contingent_bundles
     end
+  end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def manager_entry_params
+    params.require(:manager_entry).permit(
+      :kind,
+      :user_id,
+      :employee_id,
+      :buddy_id,
+      :cw_email,
+      :cw_google_membership,
+      :archive_data,
+      :replacement_hired,
+      :forward_email_id,
+      :reassign_salesforce_id,
+      :transfer_google_docs_id,
+      :notes,
+      :event_id,
+      :linked_account_id,
+      :link_email
+    ).tap do |allowed|
+      allowed[:security_profile_ids] = params[:security_profile_ids]
+      allowed[:machine_bundle_id] = params[:machine_bundle_id]
+    end
+  end
 end
