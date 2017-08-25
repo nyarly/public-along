@@ -23,14 +23,8 @@ $(document).ready(function(){
   showLinkedEmployee();
   selectLinkedAccount();
   clearLinkedAccount();
-  deselectLinkAccounts();
 });
 
-function deselectLinkAccounts() {
-  $('#manager_entry_link_email').bind('off.zf.toggler', function(event) {
-    console.log(event)
-  })
-}
 
 function showLinkedEmployee() {
   $('#manager_entry_linked_account_id').bind('railsAutocomplete.select', function(event, data){
@@ -38,7 +32,6 @@ function showLinkedEmployee() {
       $('#show-selected-employee').hide()
     } else {
       $('#show-selected-employee').show()
-      console.log(data)
       date_options = { year: 'numeric', month: 'long', day: 'numeric' };
       hire_date = new Date(data.item.hire_date)
       $('#linked-emp-fn').text(data.item.first_name)
@@ -60,6 +53,8 @@ function selectLinkedAccount() {
     $('#show-selected-employee').hide();
     $('#help-section').hide();
     $('#manager_entry_linked_account_id').attr('disabled', true);
+    $('#manager_entry_link_email').val("on");
+    $('#link-account-switch').attr('disabled', true);
   })
 }
 
@@ -87,7 +82,7 @@ function clearLinkedAccount() {
       }
       defaults = {
         modal_class: 'medium',
-        title: 'Are you sure?',
+        title: 'Please confirm that you have made the correct selections.',
         title_class: '',
         body: 'This action cannot be undone.',
         body_class: '',
@@ -109,7 +104,13 @@ function clearLinkedAccount() {
           return (((_ref = $.rails) != null ? _ref.confirm : void 0) || window.confirm).call(window, el_options);
         }
         option = function(name) {
-          return el_options[name] || settings[name];
+           // return to default under these conditons
+          link_email = $('#manager_entry_link_email').val();
+          if (link_email == "off") {
+            return settings[name]
+          } else {
+            return el_options[name] || settings[name];
+          }
         };
         modal = $("<div data-reveal class='reveal'>\n  <h3 data-confirm-title class='" + (option('title_class')) + "'></h3>\n  <p data-confirm-body class='" + (option('body_class')) + "'></p>\n  <div data-confirm-footer class='" + (option('footer_class')) + "'>\n    <a data-confirm-cancel class='" + (option('cancel_class')) + "'></a>\n  </div>\n</div>");
         confirm_button = $el.is('a') ? $el.clone() : $('<a/>');

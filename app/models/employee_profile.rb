@@ -39,15 +39,19 @@ class EmployeeProfile
     employee = Employee.find employee_id
     event = AdpEvent.find event_id
     w_hash = parse_event(event)
+
     employee_attrs, profile_attrs = w_hash.partition{ |k,v| Employee.column_names.include?(k.to_s) }
     employee.assign_attributes(employee_attrs.to_h.except(:status))
     new_profile = employee.profiles.build(profile_attrs.to_h.except(:profile_status))
+
     employee.status = "Pending" if employee.status == "Terminated"
     new_profile.profile_status = "Pending"
     delta = build_emp_delta(new_profile)
+
     delta.save!
     new_profile.save!
     employee.save!
+
     employee
   end
 
@@ -71,7 +75,7 @@ class EmployeeProfile
         employee.status = "Pending" if employee.status == "Terminated"
         new_profile.profile_status = "Pending"
         if new_profile.save!
-          # TODO: create a worker to update status
+          Rails.logger.info "Successfully linked account for #{employee.email}"
         else
           Rails.logger.error "Block in profile save for #{employee.cn}"
         end
@@ -79,7 +83,7 @@ class EmployeeProfile
         profile.profile_status = "Terminated"
         new_profile.profile_status = "Active"
         if profile.save! and new_profile.save!
-          #TODO
+          Rails.logger.info "Successfully linked account for #{employee.email}"
         else
           Rails.logger.error "Block in profile save for #{employee.cn}"
         end
@@ -104,12 +108,15 @@ class EmployeeProfile
   def new_employee(event)
     worker_hash = parse_event(event)
     employee_attrs, profile_attrs = worker_hash.partition{ |k,v| Employee.column_names.include?(k.to_s) }
+
     employee = Employee.new(employee_attrs.to_h)
     employee.status = "Pending"
     employee.save!
+
     profile = employee.profiles.build(profile_attrs.to_h)
     profile.profile_status = "Pending"
     profile.save!
+
     employee
   end
 

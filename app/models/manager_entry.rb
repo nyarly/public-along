@@ -162,6 +162,10 @@ class ManagerEntry
         if emp_transaction.revoked_emp_sec_profiles.count > 0
           emp_transaction.revoked_emp_sec_profiles.update_all(revoking_transaction_id: @emp_transaction.id)
         end
+      else
+        if kind == "Onboarding" and emp_transaction.emp_sec_profiles.count > 0
+          JobChangeWorker.perform_at(@employee.profiles.pending.start_date, emp_transaction.id)
+        end
       end
       emp_transaction.errors.blank?
     end
@@ -174,7 +178,15 @@ class ManagerEntry
   private
 
   def immediately_update_security_profiles?
-    kind == "Onboarding" || kind == "Security Access"
+    if kind == "Security Access"
+      true
+    elsif kind == "Onboarding"
+      if link_email == "on" and @employee.status == "Active"
+        false
+      else
+        true
+      end
+    end
   end
 
 end

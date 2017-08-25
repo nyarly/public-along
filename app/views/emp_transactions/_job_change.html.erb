@@ -5,20 +5,21 @@
 
   <div class="row">
     <!-- Toggle controls to hide or show account link options -->
-      <%= f.hidden_field :link_email, value: "off" %>
-    <div class="switch large column small-2 medium-2 large-1">
+    <div class="switch large column small-2 medium-2 large-1" id="link-account-switch">
       <input id="link-account"
              class="switch-input"
              type="checkbox"
              name="manager_entry[link_email]"
+             id="manager_entry[link_email]"
              data-toggle="find-email">
       <label class="switch-paddle" for="link-account">
         <span class="show-for-sr">Link Accounts</span>
         <span class="switch-active" aria-hidden="true" value="yes">Yes</span>
         <span class="switch-inactive" aria-hidden="true" value="no">No</span>
       </label>
-      <!-- Need tp send as param when not true -->
     </div>
+    <!-- Need tp send as param when not true -->
+    <%= f.hidden_field :link_email, value: "off" %>
 
     <!-- End toggle controls -->
 
