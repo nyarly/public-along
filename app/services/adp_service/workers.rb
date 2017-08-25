@@ -86,7 +86,10 @@ module AdpService
             TechTableMailer.alert_email("Cannot get updated ADP info for new contract hire #{e.cn}, employee id: #{e.employee_id}.\nPlease contact the developer to help diagnose the problem.").deliver_now
           end
         else
-          TechTableMailer.alert_email("New hire sync is erroring on #{e.cn}, employee id: #{e.employee_id}.\nPlease contact the developer to help diagnose the problem.").deliver_now
+          Rails.logger.info "New Hire Sync Error"
+          Rails.logger.info "#{e.cn}"
+          Rails.logger.info "#{json}"
+          # TechTableMailer.alert_email("New hire sync is erroring on #{e.cn}, employee id: #{e.employee_id}.\nPlease contact the developer to help diagnose the problem.").deliver_now
         end
       }
     end

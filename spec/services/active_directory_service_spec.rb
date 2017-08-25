@@ -175,6 +175,7 @@ describe ActiveDirectoryService, type: :service do
   context "update attributes" do
     let!(:worker_type) { FactoryGirl.create(:worker_type) }
     let!(:employee) { FactoryGirl.create(:employee,
+      :status => "Active",
       :first_name => "Jeffrey",
       :last_name => "Lebowski",
       :office_phone => "123-456-7890",
@@ -241,6 +242,25 @@ describe ActiveDirectoryService, type: :service do
         :new_superior => "ou=People and Culture,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com"
       )
 
+      ads.update([employee])
+      expect(employee.ad_updated_at).to eq(DateTime.now)
+    end
+
+    it "should handle changed attributes with special characters" do
+      employee.last_name = "Ordoñez"
+      dn = "CN=Jeffrey Ordo\xC3\xB1ez,OU=,OU=Users,OU=OT,DC=ottest,DC=opentable,DC=com"
+      ldap_entry[:dn] = dn
+      allow(ldap).to receive(:search).and_return([ldap_entry])
+      allow(ldap_entry).to receive(:dn).and_return(dn.force_encoding(Encoding::ASCII_8BIT))
+
+      expect(ldap).to receive(:replace_attribute).once.with(employee.dn.force_encoding(Encoding::ASCII_8BIT), :sn, "Ordo\xC3\xB1ez".force_encoding(Encoding::ASCII_8BIT))
+      expect(ldap).to receive(:replace_attribute).once.with(employee.dn.force_encoding(Encoding::ASCII_8BIT), :displayName, "Jeffrey Ordo\xC3\xB1ez".force_encoding(Encoding::ASCII_8BIT))
+      expect(ldap).to receive(:rename).once.with(
+        :olddn => "#{dn.force_encoding(Encoding::ASCII_8BIT)}",
+        :newrdn => "cn=Jeffrey Ordoñez".force_encoding(Encoding::ASCII_8BIT),
+        :delete_attributes => true,
+        :new_superior => "ou=People and Culture,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com"
+      )
       ads.update([employee])
       expect(employee.ad_updated_at).to eq(DateTime.now)
     end

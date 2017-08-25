@@ -49,6 +49,8 @@ describe AdpService::Workers, type: :service do
         { "Accept"=>"application/json",
           "Authorization"=>"Bearer a-token-value",
         }).and_return(response)
+        expect(response).to receive(:code)
+        expect(response).to receive(:message)
     end
 
     it "should find a worker count" do
@@ -149,6 +151,8 @@ describe AdpService::Workers, type: :service do
         { "Accept"=>"application/json",
           "Authorization"=>"Bearer a-token-value",
         }).and_return(response)
+      expect(response).to receive(:code)
+      expect(response).to receive(:message)
     end
 
     it "should call parse json response, call #sort_workers and update employees" do
@@ -371,6 +375,8 @@ describe AdpService::Workers, type: :service do
         { "Accept"=>"application/json",
           "Authorization"=>"Bearer a-token-value",
         }).and_return(response)
+        expect(response).to receive(:code).thrice
+        expect(response).to receive(:message).thrice
     end
 
     it "should update leave return date and call AD update, if applicable" do
@@ -414,6 +420,8 @@ describe AdpService::Workers, type: :service do
           { "Accept"=>"application/json",
             "Authorization"=>"Bearer a-token-value",
           }).and_return(response)
+        expect(response).to receive(:code)
+        expect(response).to receive(:message)
       end
 
       it "should update worker information and call AD update if info changed" do
@@ -454,6 +462,7 @@ describe AdpService::Workers, type: :service do
           }).and_return(response)
       end
 
+      # skipping while we log errors instead of generating email
       xit "should send an error message to TechTable if worker is not found" do
         expect(ActiveDirectoryService).to_not receive(:new)
 
@@ -504,6 +513,8 @@ describe AdpService::Workers, type: :service do
           { "Accept"=>"application/json",
             "Authorization"=>"Bearer a-token-value",
           }).and_return(response)
+        expect(response).to receive(:code).twice
+        expect(response).to receive(:message).twice
       end
 
       it "should should update data for worker" do
@@ -552,6 +563,8 @@ describe AdpService::Workers, type: :service do
           { "Accept"=>"application/json",
             "Authorization"=>"Bearer a-token-value",
           }).and_return(response)
+        expect(response).to receive(:code)
+        expect(response).to receive(:message)
       end
 
       it "should update the new hire's manager with the correct security profile" do
