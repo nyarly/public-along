@@ -98,6 +98,7 @@ module AdpService
       e = Employee.find_by_employee_id(worker_id)
       if e.present? && !job_change?(e, term_date)
         e.assign_attributes(termination_date: term_date)
+        e.current_profile.end_date = term_date
         delta = build_emp_delta(e)
         send_offboard_forms(e)
       else

@@ -46,7 +46,7 @@ class EmployeeProfile
 
   # takes employee object and employee hash from the parser
   def update_employee(employee, employee_hash)
-    profile = employee.profiles.active
+    profile = employee.current_profile
 
     employee_attrs, profile_attrs = employee_hash.partition{ |k,v| Employee.column_names.include?(k.to_s) }
     employee.assign_attributes(employee_attrs.to_h)
@@ -54,26 +54,42 @@ class EmployeeProfile
 
     delta = build_emp_delta(profile)
 
-    if profile.changed?
-      old_profile = employee.profiles.active
-      old_profile.profile_status = "Terminated"
-      old_profile.end_date = Date.today
+    # create new profile for changes to worker type or ADP record
+    if profile.worker_type_id_changed? || profile.adp_employee_id_changed? || profile.adp_assoc_oid_changed?
+      profile = Profile.find(employee.current_profile.id)
+      profile.reload
       new_profile = employee.profiles.build(profile_attrs.to_h)
-      if old_profile.save! and new_profile.save!
-        if send_email?(profile)
+
+      if new_profile.start_date > Date.today
+        new_profile.profile_status = "Pending"
+        if new_profile.save!
+          # TODO: create a worker to update status
+        else
+          Rails.logger.error "Block in profile save for #{employee.cn}"
+        end
+      else
+        profile.profile_status = "Terminated"
+        profile.end_date = Date.today
+        new_profile.profile_status = "Active"
+        if profile.save! and new_profile.save!
+          #TODO
+        else
+          Rails.logger.error "Block in profile save for #{employee.cn}"
+        end
+      end
+
+    # update current profile
+    else
+      send_email = send_email?(profile)
+      if profile.save!
+        if send_email
           EmployeeWorker.perform_async("Security Access", employee_id: employee.id)
-          employee
         end
       end
     end
 
-    if employee.changed?
-      employee.save!
-    end
-
-    if delta.present?
-      delta.save!
-    end
+    delta.save! if delta.present?
+    employee.save!
     employee
   end
 
@@ -85,6 +101,7 @@ class EmployeeProfile
     employee.status = "Pending"
     employee.save!
     profile = employee.profiles.build(profile_attrs.to_h)
+    profile.profile_status = "Pending"
     profile.save!
     employee
   end
@@ -131,7 +148,7 @@ class EmployeeProfile
     has_triggering_change = profile.department_id_changed? || profile.location_id_changed? || profile.worker_type_id_changed? || profile.job_title_id_changed?
     no_previous_changes = profile.employee.emp_deltas.important_changes.blank?
 
-    if has_changed && has_triggering_change
+    if has_changed && has_triggering_change && profile.profile_status == "Active"
       if no_previous_changes
         true
       else
@@ -143,7 +160,4 @@ class EmployeeProfile
     end
   end
 
-  def errors
-    return @errors ||= {}
-  end
 end

@@ -81,7 +81,7 @@ module AdpService
 
           if w_hash.present?
             profiler = EmployeeProfile.new
-            profiler.update_employee(e, w_hash.except(:status))
+            profiler.update_employee(e, w_hash.except(:status, :profile_status))
           else
             TechTableMailer.alert_email("Cannot get updated ADP info for new contract hire #{e.cn}, employee id: #{e.employee_id}.\nPlease contact the developer to help diagnose the problem.").deliver_now
           end

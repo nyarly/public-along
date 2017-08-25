@@ -23,10 +23,6 @@ class EmpTransactionsController < ApplicationController
       buddy_id = @emp_transaction.onboarding_infos.first.buddy_id
       @buddy = Employee.find(buddy_id) if buddy_id
     end
-
-    # mgr_id = @emp_transaction.user_id
-    # @employee = Employee.find(emp_id)
-    # @manager = User.find(mgr_id)
   end
 
   # GET /emp_transactions/new
@@ -37,14 +33,6 @@ class EmpTransactionsController < ApplicationController
     @manager_entry = ManagerEntry.new(params)
     @emp_transaction = @manager_entry.emp_transaction
     @employee = @manager_entry.find_employee
-
-    # if params[:employee_id].present?
-    #   @employee = Employee.find params[:employee_id]
-    # elsif params[:event_id]
-    #   @event = AdpEvent.find params[:event_id]
-    #   # profiler = EmployeeProfile.new
-    #   # @employee = profiler.new_employee(@event.json)
-    # end
 
     if params[:event_id].present?
       @event = AdpEvent.find params[:event_id]
@@ -65,23 +53,14 @@ class EmpTransactionsController < ApplicationController
   # POST /emp_transactions.json
   def create
     linked_account_id = manager_entry_params[:linked_account_id]
-    emp_id = manager_entry_params[:employee_id]
-    event_id = manager_entry_params[:event_id]
 
-    # if emp_id.present?
-    #   @employee = Employee.find emp_id
-    # elsif linked_account_id.present? and event_id.present?
-    #   profiler = EmployeeProfile.new
-    #   @employee = profiler.update_employee(linked_account_id, event_id)
-    #   manager_entry_params[:employee_id] = @employee.id
-    #   puts @employee.id
-    #   puts manager_entry_params[:employee_id]
-    # end
-    # puts manager_entry_params
     @manager_entry = ManagerEntry.new(manager_entry_params)
     @emp_transaction = @manager_entry.emp_transaction
 
-    # authorize! :create, @employee
+    if manager_entry_params[:linked_account_id].present?
+      authorize! :create, @employee
+    end
+
     authorize! :create, @manager_entry.emp_transaction
 
     respond_to do |format|

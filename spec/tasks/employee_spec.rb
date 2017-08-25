@@ -42,7 +42,7 @@ describe "employee rake tasks", type: :tasks do
         hire_date: Date.new(2016, 7, 29))
       nh_uk_prof = FactoryGirl.create(:profile,
         employee: new_hire_uk,
-        profile_status: "Active",
+        profile_status: "Pending",
         location: london)
       returning_uk = FactoryGirl.create(:employee,
         status: "Inactive",
@@ -65,7 +65,7 @@ describe "employee rake tasks", type: :tasks do
         hire_date: Date.new(2016, 7, 29))
       nh_us_prof = FactoryGirl.create(:profile,
         employee: new_hire_us,
-        profile_status: "Active",
+        profile_status: "Pending",
         location: sf)
       returning_us = FactoryGirl.create(:employee,
         status: "Inactive",
@@ -129,7 +129,7 @@ describe "employee rake tasks", type: :tasks do
         hire_date: Date.new(2016, 7, 29))
       nh_us_profile = FactoryGirl.create(:profile,
         employee: new_hire_us,
-        profile_status: "Active",
+        profile_status: "Pending",
         location: sf)
       returning_us = FactoryGirl.create(:employee,
         status: "Inactive",
@@ -146,7 +146,7 @@ describe "employee rake tasks", type: :tasks do
       nh_uk_profile = FactoryGirl.create(:profile,
         employee: new_hire_uk,
         location: london,
-        profile_status: "Active")
+        profile_status: "Pending")
       returning_uk = FactoryGirl.create(:employee,
         status: "Inactive",
         hire_date: 5.years.ago,

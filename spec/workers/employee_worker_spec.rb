@@ -13,6 +13,11 @@ RSpec.describe EmployeeWorker, type: :worker do
     manager_id: manager.employee_id)}
   let(:worker) { EmployeeWorker.new }
   let(:mailer) { double(ManagerMailer) }
+  let!(:rehire_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_rehire_event.json") }
+  let!(:event) { FactoryGirl.create(:adp_event, status: "New", json: rehire_json) }
+  let!(:worker_type) { FactoryGirl.create(:worker_type, code: "FTR") }
+  let(:profiler) { EmployeeProfile.new }
+  let(:potential_employee) { profiler.build_employee(event) }
 
   it "should perform right away" do
     EmployeeWorker.perform_async("Onboarding", employee_id: employee.id)
@@ -44,15 +49,13 @@ RSpec.describe EmployeeWorker, type: :worker do
   end
 
   it "should send the right mailer for rehire" do
-    worker_type = FactoryGirl.create(:worker_type, code: "FTR")
-    rehire_json = File.read(Rails.root.to_s+"/spec/fixtures/adp_rehire_event.json")
-    event = FactoryGirl.create(:adp_event, status: "New", json: rehire_json)
-    profile = EmployeeProfile.new
-    employee = profile.build_employee(event)
-    manager = employee.manager
-
-    expect(ManagerMailer).to receive(:permissions).with("Onboarding", manager, employee, event: event).and_return(mailer)
+    expect(ManagerMailer).to receive(:permissions).with("Onboarding", manager, potential_employee, event: event).and_return(mailer)
     expect(mailer).to receive(:deliver_now)
+
+    expect(EmployeeProfile).to receive(:new).and_return(profiler)
+    expect(AdpEvent).to receive(:find).with(event.id).and_return(event)
+    expect(profiler).to receive(:build_employee).with(event).and_return(potential_employee)
+    expect(potential_employee).to receive(:manager).and_return(manager)
 
     worker.perform("Onboarding", event_id: event.id)
   end

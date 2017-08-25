@@ -23,7 +23,7 @@ describe AuditService, type: :service do
   let!(:reg_term_prof) { FactoryGirl.create(:profile,
     employee: regular_termination,
     manager_id: manager.employee_id,
-    profile_status: "Active")}
+    profile_status: "Terminated")}
   let!(:missed_deactivation) { FactoryGirl.create(:employee,
     first_name: "Tom",
     last_name: "Brokaw",
@@ -32,7 +32,7 @@ describe AuditService, type: :service do
     termination_date: 3.days.ago)}
   let!(:md_profile) { FactoryGirl.create(:profile,
     employee: missed_deactivation,
-    profile_status: "Active",
+    profile_status: "Terminated",
     manager_id: manager.employee_id)}
   let!(:missed_offboard) { FactoryGirl.create(:employee,
     status: "Active",

@@ -30,20 +30,26 @@ class Employee < ActiveRecord::Base
 
   [:manager_id, :department, :worker_type, :location, :job_title, :company, :adp_assoc_oid].each do |attribute|
     define_method :"#{attribute}" do
-      active_profile.send("#{attribute}")
+      current_profile.send("#{attribute}")
     end
   end
 
-  def active_profile
+  def current_profile
     if self.persisted?
-      @active_profile ||= self.profiles.active
+      if self.status == "Active" or self.status == "Inactive"
+        @current_profile ||= self.profiles.active
+      elsif self.status == "Pending"
+        @current_profile ||= self.profiles.pending
+      elsif self.status == "Terminated"
+        @current_profile ||= self.profiles.terminated.last
+      end
     else
-      @active_profile ||= self.profiles.last
+      @current_profile ||= self.profiles.last
     end
   end
 
   def employee_id
-    active_profile.send(:adp_employee_id)
+    current_profile.send(:adp_employee_id)
   end
 
   def self.find_by_employee_id(value)

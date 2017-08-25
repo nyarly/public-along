@@ -1,4 +1,7 @@
 class Profile < ActiveRecord::Base
+
+  before_validation :downcase_unique_attrs
+
   validates :adp_employee_id,
             presence: true
   validates :department_id,
@@ -20,9 +23,6 @@ class Profile < ActiveRecord::Base
   belongs_to :location
   belongs_to :worker_type
 
-  # scope :active, -> { where(profile_status: 'Active').first }
-  # scope :expired, -> { where(profile_status: 'Expired') }
-  # scope :pending, -> { where("profiles.start_date >= ?", Date.today).last }
   scope :active_regular, -> { joins(:worker_type).where(:profile_status => "Active", :worker_types => {:kind => "Regular"})}
 
   def self.active

@@ -35,12 +35,12 @@ describe BetterworksService, type: :service do
       kind: "Contractor") }
 
     it "should scope only regular employees" do
-      ftr_emp = FactoryGirl.create(:regular_employee,
+      ftr_emp = FactoryGirl.create(:employee,
         hire_date: 1.year.ago)
-      old_ftr_prof = FactoryGirl.create(:profile,
+      ftr_prof = FactoryGirl.create(:profile,
         employee: ftr_emp,
-        profile_status: "Expired",
-        worker_type: contractor_worker_type)
+        profile_status: "Active",
+        worker_type: ftr_worker_type)
       ptr_emp = FactoryGirl.create(:employee,
         status: "Active",
         hire_date: 1.year.ago)
@@ -119,6 +119,9 @@ describe BetterworksService, type: :service do
     let(:ptr_worker_type) { FactoryGirl.create(:worker_type,
       code: "PTR",
       kind: "Regular") }
+    let(:contractor_worker_type) { FactoryGirl.create(:worker_type,
+      code: "CONT",
+      kind: "Contractor") }
     let(:department) { FactoryGirl.create(:department,
       name: "Infrastructure Engineering") }
     let(:job_title) { FactoryGirl.create(:job_title,
@@ -128,15 +131,26 @@ describe BetterworksService, type: :service do
       first_name: "Holly",
       last_name: "Golightly",
       termination_date: nil,
-      hire_date: 1.month.ago,
+      hire_date: Date.new(2016, 1, 1),
       status: "Active")}
     let!(:emp_prof) { FactoryGirl.create(:profile,
       employee: emp,
       profile_status: "Active",
       adp_employee_id: "123A",
+      start_date: 1.month.ago,
       department: department,
       job_title: job_title,
       worker_type: ftr_worker_type,
+      manager_id: nil )}
+    let!(:old_emp_prof) { FactoryGirl.create(:profile,
+      employee: emp,
+      profile_status: "Terminated",
+      adp_employee_id: "123A",
+      department: department,
+      job_title: job_title,
+      worker_type: contractor_worker_type,
+      start_date: Date.new(2017, 1, 1),
+      end_date: 1.month.ago,
       manager_id: nil )}
     let!(:term_emp) { FactoryGirl.create(:employee,
       email: "fparson@example.com",

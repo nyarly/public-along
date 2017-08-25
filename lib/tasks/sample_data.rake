@@ -14,7 +14,8 @@ namespace :db do
         last_name: 'Lebowski',
         sam_account_name: 'jlebowski',
         email: 'jlebowski@opentable.com',
-        hire_date: 10.years.ago
+        hire_date: 10.years.ago,
+        status: "Active"
       )
       Profile.create!(
         employee: employee,
@@ -22,6 +23,7 @@ namespace :db do
         profile_status: "Active",
         adp_employee_id: 'jlebowski123',
         business_title: 'The Dude Sr.',
+        profile_status: "Active",
         department_id: Department.find_by(name: "People & Culture-HR & Total Rewards").id,
         location_id: Location.find_by(name: "San Francisco Headquarters").id,
         job_title: JobTitle.find_or_create_by!(id: 1, name: "Test", code: "TEST", status: "Active"),
@@ -34,6 +36,7 @@ end
 def create_basic_new_hire(hire_date)
   new_hire = Employee.create!(
     email: nil, # Regular new hires don't have an email
+    status: "Active",
     first_name: Faker::Name.first_name,
     last_name: Faker::Name.last_name,
     hire_date: hire_date,

@@ -453,13 +453,17 @@ describe AdpService::Events, type: :service do
       end
 
       context "for worker with a mezzo record" do
+        term_date = Date.new(2017, 1, 1)
         let!(:rehired_emp) { FactoryGirl.create(:employee,
-          termination_date: 1.year.ago,
+          hire_date: Date.new(2010, 9, 1),
+          termination_date: term_date,
           status: "Terminated")}
         let!(:profile) { FactoryGirl.create(:profile,
+          start_date: Date.new(2010, 9, 1),
+          end_date: term_date,
           employee: rehired_emp,
           adp_employee_id: "123456",
-          profile_status: "Active")}
+          profile_status: "Terminated")}
 
         it "finds and updates account with new position" do
           expect(ActiveDirectoryService).to receive(:new).and_return(ads)
@@ -478,6 +482,13 @@ describe AdpService::Events, type: :service do
           expect(rehired_emp.reload.status).to eq("Pending")
           expect(rehired_emp.reload.location.code).to eq("SF")
           expect(rehired_emp.reload.job_title.code).to eq("SPMASR")
+          expect(rehired_emp.reload.hire_date).to eq(Date.new(2010, 9, 1))
+          expect(rehired_emp.profiles.count).to eq(2)
+          expect(rehired_emp.current_profile.start_date).to eq(Date.new(2018, 9, 1))
+          expect(rehired_emp.current_profile.profile_status).to eq("Pending")
+          expect(rehired_emp.profiles.terminated.count).to eq(1)
+          expect(rehired_emp.profiles.terminated[0].start_date).to eq(Date.new(2010, 9, 1))
+          expect(rehired_emp.profiles.terminated[0].end_date).to eq(term_date)
         end
       end
 
