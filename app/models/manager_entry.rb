@@ -93,6 +93,8 @@ class ManagerEntry
     # It will automatically add those to revoke_profile_ids
     old_profile_ids = @employee.active_security_profiles.pluck(:id)
     new_profile_ids = security_profile_ids
+    puts old_profile_ids
+    puts new_profile_ids
 
     if security_profile_ids.present?
       add_profile_ids = new_profile_ids - old_profile_ids

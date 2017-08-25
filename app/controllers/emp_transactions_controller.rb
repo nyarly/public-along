@@ -86,7 +86,7 @@ class EmpTransactionsController < ApplicationController
           TechTableMailer.onboard_instructions(@emp_transaction).deliver_now
         end
       else
-        TechTableMailer.permissions(@emp_transaction, @employee).deliver_now
+        TechTableMailer.permissions(@emp_transaction).deliver_now
       end
     end
   end
