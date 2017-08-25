@@ -21,18 +21,6 @@ class EmployeesController < ApplicationController
     @email = Email.new
   end
 
-  def create
-    @employee = Employee.new(employee_params)
-
-    respond_to do |format|
-      if @employee.save
-        format.json { render :show, status: :created, location: @employee}
-      else
-        format.json { render json: @employee.errors, status: :unprocessable }
-      end
-    end
-  end
-
   def autocomplete_name
     term = params[:term]
     if term && !term.empty?

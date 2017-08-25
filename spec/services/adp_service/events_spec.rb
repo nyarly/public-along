@@ -447,7 +447,6 @@ describe AdpService::Events, type: :service do
           expect{
             adp.process_rehire(parsed_json, rehire_event)
           }.not_to change{Employee.count}
-          expect(Employee.count).to eq(0)
         end
 
       end

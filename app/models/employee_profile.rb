@@ -68,6 +68,7 @@ class EmployeeProfile
     # create new profile for changes to worker type or ADP record
     if profile.worker_type_id_changed? || profile.adp_employee_id_changed? || profile.adp_assoc_oid_changed?
       profile = Profile.find(employee.current_profile.id)
+      # reload profile object to discard changes
       profile.reload
       new_profile = employee.profiles.build(profile_attrs.to_h)
 
@@ -159,7 +160,7 @@ class EmployeeProfile
 
   def send_email?(profile)
     has_changed = profile.changed? && profile.valid?
-    has_triggering_change = profile.department_id_changed? || profile.location_id_changed? || profile.worker_type_id_changed? || profile.job_title_id_changed?
+    has_triggering_change = profile.department_id_changed? || profile.location_id_changed? || profile.job_title_id_changed?
     no_previous_changes = profile.employee.emp_deltas.important_changes.blank?
 
     if has_changed && has_triggering_change && profile.profile_status == "Active"

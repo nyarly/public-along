@@ -2,7 +2,6 @@ class ManagerMailerPreview < ActionMailer::Preview
 
   def onboarding_permissions
     employee = Employee.unscoped.order('created_at ASC').last
-    puts employee.profiles.inspect
     manager = Employee.find_by_employee_id(employee.manager_id) if employee && employee.manager_id
     ManagerMailer.permissions("Onboarding", manager, employee)
   end

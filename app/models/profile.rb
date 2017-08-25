@@ -23,7 +23,7 @@ class Profile < ActiveRecord::Base
   belongs_to :location
   belongs_to :worker_type
 
-  scope :active_regular, -> { joins(:worker_type).where(:profile_status => "Active", :worker_types => {:kind => "Regular"})}
+  scope :regular_worker_type, -> { joins(:worker_type).where(:worker_types => {:kind => "Regular"})}
 
   def self.active
     where(:profile_status => "Active").last

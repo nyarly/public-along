@@ -6,7 +6,6 @@ class Department < ActiveRecord::Base
             case_sensitive: false
 
   belongs_to :parent_org
-  # has_many :employees
   has_many :profiles
   has_many :employees, through: :profiles
   has_many :dept_sec_profs # on_delete, cascade in db

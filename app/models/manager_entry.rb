@@ -60,6 +60,7 @@ class ManagerEntry
         employee = profiler.new_employee(event)
         event.status = "Processed"
         event.save!
+
         ads = ActiveDirectoryService.new
         ads.create_disabled_accounts([employee])
         employee

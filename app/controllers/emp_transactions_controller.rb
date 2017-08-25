@@ -55,11 +55,6 @@ class EmpTransactionsController < ApplicationController
     @manager_entry = ManagerEntry.new(manager_entry_params)
     @emp_transaction = @manager_entry.emp_transaction
 
-    # if manager_entry_params[:link_email].present?
-    #   authorize! :create, Profile
-    #   authorize! :update, @employee
-    # end
-
     authorize! :create, @manager_entry.emp_transaction
 
     respond_to do |format|
@@ -77,18 +72,15 @@ class EmpTransactionsController < ApplicationController
   private
 
   def send_email
-    if @emp_transaction.kind != "Offboarding"
-      if @emp_transaction.kind == "Onboarding"
-        if @manager_entry.link_email == true
-          TechTableMailer.onboard_instructions(@emp_transaction, link_email: true).deliver_now
-        else
-          TechTableMailer.onboard_instructions(@emp_transaction).deliver_now
-        end
-      else
+    if @emp_transaction.kind == "Onboarding" and @manager_entry.link_email == true
+      TechTableMailer.onboard_instructions(@emp_transaction, link_email: true).deliver_now
+    else
+      if @emp_transaction.kind != "Offboarding"
         TechTableMailer.permissions(@emp_transaction).deliver_now
       end
     end
   end
+
   # Use callbacks to share common setup or constraints between actions.
   def set_emp_transaction
     @emp_transaction = EmpTransaction.find(params[:id])

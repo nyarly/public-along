@@ -395,11 +395,6 @@ describe Employee, type: :model do
       employee: employee,
       manager_id: manager.employee_id)}
 
-    # skipping because email always gets generated
-    xit "should not generate an email when sAMAccountName is set" do
-      expect(employee.generated_email).to be_nil
-    end
-
     it "should set the correct account expiry" do
       date = employee.contract_end_date + 1.day
       time_conversion = ActiveSupport::TimeZone.new("Europe/London").local_to_utc(date)
@@ -513,7 +508,6 @@ describe Employee, type: :model do
   end
 
   context "with a remote worker and one address line" do
-    # let(:remote_location) { FactoryGirl.create(:location, :remote) }
     let(:employee) { FactoryGirl.create(:employee,
       first_name: "Bob",
       last_name: "Barker",

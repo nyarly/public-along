@@ -35,6 +35,8 @@ class Employee < ActiveRecord::Base
   end
 
   def current_profile
+    # if employee data is not persisted, like when previewing employee data from an event
+    # scope on profiles is not available, so must access by method last
     if self.persisted?
       if self.status == "Active" or self.status == "Inactive"
         @current_profile ||= self.profiles.active
@@ -53,7 +55,7 @@ class Employee < ActiveRecord::Base
   end
 
   def self.find_by_employee_id(value)
-    p = Profile.includes(:employee).find_by(adp_employee_id: value)
+    p = Profile.find_by(adp_employee_id: value)
     if p.present?
       p.employee
     else
@@ -268,8 +270,9 @@ class Employee < ActiveRecord::Base
   end
 
   def onboarding_due_date
+    # if employee data is not persisted, like when previewing employee data from an event
+    # scope on profiles is not available, so must access by method last
     if self.profiles.pending.present?
-      puts self.profiles.pending.inspect
       start_date = self.profiles.pending.start_date
     else
       start_date = self.profiles.last.start_date

@@ -22,7 +22,7 @@
               }
             },
             "workerDates": {
-              "originalHireDate": "2017-08-14"
+              "originalHireDate": "2017-12-12"
             },
             "workerStatus": {
               "statusCode": {
@@ -31,8 +31,8 @@
             },
             "workAssignment": {
               "primaryIndicator": true,
-              "hireDate": "2017-08-14",
-              "actualStartDate": "2017-08-14",
+              "hireDate": "2017-12-12",
+              "actualStartDate": "2017-12-12",
               "assignmentStatus": {
                 "statusCode": {
                   "codeValue": "A",
