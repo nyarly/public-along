@@ -15,9 +15,8 @@ Rails.application.routes.draw do
   devise_for :users, controllers: {
     sessions: 'users/sessions'
   }
-  resources :employees, :only => [:index, :show] do
+  resources :employees, :only => [:index, :show, :create, :update] do
     get :autocomplete_name, :on => :collection
-    get :autocomplete_email, :on => :collection
   end
   resource :emails, :only => [:create]
 

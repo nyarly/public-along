@@ -14,9 +14,10 @@ describe Role::Manager, :type => :model do
   let(:ability) { Ability.new(user) }
 
   describe 'abilities' do
-    it_should_behave_like "role abilities", Employee, [:read, :autocomplete_name]
+    it_should_behave_like "role abilities", Employee, [:read, :create, :update, :autocomplete_email, :autocomplete_name]
     it_should_behave_like "role abilities", EmpTransaction, [:new, :show, :create]
     it_should_behave_like "role abilities", ManagerEntry, [:create]
+    it_should_behave_like "role abilities", Profile, [:create]
 
     it "should only be able to read direct reports" do
       expect(ability).to be_able_to(:read, direct_report)

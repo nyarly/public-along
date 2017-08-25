@@ -19,43 +19,32 @@
 
 $(function(){ $(document).foundation(); });
 
-// Shows and hides contract end date depending on employee type selection
-// This is temporary and should be removed when this UI is retired.
 $(document).ready(function(){
-  toggleContract();
-  $('#employee_employee_type').change(toggleContract);
   showLinkedEmployee();
   selectLinkedAccount();
   clearLinkedAccount();
+  deselectLinkAccounts();
 });
 
-function toggleContract() {
-  if ( $('#employee_employee_type').val() != 'Regular') {
-    $("#employee_contract_end_date_1i").attr('required', true);
-    $("#employee_contract_end_date_2i").attr('required', true);
-    $("#employee_contract_end_date_3i").attr('required', true);
-    $("#contract-date").show();
-  } else {
-    $("#employee_contract_end_date_1i").removeAttr('required');
-    $("#employee_contract_end_date_2i").removeAttr('required');
-    $("#employee_contract_end_date_3i").removeAttr('required');
-    $("#contract-date").hide();
-  }
+function deselectLinkAccounts() {
+  $('#manager_entry_link_email').bind('off.zf.toggler', function(event) {
+    console.log(event)
+  })
 }
 
 function showLinkedEmployee() {
   $('#manager_entry_linked_account_id').bind('railsAutocomplete.select', function(event, data){
     if (data.item.value == "no existing match") {
-      $('#show_selected_employee').hide()
+      $('#show-selected-employee').hide()
     } else {
-      $('#show_selected_employee').show()
+      $('#show-selected-employee').show()
+      console.log(data)
       date_options = { year: 'numeric', month: 'long', day: 'numeric' };
       hire_date = new Date(data.item.hire_date)
-      console.log(data)
-      $('#linked_emp_fn').text(data.item.first_name)
-      $('#linked_emp_ln').text(data.item.last_name)
-      $('#linked_emp_email').text(data.item.value)
-      $('#linked_emp_hd').text(hire_date.toLocaleDateString("en-US", date_options))
+      $('#linked-emp-fn').text(data.item.first_name)
+      $('#linked-emp-ln').text(data.item.last_name)
+      $('#linked-emp-email').text(data.item.value)
+      $('#linked-emp-hd').text(hire_date.toLocaleDateString("en-US", date_options))
     }
   });
 }
@@ -63,12 +52,12 @@ function showLinkedEmployee() {
 function selectLinkedAccount() {
   $('#select_linked_account').click(function(event) {
     event.preventDefault();
-    $('#linked_employee').show();
+    $('#linked-employee').show();
     email = $('#manager_entry_linked_account_id').val();
-    acct_name = $('#linked_emp_fn').text() + " " + $('#linked_emp_ln').text();
-    $('#reuse_email').text(email);
-    $('#linked_name').text(acct_name);
-    $('#show_selected_employee').hide();
+    acct_name = $('#linked-emp-fn').text() + " " + $('#linked-emp-ln').text();
+    $('#reuse-email').text(email);
+    $('#linked-name').text(acct_name);
+    $('#show-selected-employee').hide();
     $('#help-section').hide();
     $('#manager_entry_linked_account_id').attr('disabled', true);
   })
@@ -77,9 +66,9 @@ function selectLinkedAccount() {
 function clearLinkedAccount() {
   $('.clear_linked_account').click(function(event) {
     event.preventDefault();
-    $('#show_selected_employee').hide();
+    $('#show-selected-employee').hide();
     $('#manager_entry_linked_account_id').val("");
-    $('#linked_employee').hide();
+    $('#linked-employee').hide();
     $("#manager_entry_employee_email").attr("disabled", false);
   })
 }

@@ -45,28 +45,25 @@ class ManagerEntry
     elsif event_id.present?
       profiler = EmployeeProfile.new
       event = AdpEvent.find event_id
-
       # if linking hire or rehire event to existing employee record
       if link_email == "on"
         if linked_account_id.present?
           employee = profiler.link_accounts(linked_account_id, event_id)
-          ads = ActiveDirectoryService.new
-          ads.create_disabled_accounts([employee])
           event.status = "Processed"
           event.save!
           employee
         else
           emp_transaction.errors.add(:base, :employee_blank, message: "You didn't chose an email to reuse. Did you mean to create a new email? If so, please select 'no' in the Rehire or Worker Type Change.")
         end
-
       # if rehire or job change, but wish to have new record/email
       elsif link_email == "off"
         employee = profiler.new_employee(event)
         event.status = "Processed"
         event.save!
+        ads = ActiveDirectoryService.new
+        ads.create_disabled_accounts([employee])
         employee
       else
-
         # for new emp transactions before form filled out
         employee = profiler.build_employee(event)
       end
@@ -91,12 +88,11 @@ class ManagerEntry
   def build_security_profiles
     # The security access form automatically understands old department security profiles to be unchecked
     # It will automatically add those to revoke_profile_ids
-    old_profile_ids = @employee.active_security_profiles.pluck(:id)
-    new_profile_ids = security_profile_ids
-    puts old_profile_ids
-    puts new_profile_ids
-
     if security_profile_ids.present?
+
+      old_profile_ids = @employee.active_security_profiles.present? ? @employee.active_security_profiles.pluck(:id).map(&:to_i) : []
+      new_profile_ids = security_profile_ids.map(&:to_i)
+
       add_profile_ids = new_profile_ids - old_profile_ids
       revoke_profile_ids = old_profile_ids - new_profile_ids
 

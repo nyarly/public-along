@@ -11,7 +11,7 @@
              class="switch-input"
              type="checkbox"
              name="manager_entry[link_email]"
-             data-toggle="find_email">
+             data-toggle="find-email">
       <label class="switch-paddle" for="link-account">
         <span class="show-for-sr">Link Accounts</span>
         <span class="switch-active" aria-hidden="true" value="yes">Yes</span>
@@ -23,7 +23,7 @@
     <!-- End toggle controls -->
 
     <!-- Autocomplete employee email search -->
-    <div id="find_email"
+    <div id="find-email"
          class="column small-10 medium-10 large-11 is-hidden"
          data-toggler="is-hidden">
       <%= f.autocomplete_field :linked_account_id, autocomplete_employee_email_emp_transactions_path, :id_element => '#linked_account_id', :update_elements => {}, :placeholder => "Search by OpenTable email" %>
@@ -35,14 +35,14 @@
 
   <!-- Display linked worker info after search -->
   <div class=row>
-    <div id="show_selected_employee" class="callout primary" style="display:none;">
+    <div id="show-selected-employee" class="callout primary" style="display:none;">
       <p>
-        <strong><span id="linked_emp_fn"></span> <span id="linked_emp_ln"></span></strong><br>
-        <span id="linked_emp_email"></span><br>
+        <strong><span id="linked-emp-fn"></span> <span id="linked-emp-ln"></span></strong><br>
+        <span id="linked-emp-email"></span><br>
       </p>
       <p>
         <strong>Previous Tenure Information:</strong><br>
-        Original Hire Date: <span id="linked_emp_hd"></span><br>
+        Original Hire Date: <span id="linked-emp-hd"></span><br>
       </p>
       <p><a href="" id="select_linked_account" class="button">Select Account</a>  <a href="" class="clear_linked_account button alert">Search Again</a></p>
     </div>
@@ -59,8 +59,8 @@
   <!-- End help toggle and info -->
 
   <!-- Final confirmation of linked worker -->
-  <div id="linked_employee" class="callout warning" style="display:none;">
-    <p>You have decided to reuse the email address <strong><span id="reuse_email"></span></strong> associated with <strong><span id="linked_name"></span></strong>. This email address and username will be assigned to the worker for accessing all OpenTable systems. This action cannot be undone.</p>
+  <div id="linked-employee" class="callout warning" style="display:none;">
+    <p>You have decided to reuse the email address <strong><span id="reuse-email"></span></strong> associated with <strong><span id="linked-name"></span></strong>. This email address and username will be assigned to the worker for accessing all OpenTable systems. This action cannot be undone.</p>
   </div>
   <!-- End final confirmation -->
 </div>

@@ -20,9 +20,10 @@ RSpec.describe TechTableMailer, type: :mailer do
     let(:user) { FactoryGirl.create(:user)}
     let(:emp) { FactoryGirl.create(:regular_employee)}
     let(:et) { FactoryGirl.create(:emp_transaction,
+      employee: emp,
       user_id: user.id,
       kind: "Security Access")}
-    let!(:email) { TechTableMailer.permissions(et, emp).deliver_now }
+    let!(:email) { TechTableMailer.permissions(et).deliver_now }
 
     it "should queue to send" do
       expect(ActionMailer::Base.deliveries).to_not be_empty

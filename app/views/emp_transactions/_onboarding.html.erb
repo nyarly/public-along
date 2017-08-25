@@ -2,7 +2,7 @@
 <div class="text-center" style="margin-left: 15%; margin-right: 15%;">
   <p>This form must be submitted before <strong><%= @employee.onboarding_due_date %>.</strong>
     <br>
-    Start Date: <strong><%= @employee.hire_date.strftime("%b %e, %Y")%></strong>
+    Start Date: <strong><%= @employee.current_profile.start_date.strftime("%b %e, %Y")%></strong>
   </p>
   <hr>
   <p>You are receiving this action request because you are listed as the manager of new hire <%= @employee.cn %>, who will be starting in the <%= @employee.location.name %> office on <%= @employee.hire_date.strftime("%b %e, %Y") %>. </br>If this information is incorrect, please contact People & Culture.</p>

@@ -104,10 +104,9 @@ RSpec.describe EmployeeProfile do
       expect(employee.status).to eq("Active")
       expect(employee.current_profile.profile_status).to eq("Active")
       expect(employee.worker_type).to eq(worker_type)
-      expect(employee.profiles.terminated.count).to eq(1)
-      expect(employee.profiles.terminated[0].profile_status).to eq("Terminated")
-      expect(employee.profiles.terminated[0].worker_type).to eq(old_worker_type)
-      expect(employee.profiles.terminated[0].end_date).to eq(Date.today)
+      expect(employee.profiles.terminated).to eq(profile)
+      expect(employee.profiles.terminated.profile_status).to eq("Terminated")
+      expect(employee.profiles.terminated.worker_type).to eq(old_worker_type)
       expect(employee.emp_deltas.last.before).to eq({"start_date"=>"2016-06-01 00:00:00 UTC", "worker_type_id"=>"#{old_worker_type.id}"})
       expect(employee.emp_deltas.last.after).to eq({"start_date"=>"2017-01-01 00:00:00 UTC", "worker_type_id"=>"#{worker_type.id}"})
     end
@@ -148,10 +147,9 @@ RSpec.describe EmployeeProfile do
       expect(employee.emp_deltas.last.after).to eq({"last_name"=>"Goodall", "start_date"=>"2017-01-01 00:00:00 UTC", "worker_type_id"=>"#{worker_type.id}"})
       expect(employee.profiles.active.profile_status).to eq("Active")
       expect(employee.worker_type).to eq(worker_type)
-      expect(employee.profiles.terminated.count).to eq(1)
-      expect(employee.profiles.terminated[0].profile_status).to eq("Terminated")
-      expect(employee.profiles.terminated[0].worker_type).to eq(old_worker_type)
-      expect(employee.profiles.terminated[0].end_date).to eq(Date.today)
+      expect(employee.profiles.terminated).to eq(profile)
+      expect(employee.profiles.terminated.profile_status).to eq("Terminated")
+      expect(employee.profiles.terminated.worker_type).to eq(old_worker_type)
     end
   end
 
@@ -184,7 +182,6 @@ RSpec.describe EmployeeProfile do
       expect(employee.emp_deltas.last.after).to eq({"department_id"=>"#{department.id}"})
       expect(employee.profiles.active.profile_status).to eq("Active")
       expect(employee.department).to eq(department)
-      expect(employee.profiles.terminated.count).to eq(0)
     end
   end
 

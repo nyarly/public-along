@@ -4,7 +4,6 @@ class EmployeesController < ApplicationController
   before_action :set_employee, only: :show
 
   autocomplete :employee, :name, :full => true, :extra_data => [:employee_id]
-  autocomplete :employee, :email, :full => true, :extra_data => [:first_name, :last_name, :job_title, :hire_date, :termination_date]
 
   def index
     if current_user.role_names.count == 1 && current_user.role_names.include?("Manager")
@@ -20,6 +19,18 @@ class EmployeesController < ApplicationController
 
   def show
     @email = Email.new
+  end
+
+  def create
+    @employee = Employee.new(employee_params)
+
+    respond_to do |format|
+      if @employee.save
+        format.json { render :show, status: :created, location: @employee}
+      else
+        format.json { render json: @employee.errors, status: :unprocessable }
+      end
+    end
   end
 
   def autocomplete_name
@@ -43,24 +54,9 @@ class EmployeesController < ApplicationController
       :email,
       :first_name,
       :last_name,
-      # :workday_username,
-      # :employee_id,
       :hire_date,
       :contract_end_date,
       :termination_date,
-      # :job_family_id,
-      # :job_family,
-      # :job_profile_id,
-      # :job_profile,
-      # :job_title_id,
-      # :business_title,
-      # :employee_type,
-      # :worker_type_id,
-      # :contingent_worker_id,
-      # :contingent_worker_type,
-      # :location_id,
-      # :manager_id,
-      # :department_id,
       :personal_mobile_phone,
       :office_phone,
       :home_address_1,

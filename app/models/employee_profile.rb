@@ -39,8 +39,15 @@ class EmployeeProfile
     employee = Employee.find employee_id
     event = AdpEvent.find event_id
     w_hash = parse_event(event)
-
-    employee = update_employee(employee, w_hash)
+    employee_attrs, profile_attrs = w_hash.partition{ |k,v| Employee.column_names.include?(k.to_s) }
+    employee.assign_attributes(employee_attrs.to_h.except(:status))
+    new_profile = employee.profiles.build(profile_attrs.to_h.except(:profile_status))
+    employee.status = "Pending" if employee.status == "Terminated"
+    new_profile.profile_status = "Pending"
+    delta = build_emp_delta(new_profile)
+    delta.save!
+    new_profile.save!
+    employee.save!
     employee
   end
 
@@ -61,6 +68,7 @@ class EmployeeProfile
       new_profile = employee.profiles.build(profile_attrs.to_h)
 
       if new_profile.start_date > Date.today
+        employee.status = "Pending" if employee.status == "Terminated"
         new_profile.profile_status = "Pending"
         if new_profile.save!
           # TODO: create a worker to update status
@@ -69,7 +77,6 @@ class EmployeeProfile
         end
       else
         profile.profile_status = "Terminated"
-        profile.end_date = Date.today
         new_profile.profile_status = "Active"
         if profile.save! and new_profile.save!
           #TODO

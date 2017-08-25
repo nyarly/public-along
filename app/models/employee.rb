@@ -41,7 +41,7 @@ class Employee < ActiveRecord::Base
       elsif self.status == "Pending"
         @current_profile ||= self.profiles.pending
       elsif self.status == "Terminated"
-        @current_profile ||= self.profiles.terminated.last
+        @current_profile ||= self.profiles.terminated
       end
     else
       @current_profile ||= self.profiles.last

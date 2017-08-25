@@ -78,6 +78,10 @@ RSpec.describe ManagerEntry do
     end
   end
 
+  context "Onboarding Rehire/Job Change with Linked Accounts" do
+    puts "todo"
+  end
+
   context "Security Access Change" do
     let(:params) do
       {

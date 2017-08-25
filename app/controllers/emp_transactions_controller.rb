@@ -2,7 +2,7 @@ class EmpTransactionsController < ApplicationController
 
   before_action :set_emp_transaction, only: [:show]
 
-  autocomplete :employee, :email, :full => true, :extra_data => [:first_name, :last_name, :hire_date, :termination_date]
+  autocomplete :employee, :email, :full => true, :extra_data => [:first_name, :last_name, :hire_date]
 
   # GET /emp_transactions
   # GET /emp_transactions.json
@@ -52,14 +52,13 @@ class EmpTransactionsController < ApplicationController
   # POST /emp_transactions
   # POST /emp_transactions.json
   def create
-    linked_account_id = manager_entry_params[:linked_account_id]
-
     @manager_entry = ManagerEntry.new(manager_entry_params)
     @emp_transaction = @manager_entry.emp_transaction
 
-    if manager_entry_params[:linked_account_id].present?
-      authorize! :create, @employee
-    end
+    # if manager_entry_params[:link_email].present?
+    #   authorize! :create, Profile
+    #   authorize! :update, @employee
+    # end
 
     authorize! :create, @manager_entry.emp_transaction
 
@@ -80,8 +79,8 @@ class EmpTransactionsController < ApplicationController
   def send_email
     if @emp_transaction.kind != "Offboarding"
       if @emp_transaction.kind == "Onboarding"
-        if @manager_entry.link_accounts == true
-          TechTableMailer.onboard_instructions(@emp_transaction, link_accounts: true).deliver_now
+        if @manager_entry.link_email == true
+          TechTableMailer.onboard_instructions(@emp_transaction, link_email: true).deliver_now
         else
           TechTableMailer.onboard_instructions(@emp_transaction).deliver_now
         end

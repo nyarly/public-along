@@ -486,9 +486,8 @@ describe AdpService::Events, type: :service do
           expect(rehired_emp.profiles.count).to eq(2)
           expect(rehired_emp.current_profile.start_date).to eq(Date.new(2018, 9, 1))
           expect(rehired_emp.current_profile.profile_status).to eq("Pending")
-          expect(rehired_emp.profiles.terminated.count).to eq(1)
-          expect(rehired_emp.profiles.terminated[0].start_date).to eq(Date.new(2010, 9, 1))
-          expect(rehired_emp.profiles.terminated[0].end_date).to eq(term_date)
+          expect(rehired_emp.profiles.terminated.start_date).to eq(Date.new(2010, 9, 1))
+          expect(rehired_emp.profiles.terminated.end_date).to eq(term_date)
         end
       end
 
