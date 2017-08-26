@@ -25,6 +25,10 @@ Create Google Membership: <%= @info.onboarding_info.cw_google_membership %>
 Contingent Worker: false
 <% end %>
 
+<% if @link_accounts %>
+This worker is a rehire or is changing worker types. They are reusing their email address, <%= @employee.email %>. Please transition their accounts accordingly.
+<% end %>
+
 <% if @info.emp_transaction.security_profiles.count > 0 %>
 Apply Security Profiles:
 --------------

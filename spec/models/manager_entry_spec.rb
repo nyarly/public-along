@@ -8,7 +8,15 @@ RSpec.describe ManagerEntry do
     allow(sas).to receive(:apply_ad_permissions)
   end
 
-  context "New Hire/Re-hire" do
+  context "Onboarding New Hire" do
+    let(:user) { FactoryGirl.create(:user) }
+    let(:buddy) { FactoryGirl.create(:regular_employee) }
+    let!(:employee) { FactoryGirl.create(:regular_employee) }
+    let(:sp_1) { FactoryGirl.create(:security_profile) }
+    let(:sp_2) { FactoryGirl.create(:security_profile) }
+    let(:sp_3) { FactoryGirl.create(:security_profile) }
+    let(:machine_bundle) { FactoryGirl.create(:machine_bundle) }
+
     let(:params) do
       {
         kind: "Onboarding",
@@ -23,16 +31,8 @@ RSpec.describe ManagerEntry do
       }
     end
 
-    let(:user) { FactoryGirl.create(:user) }
-    let(:buddy) { FactoryGirl.create(:employee) }
-    let(:manager_entry) { ManagerEntry.new(params) }
-    let(:employee) { FactoryGirl.create(:employee) }
-    let(:sp_1) { FactoryGirl.create(:security_profile) }
-    let(:sp_2) { FactoryGirl.create(:security_profile) }
-    let(:sp_3) { FactoryGirl.create(:security_profile) }
-    let(:machine_bundle) { FactoryGirl.create(:machine_bundle) }
-
     it "should create an emp_transaction with the right attrs" do
+      manager_entry = ManagerEntry.new(params)
       expect(manager_entry.emp_transaction.kind).to eq("Onboarding")
       expect(manager_entry.emp_transaction.user_id).to eq(user.id)
       expect(manager_entry.emp_transaction.notes).to eq("These notes")
@@ -40,6 +40,7 @@ RSpec.describe ManagerEntry do
     end
 
     it "should create onboarding info" do
+      manager_entry = ManagerEntry.new(params)
       manager_entry.save
 
       expect(manager_entry.emp_transaction.onboarding_infos.count).to eq(1)
@@ -49,6 +50,7 @@ RSpec.describe ManagerEntry do
     end
 
     it "should create security profiles" do
+      manager_entry = ManagerEntry.new(params)
       manager_entry.save
 
       expect(manager_entry.emp_transaction.security_profiles.count).to eq(3)
@@ -56,6 +58,7 @@ RSpec.describe ManagerEntry do
     end
 
     it "should build machine bundles" do
+      manager_entry = ManagerEntry.new(params)
       manager_entry.save
 
       expect(manager_entry.emp_transaction.machine_bundles.count).to eq(1)
@@ -66,10 +69,194 @@ RSpec.describe ManagerEntry do
 
     it "should report errors" do
       params[:employee_id] = nil
+      params[:event_id] = nil
+      manager_entry = ManagerEntry.new(params)
 
       manager_entry.save
 
       expect(manager_entry.errors.messages).to eq({:base => ["Employee can not be blank. Please revisit email link to refresh page."]})
+    end
+  end
+
+  context "Onboarding Job Change with Linked Accounts" do
+    let!(:worker_type) { FactoryGirl.create(:worker_type,
+      code: "ACW",
+      name: "Contractor")}
+    let(:old_employee) { FactoryGirl.create(:employee,
+      status: "Terminated")}
+    let!(:profile) { FactoryGirl.create(:profile,
+      employee: old_employee,
+      profile_status: "Terminated")}
+    let(:user) { FactoryGirl.create(:user) }
+    let!(:hire_event) { File.read(Rails.root.to_s+"/spec/fixtures/adp_cat_change_hire_event.json") }
+    let!(:event) { FactoryGirl.create(:adp_event,
+      status: "New",
+      json: hire_event) }
+    let(:sp_1) { FactoryGirl.create(:security_profile) }
+    let(:sp_2) { FactoryGirl.create(:security_profile) }
+    let(:sp_3) { FactoryGirl.create(:security_profile) }
+    let(:machine_bundle) { FactoryGirl.create(:machine_bundle) }
+    let(:link_on_params) do
+      {
+        kind: "Onboarding",
+        event_id: event.id,
+        user_id: user.id,
+        buddy_id: nil,
+        cw_email: 1,
+        cw_google_membership: 0,
+        notes: "These notes",
+        security_profile_ids: [sp_1.id, sp_2.id, sp_3.id],
+        machine_bundle_id: machine_bundle.id,
+        link_email: "on",
+        linked_account_id: old_employee.id
+      }
+      end
+    let(:link_off_params) do
+      {
+        kind: "Onboarding",
+        event_id: event.id,
+        user_id: user.id,
+        buddy_id: nil,
+        cw_email: 1,
+        cw_google_membership: 0,
+        notes: "These notes",
+        security_profile_ids: [sp_1.id, sp_2.id, sp_3.id],
+        machine_bundle_id: machine_bundle.id,
+        link_email: "off"
+      }
+    end
+    let(:ads) { double(ActiveDirectoryService) }
+    let(:profiler) { EmployeeProfile.new }
+
+    it "should create a new profile on when manager links employees" do
+      manager_entry = ManagerEntry.new(link_on_params)
+
+      expect{
+        manager_entry.save
+      }.not_to change{Employee.count}
+      expect(Profile.count).to eq(2)
+      expect(manager_entry.emp_transaction.employee).to eq(old_employee)
+
+      old_employee.reload
+      event.reload
+
+      expect(old_employee.status).to eq("Pending")
+      expect(old_employee.worker_type).to eq(worker_type)
+      expect(old_employee.machine_bundles.first).to eq(machine_bundle)
+      expect(old_employee.profiles.count).to eq(2)
+      expect(old_employee.profiles.terminated).to eq(profile)
+      expect(old_employee.profiles.pending.worker_type).to eq(worker_type)
+      expect(event.status).to eq("Processed")
+    end
+
+    it "should create a new employee when the manager does not link accounts" do
+      job_title = FactoryGirl.create(:job_title,
+        code: "CTRANL",
+        name: "Control Analyst")
+
+      manager_entry = ManagerEntry.new(link_off_params)
+      manager_entry.save
+
+      employee = Employee.reorder(:created_at).last
+      event.reload
+
+      expect(employee.status).to eq("Pending")
+      expect(employee.worker_type).to eq(worker_type)
+      expect(employee.machine_bundles.first).to eq(machine_bundle)
+      expect(employee.profiles.count).to eq(1)
+      expect(employee.profiles.terminated).to eq(nil)
+      expect(employee.profiles.pending.worker_type).to eq(worker_type)
+      expect(event.status).to eq("Processed")
+    end
+  end
+
+  context "Onboard Rehire with Linked Accounts" do
+    let!(:worker_type) { FactoryGirl.create(:worker_type,
+      code: "FTR",
+      name: "Regular Full-Time")}
+    let(:old_employee) { FactoryGirl.create(:employee,
+      status: "Terminated")}
+    let!(:profile) { FactoryGirl.create(:profile,
+      employee: old_employee,
+      profile_status: "Terminated")}
+    let(:user) { FactoryGirl.create(:user) }
+    let!(:rehire_event) { File.read(Rails.root.to_s+"/spec/fixtures/adp_rehire_event.json") }
+    let!(:event) { FactoryGirl.create(:adp_event,
+      status: "New",
+      json: rehire_event) }
+    let(:sp_1) { FactoryGirl.create(:security_profile) }
+    let(:sp_2) { FactoryGirl.create(:security_profile) }
+    let(:sp_3) { FactoryGirl.create(:security_profile) }
+    let(:machine_bundle) { FactoryGirl.create(:machine_bundle) }
+    let(:link_on_params) do
+      {
+        kind: "Onboarding",
+        event_id: event.id,
+        user_id: user.id,
+        buddy_id: nil,
+        cw_email: 1,
+        cw_google_membership: 0,
+        notes: "These notes",
+        security_profile_ids: [sp_1.id, sp_2.id, sp_3.id],
+        machine_bundle_id: machine_bundle.id,
+        link_email: "on",
+        linked_account_id: old_employee.id
+      }
+      end
+    let(:link_off_params) do
+      {
+        kind: "Onboarding",
+        event_id: event.id,
+        user_id: user.id,
+        buddy_id: nil,
+        cw_email: 1,
+        cw_google_membership: 0,
+        notes: "These notes",
+        security_profile_ids: [sp_1.id, sp_2.id, sp_3.id],
+        machine_bundle_id: machine_bundle.id,
+        link_email: "off"
+      }
+    end
+    let(:ads) { double(ActiveDirectoryService) }
+    let(:profiler) { EmployeeProfile.new }
+
+    it "should create a new profile on when manager links employees" do
+      manager_entry = ManagerEntry.new(link_on_params)
+
+      expect{
+        manager_entry.save
+      }.not_to change{Employee.count}
+      expect(Profile.count).to eq(2)
+      expect(manager_entry.emp_transaction.employee).to eq(old_employee)
+
+      old_employee.reload
+      event.reload
+
+      expect(old_employee.status).to eq("Pending")
+      expect(old_employee.worker_type).to eq(worker_type)
+      expect(old_employee.machine_bundles.first).to eq(machine_bundle)
+      expect(old_employee.profiles.count).to eq(2)
+      expect(old_employee.profiles.terminated).to eq(profile)
+      expect(old_employee.profiles.pending.worker_type).to eq(worker_type)
+      expect(old_employee.profiles.pending.start_date).to eq(DateTime.new(2018, 9, 1))
+      expect(event.status).to eq("Processed")
+    end
+
+    it "should create a new employee when the manager doesn't link employees" do
+      manager_entry = ManagerEntry.new(link_off_params)
+      manager_entry.save
+
+      employee = Employee.reorder(:created_at).last
+      event.reload
+
+      expect(employee.status).to eq("Pending")
+      expect(employee.worker_type).to eq(worker_type)
+      expect(employee.machine_bundles.first).to eq(machine_bundle)
+      expect(employee.profiles.count).to eq(1)
+      expect(employee.profiles.terminated).to eq(nil)
+      expect(employee.profiles.pending.worker_type).to eq(worker_type)
+      expect(employee.profiles.pending.job_title.name).to eq("Specialist - Major Accounts - Sr.")
+      expect(event.status).to eq("Processed")
     end
   end
 

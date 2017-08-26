@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe SecAccessService, type: :service do
   let(:ldap)                       { double(Net::LDAP) }
-  let!(:employee)                   { FactoryGirl.create(:employee) }
+  let!(:employee)                   { FactoryGirl.create(:regular_employee) }
   let!(:emp_transaction)            { FactoryGirl.create(:emp_transaction,
                                                         employee_id: employee.id) }
   let!(:emp_transaction_old)        { FactoryGirl.create(:emp_transaction,

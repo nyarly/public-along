@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe EmpDelta, type: :model do
-  let(:employee) { FactoryGirl.create(:employee)}
+  let(:employee) { FactoryGirl.create(:regular_employee)}
   let(:job_title) { FactoryGirl.create(:job_title)}
 
   let(:emp_delta) { FactoryGirl.build(:emp_delta,
@@ -109,8 +109,8 @@ RSpec.describe EmpDelta, type: :model do
     end
 
     it "should sub names for ids" do
-      old_mgr = FactoryGirl.create(:employee)
-      new_mgr = FactoryGirl.create(:employee)
+      old_mgr = FactoryGirl.create(:regular_employee)
+      new_mgr = FactoryGirl.create(:regular_employee)
       old_loc = FactoryGirl.create(:location)
       new_loc = FactoryGirl.create(:location)
       old_jt = FactoryGirl.create(:job_title)

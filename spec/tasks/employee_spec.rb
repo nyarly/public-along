@@ -39,32 +39,42 @@ describe "employee rake tasks", type: :tasks do
     it "should call ldap and update only GB new hires and returning leave workers at 3am BST" do
       new_hire_uk = FactoryGirl.create(:employee,
         status: "Pending",
-        hire_date: Date.new(2016, 7, 29),
-        location_id: london.id,
-        worker_type_id: worker_type.id)
+        hire_date: Date.new(2016, 7, 29))
+      nh_uk_prof = FactoryGirl.create(:profile,
+        employee: new_hire_uk,
+        profile_status: "Pending",
+        location: london)
       returning_uk = FactoryGirl.create(:employee,
         status: "Inactive",
         hire_date: 1.year.ago,
-        leave_return_date: Date.new(2016, 7, 29),
-        location_id: london.id,
-        worker_type_id: worker_type.id)
+        leave_return_date: Date.new(2016, 7, 29))
+      r_uk_prof = FactoryGirl.create(:profile,
+        employee: returning_uk,
+        profile_status: "Active",
+        location: london)
       contract_uk = FactoryGirl.create(:employee,
         status: "Active",
-        contract_end_date: Date.new(2016, 7, 29),
-        location_id: london.id,
-        worker_type_id: contract_worker_type.id)
+        contract_end_date: Date.new(2016, 7, 29))
+      c_uk_prof = FactoryGirl.create(:profile,
+        employee: contract_uk,
+        location: london,
+        profile_status: "Active")
 
       new_hire_us = FactoryGirl.create(:employee,
         status: "Pending",
-        hire_date: Date.new(2016, 7, 29),
-        location_id: sf.id,
-        worker_type_id: worker_type.id)
+        hire_date: Date.new(2016, 7, 29))
+      nh_us_prof = FactoryGirl.create(:profile,
+        employee: new_hire_us,
+        profile_status: "Pending",
+        location: sf)
       returning_us = FactoryGirl.create(:employee,
         status: "Inactive",
         hire_date: 1.year.ago,
-        leave_return_date: Date.new(2016, 7, 29),
-        location_id: sf.id,
-        worker_type_id: worker_type.id)
+        leave_return_date: Date.new(2016, 7, 29))
+      r_us_prof = FactoryGirl.create(:profile,
+        employee: returning_us,
+        profile_status: "Active",
+        location: sf)
 
       # 7/29/2016 at 3am BST/2am UTC
       Timecop.freeze(Time.new(2016, 7, 29, 2, 0, 0, "+00:00"))
@@ -116,32 +126,42 @@ describe "employee rake tasks", type: :tasks do
     it "should call ldap and update only US new hires and returning leave workers at 3am PST" do
       new_hire_us = FactoryGirl.create(:employee,
         status: "Pending",
-        hire_date: Date.new(2016, 7, 29),
-        location_id: sf.id,
-        worker_type_id: worker_type.id)
+        hire_date: Date.new(2016, 7, 29))
+      nh_us_profile = FactoryGirl.create(:profile,
+        employee: new_hire_us,
+        profile_status: "Pending",
+        location: sf)
       returning_us = FactoryGirl.create(:employee,
         status: "Inactive",
         hire_date: 5.years.ago,
-        leave_return_date: Date.new(2016, 7, 29),
-        location_id: sf.id,
-        worker_type_id: worker_type.id)
+        leave_return_date: Date.new(2016, 7, 29))
+      r_profile = FactoryGirl.create(:profile,
+        employee: returning_us,
+        profile_status: "Active",
+        location: sf)
 
       new_hire_uk = FactoryGirl.create(:employee,
         status: "Pending",
-        hire_date: Date.new(2016, 7, 29),
-        location_id: london.id,
-        worker_type_id: worker_type.id)
+        hire_date: Date.new(2016, 7, 29))
+      nh_uk_profile = FactoryGirl.create(:profile,
+        employee: new_hire_uk,
+        location: london,
+        profile_status: "Pending")
       returning_uk = FactoryGirl.create(:employee,
         status: "Inactive",
         hire_date: 5.years.ago,
-        leave_return_date: Date.new(2016, 7, 29),
-        location_id: london.id,
-        worker_type_id: worker_type.id)
+        leave_return_date: Date.new(2016, 7, 29))
+      r_uk_profile = FactoryGirl.create(:profile,
+        employee: returning_uk,
+        location: london,
+        profile_status: "Active")
       termination = FactoryGirl.create(:employee,
         status: "Active",
-        contract_end_date: Date.new(2016, 7, 29),
-        location_id: sf.id,
-        worker_type_id: worker_type.id)
+        contract_end_date: Date.new(2016, 7, 29))
+      term_profile = FactoryGirl.create(:profile,
+        employee: termination,
+        location: london,
+        profile_status: "Active")
 
       # 7/29/2016 at 3am PST/10am UTC
       Timecop.freeze(Time.new(2016, 7, 29, 10, 0, 0, "+00:00"))
@@ -195,23 +215,29 @@ describe "employee rake tasks", type: :tasks do
       termination_us = FactoryGirl.create(:employee,
         hire_date: 5.years.ago,
         status: "Active",
-        termination_date: Date.new(2016, 7, 29),
-        location_id: sf.id,
-        worker_type_id: worker_type.id)
+        termination_date: Date.new(2016, 7, 29))
+      t_prof = FactoryGirl.create(:profile,
+        employee: termination_us,
+        profile_status: "Active",
+        location: sf)
 
       contract_end_us = FactoryGirl.create(:employee,
         hire_date: 5.years.ago,
         status: "Active",
-        contract_end_date: Date.new(2016, 7, 29),
-        location_id: sf.id,
-        worker_type_id: contract_worker_type.id)
+        contract_end_date: Date.new(2016, 7, 29))
+      t_prof = FactoryGirl.create(:profile,
+        employee: contract_end_us,
+        profile_status: "Active",
+        location: sf)
 
       leave_us = FactoryGirl.create(:employee,
         hire_date: 2.years.ago,
         status: "Active",
-        leave_start_date: Date.new(2016, 7, 30),
-        location_id: sf.id,
-        worker_type_id: worker_type.id)
+        leave_start_date: Date.new(2016, 7, 30))
+      t_prof = FactoryGirl.create(:profile,
+        employee: leave_us,
+        profile_status: "Active",
+        location: sf)
 
       # 7/29/2016 at 9pm PST/3am UTC
       Timecop.freeze(Time.new(2016, 7, 30, 4, 03, 0, "+00:00"))
@@ -259,31 +285,41 @@ describe "employee rake tasks", type: :tasks do
     it "should call ldap and update only terminations or workers on leave at 9pm in IST" do
       contract_end = FactoryGirl.create(:employee,
         hire_date: Date.new(2014, 5, 3),
-        contract_end_date: Date.new(2016, 7, 29),
+        contract_end_date: Date.new(2016, 7, 29))
+      ce_profile = FactoryGirl.create(:profile,
+        employee: contract_end,
         department_id: Department.find_by(:name => "Technology/CTO Admin").id,
         location_id: mumbai.id,
-        worker_type_id: contract_worker_type.id)
+        profile_status: "Active")
       termination = FactoryGirl.create(:employee,
         hire_date: Date.new(2014, 5, 3),
-        termination_date: Date.new(2016, 7, 29),
+        termination_date: Date.new(2016, 7, 29))
+      term_profile = FactoryGirl.create(:profile,
+        employee: termination,
         department_id: Department.find_by(:name => "Technology/CTO Admin").id,
         location_id: mumbai.id,
-        worker_type_id: worker_type.id)
+        profile_status: "Active")
       leave = FactoryGirl.create(:employee,
         hire_date: Date.new(2014, 5, 3),
-        leave_start_date: Date.new(2016, 7, 29),
+        leave_start_date: Date.new(2016, 7, 29))
+      leave_profile = FactoryGirl.create(:profile,
+        employee: leave,
         department_id: Department.find_by(:name => "Infrastructure Engineering").id,
         location_id: mumbai.id,
-        worker_type_id: worker_type.id)
+        profile_status: "Active")
       new_hire_in = FactoryGirl.create(:employee,
-        hire_date: Date.new(2016, 7, 29),
+        hire_date: Date.new(2016, 7, 29))
+      nh_in_profile = FactoryGirl.create(:profile,
+        employee: new_hire_in,
         department_id: Department.find_by(:name => "Data Analytics & Experimentation").id,
         location_id: mumbai.id,
-        worker_type_id: worker_type.id)
+        profile_status: "Active")
       new_hire_us = FactoryGirl.create(:employee,
-        hire_date: Date.new(2016, 7, 29),
+        hire_date: Date.new(2016, 7, 29))
+      nh_us_profile = FactoryGirl.create(:profile,
+        employee: new_hire_us,
         location_id: sf.id,
-        worker_type_id: worker_type.id)
+        profile_status: "Active")
 
       # 7/29/2016 at 9pm IST/3:30pm UTC
       Timecop.freeze(Time.new(2016, 7, 29, 15, 30, 0, "+00:00"))
@@ -326,10 +362,11 @@ describe "employee rake tasks", type: :tasks do
 
     it "should offboard deactivated employee group at 9pm in IST" do
       termination = FactoryGirl.create(:employee,
-        termination_date: Date.new(2016, 7, 29),
-        department_id: Department.find_by(:name => "Technology/CTO Admin").id,
+        termination_date: Date.new(2016, 7, 29))
+      profile = FactoryGirl.create(:profile,
+        employee: termination,
         location_id: mumbai.id,
-        worker_type_id: worker_type.id)
+        department: Department.find_by(:name => "Technology/CTO Admin"))
 
       # 7/29/ 2017 at 9pm IST/3:30pm UTC
       Timecop.freeze(Time.new(2016, 7, 29, 15, 30, 0, "+00:00"))
@@ -346,14 +383,15 @@ describe "employee rake tasks", type: :tasks do
     end
 
     it "should send tech table offboard instructions at noon on the termination day in IST" do
-      manager = FactoryGirl.create(:employee, employee_id: "12345")
+      manager = FactoryGirl.create(:regular_employee)
 
       termination = FactoryGirl.create(:employee,
-        termination_date: Date.new(2016, 7, 29),
-        department_id: Department.find_by(:name => "Technology/CTO Admin").id,
-        location_id: mumbai.id,
-        worker_type_id: worker_type.id,
-        manager_id: manager.employee_id)
+        termination_date: Date.new(2016, 7, 29))
+      profile = FactoryGirl.create(:profile,
+        employee: termination,
+        manager_id: manager.employee_id,
+        location: mumbai,
+        department: Department.find_by(:name => "Technology/CTO Admin"))
 
         Timecop.freeze(Time.new(2016, 7, 29, 6, 30, 0, "+00:00"))
 
@@ -362,21 +400,23 @@ describe "employee rake tasks", type: :tasks do
     end
 
     it "should remove worker from all security groups at 3am, 7 days after termination" do
+      manager = FactoryGirl.create(:regular_employee)
       termination = FactoryGirl.create(:employee,
-        manager_id: "12345",
         hire_date: Date.new(2014, 5, 3),
-         termination_date: Date.new(2016, 8, 21),
-         department_id: Department.find_by(:name => "Technology/CTO Admin").id,
-         location_id: sf.id,
-         worker_type_id: worker_type.id)
+        termination_date: Date.new(2016, 8, 21))
+      profile = FactoryGirl.create(:profile,
+        employee: termination,
+        manager_id: manager.employee_id,
+        department: Department.find_by(:name => "Technology/CTO Admin"),
+        location: sf)
       recent_termination = FactoryGirl.create(:employee,
-        manager_id: "12345",
         hire_date: Date.new(2014, 5, 3),
-        termination_date: Date.new(2016, 8, 20),
-        department_id: Department.find_by(:name => "Technology/CTO Admin").id,
-        location_id: sf.id,
-        worker_type_id: worker_type.id)
-      manager = FactoryGirl.create(:employee, employee_id: "12345")
+        termination_date: Date.new(2016, 8, 20))
+      profile = FactoryGirl.create(:profile,
+        employee: recent_termination,
+        manager_id: manager.employee_id,
+        department: Department.find_by(:name => "Technology/CTO Admin"),
+        location: sf)
 
       app_1 = FactoryGirl.create(:application)
       app_2 = FactoryGirl.create(:application)

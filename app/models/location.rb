@@ -91,6 +91,7 @@ class Location < ActiveRecord::Base
             allow_nil: true,
             inclusion: { in: TIMEZONES + ["Pending Assignment"] }
 
-  has_many :employees
+  has_many :profiles
+  has_many :employees, through: :profiles
 
 end
