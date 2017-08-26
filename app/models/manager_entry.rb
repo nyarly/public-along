@@ -165,7 +165,12 @@ class ManagerEntry
         end
       else
         if kind == "Onboarding" and emp_transaction.emp_sec_profiles.count > 0
-          JobChangeWorker.perform_at(@employee.profiles.pending.start_date, emp_transaction.id)
+          # schedule at 3am on start date in their timezone
+          country = @employee.profiles.pending.location.country
+          time_zone = country == 'US' ? "America/Los_Angeles" : TZInfo::Country.get(country).zone_identifiers.first
+          start_date = @employee.profiles.pending.start_date
+          change_at_datetime = ActiveSupport::TimeZone.new(time_zone).local_to_utc(DateTime.new(start_date.year, start_date.month, start_date.day, 3))
+          JobChangeWorker.perform_at(change_at_datetime, emp_transaction.id)
         end
       end
       emp_transaction.errors.blank?
