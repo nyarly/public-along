@@ -122,7 +122,7 @@ module AdpService
 
         Employee.check_manager(e.manager_id)
 
-        if e.updated_at >= 5.minutes.ago
+        if e.updated_at <= 10.minutes.ago
           update_emps << e
         end
       end

@@ -248,7 +248,7 @@ describe ActiveDirectoryService, type: :service do
 
     it "should handle changed attributes with special characters" do
       employee.last_name = "Ordoñez"
-      dn = "CN=Jeffrey Ordo\xC3\xB1ez,OU=,OU=Users,OU=OT,DC=ottest,DC=opentable,DC=com"
+      dn = "CN=Jeffrey Ordo\xC3\xB1ez,OU=Peopel and Culture,OU=Users,OU=OT,DC=ottest,DC=opentable,DC=com"
       ldap_entry[:dn] = dn
       allow(ldap).to receive(:search).and_return([ldap_entry])
       allow(ldap_entry).to receive(:dn).and_return(dn.force_encoding(Encoding::ASCII_8BIT))
@@ -337,10 +337,9 @@ describe ActiveDirectoryService, type: :service do
       employee.office_phone = "323-999-5555"
       allow(ldap).to receive(:search).and_return([ldap_entry])
       allow(ldap).to receive(:replace_attribute)
-      # allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(67) # Simulate AD LDAP error
+      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(67) # Simulate AD LDAP error
 
-      # expect(TechTableMailer).not_to receive_message_chain(:alert_email, :deliver_now)
-      expect(TechTableMailer).not_to receive(:alert_email)
+      expect(TechTableMailer).to receive_message_chain(:alert_email, :deliver_now)
       ads.update([employee])
     end
 
