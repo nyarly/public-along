@@ -149,7 +149,7 @@ RSpec.describe ManagerEntry do
       expect(event.status).to eq("Processed")
     end
 
-    it "should create a new profile on when manager links employees" do
+    it "should create a new employee when the manager does not link accounts" do
       job_title = FactoryGirl.create(:job_title,
         code: "CTRANL",
         name: "Control Analyst")
@@ -238,10 +238,11 @@ RSpec.describe ManagerEntry do
       expect(old_employee.profiles.count).to eq(2)
       expect(old_employee.profiles.terminated).to eq(profile)
       expect(old_employee.profiles.pending.worker_type).to eq(worker_type)
+      expect(old_employee.profiles.pending.start_date).to eq(DateTime.new(2018, 9, 1))
       expect(event.status).to eq("Processed")
     end
 
-    it "should create a new profile on when manager links employees" do
+    it "should create a new employee when the manager doesn't link employees" do
       manager_entry = ManagerEntry.new(link_off_params)
       manager_entry.save
 
