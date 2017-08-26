@@ -392,6 +392,9 @@ describe AdpService::Workers, type: :service do
       expect(leave_emp.reload.leave_return_date).to eq(future_date)
       expect(leave_cancel_emp.reload.leave_return_date).to eq(nil)
       expect(do_nothing_emp.reload.leave_return_date).to eq(nil)
+      expect(leave_emp.emp_deltas.last.before).to eq({"leave_return_date"=>nil})
+      expect(leave_emp.emp_deltas.last.after).to eq({"leave_return_date"=>"#{future_date.change(:usec => 0)}"})
+      expect(leave_cancel_emp.emp_deltas.last.after).to eq({"leave_return_date"=>nil})
     end
   end
 

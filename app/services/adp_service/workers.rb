@@ -100,9 +100,13 @@ module AdpService
 
         if adp_status == "Active" && e.leave_return_date.blank?
           e.assign_attributes(leave_return_date: date)
+          delta = build_emp_delta(e)
+          delta.save!
           e.save!
         elsif e.leave_return_date.present? && adp_status == "Inactive"
           e.assign_attributes(leave_return_date: nil)
+          delta = build_emp_delta(e)
+          delta.save!
           e.save!
         end
       }

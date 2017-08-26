@@ -12,10 +12,6 @@ FactoryGirl.define do
     adp_assoc_oid   { Faker::Number.number(10) }
     adp_employee_id { Faker::Number.number(6) }
 
-    trait :old do
-      created_at { 1.month.ago }
-    end
-
     trait :with_valid_ou do
       association :location, :factory => [:location, :eu]
       association :department, :factory => [:department, :customer_service]
