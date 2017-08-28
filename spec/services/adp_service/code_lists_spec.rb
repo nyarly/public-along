@@ -46,6 +46,8 @@ describe AdpService::CodeLists, type: :service do
         { "Accept"=>"application/json",
           "Authorization"=>"Bearer a-token-value",
         }).and_return(response)
+      expect(response).to receive(:code)
+      expect(response).to receive(:message)
     end
 
     it "should find or create job titles" do
@@ -96,6 +98,8 @@ describe AdpService::CodeLists, type: :service do
         { "Accept"=>"application/json",
           "Authorization"=>"Bearer a-token-value",
         }).and_return(response)
+      expect(response).to receive(:code)
+      expect(response).to receive(:message)
     end
 
     it "should find or create locations" do
@@ -164,6 +168,8 @@ describe AdpService::CodeLists, type: :service do
         { "Accept"=>"application/json",
           "Authorization"=>"Bearer a-token-value",
         }).and_return(response)
+      expect(response).to receive(:code)
+      expect(response).to receive(:message)
     end
 
     it "should find or create departments" do
@@ -226,6 +232,8 @@ describe AdpService::CodeLists, type: :service do
         { "Accept"=>"application/json",
           "Authorization"=>"Bearer a-token-value",
         }).and_return(response)
+      expect(response).to receive(:code)
+      expect(response).to receive(:message)
     end
 
     it "should find or create worker types" do

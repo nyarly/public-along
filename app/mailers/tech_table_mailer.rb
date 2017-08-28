@@ -6,16 +6,16 @@ class TechTableMailer < ApplicationMailer
     mail(subject: "ALERT: Mezzo Error")
   end
 
-  def permissions(emp_transaction, employee)
+  def permissions(emp_transaction)
     @emp_transaction = emp_transaction
-    @employee = employee
+    @employee = @emp_transaction.employee
     @manager = User.find(@emp_transaction.user_id)
-    mail(subject: "#{emp_transaction.kind} request for #{employee.first_name} #{employee.last_name}")
+    mail(subject: "#{@emp_transaction.kind} request for #{@employee.first_name} #{@employee.last_name}")
   end
 
   def offboard_notice(employee)
     @employee = employee
-    @manager = Employee.find_by(employee_id: @employee.manager_id)
+    @manager = @employee.manager
     mail(subject: "Mezzo Offboarding notice for #{employee.first_name} #{employee.last_name}")
   end
 
@@ -31,9 +31,12 @@ class TechTableMailer < ApplicationMailer
     mail(subject: "Mezzo Offboard Instructions for #{@employee.first_name} #{@employee.last_name}")
   end
 
-  def onboard_instructions(employee)
-    @employee = employee
-    @info = TransitionInfo::Onboard.new(employee.employee_id)
-    mail(subject: "Mezzo Onboarding Request for #{employee.first_name} #{employee.last_name}")
+  def onboard_instructions(emp_transaction, opts={})
+    @employee = emp_transaction.employee
+    if opts[:link_accounts]
+      @link_accounts = true
+    end
+    @info = TransitionInfo::Onboard.new(@employee.employee_id)
+    mail(subject: "Mezzo Onboarding Request for #{@employee.first_name} #{@employee.last_name}")
   end
 end

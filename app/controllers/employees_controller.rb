@@ -3,13 +3,13 @@ class EmployeesController < ApplicationController
 
   before_action :set_employee, only: :show
 
-  autocomplete :employee, :name, :extra_data => [:employee_id]
+  autocomplete :employee, :name, :full => true, :extra_data => [:employee_id]
 
   def index
     if current_user.role_names.count == 1 && current_user.role_names.include?("Manager")
       @employees = Employee.direct_reports_of(current_user.employee_id)
     else
-      @employees = Employee.all
+      @employees = Employee.all.includes(:profiles => [:job_title, :department, :location, :worker_type])
     end
 
     if search_params[:search]
@@ -42,24 +42,9 @@ class EmployeesController < ApplicationController
       :email,
       :first_name,
       :last_name,
-      :workday_username,
-      :employee_id,
       :hire_date,
       :contract_end_date,
       :termination_date,
-      :job_family_id,
-      :job_family,
-      :job_profile_id,
-      :job_profile,
-      :job_title_id,
-      :business_title,
-      :employee_type,
-      :worker_type_id,
-      :contingent_worker_id,
-      :contingent_worker_type,
-      :location_id,
-      :manager_id,
-      :department_id,
       :personal_mobile_phone,
       :office_phone,
       :home_address_1,

@@ -26,7 +26,6 @@ class ActiveDirectoryService
         attrs.delete(:dn) # need to remove dn for create
         ldap.add(dn: e.dn, attributes: attrs)
         if ldap.get_operation_result.code == 0
-          EmployeeWorker.perform_async("Onboarding", e.id)
           e.update_attributes(:ad_updated_at => DateTime.now)
         else
           Rails.logger.error "LDAP ERROR: #{ldap.get_operation_result}"

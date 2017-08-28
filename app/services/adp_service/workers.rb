@@ -36,24 +36,19 @@ module AdpService
 
       unless str == nil
         json = JSON.parse(str)
-        parser = AdpService::WorkerJsonParser.new
-
+        parser = WorkerJsonParser.new
         workers_to_update = []
         adp_only = []
         workers = parser.sort_workers(json)
 
         workers.each do |w|
-          e = Employee.find_by(employee_id: w[:employee_id])
+          e = Employee.find_by_employee_id(w[:adp_employee_id])
           if e.present?
-            e.assign_attributes(w)
-            delta = build_emp_delta(e)
-            send_email = send_email?(e)
-            if e.save
-              Employee.check_manager(e.manager_id)
-              workers_to_update << e
-              delta.save if delta.present?
-              EmployeeWorker.perform_async("Security Access", e.id) if send_email == true
-            end
+            profiler = EmployeeProfile.new
+            profiler.update_employee(e, w)
+            Employee.check_manager(e.manager_id)
+
+            workers_to_update << e
           else
             adp_only << "{ first_name: #{w[:first_name]}, last_name: #{w[:last_name]}, employee_id: #{w[:employee_id]})"
           end
@@ -85,12 +80,16 @@ module AdpService
           end
 
           if w_hash.present?
-            e.assign_attributes(w_hash.except(:status))
+            profiler = EmployeeProfile.new
+            profiler.update_employee(e, w_hash.except(:status, :profile_status))
           else
             TechTableMailer.alert_email("Cannot get updated ADP info for new contract hire #{e.cn}, employee id: #{e.employee_id}.\nPlease contact the developer to help diagnose the problem.").deliver_now
           end
         else
-          TechTableMailer.alert_email("New hire sync is erroring on #{e.cn}, employee id: #{e.employee_id}.\nPlease contact the developer to help diagnose the problem.").deliver_now
+          Rails.logger.info "New Hire Sync Error"
+          Rails.logger.info "#{e.cn}"
+          Rails.logger.info "#{json}"
+          # TechTableMailer.alert_email("New hire sync is erroring on #{e.cn}, employee id: #{e.employee_id}.\nPlease contact the developer to help diagnose the problem.").deliver_now
         end
       }
     end
@@ -101,8 +100,14 @@ module AdpService
 
         if adp_status == "Active" && e.leave_return_date.blank?
           e.assign_attributes(leave_return_date: date)
+          delta = build_emp_delta(e)
+          delta.save!
+          e.save!
         elsif e.leave_return_date.present? && adp_status == "Inactive"
           e.assign_attributes(leave_return_date: nil)
+          delta = build_emp_delta(e)
+          delta.save!
+          e.save!
         end
       }
     end
@@ -114,11 +119,10 @@ module AdpService
         json = get_worker_json(e, as_of_date)
 
         block.call(e, json, as_of_date)
-        delta = build_emp_delta(e)
 
-        if e.changed? && e.save
-          Employee.check_manager(e.manager_id)
-          delta.save if delta.present?
+        Employee.check_manager(e.manager_id)
+
+        if e.updated_at >= 10.minutes.ago
           update_emps << e
         end
       end

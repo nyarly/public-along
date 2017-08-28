@@ -10,8 +10,8 @@ class AuditService
     missed_offboards = Employee.where('termination_date < ? AND status LIKE ?', 2.days.ago, "Active").to_a
     missed_terminations = Employee.where('updated_at < ? AND status LIKE ?', 2.days.ago, "Active").to_a
     contract_ended = Employee.where('contract_end_date < ? AND status LIKE ? AND termination_date IS NULL', 2.days.ago, "Active").to_a
-    employees_to_audit = missed_offboards + missed_terminations + contract_ended
 
+    employees_to_audit = missed_offboards + missed_terminations + contract_ended
     employees_to_audit.uniq.each do |employee|
       data = check_adp(employee)
       employee_hash = generate_employee_hash(employee, data)

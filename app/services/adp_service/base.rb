@@ -64,6 +64,9 @@ module AdpService
     def get_json_str(url)
       set_http(url)
       res = @http.get(@uri.request_uri, {'Accept' => 'application/json', 'Authorization' => "Bearer #{@token}"})
+      Rails.logger.info "GET request to #{url}"
+      Rails.logger.info res.code
+      Rails.logger.info res.message
       res.body
     end
   end

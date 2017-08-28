@@ -2,34 +2,21 @@ require 'rails_helper'
 
 RSpec.describe EmployeesController, type: :controller do
 
-  let!(:employee) { FactoryGirl.create(:employee, first_name: "Alex", last_name: "Trebek", manager_id: manager.employee_id, worker_type_id: worker_type.id, job_title_id: job_title.id) }
-  let!(:job_title) { FactoryGirl.create(:job_title, id: 444) }
-  let!(:worker_type) { FactoryGirl.create(:worker_type, kind: "Regular") }
-  let!(:manager) { FactoryGirl.create(:employee, first_name: "Pat", last_name: "Sajak") }
-  let!(:user) { FactoryGirl.create(:user, :role_names => ["Admin"], employee_id: employee.employee_id) }
-  let!(:mgr_user) { FactoryGirl.create(:user, :role_names => ["Manager"], employee_id: manager.employee_id) }
-  let!(:mailer) { double(ManagerMailer) }
-  let!(:ads) { double(ActiveDirectoryService) }
-
-  let(:valid_attributes) {
-    {
-      first_name: "Bob",
-      last_name: "Barker",
-      department_id: 1,
-      location_id: 1,
-      worker_type_id: worker_type.id,
-      hire_date: 1.week.from_now
-    }
-  }
-
-  let(:invalid_attributes) {
-    {
-      first_name: nil,
-      last_name: "Barker",
-      department_id: 1,
-      location_id: 1
-    }
-  }
+  let!(:manager) { FactoryGirl.create(:regular_employee,
+    first_name: "Pat",
+    last_name: "Sajak") }
+  let!(:employee) { FactoryGirl.create(:employee,
+    first_name: "Alex",
+    last_name: "Trebek") }
+  let!(:profile) { FactoryGirl.create(:profile,
+    employee: employee,
+    manager_id: manager.employee_id) }
+  let!(:user) { FactoryGirl.create(:user,
+    :role_names => ["Admin"],
+    employee_id: employee.employee_id) }
+  let!(:mgr_user) { FactoryGirl.create(:user,
+    :role_names => ["Manager"],
+    employee_id: manager.employee_id) }
 
   before :each do
     login_as user

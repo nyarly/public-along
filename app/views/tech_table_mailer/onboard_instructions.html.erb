@@ -28,6 +28,11 @@
     <% end %>
   </div>
 
+  <% if @link_accounts %>
+    <p><strong>Reusing Account:</strong></p>
+    <p>This worker is a rehire or is changing worker types. They are reusing their email address, <%= @employee.email %>. Please transition their accounts accordingly.</p>
+  <% end %>
+
   <% if @info.emp_transaction.security_profiles.count > 0 %>
     <h2><strong>Apply Security Profiles:</strong></h2>
 

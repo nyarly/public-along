@@ -1,5 +1,5 @@
 class Employee < ActiveRecord::Base
-  TYPES = ["Agency Contractor", "Independent Contractor", "Service Provider", "Intern", "Regular", "Temporary"]
+
   EMAIL_OPTIONS = ["Onboarding", "Offboarding", "Security Access"]
 
   before_validation :downcase_unique_attrs
@@ -11,25 +11,7 @@ class Employee < ActiveRecord::Base
             presence: true
   validates :hire_date,
             presence: true
-  validates :department_id,
-            presence: true
-  validates :location_id,
-            presence: true
-  validates :worker_type_id,
-            presence: true
-  validates :job_title_id,
-            presence: true
-  validates :email,
-            allow_nil: true,
-            uniqueness: true
-  validates :employee_id,
-            presence: true,
-            uniqueness: { message: "Worker ID has already been taken" }
 
-  belongs_to :department
-  belongs_to :location
-  belongs_to :worker_type
-  belongs_to :job_title
   has_many :emp_transactions # on delete, cascade in db
   has_many :onboarding_infos, through: :emp_transactions
   has_many :offboarding_infos, through: :emp_transactions
@@ -40,14 +22,49 @@ class Employee < ActiveRecord::Base
   has_many :emp_deltas # on delete, cascade in db
   has_many :emp_access_levels # on delete, cascade in db
   has_many :access_levels, through: :emp_access_levels
+  has_many :profiles # on delete, cascade in db
 
   attr_accessor :nearest_time_zone
 
-  default_scope { order('first_name ASC') }
+  default_scope { order('last_name ASC') }
+
+  [:manager_id, :department, :worker_type, :location, :job_title, :company, :adp_assoc_oid].each do |attribute|
+    define_method :"#{attribute}" do
+      current_profile.send("#{attribute}")
+    end
+  end
+
+  def current_profile
+    # if employee data is not persisted, like when previewing employee data from an event
+    # scope on profiles is not available, so must access by method last
+    if self.persisted?
+      if self.status == "Active" or self.status == "Inactive"
+        @current_profile ||= self.profiles.active
+      elsif self.status == "Pending"
+        @current_profile ||= self.profiles.pending
+      elsif self.status == "Terminated"
+        @current_profile ||= self.profiles.terminated
+      end
+    else
+      @current_profile ||= self.profiles.last
+    end
+  end
+
+  def employee_id
+    current_profile.send(:adp_employee_id)
+  end
+
+  def self.find_by_employee_id(value)
+    p = Profile.find_by(adp_employee_id: value)
+    if p.present?
+      p.employee
+    else
+      nil
+    end
+  end
 
   def downcase_unique_attrs
     self.email = email.downcase if email.present?
-    self.employee_id = employee_id.downcase if employee_id.present?
   end
 
   def strip_whitespace
@@ -89,7 +106,7 @@ class Employee < ActiveRecord::Base
   end
 
   def self.direct_reports_of(manager_emp_id)
-    where('manager_id = ?', manager_emp_id)
+    joins(:profiles).where("profiles.manager_id LIKE ?", manager_emp_id)
   end
 
   def self.onboarding_report_group
@@ -161,13 +178,14 @@ class Employee < ActiveRecord::Base
   end
 
   def manager
-    Employee.find_by(employee_id: manager_id) if manager_id
+    Employee.find_by_employee_id(manager_id) if manager_id
   end
 
   def generated_email
     if email.present?
       email
-    elsif sam_account_name.present? && worker_type.name != "Vendor"
+    elsif sam_account_name.present?
+      # TODO: this is always running, what kind of workers shouldn't have email addresses?
       gen_email = sam_account_name + "@opentable.com"
       update_attribute(:email, gen_email)
       gen_email
@@ -227,11 +245,10 @@ class Employee < ActiveRecord::Base
       manager: manager.try(:dn),
       mail: generated_email,
       unicodePwd: encode_password,
-      workdayUsername: workday_username,
       co: location.country,
       accountExpires: generated_account_expires,
-      title: job_title.try(:name),
-      description: job_title.try(:name),
+      title: job_title.name,
+      description: job_title.name,
       employeeType: worker_type.try(:name),
       physicalDeliveryOfficeName: location.name,
       department: department.name,
@@ -253,16 +270,24 @@ class Employee < ActiveRecord::Base
   end
 
   def onboarding_due_date
+    # if employee data is not persisted, like when previewing employee data from an event
+    # scope on profiles is not available, so must access by method last
+    if self.profiles.pending.present?
+      start_date = self.profiles.pending.start_date
+    else
+      start_date = self.profiles.last.start_date
+    end
     # plus 9.hours to account for the beginning of the business day
     if location.country == "US" || location.country == "GB"
-      5.business_days.before(hire_date + 9.hours).strftime("%b %e, %Y")
+      5.business_days.before(start_date + 9.hours).strftime("%b %e, %Y")
     else
-      10.business_days.before(hire_date + 9.hours).strftime("%b %e, %Y")
+      10.business_days.before(start_date + 9.hours).strftime("%b %e, %Y")
     end
   end
 
   def self.check_manager(emp_id)
-    emp = Employee.find_by(employee_id: emp_id)
+    emp = Employee.find_by_employee_id(emp_id)
+
     if emp.present? && !Employee.managers.include?(emp)
       sp = SecurityProfile.find_by(name: "Basic Manager")
 

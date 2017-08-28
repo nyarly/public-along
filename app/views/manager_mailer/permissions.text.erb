@@ -29,10 +29,16 @@ You must complete this form by noon on <%= @employee.termination_date.strftime("
 
 
 Please note you must be logged into the OpenTable VPN to access Mezzo. Use your OpenTable user name and password to log in. Follow the link below to complete the employee event form:
-
+<% if @event.present? %>
+<%= link_to "Employee Event Form for #{@employee.cn}", new_emp_transaction_url({
+  :user_emp_id => @manager.employee_id,
+  :event_id => @event.id,
+  :kind => @kind}) %>
+<% else %>
 <%= new_emp_transaction_url({
     :user_emp_id => @manager.employee_id,
     :employee_id => @employee.id,
     :kind => @kind}) %>
+<% end %>
 
 For any questions, please contact othelpme@opentable.com.

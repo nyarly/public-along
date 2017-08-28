@@ -20,13 +20,17 @@ require 'rails_helper'
 
 RSpec.describe EmpTransactionsController, type: :controller do
 
-  let!(:emp_transaction) { FactoryGirl.create(:emp_transaction, user: user) }
-  let!(:emp_mach_bundle) { FactoryGirl.create(:emp_mach_bundle, emp_transaction: emp_transaction) }
-  let!(:machine_bundle) { FactoryGirl.create(:machine_bundle) }
-  let!(:employee) { FactoryGirl.create(:employee, worker_type_id: worker_type.id) }
-  let!(:worker_type) { FactoryGirl.create(:worker_type, kind: "Regular")}
-  let!(:buddy) { FactoryGirl.create(:employee) }
-  let!(:user) { FactoryGirl.create(:user, :role_names => ["Admin"], employee_id: "12345") }
+  let!(:employee) { FactoryGirl.create(:regular_employee) }
+  let!(:emp_transaction) { FactoryGirl.create(:emp_transaction,
+    employee: employee,
+    user: user) }
+  let!(:emp_mach_bundle) { FactoryGirl.create(:emp_mach_bundle,
+    emp_transaction: emp_transaction) }
+  let!(:machine_bundle)  { FactoryGirl.create(:machine_bundle) }
+  let!(:buddy) { FactoryGirl.create(:regular_employee) }
+  let!(:user) { FactoryGirl.create(:user,
+    :role_names => ["Admin"],
+    employee_id: "12345") }
 
   let(:valid_attributes) {
     {
@@ -40,7 +44,8 @@ RSpec.describe EmpTransactionsController, type: :controller do
   let(:invalid_attributes) {
     {
       user_id: "12345",
-      kind: "Something else"
+      kind: "Something else",
+      employee_id: employee.id
     }
   }
 
@@ -97,7 +102,7 @@ RSpec.describe EmpTransactionsController, type: :controller do
       it "redirects to the created emp_transaction" do
         allow(TechTableMailer).to receive_message_chain(:permissions, :deliver_now)
         post :create, {:manager_entry => valid_attributes}
-        expect(response).to redirect_to( emp_transaction_path(EmpTransaction.last, emp_id: employee.id))
+        expect(response).to redirect_to(emp_transaction_path(EmpTransaction.last))
       end
 
       it "sends an email to Tech Table" do
@@ -114,7 +119,7 @@ RSpec.describe EmpTransactionsController, type: :controller do
 
       it "re-renders the 'new' template" do
         post :create, {:manager_entry => invalid_attributes}
-        expect(response).to redirect_to("http://test.host/emp_transactions/new?kind=Something+else&user_id=12345")
+        expect(response).to redirect_to("http://test.host/emp_transactions/new?employee_id=#{employee.id}&kind=Something+else&user_id=12345")
       end
 
       it "does not send an email to Tech Table" do

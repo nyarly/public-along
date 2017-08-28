@@ -1,9 +1,9 @@
 {
   "workers": [
     {
-      "associateOID": "TESTOID",
+      "associateOID": "G3NQ5754ETA080N",
       "workerID": {
-        "idValue": "123456"
+        "idValue": "100015"
       },
       "person": {
         "legalName": {
