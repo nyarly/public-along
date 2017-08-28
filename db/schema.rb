@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170809231542) do
+ActiveRecord::Schema.define(version: 20170828184243) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -113,9 +113,9 @@ ActiveRecord::Schema.define(version: 20170809231542) do
 
   create_table "employees", force: :cascade do |t|
     t.string   "email"
-    t.string   "first_name",            null: false
-    t.string   "last_name",             null: false
-    t.datetime "hire_date",             null: false
+    t.string   "first_name",                 null: false
+    t.string   "last_name",                  null: false
+    t.datetime "hire_date",                  null: false
     t.datetime "contract_end_date"
     t.datetime "termination_date"
     t.string   "personal_mobile_phone"
@@ -126,13 +126,30 @@ ActiveRecord::Schema.define(version: 20170809231542) do
     t.string   "home_state"
     t.string   "home_zip"
     t.string   "image_code"
-    t.datetime "created_at",            null: false
-    t.datetime "updated_at",            null: false
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
     t.datetime "ad_updated_at"
     t.datetime "leave_start_date"
     t.datetime "leave_return_date"
     t.string   "sam_account_name"
     t.string   "status"
+    t.string   "del_workday_username"
+    t.string   "del_job_family_id"
+    t.string   "del_job_family"
+    t.string   "del_job_profile_id"
+    t.string   "del_job_profile"
+    t.string   "del_employee_type"
+    t.string   "del_contingent_worker_id"
+    t.string   "del_contingent_worker_type"
+    t.string   "del_employee_id"
+    t.string   "del_business_title"
+    t.string   "del_manager_id"
+    t.integer  "del_department_id"
+    t.integer  "del_location_id"
+    t.string   "del_company"
+    t.string   "del_adp_assoc_oid"
+    t.integer  "del_worker_type_id"
+    t.integer  "del_job_title_id"
   end
 
   add_index "employees", ["email"], name: "index_employees_on_email", unique: true, using: :btree

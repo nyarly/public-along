@@ -2,37 +2,37 @@ namespace :profiles do
   desc "move data from employee model to profile model"
   task :initial_population => :environment do
     employees = Employee.all
-    puts "Updating #{employees.count} employee records"
+    puts "Creating initial profiles for #{employees.count} employee records"
 
     ActiveRecord::Base.transaction do
-      adp    = AdpService::Base.new
-      parser = AdpService::WorkerJsonParser.new
+      employees.find_each do |employee|
+        if employee.contract_end_date.present?
+          end_date = employee.contract_end_date
+        elsif employee.termination_date.present?
+          end_date = employee.termination_date
+        else
+          end_date = nil
+        end
 
-      employees.each do |employee|
-
-        json            = adp.worker("/#{employee.adp_assoc_oid}")
-        worker_json     = json["workers"][0]
-        work_assignment = parser.find_work_assignment(worker_json)
-        end_date        = work_assignment["terminationDate"].present? ? work_assignment["terminationDate"] : parser.find_worker_end_date(worker_json)
-        dept_str        = work_assignment["homeOrganizationalUnits"].find { |ou| ou["typeCode"]["codeValue"] == "Department"}
-        biz_unit        = work_assignment["homeOrganizationalUnits"].find { |ou| ou["typeCode"]["codeValue"] == "Business Unit"}
+        if employee.status == "Inactive"
+          profile_status = "Active"
+        else
+          profile_status = employee.status
+        end
 
         employee.profiles.build(
-          employee_id: employee.id,
-          profile_status: employee.status,
-          start_date: work_assignment["actualStartDate"],
+          profile_status: profile_status,
+          start_date: employee.hire_date,
           end_date: end_date,
-          manager_id: manager_id = work_assignment.dig("reportsTo",0,"workerID","idValue"),
-          department_id: parser.find_dept(dept_str).id,
-          worker_type_id: parser.find_worker_type(work_assignment).id,
-          location_id: parser.find_location(work_assignment["homeWorkLocation"]).id,
-          job_title_id: parser.find_job_title(work_assignment["jobCode"]).id,
-          company: parser.find_biz_unit(biz_unit),
-          adp_assoc_oid: worker_json["associateOID"],
-          adp_employee_id: worker_json["workerID"]["idValue"].downcase
+          manager_id: employee.del_manager_id,
+          department_id: employee.del_department_id,
+          worker_type_id: employee.del_worker_type_id,
+          location_id: employee.del_location_id,
+          job_title_id: employee.del_job_title_id,
+          company: employee.del_company,
+          adp_assoc_oid: employee.del_adp_assoc_oid,
+          adp_employee_id: employee.del_employee_id
         )
-
-        employee.hire_date = worker_json["workerDates"]["originalHireDate"]
 
         if employee.save!
           puts "#{employee.first_name} #{employee.last_name} account updated"
