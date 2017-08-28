@@ -23,7 +23,6 @@ namespace :db do
         profile_status: "Active",
         adp_employee_id: 'jlebowski123',
         business_title: 'The Dude Sr.',
-        profile_status: "Active",
         department_id: Department.find_by(name: "People & Culture-HR & Total Rewards").id,
         location_id: Location.find_by(name: "San Francisco Headquarters").id,
         job_title: JobTitle.find_or_create_by!(id: 1, name: "Test", code: "TEST", status: "Active"),
