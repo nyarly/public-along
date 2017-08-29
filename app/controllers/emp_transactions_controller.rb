@@ -72,8 +72,12 @@ class EmpTransactionsController < ApplicationController
   private
 
   def send_email
-    if @emp_transaction.kind == "Onboarding" and @manager_entry.link_email == true
-      TechTableMailer.onboard_instructions(@emp_transaction, link_email: true).deliver_now
+    if @emp_transaction.kind == "Onboarding"
+      if @manager_entry.link_email == true
+        TechTableMailer.onboard_instructions(@emp_transaction, link_email: true).deliver_now
+      else
+        TechTableMailer.onboard_instructions(@emp_transaction).deliver_now
+      end
     else
       if @emp_transaction.kind != "Offboarding"
         TechTableMailer.permissions(@emp_transaction).deliver_now
