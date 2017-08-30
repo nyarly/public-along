@@ -120,8 +120,15 @@ function clearLinkedAccount() {
           }
           $el.trigger('confirm.reveal', e);
           if ($el.is('form, :input')) {
-            console.log($el.closest('form'))
-            return $el.closest('form').removeAttr('data-confirm').submit();
+            if ($el.closest('form')[0].checkValidity()) {
+              return $el.closest('form').removeAttr('data-confirm').submit();
+            } else {
+              modal.foundation('close');
+              $('#submit_confirm').removeAttr('data-confirm')
+              $el.closest('form').find(':submit').click();
+              $('#submit_confirm').attr('data-confirm', '')
+              return
+            }
           }
         });
         modal.find('[data-confirm-title]').html(option('title'));

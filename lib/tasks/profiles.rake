@@ -6,9 +6,7 @@ namespace :profiles do
 
     ActiveRecord::Base.transaction do
       employees.find_each do |employee|
-        if employee.contract_end_date.present?
-          end_date = employee.contract_end_date
-        elsif employee.termination_date.present?
+        if employee.termination_date.present?
           end_date = employee.termination_date
         else
           end_date = nil
