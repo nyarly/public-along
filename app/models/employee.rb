@@ -38,8 +38,10 @@ class Employee < ActiveRecord::Base
     # if employee data is not persisted, like when previewing employee data from an event
     # scope on profiles is not available, so must access by method last
     if self.persisted?
-      if self.status == "Active" or self.status == "Inactive"
+      if self.status == "Active"
         @current_profile ||= self.profiles.active
+      elsif self.status == "Inactive"
+        @current_profile ||= self.profiles.inactive
       elsif self.status == "Pending"
         @current_profile ||= self.profiles.pending
       elsif self.status == "Terminated"

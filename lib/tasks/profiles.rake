@@ -1,5 +1,5 @@
 namespace :profiles do
-  desc "move data from employee model to profile model"
+  desc "one time population of employee data to employee profile"
   task :initial_population => :environment do
     employees = Employee.all
     puts "Creating initial profiles for #{employees.count} employee records"
@@ -15,7 +15,7 @@ namespace :profiles do
         end
 
         if employee.status == "Inactive"
-          profile_status = "Active"
+          profile_status = "Leave"
         else
           profile_status = employee.status
         end
