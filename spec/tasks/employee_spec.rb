@@ -50,7 +50,7 @@ describe "employee rake tasks", type: :tasks do
         leave_return_date: Date.new(2016, 7, 29))
       r_uk_prof = FactoryGirl.create(:profile,
         employee: returning_uk,
-        profile_status: "Active",
+        profile_status: "Leave",
         location: london)
       contract_uk = FactoryGirl.create(:employee,
         status: "Active",
@@ -73,7 +73,7 @@ describe "employee rake tasks", type: :tasks do
         leave_return_date: Date.new(2016, 7, 29))
       r_us_prof = FactoryGirl.create(:profile,
         employee: returning_us,
-        profile_status: "Active",
+        profile_status: "Leave",
         location: sf)
 
       # 7/29/2016 at 3am BST/2am UTC
@@ -137,7 +137,7 @@ describe "employee rake tasks", type: :tasks do
         leave_return_date: Date.new(2016, 7, 29))
       r_profile = FactoryGirl.create(:profile,
         employee: returning_us,
-        profile_status: "Active",
+        profile_status: "Leave",
         location: sf)
 
       new_hire_uk = FactoryGirl.create(:employee,
@@ -154,7 +154,7 @@ describe "employee rake tasks", type: :tasks do
       r_uk_profile = FactoryGirl.create(:profile,
         employee: returning_uk,
         location: london,
-        profile_status: "Active")
+        profile_status: "Leave")
       termination = FactoryGirl.create(:employee,
         status: "Active",
         contract_end_date: Date.new(2016, 7, 29))

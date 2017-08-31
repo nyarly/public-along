@@ -175,7 +175,7 @@ describe BetterworksService, type: :service do
       leave_start_date: 1.month.ago)}
     let!(:leave_emp_prof) { FactoryGirl.create(:profile,
       employee: leave_emp,
-      profile_status: "Active",
+      profile_status: "Leave",
       adp_employee_id: "123C",
       department: department,
       job_title: job_title,
