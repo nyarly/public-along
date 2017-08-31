@@ -48,7 +48,6 @@ function toggleReuseEmail() {
 function showSelectedEmployee() {
   // binds to select from autocomplete
   $('#manager_entry_linked_account_id').bind('railsAutocomplete.select', function(event, data){
-    console.log("ist it borken")
     if (data.item.value == "no existing match") {
       $('#manager_entry_linked_account_id').val("");
       return false;

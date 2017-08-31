@@ -1,6 +1,5 @@
 # set preview interceptor to show images in preview mode
 ActionMailer::Base.register_preview_interceptor(ActionMailer::InlinePreviewInterceptor)
-Rails.application.routes.default_url_options[:protocol] = 'http'
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.

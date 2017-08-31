@@ -2,8 +2,6 @@ class EmpTransactionsController < ApplicationController
 
   before_action :set_emp_transaction, only: [:show]
 
-  # autocomplete :employee, :email, :full => true, :extra_data => [:first_name, :last_name, :hire_date]
-
   # GET /emp_transactions
   # GET /emp_transactions.json
   def index

@@ -3,9 +3,6 @@ class EmployeesController < ApplicationController
 
   before_action :set_employee, only: :show
 
-  # autocomplete :employee, :name, :full => true, :extra_data => [:employee_id]
-  # autocomplete :employee, :email, :full => true, :extra_data => [:first_name, :last_name, :hire_date]
-
   def index
     if current_user.role_names.count == 1 && current_user.role_names.include?("Manager")
       @employees = Employee.direct_reports_of(current_user.employee_id)
