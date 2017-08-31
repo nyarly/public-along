@@ -49,21 +49,19 @@ function showSelectedEmployee() {
   // binds to select from autocomplete
   $('#manager_entry_linked_account_id').bind('railsAutocomplete.select', function(event, data){
     console.log("ist it borken")
-    // if (data.item.value == "no existing match") {
-    //   $('#manager_entry_linked_account_id').val("");
-    //   return false;
-    // } else {
-      // console.log(event)
-      // console.log(data)
-      // date_options = { year: 'numeric', month: 'long', day: 'numeric' };
-      // hire_date = new Date(data.item.hire_date);
-      // $('#linked-emp-fn').text(data.item.first_name);
-      // $('#linked-emp-fn').text(data.item.first_name);
-      // $('#linked-emp-ln').text(data.item.last_name);
-      // $('#linked-emp-email').text(data.item.value);
-      // $('#linked-emp-hd').text(hire_date.toLocaleDateString("en-US", date_options));
-      $('#show-selected-employee').foundation('reveal', 'open')
-    // }
+    if (data.item.value == "no existing match") {
+      $('#manager_entry_linked_account_id').val("");
+      return false;
+    } else {
+      date_options = { year: 'numeric', month: 'long', day: 'numeric' };
+      hire_date = new Date(data.item.hire_date);
+      $('#linked-emp-fn').text(data.item.first_name);
+      $('#linked-emp-fn').text(data.item.first_name);
+      $('#linked-emp-ln').text(data.item.last_name);
+      $('#linked-emp-email').text(data.item.value);
+      $('#linked-emp-hd').text(hire_date.toLocaleDateString("en-US", date_options));
+      $('#show-selected-employee').show();
+    }
   });
 }
 
@@ -72,18 +70,17 @@ function selectLinkedEmployee() {
     event.preventDefault();
     email = $('#manager_entry_linked_account_id').val();
     acct_name = $('#linked-emp-fn').text() + " " + $('#linked-emp-ln').text();
-    $('#show-selected-employee').foundation('close');
+    $('#show-selected-employee').hide();
     $('#linked-employee').show();
     $('#reuse-email').text(email);
     $('#linked-name').text(acct_name);
-    console.log($('#manager_entry_linked_account_id').val())
   });
 }
 
 function clearLinkedEmployee() {
   $('.clear_linked_account').click(function(event) {
     event.preventDefault();
-    $('#show-selected-employee').foundation('close');
+    $('#show-selected-employee').hide();
     $('#manager_entry_linked_account_id').val("");
     $('#linked-employee').hide();
   });

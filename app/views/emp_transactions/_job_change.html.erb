@@ -34,10 +34,8 @@
   </div>
 
 
-  <!-- Invisible link to open modal w/ jquery -->
-  <!-- <p data-open="show-selected-employee"></p> -->
-  <!-- Display linked worker info in modal -->
-    <div id="show-selected-employee" class="reveal" data-reveal>
+  <!-- Display linked worker info -->
+    <div id="show-selected-employee" class="callout warning" style="display:none;">
       <h4>This email address belongs to the worker below. Is this the same person as your new hire?</h4>
       <p>
         <strong><span id="linked-emp-fn"></span> <span id="linked-emp-ln"></span></strong><br>
@@ -49,7 +47,7 @@
       </p>
       <p><a href="" id="select_linked_account" class="button">Yes</a>  <a href="" class="clear_linked_account button alert">No</a></p>
     </div>
-  <!-- End display linked worker info modal -->
+  <!-- End display linked worker -->
 
   <!-- Help toggle and info -->
   <div id="help-section" class="reveal" data-reveal style="padding:50px;">
@@ -64,7 +62,7 @@
   <!-- End help toggle and info -->
 
   <!-- Final confirmation of linked worker -->
-  <div id="linked-employee" class="callout warning" style="display:none;">
+  <div id="linked-employee" class="callout success" style="display:none;">
     <h5>Reusing Email On</h5>
     <p>You have decided to reuse the email address <strong><span id="reuse-email"></span></strong> associated with <strong><span id="linked-name"></span></strong>. This email address and username will be assigned to the worker for accessing all OpenTable systems. This action cannot be undone after this form is submitted.</p>
   </div>
