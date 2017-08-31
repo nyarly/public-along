@@ -313,7 +313,7 @@ describe AdpService::Workers, type: :service do
       updated_at: 1.day.ago) }
     let!(:profile) { FactoryGirl.create(:profile,
       employee: leave_emp,
-      profile_status: "Active",
+      profile_status: "Leave",
       adp_assoc_oid: "123456") }
     let!(:leave_cancel_emp) {FactoryGirl.create(:employee,
       status: "Inactive",
@@ -321,7 +321,7 @@ describe AdpService::Workers, type: :service do
       updated_at: 1.day.ago) }
     let!(:lce_profile) {FactoryGirl.create(:profile,
       employee: leave_cancel_emp,
-      profile_status: "Active",
+      profile_status: "Leave",
       adp_assoc_oid: "123457") }
     let!(:do_nothing_emp) {FactoryGirl.create(:employee,
       status: "Inactive",
@@ -329,7 +329,7 @@ describe AdpService::Workers, type: :service do
       updated_at: 1.day.ago) }
     let!(:dn_profile) { FactoryGirl.create(:profile,
       employee: do_nothing_emp,
-      profile_status: "Active",
+      profile_status: "Leave",
       adp_assoc_oid: "123458")}
     let!(:future_date) { 1.day.from_now.change(:usec => 0) }
 

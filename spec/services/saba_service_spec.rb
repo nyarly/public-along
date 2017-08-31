@@ -166,7 +166,7 @@ describe SabaService, type: :service do
       email: "test2@opentable.com")}
     let!(:profile_2) { FactoryGirl.create(:profile,
       employee: emp2,
-      profile_status: "Active",
+      profile_status: "Leave",
       job_title_id: job_title.id,
       worker_type_id: reg_type.id,
       location_id: loc.id,

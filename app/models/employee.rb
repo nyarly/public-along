@@ -38,8 +38,10 @@ class Employee < ActiveRecord::Base
     # if employee data is not persisted, like when previewing employee data from an event
     # scope on profiles is not available, so must access by method last
     if self.persisted?
-      if self.status == "Active" or self.status == "Inactive"
+      if self.status == "Active"
         @current_profile ||= self.profiles.active
+      elsif self.status == "Inactive"
+        @current_profile ||= self.profiles.inactive
       elsif self.status == "Pending"
         @current_profile ||= self.profiles.pending
       elsif self.status == "Terminated"
@@ -141,6 +143,10 @@ class Employee < ActiveRecord::Base
 
   def self.search(term)
     where("lower(last_name) LIKE ? OR lower(first_name) LIKE ? ", "%#{term.downcase}%", "%#{term.downcase}%").reorder("last_name ASC")
+  end
+
+  def self.search_email(term)
+    where("lower(email) LIKE ?", "%#{term.downcase}%")
   end
 
   def fn

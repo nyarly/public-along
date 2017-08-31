@@ -1,21 +1,19 @@
 namespace :profiles do
-  desc "move data from employee model to profile model"
+  desc "one time population of employee data to employee profile"
   task :initial_population => :environment do
     employees = Employee.all
     puts "Creating initial profiles for #{employees.count} employee records"
 
     ActiveRecord::Base.transaction do
       employees.find_each do |employee|
-        if employee.contract_end_date.present?
-          end_date = employee.contract_end_date
-        elsif employee.termination_date.present?
+        if employee.termination_date.present?
           end_date = employee.termination_date
         else
           end_date = nil
         end
 
         if employee.status == "Inactive"
-          profile_status = "Active"
+          profile_status = "Leave"
         else
           profile_status = employee.status
         end

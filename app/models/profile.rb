@@ -37,6 +37,10 @@ class Profile < ActiveRecord::Base
     where(:profile_status => "Terminated").last
   end
 
+  def self.inactive
+    where(:profile_status => "Leave").last
+  end
+
   def downcase_unique_attrs
     self.adp_employee_id = adp_employee_id.downcase if adp_employee_id.present?
   end
