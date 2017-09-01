@@ -61,7 +61,7 @@
 
       <%= f.label 'security_profile_ids[]', "#{sp.name}" %><br>
       <ul>
-        <% sp.access_levels.find_each do |al| %>
+        <% sp.access_levels.includes(:application).find_each do |al| %>
           <li class="indent-1"><small><%= al.name %> <%= al.application.name %></small></li>
         <% end %>
       </ul>
@@ -83,7 +83,7 @@
       <% @employee.security_profiles_to_revoke.each do |sp| %>
         <div class="column large-4 medium-6 small-12">
           <p><%= sp.name %></p>
-          <% sp.access_levels.find_each do |al| %>
+          <% sp.access_levels.includes(:application).find_each do |al| %>
             <li class="indent-1"><small><%= al.name %> <%= al.application.name %></small></li>
           <% end %>
         </div>

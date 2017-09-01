@@ -6,7 +6,7 @@ class ParentOrgsController < ApplicationController
   # GET /parent_orgs
   # GET /parent_orgs.json
   def index
-    @parent_orgs = ParentOrg.all
+    @parent_orgs = ParentOrg.all.includes(:departments)
   end
 
   # GET /parent_orgs/1
