@@ -96,33 +96,64 @@ module AdpService
       worker_id = json.dig("events", 0, "data", "output", "worker", "workerID", "idValue").downcase
       term_date = json.dig("events", 0, "data", "output", "worker", "workerDates", "terminationDate")
       e = Employee.find_by_employee_id(worker_id)
+      profile = e.current_profile
+
       if e.present? && !job_change?(e, term_date)
         e.assign_attributes(termination_date: term_date)
-        e.current_profile.end_date = term_date
-        delta = build_emp_delta(e)
-        send_offboard_forms(e)
-      else
-        return false
-      end
+        profile.assign_attributes(end_date: term_date)
 
-      if e.present? && e.save
+        if is_retroactive?(e, term_date)
+          process_retro_term(e, profile)
+        else
+          delta = build_emp_delta(profile)
+
+          if e.save and profile.save
+            ads = ActiveDirectoryService.new
+            ads.update([e])
+            send_offboard_forms(e)
+            delta.save if delta.present?
+            return true
+          else
+            return false
+          end
+        end
+      end
+    end
+
+    def process_retro_term(e, profile)
+      e.status = "Terminated"
+      profile.profile_status = "Terminated"
+      delta = build_emp_delta(profile)
+
+      if e.save and profile.save
         ads = ActiveDirectoryService.new
-        ads.update([e])
+        ads.deactivate([e])
+        TechTableMailer.offboard_instructions(e).deliver_now
+        off = OffboardingService.new
+        off.offboard([e])
+
         delta.save if delta.present?
         return true
-      else
-        return false
       end
+    end
+
+    def is_retroactive?(e, term_date)
+      date = DateTime.parse(term_date)
+      hour = 21
+      zone = e.nearest_time_zone
+      term_date_time = ActiveSupport::TimeZone.new(zone).local_to_utc(DateTime.new(date.year, date.month, date.day, hour))
+      term_date_time <= DateTime.now.in_time_zone("UTC")
     end
 
     def process_leave(json)
       worker_id = json.dig("events", 0, "data", "output", "worker", "workerID", "idValue").downcase
       leave_date = json.dig("events", 0, "data", "output", "worker", "workerStatus", "effectiveDate")
       e = Employee.find_by_employee_id(worker_id)
+      profile = e.current_profile
 
       if e.present?
         e.assign_attributes(leave_start_date: leave_date)
-        delta = build_emp_delta(e)
+        delta = build_emp_delta(profile)
       end
 
       if e.present? && e.save
@@ -186,12 +217,17 @@ module AdpService
       res = @http.delete(@uri.request_uri, {'Authorization' => "Bearer #{@token}"})
     end
 
-    def build_emp_delta(employee)
-      before = employee.changed_attributes
-      after = Hash[employee.changes.map { |k,v| [k, v[1]] }]
-      if before.present? && after.present?
+    def build_emp_delta(prof)
+      emp_before  = prof.employee.changed_attributes.deep_dup
+      emp_after   = Hash[prof.employee.changes.map { |k,v| [k, v[1]] }]
+      prof_before = prof.changed_attributes.deep_dup
+      prof_after  = Hash[prof.changes.map { |k,v| [k, v[1]] }]
+      before      = emp_before.merge!(prof_before)
+      after       = emp_after.merge!(prof_after)
+
+      if before.present? and after.present?
         emp_delta = EmpDelta.new(
-          employee_id: employee.id,
+          employee: prof.employee,
           before: before,
           after: after
         )

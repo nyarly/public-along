@@ -354,9 +354,6 @@ describe AdpService::Events, type: :service do
     end
 
     describe "termination event" do
-      let!(:worker_type) { FactoryGirl.create(:worker_type, code: "OLFR") }
-      let!(:cont_worker_type) { FactoryGirl.create(:worker_type, code: "CONT") }
-      let!(:acw_wt) { FactoryGirl.create(:worker_type, code: "ACW") }
       let!(:term_emp) { FactoryGirl.create(:employee,
         termination_date: nil) }
       let!(:profile) { FactoryGirl.create(:profile,
@@ -364,6 +361,14 @@ describe AdpService::Events, type: :service do
         adp_employee_id: "101652") }
       let(:parsed_json) { JSON.parse(term_json) }
       let(:mailer) { double(TechTableMailer) }
+
+      before :each do
+        Timecop.freeze(Time.new(2017, 1, 1, 1, 0, 0))
+      end
+
+      after :each do
+        Timecop.return
+      end
 
       it "should update termination date" do
         expect(ActiveDirectoryService).to receive(:new).and_return(ads)
@@ -380,9 +385,48 @@ describe AdpService::Events, type: :service do
           adp.process_term(parsed_json)
         }.to_not change{Employee.count}
         expect(term_emp.reload.termination_date).to eq("2017-01-24")
-        expect(term_emp.emp_deltas.last.before).to eq({"termination_date"=>nil})
-        expect(term_emp.emp_deltas.last.after).to eq({"termination_date"=>"2017-01-24 00:00:00 UTC"})
+        expect(term_emp.emp_deltas.last.before).to eq({"end_date"=>nil, "termination_date"=>nil})
+        expect(term_emp.emp_deltas.last.after).to eq({"end_date"=>"2017-01-24 00:00:00 UTC", "termination_date"=>"2017-01-24 00:00:00 UTC"})
       end
+    end
+
+    describe "retroactive termination" do
+      let(:manager) { FactoryGirl.create(:employee) }
+      let!(:man_prof) { FactoryGirl.create(:profile,
+        employee: manager,
+        adp_employee_id: "999999")}
+      let!(:term_emp) { FactoryGirl.create(:employee,
+        termination_date: nil) }
+      let!(:profile) { FactoryGirl.create(:profile,
+        employee: term_emp,
+        manager_id: "999999",
+        adp_employee_id: "101652") }
+      let(:mailer) { double(TechTableMailer) }
+      let(:parsed_json) { JSON.parse(term_json) }
+      let(:offboard_service) { double(OffboardingService) }
+
+      it "should update termiantion date, status, deactivate AD, send TT instructions" do
+        expect(ActiveDirectoryService).to receive(:new).and_return(ads)
+        expect(ads).to receive(:deactivate).with([term_emp])
+        expect(TechTableMailer).to receive(:offboard_instructions).and_return(mailer)
+        expect(mailer).to receive(:deliver_now)
+        expect(OffboardingService).to receive(:new).and_return(offboard_service)
+        expect(offboard_service).to receive(:offboard).with([term_emp])
+
+        adp = AdpService::Events.new
+        adp.token = "a-token-value"
+
+        expect(adp).to receive(:job_change?).and_return(false)
+        expect{
+          adp.process_term(parsed_json)
+        }.to_not change{Employee.count}
+        expect(term_emp.reload.termination_date).to eq("2017-01-24")
+        expect(term_emp.reload.status).to eq("Terminated")
+        expect(term_emp.current_profile.profile_status).to eq("Terminated")
+        expect(term_emp.emp_deltas.last.before).to eq({"status"=>"Active", "end_date"=>nil, "profile_status"=>"Active", "termination_date"=>nil})
+        expect(term_emp.emp_deltas.last.after).to eq({"status"=>"Terminated", "end_date"=>"2017-01-24 00:00:00 UTC", "profile_status"=>"Terminated", "termination_date"=>"2017-01-24 00:00:00 UTC"})
+      end
+
     end
 
     describe "leave event" do
