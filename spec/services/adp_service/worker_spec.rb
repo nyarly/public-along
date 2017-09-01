@@ -92,7 +92,7 @@ describe AdpService::Worker, type: :service do
       }
     }
 
-    it "should call parse json response, find status " do
+    it "should return true on success" do
       success_json = '{"events":[{"eventStatusCode":{"codeValue":"complete","shortName":"complete"},"data":{"eventContext":{"worker":{"associateOID":"qwerty12345"}},"output":{"worker":{"businessCommunication":{"email":{"nameCode":{"codeValue":"Work E-mail","shortName":"Work E-mail"},"emailUri":"ggarbo@example.com"}}}}}}]}'
       worker = AdpService::Worker.new
       worker.token = "a-token-value"
