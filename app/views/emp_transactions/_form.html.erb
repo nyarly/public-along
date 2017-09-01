@@ -35,24 +35,27 @@
       <% when "Offboarding" %>
         <%= render partial: "offboarding", locals: {f: f, employee: @employee} %>
       <% end %>
-
-      <% unless @kind == "Offboarding" and @employee.termination_date <= Date.today %>
-        <% if @kind != "Offboarding" %>
-          <%= f.label :notes, "Additional requests for TechTable (Distribution Lists? Special Printers? Equipment? Other tools?):" %>
-        <% else %>
-          <%= f.label :notes, "Additional Instructions for TechTable:" %>
-        <% end %>
-        <%= f.text_area :notes %>
-        <p class="help-text">(Any instructions for P&amp;C should be directed to <%= mail_to "peopleandculture@opentable.com" %>)</p>
-      <% end %>
     </div>
 
-    <% if @kind == "Security Access" %>
-      <%= f.submit "Submit", :class => "button", :id => "submit_confirm", action: "post", data: { confirm: '{"title":"Are you sure you want to submit this form?","body":"Please note: any permissions controlled by Active Directory will be applied or revoked immediately upon submission. If you are revoking security profiles that control Wi-Fi or VPN access, the worker will immediately lose connectivity."}' } %>
-    <% elsif @event.present? %>
-      <%= f.submit "Submit", :class => "button", :id => "submit_confirm", action: "post", data: { confirm: '{"title": "Confirm Account Linking and Submit Form", "body": "You have selected to link this worker with an existing account. Please confirm that this information is correct before submitting this form. This action cannot be undone."}'} %>
-    <% else %>
-      <%= f.submit "Submit", :class => "button" %>
+    <!-- Retro terminations don't have a submit option -->
+    <% unless @kind == "Offboarding" and @employee.termination_date <= Date.today %>
+      <!-- Notes -->
+      <% if @kind != "Offboarding" %>
+        <%= f.label :notes, "Additional requests for TechTable (Distribution Lists? Special Printers? Equipment? Other tools?):" %>
+      <% else %>
+        <%= f.label :notes, "Additional Instructions for TechTable:" %>
+      <% end %>
+      <%= f.text_area :notes %>
+      <p class="help-text">(Any instructions for P&amp;C should be directed to <%= mail_to "peopleandculture@opentable.com" %>)</p>
+
+      <!-- Buttons -->
+      <% if @kind == "Security Access" %>
+        <%= f.submit "Submit", :class => "button", :id => "submit_confirm", action: "post", data: { confirm: '{"title":"Are you sure you want to submit this form?","body":"Please note: any permissions controlled by Active Directory will be applied or revoked immediately upon submission. If you are revoking security profiles that control Wi-Fi or VPN access, the worker will immediately lose connectivity."}' } %>
+      <% elsif @event.present? %>
+        <%= f.submit "Submit", :class => "button", :id => "submit_confirm", action: "post", data: { confirm: '{"title": "Confirm Account Linking and Submit Form", "body": "You have selected to link this worker with an existing account. Please confirm that this information is correct before submitting this form. This action cannot be undone."}'} %>
+      <% else %>
+        <%= f.submit "Submit", :class => "button" %>
+      <% end %>
     <% end %>
 
   <% end %>
