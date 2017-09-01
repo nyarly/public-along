@@ -20,28 +20,31 @@
       <% end %>
     </div>
 
+    <%= f.hidden_field :kind, value: @kind %>
+    <%= f.hidden_field :employee_id, value: @employee.id %>
+    <%= f.hidden_field :user_id, value: @manager_user.id %>
+
     <div class="section">
       <% case @kind %>
       <% when "Onboarding" %>
         <%= render partial: "onboarding", locals: {f: f, employee: @employee, manager_user: @manager_user} %>
-      <% when "Offboarding" %>
-        <%= render partial: "offboarding", locals: {f: f, employee: @employee} %>
       <% when "Security Access" %>
         <%= render partial: "access_change", locals: {f: f, employee: @employee, reason: @reason } %>
       <% when "Equipment" %>
         <%= render partial: "equipment", locals: {f: f} %>
+      <% when "Offboarding" %>
+        <%= render partial: "offboarding", locals: {f: f, employee: @employee} %>
       <% end %>
 
-      <%= f.hidden_field :kind, value: @kind %>
-      <%= f.hidden_field :employee_id, value: @employee.id %>
-      <%= f.hidden_field :user_id, value: @manager_user.id %>
-      <% if @kind != "Offboarding" %>
-        <%= f.label :notes, "Additional requests for TechTable (Distribution Lists? Special Printers? Equipment? Other tools?):" %>
-      <% else %>
-        <%= f.label :notes, "Additional Instructions for TechTable:" %>
+      <% unless @kind == "Offboarding" and @employee.termination_date <= Date.today %>
+        <% if @kind != "Offboarding" %>
+          <%= f.label :notes, "Additional requests for TechTable (Distribution Lists? Special Printers? Equipment? Other tools?):" %>
+        <% else %>
+          <%= f.label :notes, "Additional Instructions for TechTable:" %>
+        <% end %>
+        <%= f.text_area :notes %>
+        <p class="help-text">(Any instructions for P&amp;C should be directed to <%= mail_to "peopleandculture@opentable.com" %>)</p>
       <% end %>
-      <%= f.text_area :notes %>
-      <p class="help-text">(Any instructions for P&amp;C should be directed to <%= mail_to "peopleandculture@opentable.com" %>)</p>
     </div>
 
     <% if @kind == "Security Access" %>
