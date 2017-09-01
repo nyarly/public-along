@@ -444,21 +444,52 @@ module AdpService
       }
 
       my_data = {
-        "worker": {
-          "associateOID": "G3FR7ZM9MHR45P9E",
-          "workerID": {
-            "idValue": "102187"
-          },
-          "businessCommunication": {
-            "email": {
-              "nameCode": {
-                "codeValue": "Work E-mail",
-                "shortName": "Work E-mail"
+        "events": [
+          "worker": {
+            "associateOID": "G3FR7ZM9MHR45P9E",
+            "workerID": {
+              "idValue": "102187"
+            },
+            "data": {
+              "eventContext": {
+                "contextExpressionID": "string",
+                "worker": {
+                  "associateOID": "G3FR7ZM9MHR45P9E",
+                  "businessCommunication": {
+                    "email": {
+                      "itemID": "testpaula@example.com"
+                    }
+                  }
+                }
               },
-              "itemID": "paulanewemailtest@example.com"
+              "transform": {
+                "eventReasonCode": {
+                  "codeValue": "string",
+                  "shortName": "string",
+                  "longName": "string"
+                },
+                "eventStatusCode": {
+                  "codeValue": "string",
+                  "shortName": "string",
+                  "longName": "string"
+                },
+                "effectiveDateTime": "2016-10-13T15:13:00.000Z",
+                "worker": {
+                  "businessCommunication": {
+                    "email": {
+                      "nameCode": {
+                        "codeValue": "string",
+                        "shortName": "string",
+                        "longName": "string"
+                      },
+                      "emailUri": "string"
+                    }
+                  }
+                }
+              }
             }
           }
-        }
+        ]
       }
 
       send_data = JSON.parse(my_data.to_json)
