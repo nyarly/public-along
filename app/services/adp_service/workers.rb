@@ -64,67 +64,60 @@ module AdpService
     end
 
     def check_new_hire_changes
-      check_adp("Pending", 1.year.from_now.change(:usec => 0)) { |e, json|
-        if json["workers"].present?
+      update_emps = []
+
+      Employee.where(status: "Pending").find_each do |e|
+        if e.contract_end_date.present?
+          future_date = e.contract_end_date - 1.day
+        else
+          future_date = 1.year.from_now.change(:usec => 0)
+        end
+
+        json = get_worker_json(e, future_date)
+        adp_status = json.dig("workers", 0, "workerStatus", "statusCode", "codeValue")
+
+        if adp_status == "Active"
           parser = WorkerJsonParser.new
           workers = parser.sort_workers(json)
           w_hash = workers[0]
+          profiler = EmployeeProfile.new
+          profiler.update_employee(e, w_hash.except(:status, :profile_status))
+          Employee.check_manager(e.manager_id)
 
-          # If employee will be with OpenTable for less than a year,
-          # check for changes within a smaller time window
-
-          if w_hash.blank? && e.contract_end_date.present?
-            w = get_worker_json(e, e.contract_end_date - 1.day)
-            worker = parser.sort_workers(w)
-            w_hash = worker[0]
-          end
-
-          if w_hash.present?
-            profiler = EmployeeProfile.new
-            profiler.update_employee(e, w_hash.except(:status, :profile_status))
-          else
-            TechTableMailer.alert_email("Cannot get updated ADP info for new contract hire #{e.cn}, employee id: #{e.employee_id}.\nPlease contact the developer to help diagnose the problem.").deliver_now
+          if e.updated_at >= 10.minutes.ago
+            update_emps << e
           end
         else
           Rails.logger.info "New Hire Sync Error"
           Rails.logger.info "#{e.cn}"
           Rails.logger.info "#{json}"
-          # TechTableMailer.alert_email("New hire sync is erroring on #{e.cn}, employee id: #{e.employee_id}.\nPlease contact the developer to help diagnose the problem.").deliver_now
+          TechTableMailer.alert_email("Cannot get updated ADP info for new contract hire #{e.cn}, employee id: #{e.employee_id}.\nPlease contact the developer to help diagnose the problem.").deliver_now
         end
-      }
+      end
+      update_ads(update_emps)
     end
 
     def check_leave_return
-      check_adp("Inactive", 1.day.from_now.change(:usec => 0)) { |e, json, date|
+      update_emps = []
+
+      Employee.where(status: "Inactive").find_each do |e|
+        leave_return_date = 1.day.from_now.change(:usec => 0)
+        json = get_worker_json(e, leave_return_date)
         adp_status = json.dig("workers", 0, "workerStatus", "statusCode", "codeValue")
 
         if adp_status == "Active" && e.leave_return_date.blank?
-          e.assign_attributes(leave_return_date: date)
-          delta = build_emp_delta(e)
-          delta.save!
-          e.save!
+          e.assign_attributes(leave_return_date: leave_return_date)
         elsif e.leave_return_date.present? && adp_status == "Inactive"
           e.assign_attributes(leave_return_date: nil)
-          delta = build_emp_delta(e)
-          delta.save!
-          e.save!
         end
-      }
-    end
 
-    def check_adp(status, as_of_date, &block)
-      update_emps = []
+        delta = build_emp_delta(e)
 
-      Employee.where(status: status).find_each do |e|
-        json = get_worker_json(e, as_of_date)
-
-        block.call(e, json, as_of_date)
-
-        Employee.check_manager(e.manager_id)
-
-        if e.updated_at >= 10.minutes.ago
+        if e.changed? and e.save!
           update_emps << e
         end
+
+        delta.save! if delta.present?
       end
 
       update_ads(update_emps)
