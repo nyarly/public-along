@@ -105,7 +105,7 @@ module AdpService
         if is_retroactive?(e, term_date)
           process_retro_term(e, profile)
         else
-          delta = build_emp_delta(profile)
+          delta = EmpDelta.build_from_profile(profile)
 
           if e.save and profile.save
             ads = ActiveDirectoryService.new
@@ -123,7 +123,7 @@ module AdpService
     def process_retro_term(e, profile)
       e.status = "Terminated"
       profile.profile_status = "Terminated"
-      delta = build_emp_delta(profile)
+      delta = EmpDelta.build_from_profile(profile)
 
       if e.save and profile.save
         ads = ActiveDirectoryService.new
@@ -153,7 +153,7 @@ module AdpService
 
       if e.present?
         e.assign_attributes(leave_start_date: leave_date)
-        delta = build_emp_delta(profile)
+        delta = EmpDelta.build_from_profile(profile)
       end
 
       if e.present? && e.save
@@ -215,24 +215,6 @@ module AdpService
     def del_event(num)
       set_http("https://#{SECRETS.adp_api_domain}/core/v1/event-notification-messages/#{num}")
       res = @http.delete(@uri.request_uri, {'Authorization' => "Bearer #{@token}"})
-    end
-
-    def build_emp_delta(prof)
-      emp_before  = prof.employee.changed_attributes.deep_dup
-      emp_after   = Hash[prof.employee.changes.map { |k,v| [k, v[1]] }]
-      prof_before = prof.changed_attributes.deep_dup
-      prof_after  = Hash[prof.changes.map { |k,v| [k, v[1]] }]
-      before      = emp_before.merge!(prof_before)
-      after       = emp_after.merge!(prof_after)
-
-      if before.present? and after.present?
-        emp_delta = EmpDelta.new(
-          employee: prof.employee,
-          before: before,
-          after: after
-        )
-      end
-      emp_delta
     end
 
     def add_basic_security_profile(employee)

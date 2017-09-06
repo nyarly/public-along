@@ -116,7 +116,7 @@ module AdpService
         e.assign_attributes(leave_return_date: nil)
       end
 
-      delta = build_emp_delta(e)
+      delta = EmpDelta.build_from_profile(e.current_profile)
 
       if e.changed? and e.save!
         ad = ActiveDirectoryService.new
@@ -154,19 +154,6 @@ module AdpService
           end
         end
       end
-    end
-
-    def build_emp_delta(employee)
-      before = employee.changed_attributes
-      after = Hash[employee.changes.map { |k,v| [k, v[1]] }]
-      if before.present? && after.present?
-        emp_delta = EmpDelta.new(
-          employee_id: employee.id,
-          before: before,
-          after: after
-        )
-      end
-      emp_delta
     end
   end
 end

@@ -38,7 +38,7 @@
     </div>
 
     <!-- Retro terminations don't have a submit option -->
-    <% unless @kind == "Offboarding" and @employee.termination_date <= Date.today %>
+    <% unless @kind == "Offboarding" and @employee.offboarding_cutoff <= DateTime.now %>
       <!-- Notes -->
       <% if @kind != "Offboarding" %>
         <%= f.label :notes, "Additional requests for TechTable (Distribution Lists? Special Printers? Equipment? Other tools?):" %>

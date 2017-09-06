@@ -272,6 +272,17 @@ describe Employee, type: :model do
       expect(emp_3.onboarding_due_date).to eq("Jul 11, 2016")
     end
 
+    it "should calculate the offboarding submission cutoff" do
+      past_due_emp = FactoryGirl.create(:employee,
+        termination_date: Date.new(2016, 7, 25, 2))
+      prof_1 = FactoryGirl.create(:profile,
+        employee: past_due_emp,
+        start_date: Date.new(2016, 7, 25),
+        location: Location.find_by_name("San Francisco Headquarters"))
+
+      expect(past_due_emp.offboarding_cutoff).to eq(DateTime.new(2016, 7, 25, 19))
+    end
+
     it "should create a cn" do
       expect(employee.cn).to eq("Bob Barker")
     end

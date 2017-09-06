@@ -405,7 +405,7 @@ describe AdpService::Events, type: :service do
       let(:parsed_json) { JSON.parse(term_json) }
       let(:offboard_service) { double(OffboardingService) }
 
-      it "should update termiantion date, status, deactivate AD, send TT instructions" do
+      it "should update termination date, status, deactivate AD, send TT instructions" do
         expect(ActiveDirectoryService).to receive(:new).and_return(ads)
         expect(ads).to receive(:deactivate).with([term_emp])
         expect(TechTableMailer).to receive(:offboard_instructions).and_return(mailer)

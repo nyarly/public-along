@@ -291,6 +291,13 @@ class Employee < ActiveRecord::Base
     end
   end
 
+  def offboarding_cutoff
+    if self.termination_date.present?
+      # noon on termination date, when we send offboarding instructions to techtable
+      ActiveSupport::TimeZone.new(self.nearest_time_zone).local_to_utc(DateTime.new(self.termination_date.year, self.termination_date.month, self.termination_date.day, 12))
+    end
+  end
+
   def self.check_manager(emp_id)
     emp = Employee.find_by_employee_id(emp_id)
 
