@@ -61,7 +61,7 @@
           <div class="indent-1 column large-4 medium-6 small-12 float-left">
             <%= sp.name %><br>
             <ul>
-              <% sp.access_levels.find_each do |al| %>
+              <% sp.access_levels.includes(:application).find_each do |al| %>
                 <li class="indent-1"><small><%= al.name %> <%= al.application.name %>
                   <% if al.application.ad_controls || al.ad_security_group.present? %>
                     <span style="color: green"> &#8212; Applied Immediately</span>
@@ -85,7 +85,7 @@
           <div class="indent-1 column large-4 medium-6 small-12 float-left">
             <%= sp.name %><br>
             <ul>
-              <% sp.access_levels.find_each do |al| %>
+              <% sp.access_levels.includes(:application).find_each do |al| %>
                 <li class="indent-1"><small><%= al.name %> <%= al.application.name %></small>
                 <% if al.application.ad_controls || al.ad_security_group.present? %>
                   <small style="color: green"> &#8212; Revoked Immediately</small>
@@ -109,7 +109,7 @@
           <div class="indent-1 column large-4 medium-6 small-12 float-left">
             <%= sp.name %><br>
             <ul>
-              <% sp.access_levels.find_each do |al| %>
+              <% sp.access_levels.includes(:application).find_each do |al| %>
                 <li class="indent-1"><small><%= al.name %> <%= al.application.name %></small></li>
               <% end %>
             </ul>

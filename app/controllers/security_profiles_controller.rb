@@ -6,7 +6,7 @@ class SecurityProfilesController < ApplicationController
   # GET /security_profiles
   # GET /security_profiles.json
   def index
-    @security_profiles = SecurityProfile.all
+    @security_profiles = SecurityProfile.all.includes([:departments, :access_levels => [:application]])
   end
 
   # GET /security_profiles/1

@@ -141,7 +141,7 @@ class ManagerEntry
           build_onboarding
           build_security_profiles
           build_machine_bundles
-          UpdateEmailWorker.perform_async(@employee)
+          UpdateEmailWorker.perform_async(@employee.id)
         elsif kind == "Security Access"
           build_security_profiles
         elsif kind == "Offboarding"

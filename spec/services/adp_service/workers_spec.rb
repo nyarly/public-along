@@ -333,9 +333,24 @@ describe AdpService::Workers, type: :service do
       adp_assoc_oid: "123458")}
     let!(:future_date) { 1.day.from_now.change(:usec => 0) }
 
-    before :each do
+
+    it "should create the right employee workers" do
+      expect(EmployeeChangeWorker).to receive(:perform_async).with(leave_emp.id)
+      expect(EmployeeChangeWorker).to receive(:perform_async).with(leave_cancel_emp.id)
+      expect(EmployeeChangeWorker).to receive(:perform_async).with(do_nothing_emp.id)
+      adp = AdpService::Workers.new
+      adp.token = "a-token-value"
+      expect{
+        adp.check_future_changes
+      }.to_not change{Employee.count}
+    end
+
+    it "should update leave return date and call AD update when it gets an active response" do
+      adp = AdpService::Workers.new
+      adp.token = "a-token-value"
       expect(URI).to receive(:parse).ordered.with("https://api.adp.com/hr/v2/workers/123456?asOfDate=#{future_date.strftime('%m')}%2F#{future_date.strftime('%d')}%2F#{future_date.strftime('%Y')}").and_return(uri)
-      expect(response).to receive(:body).ordered.and_return(
+      expect(http).to receive(:get).and_return(response)
+      expect(response).to receive(:body).and_return(
         '{"workers": [
           {
             "workerStatus": {
@@ -346,55 +361,68 @@ describe AdpService::Workers, type: :service do
           }
         ]}'
       )
-      expect(URI).to receive(:parse).ordered.with("https://api.adp.com/hr/v2/workers/123457?asOfDate=#{future_date.strftime('%m')}%2F#{future_date.strftime('%d')}%2F#{future_date.strftime('%Y')}").and_return(uri)
-      expect(response).to receive(:body).ordered.and_return(
-        '{"workers": [
-          {
-            "workerStatus": {
-              "statusCode": {
-                "codeValue": "Inactive"
-              }
-            }
-          }
-        ]}'
-      )
-      expect(URI).to receive(:parse).ordered.with("https://api.adp.com/hr/v2/workers/123458?asOfDate=#{future_date.strftime('%m')}%2F#{future_date.strftime('%d')}%2F#{future_date.strftime('%Y')}").and_return(uri)
-      expect(response).to receive(:body).ordered.and_return(
-        '{"workers": [
-          {
-            "workerStatus": {
-              "statusCode": {
-                "codeValue": "Inactive"
-              }
-            }
-          }
-        ]}'
-      )
-      allow(http).to receive(:get).with(
-        request_uri,
-        { "Accept"=>"application/json",
-          "Authorization"=>"Bearer a-token-value",
-        }).and_return(response)
-        expect(response).to receive(:code).thrice
-        expect(response).to receive(:message).thrice
-    end
-
-    it "should update leave return date and call AD update, if applicable" do
+      expect(response).to receive(:code)
+      expect(response).to receive(:message)
       expect(ActiveDirectoryService).to receive(:new).and_return(ads)
-      expect(ads).to receive(:update).with([leave_emp, leave_cancel_emp])
+      expect(ads).to receive(:update).with([leave_emp])
 
-      adp = AdpService::Workers.new
-      adp.token = "a-token-value"
+      adp.check_leave_return(leave_emp)
 
-      expect{
-        adp.check_leave_return
-      }.to_not change{Employee.count}
       expect(leave_emp.reload.leave_return_date).to eq(future_date)
-      expect(leave_cancel_emp.reload.leave_return_date).to eq(nil)
-      expect(do_nothing_emp.reload.leave_return_date).to eq(nil)
       expect(leave_emp.emp_deltas.last.before).to eq({"leave_return_date"=>nil})
       expect(leave_emp.emp_deltas.last.after).to eq({"leave_return_date"=>"#{future_date.change(:usec => 0)}"})
+    end
+
+    it "should update leave return date to nil and call AD when it gets an inactive response" do
+      adp = AdpService::Workers.new
+      adp.token = "a-token-value"
+      expect(URI).to receive(:parse).ordered.with("https://api.adp.com/hr/v2/workers/123457?asOfDate=#{future_date.strftime('%m')}%2F#{future_date.strftime('%d')}%2F#{future_date.strftime('%Y')}").and_return(uri)
+      expect(http).to receive(:get).and_return(response)
+      expect(response).to receive(:body).ordered.and_return(
+        '{"workers": [
+          {
+            "workerStatus": {
+              "statusCode": {
+                "codeValue": "Inactive"
+              }
+            }
+          }
+        ]}'
+      )
+      expect(response).to receive(:code)
+      expect(response).to receive(:message)
+      expect(ActiveDirectoryService).to receive(:new).and_return(ads)
+      expect(ads).to receive(:update).with([leave_cancel_emp])
+
+      adp.check_leave_return(leave_cancel_emp)
+
+      expect(leave_cancel_emp.reload.leave_return_date).to eq(nil)
       expect(leave_cancel_emp.emp_deltas.last.after).to eq({"leave_return_date"=>nil})
+    end
+
+    it "should do nothing when the worker is still on leave" do
+      adp = AdpService::Workers.new
+      adp.token = "a-token-value"
+      expect(URI).to receive(:parse).ordered.with("https://api.adp.com/hr/v2/workers/123458?asOfDate=#{future_date.strftime('%m')}%2F#{future_date.strftime('%d')}%2F#{future_date.strftime('%Y')}").and_return(uri)
+      expect(http).to receive(:get).and_return(response)
+      expect(response).to receive(:body).ordered.and_return(
+        '{"workers": [
+          {
+            "workerStatus": {
+              "statusCode": {
+                "codeValue": "Inactive"
+              }
+            }
+          }
+        ]}'
+      )
+      expect(response).to receive(:code)
+      expect(response).to receive(:message)
+      expect(ActiveDirectoryService).not_to receive(:new)
+
+      adp.check_leave_return(do_nothing_emp)
+
+      expect(do_nothing_emp.reload.leave_return_date).to eq(nil)
     end
   end
 
@@ -413,6 +441,15 @@ describe AdpService::Workers, type: :service do
       worker_type: regular_w_type
     )}
     let!(:future_date) { 1.year.from_now.change(:usec => 0) }
+
+    it "should create the right employee workers" do
+      expect(EmployeeChangeWorker).to receive(:perform_async).with(new_hire.id)
+      adp = AdpService::Workers.new
+      adp.token = "a-token-value"
+      expect{
+        adp.check_future_changes
+      }.to_not change{Employee.count}
+    end
 
     context "worker found" do
       before :each do
@@ -436,7 +473,7 @@ describe AdpService::Workers, type: :service do
         adp.token = "a-token-value"
 
         expect{
-          adp.check_new_hire_changes
+          adp.check_new_hire_change(new_hire)
         }.to_not change{Employee.count}
 
         new_hire.reload
@@ -463,21 +500,22 @@ describe AdpService::Workers, type: :service do
           { "Accept"=>"application/json",
             "Authorization"=>"Bearer a-token-value",
           }).and_return(response)
+        expect(response).to receive(:code)
+        expect(response).to receive(:message)
       end
 
-      # skipping while we log errors instead of generating email
-      xit "should send an error message to TechTable if worker is not found" do
+      it "should send an error message to TechTable if worker is not found" do
         expect(ActiveDirectoryService).to_not receive(:new)
 
         adp = AdpService::Workers.new
         adp.token = "a-token-value"
 
         expect(TechTableMailer).to receive(:alert_email)
-          .with("New hire sync is erroring on #{new_hire.cn}, employee id: #{new_hire.employee_id}.\nPlease contact the developer to help diagnose the problem.")
+          .with("Cannot get updated ADP info for new contract hire #{new_hire.cn}, employee id: #{new_hire.employee_id}.\nPlease contact the developer to help diagnose the problem.")
           .and_return(mailer)
         expect(mailer).to receive(:deliver_now)
 
-        adp.check_new_hire_changes
+        adp.check_new_hire_change(new_hire)
       end
     end
 
@@ -500,15 +538,6 @@ describe AdpService::Workers, type: :service do
         worker_type: worker_type)}
 
       before :each do
-        # return worker json with status "Terminated" on first try
-        expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers/G3NQ5754ETA080N?asOfDate=#{future_date.strftime('%m')}%2F#{future_date.strftime('%d')}%2F#{future_date.strftime('%Y')}").and_return(uri)
-        expect(response).to receive(:body).and_return(terminated_contractor_json)
-        allow(http).to receive(:get).with(
-          request_uri,
-          { "Accept"=>"application/json",
-            "Authorization"=>"Bearer a-token-value",
-          }).and_return(response)
-        # return worker json with status "Active" on second try
         expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers/G3NQ5754ETA080N?asOfDate=#{check_contract_end_date.strftime('%m')}%2F#{check_contract_end_date.strftime('%d')}%2F#{check_contract_end_date.strftime('%Y')}").and_return(uri)
         expect(response).to receive(:body).and_return(contractor_json)
         allow(http).to receive(:get).with(
@@ -516,8 +545,8 @@ describe AdpService::Workers, type: :service do
           { "Accept"=>"application/json",
             "Authorization"=>"Bearer a-token-value",
           }).and_return(response)
-        expect(response).to receive(:code).twice
-        expect(response).to receive(:message).twice
+        expect(response).to receive(:code)
+        expect(response).to receive(:message)
       end
 
       it "should should update data for worker" do
@@ -525,7 +554,7 @@ describe AdpService::Workers, type: :service do
         adp.token = "a-token-value"
 
         expect{
-          adp.check_new_hire_changes
+          adp.check_new_hire_change(new_hire)
         }.to_not change{Employee.count}
 
         new_hire.reload
@@ -573,7 +602,7 @@ describe AdpService::Workers, type: :service do
       it "should update the new hire's manager with the correct security profile" do
         adp = AdpService::Workers.new
         adp.token = "a-token-value"
-        adp.check_new_hire_changes
+        adp.check_new_hire_change(new_hire)
 
         expect(new_hire.manager_id).to eq(new_manager.employee_id)
         expect(new_manager.active_security_profiles).to include(basic_manager_sec_prof)
