@@ -63,64 +63,67 @@ module AdpService
       end
     end
 
-    def check_new_hire_changes
-      update_emps = []
-
-      Employee.where(status: "Pending").find_each do |e|
-        if e.contract_end_date.present?
-          future_date = e.contract_end_date - 1.day
-        else
-          future_date = 1.year.from_now.change(:usec => 0)
-        end
-
-        json = get_worker_json(e, future_date)
-        adp_status = json.dig("workers", 0, "workerStatus", "statusCode", "codeValue")
-
-        if adp_status == "Active"
-          parser = WorkerJsonParser.new
-          workers = parser.sort_workers(json)
-          w_hash = workers[0]
-          profiler = EmployeeProfile.new
-          profiler.update_employee(e, w_hash.except(:status, :profile_status))
-          Employee.check_manager(e.manager_id)
-
-          if e.updated_at >= 10.minutes.ago
-            update_emps << e
-          end
-        else
-          Rails.logger.info "New Hire Sync Error"
-          Rails.logger.info "#{e.cn}"
-          Rails.logger.info "#{json}"
-          TechTableMailer.alert_email("Cannot get updated ADP info for new contract hire #{e.cn}, employee id: #{e.employee_id}.\nPlease contact the developer to help diagnose the problem.").deliver_now
-        end
+    def check_future_changes
+      Employee.where("status LIKE ? OR status LIKE ?", "Pending", "Inactive").find_each do |e|
+        EmployeeChangeWorker.perform_async(e.id)
       end
-      update_ads(update_emps)
     end
 
-    def check_leave_return
-      update_emps = []
+    def look_ahead(e)
+      if e.status == "Pending"
+        check_new_hire_change(e)
+      else
+        # inactive worker status
+        check_leave_return(e)
+      end
+    end
 
-      Employee.where(status: "Inactive").find_each do |e|
-        leave_return_date = 1.day.from_now.change(:usec => 0)
-        json = get_worker_json(e, leave_return_date)
-        adp_status = json.dig("workers", 0, "workerStatus", "statusCode", "codeValue")
-
-        if adp_status == "Active" && e.leave_return_date.blank?
-          e.assign_attributes(leave_return_date: leave_return_date)
-        elsif e.leave_return_date.present? && adp_status == "Inactive"
-          e.assign_attributes(leave_return_date: nil)
-        end
-
-        delta = build_emp_delta(e)
-
-        if e.changed? and e.save!
-          update_emps << e
-        end
-
-        delta.save! if delta.present?
+    def check_new_hire_change(e)
+      if e.contract_end_date.present?
+        future_date = e.contract_end_date - 1.day
+      else
+        future_date = 1.year.from_now.change(:usec => 0)
       end
 
-      update_ads(update_emps)
+      json = get_worker_json(e, future_date)
+      adp_status = json.dig("workers", 0, "workerStatus", "statusCode", "codeValue")
+
+      if adp_status.present? and adp_status == "Active"
+        parser = WorkerJsonParser.new
+        workers = parser.sort_workers(json)
+        w_hash = workers[0]
+        profiler = EmployeeProfile.new
+        profiler.update_employee(e, w_hash.except(:status, :profile_status))
+        Employee.check_manager(e.manager_id)
+
+        if e.updated_at >= 1.minute.ago
+          ad = ActiveDirectoryService.new
+          ad.update([e])
+        end
+      else
+        TechTableMailer.alert_email("Cannot get updated ADP info for new contract hire #{e.cn}, employee id: #{e.employee_id}.\nPlease contact the developer to help diagnose the problem.").deliver_now
+      end
+    end
+
+    def check_leave_return(e)
+      future_date = 1.day.from_now.change(:usec => 0)
+      json = get_worker_json(e, future_date)
+      adp_status = json.dig("workers", 0, "workerStatus", "statusCode", "codeValue")
+
+      if adp_status == "Active" && e.leave_return_date.blank?
+        e.assign_attributes(leave_return_date: future_date)
+      elsif e.leave_return_date.present? && adp_status == "Inactive"
+        e.assign_attributes(leave_return_date: nil)
+      end
+
+      delta = build_emp_delta(e)
+
+      if e.changed? and e.save!
+        ad = ActiveDirectoryService.new
+        ad.update([e])
+      end
+
+      delta.save! if delta.present?
     end
 
     def get_worker_json(e, date)
@@ -134,13 +137,6 @@ module AdpService
         worker_json = JSON.parse(str)
       end
       worker_json
-    end
-
-    def update_ads(emp_array)
-      if emp_array.present?
-        ads = ActiveDirectoryService.new
-        ads.update(emp_array)
-      end
     end
 
     def send_email?(employee)
