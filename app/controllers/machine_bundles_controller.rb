@@ -6,7 +6,7 @@ class MachineBundlesController < ApplicationController
   # GET /machine_bundles
   # GET /machine_bundles.json
   def index
-    @machine_bundles = MachineBundle.all
+    @machine_bundles = MachineBundle.all.includes(:departments)
   end
 
   # GET /machine_bundles/1
