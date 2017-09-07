@@ -46,7 +46,7 @@ class EmployeeProfile
 
     employee.status = "Pending" if employee.status == "Terminated"
     new_profile.profile_status = "Pending"
-    delta = build_emp_delta(new_profile)
+    delta = EmpDelta.build_from_profile(new_profile)
 
     delta.save!
     new_profile.save!
@@ -63,7 +63,7 @@ class EmployeeProfile
     employee.assign_attributes(employee_attrs.to_h)
     profile.assign_attributes(profile_attrs.to_h)
 
-    delta = build_emp_delta(profile)
+    delta = EmpDelta.build_from_profile(profile)
 
     # create new profile for changes to worker type or ADP record
     if profile.worker_type_id_changed? || profile.adp_employee_id_changed? || profile.adp_assoc_oid_changed?
@@ -138,24 +138,6 @@ class EmployeeProfile
     parser = AdpService::WorkerJsonParser.new
     worker_hash = parser.gen_worker_hash(worker_json)
     worker_hash
-  end
-
-  def build_emp_delta(prof)
-    emp_before  = prof.employee.changed_attributes.deep_dup
-    emp_after   = Hash[prof.employee.changes.map { |k,v| [k, v[1]] }]
-    prof_before = prof.changed_attributes.deep_dup
-    prof_after  = Hash[prof.changes.map { |k,v| [k, v[1]] }]
-    before      = emp_before.merge!(prof_before)
-    after       = emp_after.merge!(prof_after)
-
-    if before.present? and after.present?
-      emp_delta = EmpDelta.new(
-        employee: prof.employee,
-        before: before,
-        after: after
-      )
-    end
-    emp_delta
   end
 
   def send_email?(profile)

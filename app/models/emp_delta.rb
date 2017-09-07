@@ -95,4 +95,22 @@ class EmpDelta < ActiveRecord::Base
     end
     value
   end
+
+  def self.build_from_profile(prof)
+    emp_before  = prof.employee.changed_attributes.deep_dup
+    emp_after   = Hash[prof.employee.changes.map { |k,v| [k, v[1]] }]
+    prof_before = prof.changed_attributes.deep_dup
+    prof_after  = Hash[prof.changes.map { |k,v| [k, v[1]] }]
+    before      = emp_before.merge!(prof_before)
+    after       = emp_after.merge!(prof_after)
+
+    if before.present? and after.present?
+      emp_delta = EmpDelta.new(
+        employee: prof.employee,
+        before: before,
+        after: after
+      )
+    end
+    emp_delta
+  end
 end

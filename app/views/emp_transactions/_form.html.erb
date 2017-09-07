@@ -20,21 +20,26 @@
       <% end %>
     </div>
 
+    <%= f.hidden_field :kind, value: @kind %>
+    <%= f.hidden_field :employee_id, value: @employee.id %>
+    <%= f.hidden_field :user_id, value: @manager_user.id %>
+
     <div class="section">
       <% case @kind %>
       <% when "Onboarding" %>
         <%= render partial: "onboarding", locals: {f: f, employee: @employee, manager_user: @manager_user} %>
-      <% when "Offboarding" %>
-        <%= render partial: "offboarding", locals: {f: f, employee: @employee} %>
       <% when "Security Access" %>
         <%= render partial: "access_change", locals: {f: f, employee: @employee, reason: @reason } %>
       <% when "Equipment" %>
         <%= render partial: "equipment", locals: {f: f} %>
+      <% when "Offboarding" %>
+        <%= render partial: "offboarding", locals: {f: f, employee: @employee} %>
       <% end %>
+    </div>
 
-      <%= f.hidden_field :kind, value: @kind %>
-      <%= f.hidden_field :employee_id, value: @employee.id %>
-      <%= f.hidden_field :user_id, value: @manager_user.id %>
+    <!-- Retro terminations don't have a submit option -->
+    <% unless @kind == "Offboarding" and @employee.offboarding_cutoff <= DateTime.now %>
+      <!-- Notes -->
       <% if @kind != "Offboarding" %>
         <%= f.label :notes, "Additional requests for TechTable (Distribution Lists? Special Printers? Equipment? Other tools?):" %>
       <% else %>
@@ -42,14 +47,15 @@
       <% end %>
       <%= f.text_area :notes %>
       <p class="help-text">(Any instructions for P&amp;C should be directed to <%= mail_to "peopleandculture@opentable.com" %>)</p>
-    </div>
 
-    <% if @kind == "Security Access" %>
-      <%= f.submit "Submit", :class => "button", :id => "submit_confirm", action: "post", data: { confirm: '{"title":"Are you sure you want to submit this form?","body":"Please note: any permissions controlled by Active Directory will be applied or revoked immediately upon submission. If you are revoking security profiles that control Wi-Fi or VPN access, the worker will immediately lose connectivity."}' } %>
-    <% elsif @event.present? %>
-      <%= f.submit "Submit", :class => "button", :id => "submit_confirm", action: "post", data: { confirm: '{"title": "Confirm Account Linking and Submit Form", "body": "You have selected to link this worker with an existing account. Please confirm that this information is correct before submitting this form. This action cannot be undone."}'} %>
-    <% else %>
-      <%= f.submit "Submit", :class => "button" %>
+      <!-- Buttons -->
+      <% if @kind == "Security Access" %>
+        <%= f.submit "Submit", :class => "button", :id => "submit_confirm", action: "post", data: { confirm: '{"title":"Are you sure you want to submit this form?","body":"Please note: any permissions controlled by Active Directory will be applied or revoked immediately upon submission. If you are revoking security profiles that control Wi-Fi or VPN access, the worker will immediately lose connectivity."}' } %>
+      <% elsif @event.present? %>
+        <%= f.submit "Submit", :class => "button", :id => "submit_confirm", action: "post", data: { confirm: '{"title": "Confirm Account Linking and Submit Form", "body": "You have selected to link this worker with an existing account. Please confirm that this information is correct before submitting this form. This action cannot be undone."}'} %>
+      <% else %>
+        <%= f.submit "Submit", :class => "button" %>
+      <% end %>
     <% end %>
 
   <% end %>
