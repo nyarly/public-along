@@ -41,10 +41,10 @@
           <td><%= e.email %></td>
           <td><%= e.worker_type.try(:name) %></td>
           <% if can? :manage, Employee %>
-            <td><%= e.adp_assoc_oid %></td>
+            <td><%= e.try(:adp_assoc_oid) %></td>
           <% end %>
           <td><%= e.manager.try(:cn) %></td>
-          <td><%= e.department.name %></td>
+          <td><%= e.department.try(:name) %></td>
           <td><%= e.location.try(:name) %></td>
           <td><%= e.job_title.try(:name) %></td>
           <td><%= e.hire_date.strftime("%m/%d/%Y") if e.hire_date.present? %></td>
