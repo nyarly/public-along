@@ -30,7 +30,7 @@ class Employee < ActiveRecord::Base
 
   [:manager_id, :department, :worker_type, :location, :job_title, :company, :adp_assoc_oid].each do |attribute|
     define_method :"#{attribute}" do
-      current_profile.send("#{attribute}")
+      current_profile.try(:send, "#{attribute}")
     end
   end
 
@@ -53,7 +53,7 @@ class Employee < ActiveRecord::Base
   end
 
   def employee_id
-    current_profile.send(:adp_employee_id)
+    current_profile.try(:send, :adp_employee_id)
   end
 
   def self.find_by_employee_id(value)

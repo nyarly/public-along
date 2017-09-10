@@ -45,7 +45,7 @@
 
       <p>
         <strong>Department:</strong>
-        <%= @employee.department.name %>
+        <%= @employee.department.try(:name) %>
       </p>
 
       <p>
@@ -70,14 +70,14 @@
 
       <p>
         <strong>Employee ID:</strong>
-        <%= @employee.employee_id %>
+        <%= @employee.try(:employee_id) %>
       </p>
 
       <!-- Start admin info section -->
       <% if can? :manage, Employee %>
         <p>
           <strong>ADP Assoc. OID:</strong>
-          <%= @employee.adp_assoc_oid %>
+          <%= @employee.try(:adp_assoc_oid) %>
         </p>
 
         <p>
