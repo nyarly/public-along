@@ -31,21 +31,21 @@ RSpec.describe EmployeeWorker, type: :worker do
 
     expect(Employee).to receive(:find_by_employee_id).with(employee.manager_id).and_call_original
 
-    worker.perform("Onboarding", employee_id: employee.id)
+    worker.perform("Onboarding", {"employee_id"=>employee.id})
   end
 
   it "should send the right Mailer for Onboarding action" do
     expect(ManagerMailer).to receive(:permissions).with("Onboarding", manager, employee).and_return(mailer)
     expect(mailer).to receive(:deliver_now)
 
-    worker.perform("Onboarding", employee_id: employee.id)
+    worker.perform("Onboarding", {"employee_id"=>employee.id})
   end
 
   it "should send the right Mailer for job change" do
     expect(ManagerMailer).to receive(:permissions).with("Security Access", manager, employee).and_return(mailer)
     expect(mailer).to receive(:deliver_now)
 
-    worker.perform("Security Access", employee_id: employee.id)
+    worker.perform("Security Access", {"employee_id"=>employee.id})
   end
 
   it "should send the right mailer for rehire" do
@@ -57,7 +57,7 @@ RSpec.describe EmployeeWorker, type: :worker do
     expect(profiler).to receive(:build_employee).with(event).and_return(potential_employee)
     expect(potential_employee).to receive(:manager).and_return(manager)
 
-    worker.perform("Onboarding", event_id: event.id)
+    worker.perform("Onboarding", {"event_id"=>event.id})
   end
 
 end
