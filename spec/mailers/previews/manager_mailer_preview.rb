@@ -32,4 +32,10 @@ class ManagerMailerPreview < ActionMailer::Preview
     manager = employee.manager
     ManagerMailer.permissions("Onboarding", manager, employee, event: event)
   end
+
+  def onboarding_reminder
+    employee = Employee.where(status: "Pending").last
+    manager = Employee.find_by_employee_id(employee.manager_id) if employee && employee.manager_id
+    ManagerMailer.reminder(manager, employee)
+  end
 end
