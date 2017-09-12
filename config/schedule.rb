@@ -7,6 +7,7 @@ require 'tzinfo'
 every 1.hour do
   rake "employee:change_status"
   rake "adp:sync_all"
+  rake "employee:send_reminders"
 end
 
 # 4pm UTC / 9am PT

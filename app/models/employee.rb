@@ -291,6 +291,20 @@ class Employee < ActiveRecord::Base
     end
   end
 
+  def self.onboarding_reminder_group
+    reminder_group = []
+    missing_onboards = Employee.where(status: "Pending").joins('LEFT OUTER JOIN emp_transactions ON employees.id = emp_transactions.employee_id').group('employees.id').having('count(emp_transactions) = 0')
+
+    missing_onboards.each do |e|
+      reminder_date = e.onboarding_due_date.to_date - 1.day
+      if reminder_date.between?(Date.yesterday, Date.tomorrow)
+        reminder_group << e
+      end
+    end
+    reminder_group
+  end
+
+
   def offboarding_cutoff
     if self.termination_date.present?
       # noon on termination date, when we send offboarding instructions to techtable

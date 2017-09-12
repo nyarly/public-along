@@ -462,6 +462,52 @@ describe "employee rake tasks", type: :tasks do
     end
   end
 
+  context "employee:send_reminders" do
+   let!(:due_tomorrow_no_onboard) {FactoryGirl.create(:employee,
+      last_name: "Aaa",
+      status: "Pending",
+      hire_date: Date.new(2017, 12, 4))}
+    let!(:profile) { FactoryGirl.create(:profile,
+      profile_status: "Pending",
+      start_date: Date.new(2017, 12, 4),
+      employee: due_tomorrow_no_onboard)}
+
+    let!(:due_tomorrow_no_onboard_au) { FactoryGirl.create(:employee,
+      last_name: "Bbb",
+      status: "Pending",
+      hire_date: Date.new(2017, 12, 11))}
+    let!(:au_profile) { FactoryGirl.create(:profile,
+      employee: due_tomorrow_no_onboard_au,
+      profile_status: "Pending",
+      start_date: Date.new(2017, 12, 11),
+      location: Location.find_by_name("Melbourne Office"))}
+
+    before :each do
+      Rake.application = Rake::Application.new
+      Rake.application.rake_require "lib/tasks/employee", [Rails.root.to_s], ''
+      Rake::Task.define_task :environment
+    end
+
+    after :each do
+      Timecop.return
+    end
+
+    it "should remind manager to onboard us worker" do
+      # 9am PST
+      Timecop.freeze(Time.new(2017, 11, 26, 17, 0, 0, "+00:00"))
+
+      expect(ManagerMailer).to receive_message_chain(:reminder, :deliver_now)
+      Rake::Task["employee:send_reminders"].invoke
+    end
+
+    it "should remind manager to onboard au worker" do
+      # 9am AEST
+      Timecop.freeze(Time.new(2017, 11, 25, 22, 00, 0, "+00:00"))
+      expect(ManagerMailer).to receive_message_chain(:reminder, :deliver_now)
+      Rake::Task["employee:send_reminders"].invoke
+    end
+  end
+
   context "employee:xml_to_ad" do
     # create managers for the xml to reference
     let!(:manager_1) { FactoryGirl.create(:employee, employee_id: "12100123", sam_account_name: "samaccountname1", worker_type_id: worker_type.id)}
