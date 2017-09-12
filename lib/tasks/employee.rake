@@ -51,7 +51,7 @@ namespace :employee do
     Employee.onboarding_reminder_group.each do |e|
       # send reminders at 9am local time day before onboarding due date
       if in_time_window?(e.onboarding_due_date.to_time - 1.day, 9, e.nearest_time_zone)
-        ManagerMailer.reminder(e.manager, e).deliver_now
+        ReminderWorker.perform_async(e.id).deliver_now
       end
     end
   end
