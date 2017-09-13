@@ -46,6 +46,24 @@ namespace :employee do
     off.offboard(offboards)
   end
 
+  desc "send onboarding reminders"
+  task :send_reminders => :environment do
+    Employee.onboarding_reminder_group.each do |e|
+      # send reminders at 9am local time day before onboarding due date
+      if in_time_window?(e.onboarding_due_date.to_time - 1.day, 9, e.nearest_time_zone)
+        ReminderWorker.perform_async(employee_id: e.id)
+      end
+    end
+    AdpEvent.onboarding_reminder_group.each do |e|
+      # same for unprocessed job change or rehire events
+      profiler = EmployeeProfile.new
+      employee = profiler.build_employee(e)
+      if in_time_window?(employee.onboarding_due_date.to_time - 1.day, 9, employee.nearest_time_zone)
+        ReminderWorker.perform_async(event_id: e.id)
+      end
+    end
+  end
+
   desc "update active directory against mezzo employee db"
   task :update_ad => :environment do
     ads = ActiveDirectoryService.new
@@ -58,7 +76,6 @@ def in_time_window?(date, hour, zone)
   # TODO refactor this as a scope in Employee model
   start_time = ActiveSupport::TimeZone.new(zone).local_to_utc(DateTime.new(date.year, date.month, date.day, hour))
   end_time = ActiveSupport::TimeZone.new(zone).local_to_utc(DateTime.new(date.year, date.month, date.day, (hour + 1)))
-
   start_time <= DateTime.now.in_time_zone("UTC") && DateTime.now.in_time_zone("UTC") < end_time
 end
 

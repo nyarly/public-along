@@ -709,4 +709,50 @@ describe Employee, type: :model do
       expect(Employee.email_options(employee.id)).to_not include("Offboarding")
     end
   end
+
+  describe "#onboarding_reminder_group" do
+    let!(:due_tomorrow_no_onboard) {FactoryGirl.create(:employee,
+      last_name: "Aaa",
+      status: "Pending",
+      hire_date: 5.business_days.from_now)}
+    let!(:profile) { FactoryGirl.create(:profile,
+      profile_status: "Pending",
+      start_date: 5.business_days.from_now,
+      employee: due_tomorrow_no_onboard)}
+
+    let!(:due_tomorrow_no_onboard_au) { FactoryGirl.create(:employee,
+      last_name: "Bbb",
+      status: "Pending",
+      hire_date: 10.business_days.from_now)}
+    let!(:au_profile) { FactoryGirl.create(:profile,
+      employee: due_tomorrow_no_onboard_au,
+      profile_status: "Pending",
+      start_date: 10.business_days.from_now,
+      location: Location.find_by_name("Melbourne Office"))}
+
+    let!(:due_tomorrow_w_onboard) { FactoryGirl.create(:employee,
+      status: "Pending",
+      hire_date: 6.business_days.from_now)}
+    let!(:due_tomorrow_no_onboard_profile) { FactoryGirl.create(:profile,
+      profile_status: "Pending",
+      start_date: 6.business_days.from_now,
+      employee: due_tomorrow_w_onboard)}
+    let!(:emp_transaction) { FactoryGirl.create(:emp_transaction,
+      kind: "Onboarding",
+      employee: due_tomorrow_w_onboard) }
+    let!(:onboard) { FactoryGirl.create(:onboarding_info,
+      emp_transaction: emp_transaction)}
+
+    let!(:due_later_no_onboard) { FactoryGirl.create(:employee,
+      status: "Pending",
+      hire_date: 14.days.from_now)}
+    let!(:due_later_profile) { FactoryGirl.create(:profile,
+      profile_status: "Pending",
+      start_date: 14.business_days.from_now,
+      employee: due_later_no_onboard)}
+
+    it "should return the right employees" do
+      expect(Employee.onboarding_reminder_group).to eq([due_tomorrow_no_onboard, due_tomorrow_no_onboard_au])
+    end
+  end
 end

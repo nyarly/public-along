@@ -22,10 +22,12 @@ module AdpService
         json['events'][0]['data']['output']['worker']['person']['governmentID']['idValue'] = "REDACTED"
       end
       scrubbed_json = JSON.dump(json)
+      kind = json.dig("events", 0, "eventNameCode", "codeValue")
 
       ae = AdpEvent.new(
         json: scrubbed_json,
         msg_id: str.to_hash["adp-msg-msgid"][0],
+        kind: kind,
         status: "New"
       )
 
@@ -39,8 +41,8 @@ module AdpService
 
     def sort_event(body, adp_event)
       json = JSON.parse(body)
-      kind =  json.dig("events", 0, "eventNameCode", "codeValue")
-      case kind
+
+      case adp_event.kind
       when "worker.hire"
         if process_hire(json, adp_event)
           adp_event.update_attributes(status: "Processed")
