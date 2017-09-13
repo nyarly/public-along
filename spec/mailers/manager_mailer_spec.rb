@@ -13,6 +13,11 @@ RSpec.describe ManagerMailer, type: :mailer do
     profile_status: "Active",
     adp_employee_id: "123456",
     manager_id: "654321") }
+  let!(:worker_type) { FactoryGirl.create(:worker_type, code: "FTR") }
+  let(:rehire_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_rehire_event.json") }
+  let!(:event) { AdpEvent.new(status: "New",
+      json: rehire_json)}
+  let!(:profiler) { EmployeeProfile.new }
 
   context "Onboarding reminder" do
     let!(:email) { ManagerMailer.reminder(manager, employee).deliver_now }
@@ -81,12 +86,6 @@ RSpec.describe ManagerMailer, type: :mailer do
   end
 
   context "Onboarding Rehire/Job Change" do
-    let!(:worker_type) { FactoryGirl.create(:worker_type, code: "FTR") }
-    let(:rehire_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_rehire_event.json") }
-    let!(:event) { AdpEvent.new(status: "New",
-      json: rehire_json)}
-    let!(:profiler) { EmployeeProfile.new }
-
     it "should queue to send" do
       employee = profiler.build_employee(event)
       manager = employee.manager

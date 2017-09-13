@@ -482,6 +482,14 @@ describe "employee rake tasks", type: :tasks do
       start_date: Date.new(2017, 12, 11),
       location: Location.find_by_name("Melbourne Office"))}
 
+    let!(:json)             { File.read(Rails.root.to_s+"/spec/fixtures/adp_rehire_event.json") }
+    let!(:new_hire_evt)     { FactoryGirl.create(:adp_event,
+                              status: "New",
+                              json: json,
+                              kind: "worker.hire")}
+    let!(:reg_wt)           { FactoryGirl.create(:worker_type,
+                              code: "FTR")}
+
     before :each do
       Rake.application = Rake::Application.new
       Rake.application.rake_require "lib/tasks/employee", [Rails.root.to_s], ''
@@ -495,20 +503,25 @@ describe "employee rake tasks", type: :tasks do
     it "should remind manager to onboard us worker" do
       # 9am PST
       Timecop.freeze(Time.new(2017, 11, 26, 17, 0, 0, "+00:00"))
-
-      expect(ManagerMailer).to receive_message_chain(:reminder, :deliver_now)
+      expect(ReminderWorker).to receive(:perform_async).with({:employee_id=>due_tomorrow_no_onboard.id})
       Rake::Task["employee:send_reminders"].invoke
     end
 
     it "should remind manager to onboard au worker" do
       # 9am AEST
       Timecop.freeze(Time.new(2017, 11, 25, 22, 00, 0, "+00:00"))
-      expect(ManagerMailer).to receive_message_chain(:reminder, :deliver_now)
+      expect(ReminderWorker).to receive(:perform_async).with({:employee_id=>due_tomorrow_no_onboard_au.id})
+      Rake::Task["employee:send_reminders"].invoke
+    end
+
+    it "should remind manager to onboard rehire" do
+      Timecop.freeze(Time.new(2018, 8, 23, 16, 0, 0, "+00:00"))
+      expect(ReminderWorker).to receive(:perform_async).with({:event_id=>new_hire_evt.id})
       Rake::Task["employee:send_reminders"].invoke
     end
   end
 
-  context "employee:xml_to_ad" do
+  xcontext "employee:xml_to_ad" do
     # create managers for the xml to reference
     let!(:manager_1) { FactoryGirl.create(:employee, employee_id: "12100123", sam_account_name: "samaccountname1", worker_type_id: worker_type.id)}
     let!(:manager_2) { FactoryGirl.create(:employee, employee_id: "12101502", sam_account_name: "samaccountname2", worker_type_id: worker_type.id)}
