@@ -85,8 +85,13 @@ class Location < ActiveRecord::Base
             presence: true,
             inclusion: { in: COUNTRIES + ["Pending Assignment"] }
   validates :status,
+            presence: true,
             inclusion: { in: STATUS }
   validates :timezone,
             allow_nil: true,
             inclusion: { in: TIMEZONES + ["Pending Assignment"] }
+
+  has_many :profiles
+  has_many :employees, through: :profiles
+
 end

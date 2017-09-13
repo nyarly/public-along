@@ -1,5 +1,9 @@
-<div class="section danger text-center">
-  This form must be submitted before worker's termination date: <strong><%= @employee.termination_date.strftime("%b %e, %Y") %></strong>
+<h1>Employee Offboarding Form</h1>
+<% if @employee.termination_date >= Date.today %>
+  <div class="callout danger text-center">
+  <p>You are receiving this form because you are listed as the manager of <%= @employee.cn %>, whose last day at OpenTable is listed in ADP as <strong><%= @employee.termination_date.strftime("%b %e, %Y") %></strong>.</p>
+  <p><strong>Submit this form before 4 P.M. PST on <%= @employee.termination_date.strftime("%b %e, %Y") %></strong> to indicate data transfer and/or send special instructions to TechTable for the offboard.</p>
+  <p>If you do not submit the form on time, data access and email related to this worker will be transferred to your account. Any changes needed after the termination should be requested via TechTable.</p>
 </div>
 
 <p>Archive Data *</p>
@@ -14,9 +18,15 @@
 <%= f.label :replacement_hired, "No" %>
 <p class="section text-center">Please assign yourself if the worker does not have email, Salesforce or Google Doc accounts. No action will be taken.</strong></p>
 <p>Forward Email to: *</p>
-<%= f.collection_select :forward_email_id, Employee.all - [@employee], :id, :cn, {prompt: "Select from List"}, required:true %>
+<%= f.collection_select :forward_email_id, Employee.all - [@employee], :id, :cn, {prompt: "Select from List"}, required: true %>
 <p>Reassign Salesforce cases to: *</p>
-<%= f.collection_select :reassign_salesforce_id, Employee.all - [@employee], :id, :cn, {prompt: "Select from List"}, required:true %>
+<%= f.collection_select :reassign_salesforce_id, Employee.all - [@employee], :id, :cn, {prompt: "Select from List"}, required: true %>
 <p>Transfer Google Docs to:</p>
 <%= f.collection_select :transfer_google_docs_id, Employee.all - [@employee], :id, :cn, {prompt: "Select from List"} %>
 <hr>
+
+<% else %>
+  <div class="section danger text-center">
+    <p>The termination date for this worker is in the past, and this form can no longer be submitted. All historic data for this worker has been assigned to the listed manager. If you need to forward email or transfer documents to someone other than yourself, please open a Zendesk ticket with TechTable.</p>
+  </div>
+<% end %>

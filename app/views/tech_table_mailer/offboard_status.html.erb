@@ -1,0 +1,32 @@
+<div style="font-family: helvetica;">
+  <h1>Mezzo Automatic Offboarding Status</h1>
+
+  <p>
+    <strong>Termination Date:</strong>
+    <%= @employee.termination_date.strftime("%b %e, %Y") %>
+  </p>
+
+  <p>
+    <strong>Name:</strong>
+    <%= @employee.cn %>
+  </p>
+
+  <p>
+    <strong>Email:</strong>
+    <%= @employee.email %>
+  </p>
+
+  <p>
+    <strong>EmployeeID:</strong>
+    <%= @employee.employee_id %>
+  </p>
+
+  <p>
+    <strong>Automatic Account Offboarding Status:</strong>
+  </p>
+  <div style="margin-left: 2em">
+    <% @deactivations.each do |key, value| %>
+      <p><%= key %>: <%= value %></p>
+    <% end %>
+  </div>
+</div>

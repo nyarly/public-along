@@ -1,0 +1,70 @@
+<!-- Linked account panel for onboarding forms with rehires or job changes -->
+<div class="callout">
+  <div class="row">
+
+  <h4>Rehire or Worker Type Change</h4>
+  <p>This worker is a rehire or their worker type is changing job types (e.g., going from a contractor to a regular employee). They may already have an OpenTable email address and username in our system. Would you like to reuse their previous email address and account name?<br><a class="help-text" data-open="help-section">(Help, I can't find it!)</a></p>
+  </div>
+
+  <div class="row">
+    <!-- Toggle controls to hide or show account link options -->
+    <div class="switch large column medium-1 large-1" style="padding:0; margin:0,0,15px,0;">
+     <div id="link-account-switch" style="height:40px; width:80px; z-index:2;">
+      <input id="link-account"
+             class="switch-input"
+             type="checkbox"
+             name="manager_entry[link_email]">
+      <label class="switch-paddle" for="link-account">
+      </label>
+      </div>
+    </div>
+    <!-- End toggle controls -->
+
+    <%= f.hidden_field :link_email, value: "off" %>
+    <%= f.hidden_field :event_id, value: @event.id %>
+
+    <!-- Autocomplete employee email search box -->
+    <div id="find-email"
+         class="column medium-11 large-11"
+         style="display:none;">
+      <%= f.autocomplete_field :linked_account_id, autocomplete_email_employees_path, :id_element => '#linked_account_id', :update_elements => {}, :placeholder => "Search for OpenTable Email" %>
+    </div>
+    <%= f.hidden_field :linked_account_id, id: 'linked_account_id' %>
+    <!-- End autocomplete email box -->
+  </div>
+
+  <!-- Display linked worker info -->
+    <div id="show-selected-employee" class="callout warning" style="display:none;">
+      <h4>This email address belongs to the worker below. Is this the same person as your new hire?</h4>
+      <p>
+        <strong><span id="linked-emp-fn"></span> <span id="linked-emp-ln"></span></strong><br>
+        <span id="linked-emp-email"></span><br>
+      </p>
+      <p>
+        <strong>Previous Tenure Information:</strong><br>
+        Original Hire Date: <span id="linked-emp-hd"></span><br>
+      </p>
+      <p><a href="" id="select_linked_account" class="button">Yes</a>  <a href="" class="clear_linked_account button alert">No</a></p>
+    </div>
+  <!-- End display linked worker -->
+
+  <!-- Help toggle and info -->
+  <div id="help-section" class="reveal" data-reveal style="padding:50px;">
+    <h5>Can't find the email address or worker you're looking for?</h5>
+    <br>
+    <p>If this worker left OpenTable before Mezzo's birthday (November 2016), we can't link their account right now.</p>
+    <p>You can either choose to create a new account or, if they must have their old account, contact TechTable for assistance <strong>before</strong> submitting this form.</p>
+    <button class="button float-right" data-close aria-label="Close modal" type="button" style="margin-right:10%">
+      <span aria-hidden="true">Ok</span>
+    </button>
+  </div>
+  <!-- End help toggle and info -->
+
+  <!-- Final confirmation of linked worker -->
+  <div id="linked-employee" class="callout success" style="display:none;">
+    <h5>Reusing Email On</h5>
+    <p>You have decided to reuse the email address <strong><span id="reuse-email"></span></strong> associated with <strong><span id="linked-name"></span></strong>. This email address and username will be assigned to the worker for accessing all OpenTable systems. This action cannot be undone after this form is submitted.</p>
+  </div>
+  <!-- End final confirmation -->
+</div>
+<!-- End linked account panel -->

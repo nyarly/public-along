@@ -13,7 +13,12 @@
       <tr>
         <th>Last Name</th>
         <th>First Name</th>
+        <th>Status</th>
         <th>Email</th>
+        <th>Worker Type</th>
+        <% if can? :manage, Employee %>
+          <th>ADP Assoc. OID</th>
+        <% end %>
         <th>Manager</th>
         <th>Department</th>
         <th>Location</th>
@@ -24,18 +29,22 @@
         <th>Leave Start Date</th>
         <th>Leave Return Date</th>
         <th>AD Updated At</th>
-        <th colspan="3"></th>
       </tr>
     </thead>
 
     <tbody>
       <% @employees.each do |e| %>
         <tr>
-          <td><%= e.last_name %></td>
-          <td><%= e.first_name %></td>
+          <td><%= link_to e.last_name, employee_path(e) %></td>
+          <td><%= link_to e.first_name, employee_path(e) %></td>
+          <td><%= e.status %></td>
           <td><%= e.email %></td>
+          <td><%= e.worker_type.try(:name) %></td>
+          <% if can? :manage, Employee %>
+            <td><%= e.try(:adp_assoc_oid) %></td>
+          <% end %>
           <td><%= e.manager.try(:cn) %></td>
-          <td><%= e.department.name %></td>
+          <td><%= e.department.try(:name) %></td>
           <td><%= e.location.try(:name) %></td>
           <td><%= e.job_title.try(:name) %></td>
           <td><%= e.hire_date.strftime("%m/%d/%Y") if e.hire_date.present? %></td>
@@ -44,10 +53,6 @@
           <td><%= e.leave_start_date.strftime("%m/%d/%Y") if e.leave_start_date.present? %></td>
           <td><%= e.leave_return_date.strftime("%m/%d/%Y") if e.leave_return_date.present? %></td>
           <td><%= e.ad_updated_at %></td>
-          <td><%= link_to "Show", employee_path(e) %></td>
-          <% if can? :update, Employee %>
-            <td><%= link_to "Edit", edit_employee_path(e) %></td>
-          <% end %>
         </tr>
       <% end %>
     </tbody>

@@ -17,28 +17,28 @@ module AdpService
     def gen_worker_hash(w)
       status = w["workerStatus"]["statusCode"]["codeValue"]
       adp_assoc_oid = w["associateOID"]
+      adp_employee_id = w["workerID"]["idValue"].downcase
       first_name = w["person"]["legalName"]["nickName"].present? ? w["person"]["legalName"]["nickName"] : w["person"]["legalName"]["givenName"]
       last_name = find_last_name(w)
-      employee_id = w["workerID"]["idValue"].downcase
       personal_mobile_phone = find_mobile(w["person"])
       office_phone = find_office_phone(w["businessCommunication"])
 
-      work_assignment = find_work_assignment(w)
+      hire_date = w["workerDates"]["originalHireDate"]
+      worker_end_date = find_worker_end_date(w)
 
-      hire_date = work_assignment["hireDate"]
-      custom_dates = w.dig("customFieldGroup","dateFields")
-      if custom_dates
-        w_end_date_json = custom_dates.find { |f| f["nameCode"]["codeValue"] == "Worker End Date"}
-        worker_end_date = w_end_date_json.try(:dig, "dateValue")
-      end
+      work_assignment = find_work_assignment(w)
+      start_date = work_assignment["actualStartDate"].present? ? work_assignment["actualStartDate"] : hire_date
+      end_date = work_assignment["terminationDate"].present? if work_assignment["terminationDate"].present?
 
       biz_unit = work_assignment["homeOrganizationalUnits"].find { |ou| ou["typeCode"]["codeValue"] == "Business Unit"}
       company = find_biz_unit(biz_unit)
 
       job_title = find_job_title(work_assignment["jobCode"])
       worker_type = find_worker_type(work_assignment)
+
       manager_id = work_assignment.dig("reportsTo",0,"workerID","idValue")
       location = find_location(work_assignment["homeWorkLocation"])
+      work_assignment_status = find_work_assignment_status(work_assignment["assignmentStatus"]["statusCode"])
 
       dept_str = work_assignment["homeOrganizationalUnits"].find { |ou| ou["typeCode"]["codeValue"] == "Department"}
       dept = find_dept(dept_str)
@@ -51,21 +51,24 @@ module AdpService
 
       worker = {
         status: status,
-        adp_assoc_oid: adp_assoc_oid,
         first_name: first_name,
         last_name: last_name,
-        employee_id: employee_id,
         hire_date: hire_date,
         contract_end_date: worker_end_date,
-        company: company,
-        job_title_id: job_title.id,
-        worker_type_id: worker_type.id,
-        manager_id: manager_id,
-        department_id: dept.id,
-        location_id: location.id,
         office_phone: office_phone,
         personal_mobile_phone: personal_mobile_phone,
         # image_code: , (eventually)
+        start_date: start_date,
+        end_date: end_date,
+        adp_assoc_oid: adp_assoc_oid,
+        adp_employee_id: adp_employee_id,
+        company: company,
+        department_id: dept.id,
+        job_title_id: job_title.id,
+        location_id: location.id,
+        manager_id: manager_id,
+        profile_status: work_assignment_status,
+        worker_type_id: worker_type.id,
       }
 
       if location.kind == "Remote Location"
@@ -129,6 +132,12 @@ module AdpService
       end
     end
 
+    def find_work_assignment_status(json)
+      if json.present?
+        name = json["shortName"].present? ? json["shortName"] : json["codeValue"]
+      end
+    end
+
     def find_worker_type(json)
       code = json.dig("workerTypeCode","codeValue")
       wt = WorkerType.find_by(code: code)
@@ -177,6 +186,15 @@ module AdpService
         end
         dept
       end
+    end
+
+    def find_worker_end_date(json)
+      custom_dates = json.dig("customFieldGroup","dateFields")
+      if custom_dates
+        w_end_date_json = custom_dates.find { |f| f["nameCode"]["codeValue"] == "Worker End Date"}
+        worker_end_date = w_end_date_json.try(:dig, "dateValue")
+      end
+      worker_end_date
     end
   end
 end

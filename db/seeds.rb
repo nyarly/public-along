@@ -7,38 +7,38 @@
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
 depts = [
-  {:name =>  "Facilities", :code => "010000"},
-  {:name =>  "People & Culture-HR & Total Rewards", :code => "011000"},
-  {:name =>  "Legal", :code => "012000"},
-  {:name =>  "Finance", :code => "013000"},
-  {:name =>  "Risk Management", :code => "014000"},
-  {:name =>  "People & Culture-Talent Acquisition", :code => "017000"},
-  {:name =>  "Executive", :code => "018000"},
-  {:name =>  "Finance Operations", :code => "019000"},
-  {:name =>  "Sales", :code => "020000"},
-  {:name =>  "Sales Operations", :code => "021000"},
-  {:name =>  "Inside Sales", :code => "025000"},
-  {:name =>  "Field Operations", :code => "031000"},
-  {:name =>  "Customer Support", :code => "032000"},
-  {:name =>  "Restaurant Relations Management", :code => "033000"},
-  {:name =>  "Tech Table", :code => "035000"},
-  {:name =>  "Infrastructure Engineering", :code => "036000"},
-  {:name =>  "Technology/CTO Admin", :code => "040000"},
-  {:name =>  "Product Engineering - Front End Diner", :code => "041000"},
-  {:name =>  "Product Engineering - Front End Restaurant", :code => "042000"},
-  {:name =>  "Product Engineering - Back End", :code => "043000"},
-  {:name =>  "BizOpti/Internal System Engineering", :code => "044000"},
-  {:name =>  "Data Analytics & Experimentation", :code => "045000"},
-  {:name =>  "Data Science", :code => "046000"},
-  {:name =>  "Brand/General Marketing", :code => "050000"},
-  {:name =>  "Consumer Marketing", :code => "051000"},
-  {:name =>  "Restaurant Marketing", :code => "052000"},
-  {:name =>  "Public Relations", :code => "053000"},
-  {:name =>  "Product Marketing", :code => "054000"},
-  {:name =>  "Restaurant Product Management", :code => "061000"},
-  {:name =>  "Consumer Product Management", :code => "062000"},
-  {:name =>  "Design", :code => "063000"},
-  {:name =>  "Business Development", :code => "070000"}
+  {:name =>  "Facilities", :code => "010000", :status => "Active"},
+  {:name =>  "People & Culture-HR & Total Rewards", :code => "011000", :status => "Active"},
+  {:name =>  "Legal", :code => "012000", :status => "Active"},
+  {:name =>  "Finance", :code => "013000", :status => "Active"},
+  {:name =>  "Risk Management", :code => "014000", :status => "Active"},
+  {:name =>  "People & Culture-Talent Acquisition", :code => "017000", :status => "Active"},
+  {:name =>  "Executive", :code => "018000", :status => "Active"},
+  {:name =>  "Finance Operations", :code => "019000", :status => "Active"},
+  {:name =>  "Sales", :code => "020000", :status => "Active"},
+  {:name =>  "Sales Operations", :code => "021000", :status => "Active"},
+  {:name =>  "Inside Sales", :code => "025000", :status => "Active"},
+  {:name =>  "Field Operations", :code => "031000", :status => "Active"},
+  {:name =>  "Customer Support", :code => "032000", :status => "Active"},
+  {:name =>  "Restaurant Relations Management", :code => "033000", :status => "Active"},
+  {:name =>  "Tech Table", :code => "035000", :status => "Active"},
+  {:name =>  "Infrastructure Engineering", :code => "036000", :status => "Active"},
+  {:name =>  "Technology/CTO Admin", :code => "040000", :status => "Active"},
+  {:name =>  "Product Engineering - Front End Diner", :code => "041000", :status => "Active"},
+  {:name =>  "Product Engineering - Front End Restaurant", :code => "042000", :status => "Active"},
+  {:name =>  "Product Engineering - Back End", :code => "043000", :status => "Active"},
+  {:name =>  "BizOpti/Internal System Engineering", :code => "044000", :status => "Active"},
+  {:name =>  "Data Analytics & Experimentation", :code => "045000", :status => "Active"},
+  {:name =>  "Data Science", :code => "046000", :status => "Active"},
+  {:name =>  "Brand/General Marketing", :code => "050000", :status => "Active"},
+  {:name =>  "Consumer Marketing", :code => "051000", :status => "Active"},
+  {:name =>  "Restaurant Marketing", :code => "052000", :status => "Active"},
+  {:name =>  "Public Relations", :code => "053000", :status => "Active"},
+  {:name =>  "Product Marketing", :code => "054000", :status => "Active"},
+  {:name =>  "Restaurant Product Management", :code => "061000", :status => "Active"},
+  {:name =>  "Consumer Product Management", :code => "062000", :status => "Active"},
+  {:name =>  "Design", :code => "063000", :status => "Active"},
+  {:name =>  "Business Development", :code => "070000", :status => "Active"}
 ]
 
 locs = [{:name=>"Leeds", :kind=>"Remote Location", :country=>"US", :status=>"Active", :code=>"LD", :timezone=>"(GMT) Greenwich Mean Time : Dublin, Edinburgh, Lisbon, London"},
@@ -129,7 +129,7 @@ mach_bundles = [
 
 ActiveRecord::Base.transaction do
   depts.each { |attrs|
-    dept = Department.find_or_create_by(name: attrs[:name])
+    dept = Department.find_or_create_by(name: attrs[:name], code: attrs[:code], status: attrs[:status])
     dept.update_attributes(attrs)
   }
   locs.each { |attrs|

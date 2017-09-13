@@ -4,27 +4,11 @@ class TechTableMailerPreview < ActionMailer::Preview
     TechTableMailer.alert_email(message)
   end
 
-  def onboarding_permissions
-    emp_trans = EmpTransaction.where(kind: "Onboarding").last
-    emp = Employee.find(emp_trans.onboarding_infos.first.employee_id)
-    TechTableMailer.permissions(emp_trans, emp)
-  end
-
-  def offboarding_permissions
-    emp_trans = EmpTransaction.where(kind: "Offboarding").last
-    emp = Employee.find(emp_trans.offboarding_infos.first.employee_id)
-    TechTableMailer.permissions(emp_trans, emp)
-  end
-
   def security_access_permissions
-    emp_trans = EmpTransaction.where(kind: "Security Access").last
-    if emp_trans.emp_sec_profiles.count > 0
-      emp_id = emp_trans.emp_sec_profiles.first.employee_id
-    elsif emp_trans.revoked_emp_sec_profiles.count > 0
-      emp_id = emp_trans.revoked_emp_sec_profiles.first.employee_id
-    end
-    emp = Employee.find(emp_id)
-    TechTableMailer.permissions(emp_trans, emp)
+    emp_delta = EmpDelta.important_changes.last
+    employee = Employee.find(emp_delta.employee_id)
+    emp_trans = employee.emp_transactions.where(kind: "Security Access").last
+    TechTableMailer.permissions(emp_trans, employee)
   end
 
   def equipment_permissions
@@ -36,5 +20,29 @@ class TechTableMailerPreview < ActionMailer::Preview
   def offboard_notice
     emp = Employee.where('termination_date IS NOT NULL').first
     TechTableMailer.offboard_notice(emp)
+  end
+
+  def offboard_status
+    emp = Employee.where('termination_date IS NOT NULL').first
+    results = {"Google Apps"=>"completed",
+               "Admin"=>"success",
+               "Admin_EU"=>"success",
+               "Admin_Asia"=>"success",
+               "OTAnywhere"=>"success",
+               "OTAnywhere_EU"=>"success",
+               "OTAnywhere_Asia"=>"success",
+               "GOD"=>"failed"}
+    TechTableMailer.offboard_status(emp, results)
+  end
+
+  def offboard_instructions
+    emp = Employee.where('termination_date IS NOT NULL').first
+    TechTableMailer.offboard_instructions(emp)
+  end
+
+  def onboard_instructions
+    emp_trans = EmpTransaction.where(kind: "Onboarding").last
+    emp = Employee.find(emp_trans.employee_id)
+    TechTableMailer.onboard_instructions(emp)
   end
 end

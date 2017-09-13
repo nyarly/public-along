@@ -7,5 +7,7 @@ class Role::Manager < Role
     ability.can :show, EmpTransaction, :user_id => user.id
     ability.can :create, EmpTransaction, :user_id => user.id
     ability.can :create, ManagerEntry, :user_id => user.id
+    ability.can :autocomplete_name, Employee
+    ability.can :autocomplete_email, Employee
   end
 end

@@ -13,8 +13,11 @@ Rails.application.routes.draw do
   devise_for :users, controllers: {
     sessions: 'users/sessions'
   }
-  resources :employees, :except => [:destroy]
-  get '/offboard_commands' => "offboard_commands#generate", as: :offboard_commands
+  resources :employees, :only => [:index, :show] do
+    get :autocomplete_name, :on => :collection
+    get :autocomplete_email, :on => :collection
+  end
+  resource :emails, :only => [:create]
 
   get '/update_al_opts' => "security_profiles#update_al_opts", as: 'update_al_opts'
   get '/update_al_ids' => "security_profiles#update_al_ids", as: 'udpate_al_ids'

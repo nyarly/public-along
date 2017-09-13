@@ -1,6 +1,8 @@
 require 'rails_helper'
 
-describe XmlService, type: :service do
+# XMLService is no longer in use
+# Retained for reference
+xdescribe XmlService, type: :service do
   let(:xml) { XmlService.new(file) }
   let!(:reg_worker_type) { FactoryGirl.create(:worker_type, name: "Regular", kind: "Regular") }
   let!(:temp_worker_type) { FactoryGirl.create(:worker_type, name: "Vendor", kind: "Temporary") }
@@ -10,8 +12,8 @@ describe XmlService, type: :service do
     let(:mailer) { double(ManagerMailer) }
 
     it "should create a new Employee from xml with correct info for a new hire" do
-      existing_employee_1 = FactoryGirl.create(:employee, :employee_id => "109640")
-      existing_employee_2 = FactoryGirl.create(:employee, :employee_id => "12101234")
+      existing_employee_1 = FactoryGirl.create(:employee, :employee_id => "109640", worker_type_id: reg_worker_type.id)
+      existing_employee_2 = FactoryGirl.create(:employee, :employee_id => "12101234", worker_type_id: reg_worker_type.id)
 
       expect{
         xml.parse_to_db
@@ -49,8 +51,8 @@ describe XmlService, type: :service do
     end
 
     it "should have a contract end date for a contingent worker" do
-      existing_employee_1 = FactoryGirl.create(:employee, :employee_id => "12100401")
-      existing_employee_2 = FactoryGirl.create(:employee, :employee_id => "12101234")
+      existing_employee_1 = FactoryGirl.create(:employee, :employee_id => "12100401", worker_type_id: temp_worker_type.id)
+      existing_employee_2 = FactoryGirl.create(:employee, :employee_id => "12101234", worker_type_id: temp_worker_type.id)
 
       expect{
         xml.parse_to_db

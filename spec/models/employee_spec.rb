@@ -1,36 +1,28 @@
 require 'rails_helper'
 
 describe Employee, type: :model do
-  let(:dept) { Department.find_by(name: "Customer Support") }
 
-  let!(:location) { Location.find_by(:name => "London Office") }
-
-  let!(:job_title) { FactoryGirl.create(:job_title)}
-
-  let!(:reg_worker_type) { FactoryGirl.create(:worker_type, kind: "Regular")}
-  let!(:temp_worker_type) { FactoryGirl.create(:worker_type, name: "Vendor", kind: "Temporary")}
-
-  let!(:manager) { FactoryGirl.create(:employee,
+  let(:manager) { FactoryGirl.create(:regular_employee,
     first_name: "Alex",
     last_name: "Trebek",
-    department_id: dept.id,
     sam_account_name: "atrebek",
-    employee_id: "at123",
     hire_date: 5.years.ago,
     ad_updated_at: 2.years.ago
   )}
 
   context "with a regular employee" do
-    let(:employee) { FactoryGirl.build(:employee,
+    let(:employee) { FactoryGirl.create(:employee,
       first_name: "Bob",
       last_name: "Barker",
-      department_id: dept.id,
       sam_account_name: "bbarker",
-      manager_id: manager.employee_id,
-      location_id: location.id,
-      job_title_id: job_title.id,
-      worker_type_id: reg_worker_type.id
+      hire_date: 1.year.ago,
+      ad_updated_at: 1.hour.ago
     )}
+
+    let!(:profile) { FactoryGirl.create(:profile, :with_valid_ou,
+      employee: employee,
+      manager_id: manager.employee_id
+      )}
 
     it "should meet validations" do
       expect(employee).to be_valid
@@ -38,12 +30,8 @@ describe Employee, type: :model do
       expect(employee).to_not allow_value(nil).for(:first_name)
       expect(employee).to_not allow_value(nil).for(:last_name)
       expect(employee).to_not allow_value(nil).for(:hire_date)
-      expect(employee).to_not allow_value(nil).for(:department_id)
-      expect(employee).to_not allow_value(nil).for(:location_id)
       expect(employee).to     allow_value(nil).for(:email)
-      expect(employee).to     validate_uniqueness_of(:employee_id).with_message(/Worker ID has already been taken/).case_insensitive
-      expect(employee).to     validate_uniqueness_of(:email).case_insensitive
-    end
+     end
 
     it "should strip whitespaces" do
       emp = FactoryGirl.create(:employee, first_name: " Walter", last_name: " Sobchak ")
@@ -59,18 +47,23 @@ describe Employee, type: :model do
     end
 
     it "should scope managers" do
-      mgr = FactoryGirl.create(:employee)
-      emp = FactoryGirl.create(:employee)
+      mgr = FactoryGirl.create(:regular_employee)
+      emp = FactoryGirl.create(:regular_employee)
 
-      sp = FactoryGirl.create(:security_profile, name: "Basic Manager")
-      esp = FactoryGirl.create(:emp_sec_profile, security_profile_id: sp.id, employee_id: mgr.id)
+      sp = FactoryGirl.create(:security_profile,
+        name: "Basic Manager")
+      et = FactoryGirl.create(:emp_transaction,
+        employee_id: mgr.id)
+      esp = FactoryGirl.create(:emp_sec_profile,
+        security_profile_id: sp.id,
+        emp_transaction_id: et.id)
 
       expect(Employee.managers).to include(mgr)
       expect(Employee.managers).to_not include(emp)
     end
 
     it "should scope the create group" do
-      create_group = FactoryGirl.create_list(:employee, 10, :department_id => dept.id)
+      create_group = FactoryGirl.create_list(:employee, 10)
       existing_group = FactoryGirl.create_list(:employee, 10, :existing)
 
       expect(Employee.create_group).to match_array(create_group)
@@ -78,7 +71,7 @@ describe Employee, type: :model do
     end
 
     it "should scope the update group" do
-      create_group = FactoryGirl.create_list(:employee, 10, :department_id => dept.id)
+      create_group = FactoryGirl.create_list(:employee, 10)
       existing_group = FactoryGirl.create_list(:employee, 10, :existing)
       update1 = FactoryGirl.create(:employee,
         :updated_at => Time.now,
@@ -138,10 +131,8 @@ describe Employee, type: :model do
     end
 
     it "should check if the employee is contingent" do
-      reg_worker_type = FactoryGirl.create(:worker_type, kind: "Regular")
-      temp_worker_type = FactoryGirl.create(:worker_type, kind: "Temporary")
-      reg_emp = FactoryGirl.create(:employee, worker_type_id: reg_worker_type.id)
-      contingent_emp = FactoryGirl.create(:employee, worker_type_id: temp_worker_type.id)
+      reg_emp = FactoryGirl.create(:regular_employee)
+      contingent_emp = FactoryGirl.create(:contract_worker)
 
       expect(reg_emp.is_contingent_worker?).to eq(false)
       expect(contingent_emp.is_contingent_worker?).to eq(true)
@@ -173,44 +164,22 @@ describe Employee, type: :model do
       non_offboarding_group = [
         FactoryGirl.create(:employee, :termination_date => Date.today + 1.day),
         FactoryGirl.create(:employee, :termination_date => Date.today + 5.days),
-        FactoryGirl.create(:employee, :termination_date => Date.today + 1.week)
+        FactoryGirl.create(:employee, :termination_date => Date.today + 1.week),
+        FactoryGirl.create(:employee, :termination_date => Date.today - 3.weeks)
       ]
 
-      sec_prof = FactoryGirl.create(:security_profile)
-
-      offboarding_group.each do |emp|
-        emp_trans = FactoryGirl.create(:emp_transaction, :kind => "Offboarding")
-        offboarding = FactoryGirl.create(:offboarding_info, emp_transaction_id: emp_trans.id, employee_id: emp.id)
-      end
-
-      non_offboarding_group.each do |emp|
-        emp_trans = FactoryGirl.create(:emp_transaction, :kind => "Offboarding")
-        offboarding = FactoryGirl.create(:offboarding_info, emp_transaction_id: emp_trans.id, employee_id: emp.id)
-      end
-
-      incomplete_offboarder = FactoryGirl.create(:employee, :first_name => "INCOMPLETE @#$%^&*%$#$%^", :termination_date => 2.weeks.ago)
-      late_offboarder = FactoryGirl.create(:employee, :first_name => "LATE @#$%^&*%$#$%^", :termination_date => 2.weeks.ago)
-
-      emp_trans_0 = FactoryGirl.create(:emp_transaction, :kind => "Onboarding")
-      emp_sec_prof_0 = FactoryGirl.create(:emp_sec_profile, emp_transaction_id: emp_trans_0.id, employee_id: incomplete_offboarder.id, security_profile_id: sec_prof.id)
-
-      emp_trans_1 = FactoryGirl.create(:emp_transaction, :kind => "Offboarding", :created_at => 1.day.ago)
-      offboarding_info = FactoryGirl.create(:offboarding_info, emp_transaction_id: emp_trans_1.id, employee_id: late_offboarder.id)
-
-      expect(Employee.offboard_group).to match_array(offboarding_group)
+      expect(Employee.offboarding_report_group).to match_array(offboarding_group)
       expect(Employee.offboarding_report_group).to_not include(non_offboarding_group)
-      expect(Employee.late_offboard_group).to include(late_offboarder)
-      expect(Employee.incomplete_offboard_group).to include(incomplete_offboarder)
-      expect(Employee.offboarding_report_group).to match_array(offboarding_group + [late_offboarder, incomplete_offboarder])
     end
 
     it "should check onboarding is complete" do
       completed = FactoryGirl.create(:employee)
-      emp_trans_1 = FactoryGirl.create(:emp_transaction, kind: "Onboarding")
-      onboarding_info = FactoryGirl.create(:onboarding_info, employee_id: completed.id, emp_transaction_id: emp_trans_1.id)
+      emp_trans_1 = FactoryGirl.create(:onboarding_emp_transaction,
+        employee_id: completed.id)
+      onboarding_info = FactoryGirl.create(:onboarding_info,
+        emp_transaction_id: emp_trans_1.id)
 
       not_completed = FactoryGirl.create(:employee)
-
 
       expect(completed.onboarding_complete?).to eq(true)
       expect(not_completed.onboarding_complete?).to eq(false)
@@ -218,50 +187,108 @@ describe Employee, type: :model do
 
     it "should check offboarding is complete" do
       completed = FactoryGirl.create(:employee)
-      emp_trans_1 = FactoryGirl.create(:emp_transaction, kind: "Offboarding")
-      offboarding_info = FactoryGirl.create(:offboarding_info, employee_id: completed.id, emp_transaction_id: emp_trans_1.id)
+      emp_trans_1 = FactoryGirl.create(:onboarding_emp_transaction,
+        employee_id: completed.id)
+      offboarding_info = FactoryGirl.create(:offboarding_info,
+        emp_transaction_id: emp_trans_1.id)
 
       not_completed = FactoryGirl.create(:employee)
-
 
       expect(completed.offboarding_complete?).to eq(true)
       expect(not_completed.offboarding_complete?).to eq(false)
     end
 
     it "should find active/revoked security profiles" do
-      emp = FactoryGirl.create(:employee)
+      emp = FactoryGirl.create(:regular_employee)
       sec_prof_1 = FactoryGirl.create(:security_profile)
       sec_prof_2 = FactoryGirl.create(:security_profile)
-      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile, employee_id: emp.id, security_profile_id: sec_prof_1.id, revoking_transaction_id: 1)
-      emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile, employee_id: emp.id, security_profile_id: sec_prof_2.id, revoking_transaction_id: nil)
+      user = FactoryGirl.create(:user)
+      emp_transaction = FactoryGirl.create(:onboarding_emp_transaction,
+        employee_id: emp.id)
+      revoking_transaction = FactoryGirl.create(:emp_transaction,
+        employee_id: emp.id,
+        user_id: user.id,
+        kind: "Security Access")
+      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile,
+        security_profile_id: sec_prof_1.id,
+        emp_transaction_id: emp_transaction.id,
+        revoking_transaction_id: revoking_transaction.id)
+      emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile,
+        security_profile_id: sec_prof_2.id,
+        emp_transaction_id: emp_transaction.id,
+        revoking_transaction_id: nil)
 
       expect(emp.active_security_profiles).to include(sec_prof_2)
       expect(emp.revoked_security_profiles).to include(sec_prof_1)
     end
 
+    it "should group security profiles that do not belong to current department" do
+      department = FactoryGirl.create(:department)
+      employee = FactoryGirl.create(:employee)
+      profile = FactoryGirl.create(:profile,
+        employee: employee,
+        department: department)
+      sec_prof_1 = FactoryGirl.create(:security_profile)
+      sec_prof_2 = FactoryGirl.create(:security_profile)
+      emp_trans = FactoryGirl.create(:emp_transaction, employee_id: employee.id)
+      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile,
+        emp_transaction_id: emp_trans.id,
+        security_profile_id: sec_prof_1.id,
+        revoking_transaction_id: nil)
+      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile,
+        emp_transaction_id: emp_trans.id,
+        security_profile_id: sec_prof_2.id,
+        revoking_transaction_id: nil)
+      dept_sec_prof_1 = FactoryGirl.create(:dept_sec_prof,
+        department_id: department.id,
+        security_profile_id: sec_prof_1.id)
+
+      expect(employee.security_profiles_to_revoke).to include(sec_prof_2)
+      expect(employee.security_profiles_to_revoke).to_not include(sec_prof_1)
+    end
+
     it "should calculate an onboarding due date according to location" do
       emp_1 = FactoryGirl.create(:employee,
-        hire_date: Date.new(2016, 7, 25, 2),
-        location: Location.find_by_name("San Francisco Headquarters")
-      )
-
+        hire_date: Date.new(2016, 7, 25, 2))
+      prof_1 = FactoryGirl.create(:profile,
+        employee: emp_1,
+        start_date: Date.new(2016, 7, 25),
+        location: Location.find_by_name("San Francisco Headquarters"))
       emp_2 = FactoryGirl.create(:employee,
-        hire_date: Date.new(2016, 7, 25, 2),
-        location: Location.find_by_name("London Office")
-      )
-
+        hire_date: Date.new(2016, 7, 25, 2))
+      prof_2 = FactoryGirl.create(:profile,
+        employee: emp_2,
+        start_date: Date.new(2016, 7, 25),
+        location: Location.find_by_name("London Office"))
       emp_3 = FactoryGirl.create(:employee,
-        hire_date: Date.new(2016, 7, 25, 2),
-        location: Location.find_by_name("Mumbai Office")
-      )
+        hire_date: Date.new(2016, 7, 25, 2))
+      prof_3 = FactoryGirl.create(:profile,
+        employee: emp_3,
+        start_date: Date.new(2016, 7, 25),
+        location: Location.find_by_name("Mumbai Office"))
 
       expect(emp_1.onboarding_due_date).to eq("Jul 18, 2016")
       expect(emp_2.onboarding_due_date).to eq("Jul 18, 2016")
       expect(emp_3.onboarding_due_date).to eq("Jul 11, 2016")
     end
 
+    it "should calculate the offboarding submission cutoff" do
+      past_due_emp = FactoryGirl.create(:employee,
+        termination_date: Date.new(2016, 7, 25, 2))
+      prof_1 = FactoryGirl.create(:profile,
+        employee: past_due_emp,
+        start_date: Date.new(2016, 7, 25),
+        location: Location.find_by_name("San Francisco Headquarters"))
+
+      expect(past_due_emp.offboarding_cutoff).to eq(DateTime.new(2016, 7, 25, 19))
+    end
+
     it "should create a cn" do
       expect(employee.cn).to eq("Bob Barker")
+    end
+
+    it "should create an fn" do
+      expect(employee.fn).to eq("Barker, Bob")
     end
 
     it "should find the correct ou" do
@@ -298,7 +325,6 @@ describe Employee, type: :model do
           manager: manager.dn,
           mail: employee.email,
           unicodePwd: "\"JoeSevenPack#007#\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
-          workdayUsername: employee.workday_username,
           co: employee.location.country,
           accountExpires: employee.generated_account_expires,
           title: employee.job_title.name,
@@ -312,42 +338,42 @@ describe Employee, type: :model do
           l: employee.home_city,
           st: employee.home_state,
           postalCode: employee.home_zip,
-          thumbnailPhoto: Base64.decode64(employee.image_code)
+          # thumbnailPhoto: Base64.decode64(employee.image_code)
+          # TODO comment back in when we bring back thumbnail photo
         }
       )
     end
   end
 
   context "regular worker that has been assigned a sAMAccountName" do
-    let(:employee) { FactoryGirl.build(:employee,
-      first_name: "Bob",
-      last_name: "Barker",
-      department_id: dept.id,
-      job_title_id: job_title.id,
-      manager_id: "at123",
-      sam_account_name: "mrbobbarker",
-      worker_type_id: reg_worker_type.id
+    let(:employee) { FactoryGirl.create(:employee,
+      first_name: "Mary",
+      last_name: "Sue",
+      sam_account_name: "msue",
     )}
 
+    let!(:profile) { FactoryGirl.create(:profile, :with_valid_ou,
+      employee: employee,
+      manager_id: manager.employee_id)}
+
     it "should generate an email using the sAMAccountName" do
-      expect(employee.generated_email).to eq("mrbobbarker@opentable.com")
+      expect(employee.generated_email).to eq("msue@opentable.com")
     end
 
     it "should create attr hash" do
       expect(employee.ad_attrs).to eq(
         {
-          cn: "Bob Barker",
-          dn: "cn=Bob Barker,ou=Customer Support,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com",
+          cn: "Mary Sue",
+          dn: "cn=Mary Sue,ou=Operations,ou=EU,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com",
           objectclass: ["top", "person", "organizationalPerson", "user"],
-          givenName: "Bob",
-          sn: "Barker",
-          sAMAccountName: "mrbobbarker",
+          givenName: "Mary",
+          sn: "Sue",
+          sAMAccountName: "msue",
           displayName: employee.cn,
           userPrincipalName: employee.generated_upn,
           manager: manager.dn,
-          mail: "mrbobbarker@opentable.com",
+          mail: "msue@opentable.com",
           unicodePwd: "\"JoeSevenPack#007#\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
-          workdayUsername: employee.workday_username,
           co: employee.location.country,
           accountExpires: employee.generated_account_expires,
           title: employee.job_title.name,
@@ -361,29 +387,24 @@ describe Employee, type: :model do
           l: employee.home_city,
           st: employee.home_state,
           postalCode: employee.home_zip,
-          thumbnailPhoto: Base64.decode64(employee.image_code)
+          # thumbnailPhoto: Base64.decode64(employee.image_code)
+          # TODO comment back in when we bring back thumbnail photo
         }
       )
     end
   end
 
   context "with a contingent worker" do
-    let(:employee) { FactoryGirl.build(:employee, :contingent,
-      first_name: "Bob",
-      last_name: "Barker",
-      employee_type: "Vendor",
-      department_id: dept.id,
-      location_id: location.id,
-      job_title_id: job_title.id,
-      manager_id: "at123",
-      sam_account_name: "senorbob",
+    let(:employee) { FactoryGirl.create(:employee,
+      first_name: "Sally",
+      last_name: "Field",
+      sam_account_name: "sfield",
       contract_end_date: 1.month.from_now,
-      worker_type_id: temp_worker_type.id
     )}
 
-    it "should not generate an email when sAMAccountName is set" do
-      expect(employee.generated_email).to be_nil
-    end
+    let!(:profile) { FactoryGirl.create(:profile, :with_valid_ou,
+      employee: employee,
+      manager_id: manager.employee_id)}
 
     it "should set the correct account expiry" do
       date = employee.contract_end_date + 1.day
@@ -398,18 +419,17 @@ describe Employee, type: :model do
     it "should create attr hash" do
       expect(employee.ad_attrs).to eq(
         {
-          cn: "Bob Barker",
-          dn: "cn=Bob Barker,ou=Operations,ou=EU,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com",
+          cn: "Sally Field",
+          dn: "cn=Sally Field,ou=Operations,ou=EU,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com",
           objectclass: ["top", "person", "organizationalPerson", "user"],
-          givenName: "Bob",
-          sn: "Barker",
+          givenName: "Sally",
+          sn: "Field",
           sAMAccountName: employee.sam_account_name,
           displayName: employee.cn,
           userPrincipalName: employee.generated_upn,
           manager: manager.dn,
           mail: employee.email,
           unicodePwd: "\"JoeSevenPack#007#\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
-          workdayUsername: employee.workday_username,
           co: employee.location.country,
           accountExpires: employee.generated_account_expires,
           title: employee.job_title.name,
@@ -423,18 +443,19 @@ describe Employee, type: :model do
           l: employee.home_city,
           st: employee.home_state,
           postalCode: employee.home_zip,
-          thumbnailPhoto: Base64.decode64(employee.image_code)
+          # thumbnailPhoto: Base64.decode64(employee.image_code)
+          # TODO comment back in when we bring back thumbnail photo
         }
       )
     end
   end
 
   context "with a terminated worker" do
-    let(:employee) { FactoryGirl.build(:employee,
-      department_id: dept.id,
-      location_id: location.id,
+    let(:employee) { FactoryGirl.create(:employee,
       termination_date: 2.days.from_now
     )}
+    let!(:profile) { FactoryGirl.create(:profile, :with_valid_ou,
+      employee: employee)}
 
     it "should set the correct account expiry" do
       date = employee.termination_date + 1.day
@@ -444,17 +465,18 @@ describe Employee, type: :model do
   end
 
   context "with a contingent worker that has been terminated" do
-    let(:employee) { FactoryGirl.build(:employee, :contingent,
+    let(:contract_worker_type) { FactoryGirl.create(:worker_type, :contractor) }
+    let(:employee) { FactoryGirl.create(:employee,
       first_name: "Bob",
       last_name: "Barker",
-      department_id: dept.id,
-      location_id: location.id,
-      job_title_id: job_title.id,
-      manager_id: "at123",
       contract_end_date: 1.month.from_now,
       termination_date: 1.day.from_now,
-      worker_type_id: temp_worker_type.id
     )}
+
+    let!(:profile) { FactoryGirl.create(:profile, :with_valid_ou,
+      worker_type: contract_worker_type,
+      employee: employee,
+      manager_id: manager.employee_id)}
 
     it "should set the correct account expiry" do
       date = employee.termination_date + 1.day
@@ -476,7 +498,6 @@ describe Employee, type: :model do
           manager: manager.dn,
           mail: employee.email,
           unicodePwd: "\"JoeSevenPack#007#\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
-          workdayUsername: employee.workday_username,
           co: employee.location.country,
           accountExpires: employee.generated_account_expires,
           title: employee.job_title.name,
@@ -490,25 +511,25 @@ describe Employee, type: :model do
           l: employee.home_city,
           st: employee.home_state,
           postalCode: employee.home_zip,
-          thumbnailPhoto: Base64.decode64(employee.image_code)
+          # thumbnailPhoto: Base64.decode64(employee.image_code)
+          # TODO comment back in when we bring back thumbnail photo
         }
       )
     end
   end
 
   context "with a remote worker and one address line" do
-    let(:employee) { FactoryGirl.build(:employee, :remote,
+    let(:employee) { FactoryGirl.create(:employee,
       first_name: "Bob",
       last_name: "Barker",
-      department_id: dept.id,
-      job_title_id: job_title.id,
-      manager_id: "at123",
       home_address_1: "123 Fake St.",
       home_city: "Beverly Hills",
       home_state: "CA",
       home_zip: "90210",
-      worker_type_id: reg_worker_type.id
     )}
+    let!(:profile) { FactoryGirl.create(:profile, :with_valid_ou, :remote,
+      employee: employee,
+      manager_id: manager.employee_id)}
 
     it "should set the correct address" do
       expect(employee.generated_address).to eq("123 Fake St.")
@@ -528,7 +549,6 @@ describe Employee, type: :model do
           manager: manager.dn,
           mail: employee.email,
           unicodePwd: "\"JoeSevenPack#007#\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
-          workdayUsername: employee.workday_username,
           co: employee.location.country,
           accountExpires: employee.generated_account_expires,
           title: employee.job_title.name,
@@ -542,26 +562,30 @@ describe Employee, type: :model do
           l: "Beverly Hills",
           st: "CA",
           postalCode: "90210",
-          thumbnailPhoto: Base64.decode64(employee.image_code)
+          # thumbnailPhoto: Base64.decode64(employee.image_code)
+          # TODO comment back in when we bring back thumbnail photo
         }
       )
     end
   end
 
   context "with a remote worker and two address lines" do
-    let(:employee) { FactoryGirl.build(:employee, :remote,
+    let(:remote_location) { FactoryGirl.create(:location, :remote) }
+    let!(:employee) { FactoryGirl.create(:employee,
       first_name: "Bob",
       last_name: "Barker",
-      department_id: dept.id,
-      job_title_id: job_title.id,
-      manager_id: "at123",
       home_address_1: "123 Fake St.",
       home_address_2: "Apt 3G",
       home_city: "Beverly Hills",
       home_state: "CA",
       home_zip: "90210",
-      worker_type_id: reg_worker_type.id
     )}
+
+    let!(:profile) { FactoryGirl.create(:profile,
+      employee: employee,
+      location: remote_location,
+      department: Department.find_by_name("Customer Support"),
+      manager_id: manager.employee_id)}
 
     it "should set the correct address" do
       expect(employee.generated_address).to eq("123 Fake St., Apt 3G")
@@ -581,7 +605,6 @@ describe Employee, type: :model do
           manager: manager.dn,
           mail: employee.email,
           unicodePwd: "\"JoeSevenPack#007#\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
-          workdayUsername: employee.workday_username,
           co: employee.location.country,
           accountExpires: employee.generated_account_expires,
           title: employee.job_title.name,
@@ -595,14 +618,23 @@ describe Employee, type: :model do
           l: "Beverly Hills",
           st: "CA",
           postalCode: "90210",
-          thumbnailPhoto: Base64.decode64(employee.image_code)
+          # thumbnailPhoto: Base64.decode64(employee.image_code)
+          # TODO comment back in when we bring back thumbnail photo
         }
       )
     end
   end
 
+  context "when it does not find a location and department ou match" do
+    let!(:employee) { FactoryGirl.create(:regular_employee) }
+
+    it "should assign the user to the provisional ou" do
+      expect(employee.ou).to eq("ou=Provisional,ou=Users,")
+    end
+  end
+
   describe "#check_manager" do
-    let(:manager) { FactoryGirl.create(:employee) }
+    let(:manager) { FactoryGirl.create(:regular_employee) }
     let(:mgr_profile) { FactoryGirl.create(:security_profile, name: "Basic Manager") }
     let(:app) { FactoryGirl.create(:application) }
     let(:access_level_1) {FactoryGirl.create(:access_level,
@@ -621,41 +653,60 @@ describe Employee, type: :model do
       security_profile_id: mgr_profile.id,
       access_level_id: access_level_2.id
     )}
-    let(:ads) { double(ActiveDirectoryService) }
+    let(:sas) { double(SecAccessService) }
 
     before :each do
-      allow(ActiveDirectoryService).to receive(:new).and_return(ads)
+      allow(SecAccessService).to receive(:new).and_return(sas)
     end
 
     it "should add 'Basic Manager' profile to worker if not present" do
-      allow(ads).to receive(:add_to_sec_group)
+      expect(sas).to receive(:apply_ad_permissions)
 
       expect{
         Employee.check_manager(manager.employee_id)
       }.to change{Employee.managers.include?(manager)}.from(false).to(true)
+      expect(manager.emp_sec_profiles.last.security_profile_id).to eq(mgr_profile.id)
+      expect(manager.active_security_profiles).to include(mgr_profile)
     end
 
     it "should apply AD security group if not nil" do
-      expect(ads).to receive(:add_to_sec_group).with(
-        "distinguished name of AD sec group",
-        manager
-      )
+      expect(sas).to receive(:apply_ad_permissions)
 
       Employee.check_manager(manager.employee_id)
     end
 
     it "should do nothing if worker already has 'Basic Manager' profile" do
-      manager.security_profiles << mgr_profile
+      emp_transaction = FactoryGirl.create(:emp_transaction,
+        employee_id: manager.id)
+      FactoryGirl.create(:emp_sec_profile,
+        security_profile_id: mgr_profile.id,
+        emp_transaction_id: emp_transaction.id)
 
-      expect(ads).to_not receive(:add_to_sec_group).with(
-        "distinguished name of AD sec group",
-        manager
-      )
+      expect(sas).to_not receive(:apply_ad_permissions)
 
       expect{
         Employee.check_manager(manager.employee_id)
       }.to_not change{Employee.managers.include?(manager)}
       expect(Employee.managers.include?(manager)).to eq(true)
+    end
+
+    it "should not execute if nil is passed in" do
+      expect(Employee).to_not receive(:managers)
+      expect(SecurityProfile).to_not receive(:find)
+
+      Employee.check_manager(nil)
+    end
+  end
+
+  describe "#email_options" do
+    it "should return EMAIL_OPTIONS with offboarding option" do
+      employee = FactoryGirl.create(:employee, termination_date: Date.new(2018, 3, 6))
+      expect(Employee.email_options(employee.id)).to eq(Employee::EMAIL_OPTIONS)
+    end
+
+    it "should return EMAIL_OPTIONS without offboarding option" do
+      employee = FactoryGirl.create(:employee, termination_date: nil)
+      expect(Employee.email_options(employee.id)).to_not include("Offboarding")
     end
   end
 end

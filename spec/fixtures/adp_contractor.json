@@ -1,0 +1,177 @@
+{
+  "workers": [
+    {
+      "associateOID": "G3NQ5754ETA080N",
+      "workerID": {
+        "idValue": "100015"
+      },
+      "person": {
+        "legalName": {
+          "givenName": "Bob",
+          "familyName1": "Seger",
+          "formattedName": "Seger, Bob"
+        },
+        "birthDate": "0000-00-00",
+        "genderCode": {
+          "codeValue": "N",
+          "shortName": "Not Specified"
+        },
+        "customFieldGroup": {
+          "stringFields": [
+            {
+              "itemID": "1718587466_46104",
+              "nameCode": {
+                "codeValue": "Preferred Last Name",
+                "shortName": "Preferred Last Name"
+              }
+            }
+          ]
+        }
+      },
+      "workerDates": {
+        "originalHireDate": "2017-04-24"
+      },
+      "workerStatus": {
+        "statusCode": {
+          "codeValue": "Active"
+        }
+      },
+      "workAssignments": [
+        {
+          "itemID": "21150618N",
+          "primaryIndicator": true,
+          "hireDate": "2017-04-24",
+          "actualStartDate": "2017-04-24",
+          "assignmentStatus": {
+            "statusCode": {
+              "codeValue": "A",
+              "shortName": "Active"
+            }
+          },
+          "workerTypeCode": {
+            "codeValue": "ACW",
+            "longName": "Agency Contract Worker"
+          },
+          "workerGroups": [
+            {
+              "nameCode": {
+                "codeValue": "Benefits Eligibility Class",
+                "longName": "Benefits Eligibility Class"
+              },
+              "groupCode": {
+                "codeValue": "CONTRAC",
+                "shortName": "Contract"
+              }
+            }
+          ],
+          "jobCode": {
+            "codeValue": "COLSP",
+            "longName": "Collections Specialist"
+          },
+          "occupationalClassifications": [
+            {
+              "nameCode": {
+                "codeValue": "EEOC",
+                "shortName": "EEOC"
+              },
+              "classificationCode": {
+                "codeValue": "2",
+                "shortName": "Professionals"
+              }
+            }
+          ],
+          "wageLawCoverage": {
+            "wageLawNameCode": {
+              "codeValue": "FLSA",
+              "shortName": "FLSA"
+            },
+            "coverageCode": {
+              "codeValue": "N",
+              "shortName": "Non-Exempt"
+            }
+          },
+          "positionID": "00500470N",
+          "homeOrganizationalUnits": [
+            {
+              "nameCode": {
+                "codeValue": "OTUS",
+                "shortName": "OpenTable Inc."
+              },
+              "typeCode": {
+                "codeValue": "Business Unit",
+                "shortName": "Business Unit"
+              }
+            },
+            {
+              "nameCode": {
+                "codeValue": "019000",
+                "shortName": "Finance Operations"
+              },
+              "typeCode": {
+                "codeValue": "Department",
+                "shortName": "Department"
+              }
+            }
+          ],
+          "homeWorkLocation": {
+            "address": {
+              "lineOne": "1 Montgomery St.",
+              "lineTwo": "Suite 700",
+              "cityName": "San Francisco",
+              "countrySubdivisionLevel1": {
+                "subdivisionType": "StateTerritory",
+                "codeValue": "CA",
+                "shortName": "California"
+              },
+              "countryCode": "US",
+              "postalCode": "94104"
+            },
+            "nameCode": {
+              "codeValue": "SF",
+              "longName": "San Francisco Headquarters"
+            }
+          },
+          "reportsTo": [
+            {
+              "associateOID": "G3GGY14BNGZ3T8EH",
+              "workerID": {
+                "idValue": "101328",
+                "schemeCode": {
+                  "codeValue": "Associate ID",
+                  "shortName": "Associate ID"
+                }
+              },
+              "reportsToWorkerName": {
+                "formattedName": "Jordyn Martinez"
+              },
+              "positionID": "WP8101328"
+            }
+          ],
+          "managementPositionIndicator": false
+        }
+      ],
+      "customFieldGroup": {
+        "dateFields": [
+          {
+            "itemID": "1718007390_9825",
+            "dateValue": "2017-07-24",
+            "nameCode": {
+              "codeValue": "Worker End Date",
+              "shortName": "Worker End Date"
+            }
+          }
+        ],
+        "stringFields": [
+          {
+            "itemID": "1719142519_2156",
+            "stringValue": "Accountemps",
+            "nameCode": {
+              "codeValue": "Agency / Service Provider Name",
+              "longName": "Agency / Service Provider Name"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

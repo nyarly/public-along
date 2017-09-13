@@ -46,6 +46,8 @@ describe AdpService::CodeLists, type: :service do
         { "Accept"=>"application/json",
           "Authorization"=>"Bearer a-token-value",
         }).and_return(response)
+      expect(response).to receive(:code)
+      expect(response).to receive(:message)
     end
 
     it "should find or create job titles" do
@@ -96,6 +98,8 @@ describe AdpService::CodeLists, type: :service do
         { "Accept"=>"application/json",
           "Authorization"=>"Bearer a-token-value",
         }).and_return(response)
+      expect(response).to receive(:code)
+      expect(response).to receive(:message)
     end
 
     it "should find or create locations" do
@@ -141,6 +145,17 @@ describe AdpService::CodeLists, type: :service do
       expect(Location.find_by(code: "AB").status).to eq("Active")
       expect(Location.find_by(code: "AZ").status).to eq("Active")
     end
+
+    it "should send p&c an email to update new items" do
+      expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"locations","listItems":[{"valueDescription":"AB - Alberta", "codeValue":"AB", "shortName":"Alberta"}]}]}')
+
+      adp = AdpService::CodeLists.new
+      adp.token = "a-token-value"
+
+      expect(PeopleAndCultureMailer).to receive_message_chain(:code_list_alert, :deliver_now)
+      adp.sync_locations
+      expect(Location.find_by(code: "AB").kind).to eq("Pending Assignment")
+    end
   end
 
   describe "sync departments table" do
@@ -153,6 +168,8 @@ describe AdpService::CodeLists, type: :service do
         { "Accept"=>"application/json",
           "Authorization"=>"Bearer a-token-value",
         }).and_return(response)
+      expect(response).to receive(:code)
+      expect(response).to receive(:message)
     end
 
     it "should find or create departments" do
@@ -192,6 +209,17 @@ describe AdpService::CodeLists, type: :service do
       expect(Department.find_by(code: "010000").status).to eq("Active")
       expect(Department.find_by(code: "011000").status).to eq("Active")
     end
+
+    it "should send p&c an email to update new items" do
+      expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"departments","listItems":[{"valueDescription":"007 - Engineering", "foreignKey":"WP8", "codeValue":"007", "shortName":"Engineering"}]}]}')
+
+      adp = AdpService::CodeLists.new
+      adp.token = "a-token-value"
+
+      expect(PeopleAndCultureMailer).to receive_message_chain(:code_list_alert, :deliver_now)
+      adp.sync_departments
+      expect(Department.find_by(code: "007").parent_org_id).to eq(nil)
+    end
   end
 
   describe "sync worker types table" do
@@ -204,6 +232,8 @@ describe AdpService::CodeLists, type: :service do
         { "Accept"=>"application/json",
           "Authorization"=>"Bearer a-token-value",
         }).and_return(response)
+      expect(response).to receive(:code)
+      expect(response).to receive(:message)
     end
 
     it "should find or create worker types" do
@@ -242,6 +272,17 @@ describe AdpService::CodeLists, type: :service do
       }.to change{WorkerType.find_by(code: "SRP").status}.from("Active").to("Inactive")
       expect(WorkerType.find_by(code: "CONT").status).to eq("Active")
       expect(WorkerType.find_by(code: "F").status).to eq("Active")
+    end
+
+    it "should send p&c an email to update new items" do
+      expect(response).to receive(:body).and_return('{"meta":{"/workers/workAssignments/workerTypeCode":{"codeList":{"listItems":[{"codeValue":"", "shortName":""}, {"codeValue":"ACW", "shortName":"Agency Worker"}, {"codeValue":"CONT", "shortName":"Contractor"}, {"codeValue":"CT3P", "longName":"Contractor - 3rd Party"}, {"codeValue":"F", "shortName":"Full Time"}, {"codeValue":"FTC", "shortName":"Contractor Full-Time"}, {"codeValue":"FTF", "shortName":"Fixed Term Full Time"}, {"codeValue":"FTR", "shortName":"Regular Full-Time"}, {"codeValue":"FTT", "shortName":"Temporary Full-Time"}, {"codeValue":"OLFR", "shortName":"Regular Full-Time"}]}, "readOnly":true, "optional":true, "hidden":false, "shortLabelName":"Worker Category"}}}')
+
+      adp = AdpService::CodeLists.new
+      adp.token = "a-token-value"
+
+      expect(PeopleAndCultureMailer).to receive_message_chain(:code_list_alert, :deliver_now)
+      adp.sync_worker_types
+      expect(WorkerType.find_by(code: "ACW").kind).to eq("Pending Assignment")
     end
   end
 end

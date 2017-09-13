@@ -43,19 +43,22 @@ describe AdpService::WorkerJsonParser, type: :service do
       expect(adp.gen_worker_hash(w_json)).to eq({
         status: "Active",
         adp_assoc_oid: "G32B8JAXA1W398Z8",
+        adp_employee_id: "101455",
         first_name: "Shirley",
         last_name: "Allansberg",
-        employee_id: "101455",
+        personal_mobile_phone: "(212) 555-4411",
+        office_phone: "(212) 555-4411",
         hire_date: "2013-08-05",
         contract_end_date: nil,
+        start_date: "2013-08-05",
+        end_date: nil,
         company: "OpenTable Inc.",
         job_title_id: job_title.id,
         worker_type_id: worker_type.id,
         manager_id: "101734",
-        department_id: department.id,
         location_id: location.id,
-        office_phone: "(212) 555-4411",
-        personal_mobile_phone: "(212) 555-4411"
+        department_id: department.id,
+        profile_status: "Active"
       })
     end
 

@@ -1,8 +1,7 @@
 FactoryGirl.define do
   factory :emp_mach_bundle do
-    employee_id 1
-    machine_bundle_id 1
-    emp_transaction_id 1
+    association :machine_bundle, factory: :machine_bundle
+    association :emp_transaction, factory: :emp_transaction
     details ""
   end
 end

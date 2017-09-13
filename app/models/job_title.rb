@@ -11,5 +11,6 @@ class JobTitle < ActiveRecord::Base
             presence: true,
             inclusion: { in: STATUS }
 
-  has_many :employees
+  has_many :profiles
+  has_many :employees, through: :profiles
 end

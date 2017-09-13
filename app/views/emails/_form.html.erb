@@ -1,0 +1,9 @@
+<%= form_for(@email, :html => {:class => "form"}) do |f| %>
+  <div class="field">
+    <%= f.select :email_option, Employee.email_options(@employee.id), {include_blank: true}, {required: true} %>
+    <%= f.hidden_field :employee_id, :value => @employee.id %>
+  </div>
+  <div class="actions">
+    <%= f.submit "Submit", :class => "button" %>
+  </div>
+<% end %>

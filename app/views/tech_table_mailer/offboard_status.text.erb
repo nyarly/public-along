@@ -1,0 +1,16 @@
+Mezzo Automatic Offboarding Status
+========================
+
+Termination Date: <%= @employee.termination_date.strftime("%b %e, %Y") %>
+
+Name: <%= @employee.cn %>
+
+Email: <%= @employee.email %>
+
+EmployeeID: <%= @employee.employee_id %>
+
+Automatic Account Offboarding Status:
+---------------------------------
+<% @deactivations.each do |key, value| %>
+<%= key %>: <%= value %>
+<% end %>

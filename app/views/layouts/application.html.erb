@@ -24,14 +24,9 @@
           <% if can? :read, Employee %>
             <li>
               <%= link_to "Workers", employees_path %>
-              <% if can?(:create, Employee) || can?(:read, WorkerType) %>
+              <% if can?(:read, WorkerType) %>
                 <ul class="menu vertical">
-                  <% if can? :create, Employee %>
-                    <li><%= link_to "New Worker", new_employee_path %></li>
-                  <% end %>
-                  <% if can? :read, WorkerType %>
-                    <li><%= link_to "Worker Types", worker_types_path %></li>
-                  <% end %>
+                  <li><%= link_to "Worker Types", worker_types_path %></li>
                 </ul>
               <% end %>
             </li>
@@ -94,11 +89,6 @@
               </ul>
             </li>
           <% end %>
-          <% if can? :generate, OffboardCommand %>
-            <li>
-              <%= link_to "Offboard Commands", offboard_commands_path %>
-            </li>
-          <% end %>
           <!-- <li><a href="#">Two</a></li>
           <li><a href="#">Three</a></li> -->
         </ul>
@@ -123,7 +113,7 @@
       </div>
     </div>
     <% if flash[:notice] %>
-      <div class="primary callout" data-closable>
+      <div class="primary callout" id="flash-notice" data-closable>
         <%= notice %>
         <button class="close-button" aria-label="Dismiss alert" type="button" data-close>
           <span aria-hidden="true">&times;</span>

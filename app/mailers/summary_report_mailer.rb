@@ -22,4 +22,20 @@ class SummaryReportMailer < ApplicationMailer
     attachments.inline['pandc.png'] = File.read(Rails.root.join('app/assets/images/pandc.png'))
     mail(to: Rails.application.secrets.onoffboard_email, subject: "Job Change Summary Report")
   end
+
+  def termination_audit_report
+    audit = AuditService.new
+    missed_terminations = audit.missed_terminations
+    csv = audit.generate_csv(missed_terminations)
+    attachments.inline["term_audit_summary_#{DateTime.now.strftime('%Y%m%d')}.csv"] = csv
+    mail(to: Rails.application.secrets.tt_email, subject: "Mezzo Missed Termination Audit")
+  end
+
+  def deactivation_audit_report
+    audit = AuditService.new
+    missed_deactivations = audit.ad_deactivation
+    csv = audit.generate_csv(missed_deactivations)
+    attachments.inline["deactiv_audit_summary_#{DateTime.now.strftime('%Y%m%d')}.csv"] = csv
+    mail(to: Rails.application.secrets.tt_email, subject: "Mezzo Missed Deactivation Audit")
+  end
 end

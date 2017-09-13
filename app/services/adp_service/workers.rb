@@ -36,24 +36,19 @@ module AdpService
 
       unless str == nil
         json = JSON.parse(str)
-        parser = AdpService::WorkerJsonParser.new
-
+        parser = WorkerJsonParser.new
         workers_to_update = []
         adp_only = []
         workers = parser.sort_workers(json)
 
         workers.each do |w|
-          e = Employee.find_by(employee_id: w[:employee_id])
+          e = Employee.find_by_employee_id(w[:adp_employee_id])
           if e.present?
-            e.assign_attributes(w)
-            delta = build_emp_delta(e)
-            send_email = send_email?(e)
-            if e.save
-              Employee.check_manager(e.manager_id)
-              workers_to_update << e
-              delta.save if delta.present?
-              EmployeeWorker.perform_async("Security Access", e.id) if send_email == true
-            end
+            profiler = EmployeeProfile.new
+            profiler.update_employee(e, w)
+            Employee.check_manager(e.manager_id)
+
+            workers_to_update << e
           else
             adp_only << "{ first_name: #{w[:first_name]}, last_name: #{w[:last_name]}, employee_id: #{w[:employee_id]})"
           end
@@ -68,86 +63,98 @@ module AdpService
       end
     end
 
-    def check_new_hire_changes
-      Employee.where(status: "Pending").find_each do |e|
-        # arbitrary future date to see if any info has changed on hire
-        # hire date could have been moved forward
-        date = e.hire_date + 1.month
-
-        month = date.strftime("%m")
-        day = date.strftime("%d")
-        year = date.strftime("%Y")
-
-        update_emps = []
-
-        str = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers/#{e.adp_assoc_oid}?asOfDate=#{month}%2F#{day}%2F#{year}")
-        json = JSON.parse(str)
-
-        parser = WorkerJsonParser.new
-        workers = parser.sort_workers(json)
-
-        workers.each do |w_hash|
-          e = Employee.find_by(employee_id: w_hash[:employee_id])
-          e.assign_attributes(w_hash.except(:status))
-        end
-        if e.changed? && e.save
-          update_emps << e
-        end
-
-        ads = ActiveDirectoryService.new
-        ads.update(update_emps)
+    def check_future_changes
+      Employee.where("status LIKE ? OR status LIKE ?", "Pending", "Inactive").find_each do |e|
+        EmployeeChangeWorker.perform_async(e.id)
       end
     end
 
-    def check_leave_return
-      future_date = 1.day.from_now.change(:usec => 0)
+    def look_ahead(e)
+      if e.status == "Pending"
+        check_new_hire_change(e)
+      else
+        # inactive worker status
+        check_leave_return(e)
+      end
+    end
 
-      month = future_date.strftime("%m")
-      day = future_date.strftime("%d")
-      year = future_date.strftime("%Y")
-
-      update_emps = []
-
-      Employee.where(status: "Inactive").find_each do |e|
-        str = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers/#{e.adp_assoc_oid}?asOfDate=#{month}%2F#{day}%2F#{year}")
-        json = JSON.parse(str)
-
-        adp_status = json.dig("workers", 0, "workerStatus", "statusCode", "codeValue")
-
-        if adp_status == "Active" && e.leave_return_date.blank?
-          e.assign_attributes(leave_return_date: future_date)
-        elsif e.leave_return_date.present? && adp_status == "Inactive"
-          e.assign_attributes(leave_return_date: nil)
-        end
-
-        if e.changed? && e.save
-          update_emps << e
-        end
+    def check_new_hire_change(e)
+      if e.contract_end_date.present?
+        future_date = e.contract_end_date - 1.day
+      else
+        future_date = 1.year.from_now.change(:usec => 0)
       end
 
-      ads = ActiveDirectoryService.new
-      ads.update(update_emps)
+      json = get_worker_json(e, future_date)
+      adp_status = json.dig("workers", 0, "workerStatus", "statusCode", "codeValue")
+
+      if adp_status.present? and adp_status == "Active"
+        parser = WorkerJsonParser.new
+        workers = parser.sort_workers(json)
+        w_hash = workers[0]
+        profiler = EmployeeProfile.new
+        profiler.update_employee(e, w_hash.except(:status, :profile_status))
+        Employee.check_manager(e.manager_id)
+
+        if e.updated_at >= 1.minute.ago
+          ad = ActiveDirectoryService.new
+          ad.update([e])
+        end
+      else
+        return false
+        # TechTableMailer.alert_email("Cannot get updated ADP info for new contract hire #{e.cn}, employee id: #{e.employee_id}.\nPlease contact the developer to help diagnose the problem.").deliver_now
+      end
+    end
+
+    def check_leave_return(e)
+      future_date = 1.day.from_now.change(:usec => 0)
+      json = get_worker_json(e, future_date)
+      adp_status = json.dig("workers", 0, "workerStatus", "statusCode", "codeValue")
+
+      if adp_status == "Active" && e.leave_return_date.blank?
+        e.assign_attributes(leave_return_date: future_date)
+      elsif e.leave_return_date.present? && adp_status == "Inactive"
+        e.assign_attributes(leave_return_date: nil)
+      end
+
+      delta = EmpDelta.build_from_profile(e.current_profile)
+
+      if e.changed? and e.save!
+        ad = ActiveDirectoryService.new
+        ad.update([e])
+      end
+
+      delta.save! if delta.present?
+    end
+
+    def get_worker_json(e, date)
+      begin
+      ensure
+        m = date.strftime("%m")
+        d = date.strftime("%d")
+        y = date.strftime("%Y")
+
+        str = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers/#{e.adp_assoc_oid}?asOfDate=#{m}%2F#{d}%2F#{y}")
+        worker_json = JSON.parse(str)
+      end
+      worker_json
     end
 
     def send_email?(employee)
-      if employee.changed? && employee.valid?
-        if employee.manager_id_changed? || employee.department_id_changed? || employee.location_id_changed?
+      has_changed = employee.changed? && employee.valid?
+      has_triggering_change = employee.department_id_changed? || employee.location_id_changed? || employee.worker_type_id_changed? || employee.job_title_id_changed?
+      no_previous_changes = employee.emp_deltas.important_changes.blank?
+
+      if has_changed && has_triggering_change
+        if no_previous_changes
           true
+        else
+          last_emailed_on = employee.emp_deltas.important_changes.last.created_at
+          if last_emailed_on <= 1.day.ago
+            true
+          end
         end
       end
-    end
-
-    def build_emp_delta(employee)
-      before = employee.changed_attributes
-      after = Hash[employee.changes.map { |k,v| [k, v[1]] }]
-      if before.present? && after.present?
-        emp_delta = EmpDelta.new(
-          employee_id: employee.id,
-          before: before,
-          after: after
-        )
-      end
-      emp_delta
     end
   end
 end

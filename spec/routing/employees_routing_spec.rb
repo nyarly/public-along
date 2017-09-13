@@ -7,28 +7,12 @@ RSpec.describe EmployeesController, type: :routing do
       expect(:get => "/employees").to route_to("employees#index")
     end
 
-    it "routes to #new" do
-      expect(:get => "/employees/new").to route_to("employees#new")
-    end
-
     it "routes to #show" do
       expect(:get => "/employees/1").to route_to("employees#show", :id => "1")
     end
 
-    it "routes to #edit" do
-      expect(:get => "/employees/1/edit").to route_to("employees#edit", :id => "1")
-    end
-
-    it "routes to #create" do
-      expect(:post => "/employees").to route_to("employees#create")
-    end
-
-    it "routes to #update via PUT" do
-      expect(:put => "/employees/1").to route_to("employees#update", :id => "1")
-    end
-
-    it "routes to #update via PATCH" do
-      expect(:patch => "/employees/1").to route_to("employees#update", :id => "1")
+    it "routes to #autocomplete_name" do
+      expect(:get => "employees/autocomplete_name?term=something").to route_to("employees#autocomplete_name", :term => "something")
     end
 
   end

@@ -1,29 +1,46 @@
-<div class="section danger text-center">
-  This form must be submitted before <strong><%= @employee.onboarding_due_date %></strong>
-  <br>
-  Start Date: <strong><%= @employee.hire_date.strftime("%b %e, %Y")%></strong>
+<h3 class="text-center">Employee Onboarding Form</h3>
+<div class="text-center" style="margin-left: 15%; margin-right: 15%;">
+  <p>This form must be submitted before <strong><%= @employee.onboarding_due_date %>.</strong>
+    <br>
+    Start Date: <strong><%= @employee.current_profile.start_date.strftime("%b %e, %Y")%></strong>
+  </p>
+  <hr>
+  <p>You are receiving this action request because you are listed as the manager of new hire <%= @employee.cn %>, who will be starting in the <%= @employee.location.name %> office on <%= @employee.current_profile.start_date.strftime("%b %e, %Y") %>. </br>If this information is incorrect, please contact People & Culture.</p>
 </div>
 
-<% unless @employee.is_contingent_worker? %>
-  <h4>Buddy</h4>
-  <p class="help-text">Select a buddy for the worker's first day. If you do not know who the buddy will be, leave blank and inform P&amp;C off line.</p>
-  <%= f.collection_select :buddy_id, Employee.all - [@employee], :id, :cn, {prompt: "Select from list"} %>
-  <hr>
+<% if @employee.is_contingent_worker? %>
+  <div class="callout large">
+    <h4>Contingent Worker Options</h4>
+    <br>
+    <p class="help-text">Please confirm the following:</p>
+    <div class="row">
+      <div class="column large-12">
+        <%= f.check_box :cw_email %>
+        <%= f.label :cw_email, "This contingent worker requires an OpenTable email address" %>
+      </div>
+      <div class="column large-12">
+        <%= f.check_box :cw_google_membership %>
+        <%= f.label :cw_google_membership, "This contingent worker requires Google Group membership (for Hangouts and Google tools)" %>
+      </div>
+    </div>
+  </div>
 <% end %>
 
-<% if @employee.is_contingent_worker? %>
-  <h4>Contingent Workers</h4>
-  <p class="help-text">If this is a contingent worker please confirm the following:</p>
-  <div class="column large-12">
-    <%= f.check_box :cw_email %>
-    <%= f.label :cw_email, "This contingent worker requires an OpenTable email address" %>
-  </div>
-  <div class="column large-12">
-    <%= f.check_box :cw_google_membership %>
-    <%= f.label :cw_google_membership, "This contingent worker requires Google Group membership (for Hangouts and Google tools)" %>
-  </div>
-  <hr>
+<% if params[:event_id] %>
+  <%= render partial: "job_change", locals: {f: f} %>
 <% end %>
 
 <%= render partial: "security_access", locals: {f: f, employee: @employee, kind: @kind} %>
 <%= render partial: "equipment", locals: {f: f} %>
+
+<% unless @employee.is_contingent_worker? %>
+  <div class="callout">
+    <h4>Buddy</h4>
+    <p class="help-text">Select a buddy for the worker's first day. If you do not know who the buddy will be, leave blank and inform P&amp;C off line.</p>
+    <%= f.autocomplete_field :buddy_id, autocomplete_name_employees_path, :id_element => '#buddy_id', :update_elements => {}, :placeholder => "Search for Employee" %>
+  </div>
+  <%= f.hidden_field :buddy_id, id: 'buddy_id' %>
+  <%= f.hidden_field :cw_email, value: false %>
+  <%= f.hidden_field :cw_google_membership, value: false %>
+<% end %>
+

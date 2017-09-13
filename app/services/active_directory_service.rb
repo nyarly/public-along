@@ -26,7 +26,6 @@ class ActiveDirectoryService
         attrs.delete(:dn) # need to remove dn for create
         ldap.add(dn: e.dn, attributes: attrs)
         if ldap.get_operation_result.code == 0
-          EmployeeWorker.perform_async("Onboarding", e.id)
           e.update_attributes(:ad_updated_at => DateTime.now)
         else
           Rails.logger.error "LDAP ERROR: #{ldap.get_operation_result}"
@@ -48,6 +47,8 @@ class ActiveDirectoryService
       elsif !e.onboarding_complete? && e.leave_return_date.blank?
         TechTableMailer.alert_email("ERROR: #{e.first_name} #{e.last_name} requires manager to complete onboarding forms. Account not activated.").deliver_now
       else
+        profile = e.current_profile
+        profile.update_attributes(profile_status: "Active")
         e.update_attributes(status: "Active")
         ldap.replace_attribute(e.dn, :userAccountControl, "512")
       end
@@ -58,6 +59,8 @@ class ActiveDirectoryService
     employees.each do |e|
       ldap_entry = find_entry("sAMAccountName", e.sam_account_name).first
       if ldap_entry.present?
+        profile = e.current_profile
+        profile.update_attributes(profile_status: "Terminated")
         e.update_attributes(status: "Terminated")
         ldap.replace_attribute(ldap_entry.dn, :userAccountControl, "514")
         ldap.rename(
@@ -74,7 +77,9 @@ class ActiveDirectoryService
     employees.each do |e|
       e.security_profiles.each do |sp|
         sp.access_levels.each do |al|
-          remove_from_sec_group(al.ad_security_group, e)
+          if al.ad_security_group.present?
+            remove_from_sec_group(al.ad_security_group, e)
+          end
         end
       end
     end
@@ -101,7 +106,9 @@ class ActiveDirectoryService
     [:objectclass, :sAMAccountName, :mail, :userPrincipalName, :unicodePwd].each { |k| attrs.delete(k) }
     # Only update attrs that differ
     attrs.each { |k,v|
-      if (ldap_entry.try(k).present? && ldap_entry.try(k).include?(v)) || (ldap_entry.try(k).blank? && v.blank?)
+      # LDAP returns ASCII-8BIT, coerce Mezzo data to this format for compare
+      val = v.present? ? v.force_encoding(Encoding::ASCII_8BIT) : v
+      if (ldap_entry.try(k).present? && ldap_entry.try(k).include?(val)) || (ldap_entry.try(k).blank? && val.blank?)
         attrs.delete(k)
       end
     }

@@ -1,158 +1,186 @@
-<h1>Employee Event Details</h1>
-
-<p>
-  <strong>Submission Date:</strong>
-  <%= @emp_transaction.created_at.strftime("%b %e, %Y") %>
-</p>
-
-<p>
-  <strong>Name:</strong>
-  <%= link_to @employee.cn, employee_path(@employee) %>
-</p>
-
-<p>
-  <strong>Title:</strong>
-  <%= @employee.job_title.try(:name) %>
-</p>
-
-<p>
-  <strong>Department:</strong>
-  <%= @employee.department.name %>
- </p>
-
-<p>
-  <strong>Location:</strong>
-  <%= @employee.location.name %>
-</p>
-
-<p>
-  <strong>Manager:</strong>
-  <%= @manager.first_name %> <%= @manager.last_name %>
-</p>
-
-<% if @emp_transaction.kind == "Onboarding" && !@employee.is_contingent_worker? %>
-  <p>
-    <strong>Buddy:</strong>
-    <% if @buddy.present? %>
-      <%= @buddy.first_name %> <%= @buddy.last_name %>
-    <% else %>
-      None selected
+<!-- employee info -->
+<div class="row">
+  <div class="callout primary">
+    <h3 class="text-center"><%= link_to @employee.cn, employee_path(@employee) %></h3>
+    <p class="text-center"><%= @employee.job_title.try(:name) %> &#8226; <%= @employee.department.name %> &#8226; <%= @employee.location.name %></p>
+    <% if @employee.manager.present? %>
+      <p class="text-center">Manager: <%= @employee.manager.cn %></p>
     <% end %>
-  </p>
-<% end %>
+  </div>
+</div>
+<!-- end employee info -->
 
-<% if @emp_transaction.kind == "Onboarding" && @employee.is_contingent_worker? %>
-  <p>
-    <strong>Contingent Worker:</strong>
-    <div class="indent-1">
-      <ul>
-        <li>Create OpenTable Email: <%= @emp_transaction.onboarding_infos.first.cw_email %></li>
-        <li>Create Google Group Membership: <%= @emp_transaction.onboarding_infos.first.cw_google_membership %></li>
-      </ul>
+<div nclass="section">
+  <h3 class="text-center">Employee <%= @emp_transaction.kind %> Request Confirmation</h3>
+
+  <div class="row">
+    <h5 class="subheader text-center">
+      <strong>Submitted <%= @emp_transaction.created_at.strftime("%b %e, %Y") %></strong>
+    </h5>
+  </div>
+
+  <!-- buddy section -->
+  <% if @emp_transaction.kind == "Onboarding" && !@employee.is_contingent_worker? %>
+    <div class="row">
+      <p>
+        <strong>Buddy:</strong>
+        <% if @buddy.present? %>
+          <%= @buddy.first_name %> <%= @buddy.last_name %>
+        <% else %>
+          None selected
+        <% end %>
+      </p>
     </div>
-  </p>
-<% end %>
+  <% end %>
+  <!-- end buddy section -->
 
-<% if (@emp_transaction.kind == "Onboarding" || @emp_transaction.kind == "Security Access") %>
-  <% if @emp_transaction.security_profiles.count > 0 %>
-    <p>
-      <strong>Applied Security Profiles:</strong>
-    </p>
-    <div class="indent-1">
-      <% @emp_transaction.security_profiles.each do |sp| %>
-        <div>
-          <%= sp.name %><br>
+  <!-- contingent worker section -->
+  <% if @emp_transaction.kind == "Onboarding" && @employee.is_contingent_worker? %>
+    <div class="row">
+      <p>
+        <strong>Contingent Worker:</strong>
+        <div class="indent-1">
           <ul>
-            <% sp.access_levels.find_each do |al| %>
-              <li class="indent-1"><small><%= al.name %> <%= al.application.name %></small></li>
-            <% end %>
+            <li>Create OpenTable Email: <%= @emp_transaction.onboarding_infos.first.cw_email %></li>
+            <li>Create Google Group Membership: <%= @emp_transaction.onboarding_infos.first.cw_google_membership %></li>
           </ul>
         </div>
-      <% end %>
+      </p>
+    </div>
+  <% end %>
+  <!-- end contingent worker section -->
+
+  <!-- security profile section -->
+  <% if (@emp_transaction.kind == "Onboarding" || @emp_transaction.kind == "Security Access") %>
+
+    <!-- applied security profile section -->
+    <% if @emp_transaction.security_profiles.count > 0 %>
+      <div class="row">
+        <p><strong>Applied Security Profiles:</strong></p>
+        <% @emp_transaction.security_profiles.each do |sp| %>
+          <div class="indent-1 column large-4 medium-6 small-12 float-left">
+            <%= sp.name %><br>
+            <ul>
+              <% sp.access_levels.includes(:application).find_each do |al| %>
+                <li class="indent-1"><small><%= al.name %> <%= al.application.name %>
+                  <% if al.application.ad_controls || al.ad_security_group.present? %>
+                    <span style="color: green"> &#8212; Applied Immediately</span>
+                  <% else %>
+                    <span style="color: blue"> &#8212; Request Forwarded to TechTable</span>
+                  <% end %>
+                </small></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+    <!-- end applied security profile section -->
+
+    <!-- revoked security profile section -->
+    <% if @emp_transaction.revoked_security_profiles.count > 0 %>
+      <div class="row">
+        <p><strong>Revoked Security Profiles:</strong></p>
+        <% @emp_transaction.revoked_security_profiles.each do |sp| %>
+          <div class="indent-1 column large-4 medium-6 small-12 float-left">
+            <%= sp.name %><br>
+            <ul>
+              <% sp.access_levels.includes(:application).find_each do |al| %>
+                <li class="indent-1"><small><%= al.name %> <%= al.application.name %></small>
+                <% if al.application.ad_controls || al.ad_security_group.present? %>
+                  <small style="color: green"> &#8212; Revoked Immediately</small>
+                <% else %>
+                  <small style="color: blue"> &#8212; Request Forwarded to TechTable</small>
+                <% end %>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+    <!-- end revoked security profile section -->
+
+    <!-- active security profile summary -->
+    <div class="row">
+      <p><strong>Active Security Profile Summary:</strong></p>
+      <div class="indent-1">
+        <% @employee.active_security_profiles.each do |sp| %>
+          <div class="indent-1 column large-4 medium-6 small-12 float-left">
+            <%= sp.name %><br>
+            <ul>
+              <% sp.access_levels.includes(:application).find_each do |al| %>
+                <li class="indent-1"><small><%= al.name %> <%= al.application.name %></small></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+      </div>
+    </div>
+    <!-- end active security profile summary -->
+  <% end %>
+  <!-- end security profile section -->
+
+  <!-- equipment section -->
+  <% if @emp_transaction.kind == "Onboarding" || @emp_transaction.kind == "Equipment" %>
+    <div class="row">
+      <p>
+        <strong>Machine Bundle:</strong>
+      </p>
+      <div class="indent-1">
+        <% @emp_transaction.machine_bundles.each do |mb| %>
+          <div>
+            <%= mb.name %><br>
+            <ul>
+              <li class="indent-1"><small><%= mb.description %></small></li>
+            </ul>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+  <!-- end equipment section -->
+
+  <!-- offboarding info section -->
+  <% if @emp_transaction.kind == "Offboarding" %>
+    <div class="row">
+      <p>
+        <strong>Archive Data:</strong>
+        <%= @emp_transaction.offboarding_infos.first.archive_data %>
+      </p>
+
+      <p>
+        <strong>Replacement Hired:</strong>
+        <%= @emp_transaction.offboarding_infos.first.replacement_hired %>
+      </p>
+
+      <p>
+        <strong>Forward Email To:</strong>
+        <%= Employee.find(@emp_transaction.offboarding_infos.first.forward_email_id).cn %>
+      </p>
+
+      <p>
+        <strong>Reassign SalesForce Cases To:</strong>
+        <%= Employee.find(@emp_transaction.offboarding_infos.first.reassign_salesforce_id).cn %>
+      </p>
+
+      <p>
+        <strong>Transfer Google Docs To:</strong>
+        <% if @emp_transaction.offboarding_infos.first.transfer_google_docs_id %>
+          <%= Employee.find(@emp_transaction.offboarding_infos.first.transfer_google_docs_id).try(:cn) %>
+        <% end %>
+      </p>
+    </div>
+  <% end %>
+  <!-- end offboarding info section -->
+
+  <% unless @emp_transaction.notes.blank? %>
+    <div class="row">
+      <p>
+        <strong>Additional Instructions:</strong>
+        <%= @emp_transaction.notes %>
+      </p>
     </div>
   <% end %>
 
-  <% if @emp_transaction.revoked_security_profiles.count > 0 %>
-    <p>
-      <strong>Revoked Security Profiles:</strong>
-    </p>
-    <div class="indent-1">
-      <% @emp_transaction.revoked_security_profiles.each do |sp| %>
-        <div>
-          <%= sp.name %><br>
-          <ul>
-            <% sp.access_levels.find_each do |al| %>
-              <li class="indent-1"><small><%= al.name %> <%= al.application.name %></small></li>
-            <% end %>
-          </ul>
-        </div>
-      <% end %>
-    </div>
-  <% end %>
-
-  <p>
-    <strong>Active Security Profiles:</strong>
-  </p>
-  <div class="indent-1">
-    <% @employee.active_security_profiles.each do |sp| %>
-      <div>
-        <%= sp.name %><br>
-        <ul>
-          <% sp.access_levels.find_each do |al| %>
-            <li class="indent-1"><small><%= al.name %> <%= al.application.name %></small></li>
-          <% end %>
-        </ul>
-      </div>
-    <% end %>
-  </div>
-<% end %>
-
-<% if @emp_transaction.kind == "Onboarding" || @emp_transaction.kind == "Equipment" %>
-  <p>
-    <strong>Machine Bundle:</strong>
-  </p>
-  <div class="indent-1">
-    <% @emp_transaction.machine_bundles.each do |mb| %>
-      <div>
-        <%= mb.name %><br>
-        <ul>
-          <li class="indent-1"><small><%= mb.description %></small></li>
-        </ul>
-      </div>
-    <% end %>
-  </div>
-<% end %>
-
-<% if @emp_transaction.kind == "Offboarding" %>
-  <p>
-    <strong>Archive Data:</strong>
-    <%= @emp_transaction.offboarding_infos.first.archive_data %>
-  </p>
-
-  <p>
-    <strong>Replacement Hired:</strong>
-    <%= @emp_transaction.offboarding_infos.first.replacement_hired %>
-  </p>
-
-  <p>
-    <strong>Forward Email To:</strong>
-    <%= Employee.find(@emp_transaction.offboarding_infos.first.forward_email_id).cn %>
-  </p>
-
-  <p>
-    <strong>Reassign SalesForce Cases To:</strong>
-    <%= Employee.find(@emp_transaction.offboarding_infos.first.reassign_salesforce_id).cn %>
-  </p>
-
-  <p>
-    <strong>Transfer GoogleDocs To:</strong>
-    <%= Employee.find(@emp_transaction.offboarding_infos.first.transfer_google_docs_id).try(:cn) %>
-  </p>
-<% end %>
-
-<% unless @emp_transaction.notes.blank? %>
-  <p>
-    <strong>Additional Instructions:</strong>
-    <%= @emp_transaction.notes %>
-  </p>
-<% end %>
+</div>

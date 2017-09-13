@@ -20,6 +20,7 @@ config/database.yml
 config/ldap.yml
 config/adp.pem
 config/adp.key
+config/admin-datatransfer.yaml
 
 ## Environment normalization:
 /.bundle

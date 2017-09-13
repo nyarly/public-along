@@ -13,12 +13,13 @@
 
   <div class="field">
     <%= f.label :name %><br>
-    <%= f.text_field :name %>
+    <%= f.text_field :name, required: true %>
   </div>
   <div class="field">
     <%= f.label :application_id %><br>
     <%= f.collection_select :application_id, Application.all, :id, :name %>
     <%= link_to 'Add new application', new_application_path, :class => 'button' %>
+    <%#= f.collection_select :application_id, Application.all, :id, :name, { :include_blank => true }, { :required => true } %>
   </div>
   <div class="field">
     <%= f.label :ad_security_group %><br>

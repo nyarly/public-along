@@ -18,10 +18,16 @@ namespace :adp do
   task :sync_workers => :environment do
     w = AdpService::Workers.new
     w.create_sidekiq_workers
-    w.check_new_hire_changes
-    w.check_leave_return
+    w.check_future_changes
   end
 
   desc "sync all adp info"
   task :sync_all => [:sync_codelists, :sync_events, :sync_workers]
+
+  # this syncs from Mezzo to ADP and is meant as a one-time update
+  desc "update all ADP accounts with work email address" do
+    task :update_all => :environment do
+      Employee.find_each { |e| UpdateEmailWorker.perform_async(e.id) }
+    end
+  end
 end

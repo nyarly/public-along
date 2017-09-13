@@ -3,6 +3,7 @@ namespace :employee do
   task :change_status => :environment do
     activations = []
     deactivations = []
+    offboards = []
     full_terminations = []
 
     Employee.activation_group.each do |e|
@@ -15,6 +16,7 @@ namespace :employee do
     end
 
     Employee.deactivation_group.each do |e|
+
       # Collect employees to deactivate if it is 9-10pm on their end date or day before leave start date in their respective nearest time zone
       if e.leave_start_date && in_time_window?(e.leave_start_date - 1.day, 21, e.nearest_time_zone)
         deactivations << e
@@ -22,11 +24,15 @@ namespace :employee do
         deactivations << e
       elsif e.termination_date && in_time_window?(e.termination_date, 21, e.nearest_time_zone)
         deactivations << e
+        offboards << e
+      # send techtable info around noon
+      elsif e.termination_date && in_time_window?(e.termination_date, 12, e.nearest_time_zone)
+        TechTableMailer.offboard_instructions(e).deliver_now
       end
     end
 
     Employee.full_termination_group.each do |e|
-      if in_time_window?(e.termination_date + 30.days, 3, e.nearest_time_zone)
+      if in_time_window?(e.termination_date + 7.days, 3, e.nearest_time_zone)
         full_terminations << e
       end
     end
@@ -35,32 +41,9 @@ namespace :employee do
     ads.activate(activations)
     ads.deactivate(deactivations)
     ads.terminate(full_terminations)
-  end
 
-  desc "send onboarding summary reports"
-  task :onboard_report => :environment do
-    SummaryReportMailer.onboard_report.deliver_now
-  end
-
-  desc "send job change summary reports"
-  task :job_change_report => :environment do
-    SummaryReportMailer.job_change_report.deliver_now if EmpDelta.report_group.count > 0
-  end
-
-  desc "send offboarding summary reports"
-  task :offboard_report => :environment do
-    SummaryReportMailer.offboard_report.deliver_now
-  end
-
-  desc "parse latest xml file to active directory"
-  task :xml_to_ad => :environment do
-    xml = XmlService.new
-
-    if xml.doc.present?
-      xml.parse_to_ad
-    else
-      TechTableMailer.alert_email("ERROR: No xml file to parse. Check to see if Workday is sending xml files to the designated sFTP.").deliver_now
-    end
+    off = OffboardingService.new
+    off.offboard(offboards)
   end
 
   desc "update active directory against mezzo employee db"

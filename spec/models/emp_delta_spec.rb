@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe EmpDelta, type: :model do
-  let(:employee) { FactoryGirl.create(:employee)}
+  let(:employee) { FactoryGirl.create(:regular_employee)}
   let(:job_title) { FactoryGirl.create(:job_title)}
 
   let(:emp_delta) { FactoryGirl.build(:emp_delta,
@@ -109,8 +109,8 @@ RSpec.describe EmpDelta, type: :model do
     end
 
     it "should sub names for ids" do
-      old_mgr = FactoryGirl.create(:employee)
-      new_mgr = FactoryGirl.create(:employee)
+      old_mgr = FactoryGirl.create(:regular_employee)
+      new_mgr = FactoryGirl.create(:regular_employee)
       old_loc = FactoryGirl.create(:location)
       new_loc = FactoryGirl.create(:location)
       old_jt = FactoryGirl.create(:job_title)
@@ -135,6 +135,56 @@ RSpec.describe EmpDelta, type: :model do
     end
 
     it "should format dates" do
+    end
+  end
+
+  context "format by value" do
+    it "should collect the values and format them" do
+      old_location = FactoryGirl.create(:location, name: "Boston")
+      old_department = FactoryGirl.create(:department, name: "Backend Product")
+      new_location = FactoryGirl.create(:location, name: "Los Angeles")
+      new_department = FactoryGirl.create(:department, name: "Infrastructure")
+
+      delta_a = FactoryGirl.create(:emp_delta,
+        before: {
+          "location_id" => old_location.id,
+          "department_id" => old_department.id },
+        after: {
+          "location_id" => new_location.id,
+          "department_id" => new_department.id })
+
+      delta_b = FactoryGirl.create(:emp_delta,
+        before: { "contract_end_date" => nil },
+        after: { "contract_end_date" => Date.new(2018, 5, 6) })
+
+      delta_c = FactoryGirl.create(:emp_delta,
+        before: {},
+        after: {"office_phone" => "888-888-8888"})
+
+      formatted_results = [
+        {'name'=>'Location', 'before'=>'Boston', 'after'=>'Los Angeles'},
+        {'name'=>'Department', 'before'=>'Backend Product', 'after'=>'Infrastructure'}]
+
+      expect(delta_a.format_by_key).to eq(formatted_results)
+      expect(delta_b.format_by_key).to eq([{'name'=>'Contract End Date', 'before'=> 'blank', 'after'=>'May 6, 2018'}])
+      expect(delta_c.format_by_key).to eq([{'name'=>'Office Phone', 'before'=> 'blank', 'after'=>'888-888-8888'}])
+    end
+  end
+
+  context "build from profile" do
+    let(:employee) { FactoryGirl.create(:employee,
+      first_name: "Meg") }
+    let(:profile) { FactoryGirl.create(:profile,
+      employee: employee) }
+
+    it "should take a dirty activerecord profile model and create an employee delta" do
+      employee.assign_attributes(first_name: "Meghan")
+      profile.assign_attributes(company: "OpenTable Mars Colony, Inc")
+      new_delta = EmpDelta.build_from_profile(profile)
+      expect(EmpDelta.count).to eq(0)
+      expect(new_delta.before).to eq({"first_name"=>"Meg","company"=>"OpenTable, Inc."})
+      expect(new_delta.after).to eq({"first_name"=>"Meghan","company"=>"OpenTable Mars Colony, Inc"})
+      expect(new_delta.employee_id).to eq(employee.id)
     end
   end
 end

@@ -13,19 +13,27 @@
 
   <div class="field">
     <%= f.label :name %><br>
-    <%= f.text_field :name %>
+    <%= f.text_field :name, required: true %>
   </div>
   <div class="field">
     <%= f.label :description %><br>
     <%= f.text_area :description %>
   </div>
   <div class="field">
+    <%= f.check_box :ad_controls %>
+    <%= f.label :ad_controls, "Resource is controlled by Active Directory membership" %>
+  </div>
+  <div class="field">
     <%= f.label :dependency %><br>
     <%= f.text_area :dependency %>
   </div>
   <div class="field">
-    <%= f.label :instructions %><br>
-    <%= f.text_area :instructions %>
+    <%= f.label :onboard_instructions %><br>
+    <%= f.text_area :onboard_instructions %>
+  </div>
+  <div class="field">
+    <%= f.label :offboard_instructions %><br>
+    <%= f.text_area :offboard_instructions %>
   </div>
   <div class="actions">
     <%= link_to 'Back to List', applications_path, :class => "button secondary" %>

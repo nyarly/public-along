@@ -1,5 +1,6 @@
 class Employee < ActiveRecord::Base
-  TYPES = ["Agency Contractor", "Independent Contractor", "Service Provider", "Intern", "Regular", "Temporary"]
+
+  EMAIL_OPTIONS = ["Onboarding", "Offboarding", "Security Access"]
 
   before_validation :downcase_unique_attrs
   before_validation :strip_whitespace
@@ -10,34 +11,62 @@ class Employee < ActiveRecord::Base
             presence: true
   validates :hire_date,
             presence: true
-  validates :department_id,
-            presence: true
-  validates :location_id,
-            presence: true
-  validates :email,
-            allow_nil: true,
-            uniqueness: true
-  validates :employee_id,
-            uniqueness: { message: "Worker ID has already been taken" }
 
-  belongs_to :department
-  belongs_to :location
-  belongs_to :worker_type
-  belongs_to :job_title
-  has_many :emp_sec_profiles
+  has_many :emp_transactions # on delete, cascade in db
+  has_many :onboarding_infos, through: :emp_transactions
+  has_many :offboarding_infos, through: :emp_transactions
+  has_many :emp_mach_bundles, through: :emp_transactions
+  has_many :machine_bundles, through: :emp_mach_bundles
+  has_many :emp_sec_profiles, through: :emp_transactions
   has_many :security_profiles, through: :emp_sec_profiles
-  has_many :emp_transactions, through: :emp_sec_profiles
-  has_many :onboarding_infos
-  has_many :offboarding_infos
-  has_many :emp_deltas
+  has_many :emp_deltas # on delete, cascade in db
+  has_many :emp_access_levels # on delete, cascade in db
+  has_many :access_levels, through: :emp_access_levels
+  has_many :profiles # on delete, cascade in db
 
   attr_accessor :nearest_time_zone
 
-  default_scope { order('first_name ASC') }
+  default_scope { order('last_name ASC') }
+
+  [:manager_id, :department, :worker_type, :location, :job_title, :company, :adp_assoc_oid].each do |attribute|
+    define_method :"#{attribute}" do
+      current_profile.try(:send, "#{attribute}")
+    end
+  end
+
+  def current_profile
+    # if employee data is not persisted, like when previewing employee data from an event
+    # scope on profiles is not available, so must access by method last
+    if self.persisted?
+      if self.status == "Active"
+        @current_profile ||= self.profiles.active
+      elsif self.status == "Inactive"
+        @current_profile ||= self.profiles.inactive
+      elsif self.status == "Pending"
+        @current_profile ||= self.profiles.pending
+      elsif self.status == "Terminated"
+        @current_profile ||= self.profiles.terminated
+      end
+    else
+      @current_profile ||= self.profiles.last
+    end
+  end
+
+  def employee_id
+    current_profile.try(:send, :adp_employee_id)
+  end
+
+  def self.find_by_employee_id(value)
+    p = Profile.find_by(adp_employee_id: value)
+    if p.present?
+      p.employee
+    else
+      nil
+    end
+  end
 
   def downcase_unique_attrs
     self.email = email.downcase if email.present?
-    self.employee_id = employee_id.downcase if employee_id.present?
   end
 
   def strip_whitespace
@@ -62,7 +91,7 @@ class Employee < ActiveRecord::Base
   end
 
   def self.full_termination_group
-    where('termination_date BETWEEN ? AND ?', 31.days.ago, 30.days.ago)
+    where('termination_date BETWEEN ? AND ?', 8.days.ago, 7.days.ago)
   end
 
   def is_contingent_worker?
@@ -79,7 +108,7 @@ class Employee < ActiveRecord::Base
   end
 
   def self.direct_reports_of(manager_emp_id)
-    where('manager_id = ?', manager_emp_id)
+    joins(:profiles).where("profiles.manager_id LIKE ?", manager_emp_id)
   end
 
   def self.onboarding_report_group
@@ -87,23 +116,7 @@ class Employee < ActiveRecord::Base
   end
 
   def self.offboarding_report_group
-    offboard_group + late_offboard_group + incomplete_offboard_group
-  end
-
-  def self.offboard_group
-    joins(:offboarding_infos)
-    .where('employees.termination_date BETWEEN ? AND ?', Date.today - 1.week, Date.today).uniq
-  end
-
-  def self.late_offboard_group
-    joins(:offboarding_infos)
-    .where('offboarding_infos.created_at >= ? AND employees.termination_date < ?', Date.today - 2.days, Date.today - 1.week).uniq
-  end
-
-  def self.incomplete_offboard_group
-    where.not(:id => OffboardingInfo
-      .select(:employee_id).uniq)
-    .where('termination_date IS NOT NULL')
+    where('employees.termination_date BETWEEN ? AND ?', Date.today - 2.weeks, Date.today)
   end
 
   def onboarding_complete?
@@ -115,15 +128,29 @@ class Employee < ActiveRecord::Base
   end
 
   def active_security_profiles
-    self.security_profiles.references(:emp_sec_profiles).where(emp_sec_profiles: {revoking_transaction_id: nil})
+    self.security_profiles.references(:emp_transactions).references(:emp_sec_profiles).where(emp_sec_profiles: {revoking_transaction_id: nil})
+  end
+
+  def security_profiles_to_revoke
+    current_sps = self.security_profiles.references(:emp_transactions).references(:emp_sec_profiles).where(emp_sec_profiles: {revoking_transaction_id: nil})
+    current_department_sps = SecurityProfile.find_profiles_for(self.department.id)
+    current_sps - current_department_sps
   end
 
   def revoked_security_profiles
     self.security_profiles.references(:emp_sec_profiles).where("emp_sec_profiles.revoking_transaction_id IS NOT NULL")
   end
 
-  def self.search(search)
-    where("lower(first_name) LIKE ? OR lower(last_name) LIKE ? ", "%#{search.downcase}%", "%#{search.downcase}%")
+  def self.search(term)
+    where("lower(last_name) LIKE ? OR lower(first_name) LIKE ? ", "%#{term.downcase}%", "%#{term.downcase}%").reorder("last_name ASC")
+  end
+
+  def self.search_email(term)
+    where("lower(email) LIKE ?", "%#{term.downcase}%")
+  end
+
+  def fn
+    last_name + ", " + first_name
   end
 
   def cn
@@ -146,7 +173,7 @@ class Employee < ActiveRecord::Base
         match.keys[0]
       else
         TechTableMailer.alert_email("WARNING: could not find an exact ou match for #{first_name} #{last_name}; placed in default ou. To remedy, assign appropriate department and country values in Mezzo or contact your developer to create an OU mapping for this department and location combination.").deliver_now
-        return "ou=Users,"
+        return "ou=Provisional,ou=Users,"
       end
     end
   end
@@ -157,13 +184,14 @@ class Employee < ActiveRecord::Base
   end
 
   def manager
-    Employee.find_by(employee_id: manager_id) if manager_id
+    Employee.find_by_employee_id(manager_id) if manager_id
   end
 
   def generated_email
     if email.present?
       email
-    elsif sam_account_name.present? && worker_type.name != "Vendor"
+    elsif sam_account_name.present?
+      # TODO: this is always running, what kind of workers shouldn't have email addresses?
       gen_email = sam_account_name + "@opentable.com"
       update_attribute(:email, gen_email)
       gen_email
@@ -223,11 +251,10 @@ class Employee < ActiveRecord::Base
       manager: manager.try(:dn),
       mail: generated_email,
       unicodePwd: encode_password,
-      workdayUsername: workday_username,
       co: location.country,
       accountExpires: generated_account_expires,
-      title: job_title.try(:name),
-      description: job_title.try(:name),
+      title: job_title.name,
+      description: job_title.name,
       employeeType: worker_type.try(:name),
       physicalDeliveryOfficeName: location.name,
       department: department.name,
@@ -237,7 +264,9 @@ class Employee < ActiveRecord::Base
       l: home_city,
       st: home_state,
       postalCode: home_zip,
-      thumbnailPhoto: decode_img_code
+      # thumbnailPhoto: decode_img_code
+      # TODO bring back thumbnail photo when we pull the info from ADP or other source
+      # Make cure to comment back in the relevant tests in models/employee_spec.rb, and tasks/employee_spec.rb
     }
   end
 
@@ -247,25 +276,55 @@ class Employee < ActiveRecord::Base
   end
 
   def onboarding_due_date
+    # if employee data is not persisted, like when previewing employee data from an event
+    # scope on profiles is not available, so must access by method last
+    if self.profiles.pending.present?
+      start_date = self.profiles.pending.start_date
+    else
+      start_date = self.profiles.last.start_date
+    end
     # plus 9.hours to account for the beginning of the business day
     if location.country == "US" || location.country == "GB"
-      5.business_days.before(hire_date + 9.hours).strftime("%b %e, %Y")
+      5.business_days.before(start_date + 9.hours).strftime("%b %e, %Y")
     else
-      10.business_days.before(hire_date + 9.hours).strftime("%b %e, %Y")
+      10.business_days.before(start_date + 9.hours).strftime("%b %e, %Y")
+    end
+  end
+
+  def offboarding_cutoff
+    if self.termination_date.present?
+      # noon on termination date, when we send offboarding instructions to techtable
+      ActiveSupport::TimeZone.new(self.nearest_time_zone).local_to_utc(DateTime.new(self.termination_date.year, self.termination_date.month, self.termination_date.day, 12))
     end
   end
 
   def self.check_manager(emp_id)
-    emp = Employee.find_by(employee_id: emp_id)
-    unless Employee.managers.include?(emp)
-      sp = SecurityProfile.find_by(name: "Basic Manager")
-      emp.security_profiles << sp
+    emp = Employee.find_by_employee_id(emp_id)
 
-      ads = ActiveDirectoryService.new
-      sp.access_levels.each do |al|
-        sg = al.ad_security_group
-        ads.add_to_sec_group(sg, emp) unless sg.blank?
+    if emp.present? && !Employee.managers.include?(emp)
+      sp = SecurityProfile.find_by(name: "Basic Manager")
+
+      emp_trans = EmpTransaction.new(
+        kind: "Service",
+        notes: "Manager permissions added by Mezzo",
+        employee_id: emp.id
+      )
+
+      emp_trans.emp_sec_profiles.build(
+        security_profile_id: sp.id
+      )
+
+      emp_trans.save!
+
+      if emp_trans.emp_sec_profiles.count > 0
+        sas = SecAccessService.new(emp_trans)
+        sas.apply_ad_permissions
       end
     end
+  end
+
+  def self.email_options(emp_id)
+    emp = Employee.find(emp_id)
+    emp.termination_date ? EMAIL_OPTIONS : EMAIL_OPTIONS - ["Offboarding"]
   end
 end

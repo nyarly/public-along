@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe JobTitle, type: :model do
-  let(:job_title) { FactoryGirl.build(:job_title) }
+  let!(:job_title) { FactoryGirl.create(:job_title, name: "Global Response Administrator", code: "GRA") }
 
   it "should meet validations" do
     expect(job_title).to be_valid

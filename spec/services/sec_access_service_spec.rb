@@ -2,21 +2,34 @@ require 'rails_helper'
 
 describe SecAccessService, type: :service do
   let(:ldap)                       { double(Net::LDAP) }
-  let(:sas)                        { SecAccessService.new(emp_transaction) }
-  let(:user)                       { FactoryGirl.create(:user, employee_id: "12345") }
-  let(:manager)                    { FactoryGirl.create(:employee, employee_id: "12345") }
-  let(:employee)                   { FactoryGirl.create(:employee, manager_id: "12345") }
-  let(:emp_transaction)            { FactoryGirl.create(:emp_transaction, user: user) }
-  let(:emp_transaction_old)        { FactoryGirl.create(:emp_transaction, user: user) }
-  let!(:emp_sec_profile)           { FactoryGirl.create(:emp_sec_profile, employee_id: employee.id, security_profile_id: sec_prof.id, emp_transaction_id: emp_transaction.id) }
-  let!(:emp_sec_profile_old)       { FactoryGirl.create(:emp_sec_profile, employee_id: employee.id, security_profile_id: sec_prof_old.id, emp_transaction_id: emp_transaction_old.id, revoking_transaction_id: emp_transaction.id) }
-  let(:sec_prof)                   { FactoryGirl.create(:security_profile) }
-  let(:sec_prof_old)               { FactoryGirl.create(:security_profile) }
-  let!(:sec_prof_access_level)     { FactoryGirl.create(:sec_prof_access_level, security_profile_id: sec_prof.id, access_level_id: access_lvl.id) }
-  let!(:sec_prof_access_level_old) { FactoryGirl.create(:sec_prof_access_level, security_profile_id: sec_prof_old.id, access_level_id: access_lvl_old.id) }
-  let(:access_lvl)                 { FactoryGirl.create(:access_level, ad_security_group: "sec_dn", application_id: app.id) }
-  let(:access_lvl_old)             { FactoryGirl.create(:access_level, ad_security_group: "old_sec_dn", application_id: app.id) }
+  let!(:employee)                   { FactoryGirl.create(:regular_employee) }
+  let!(:emp_transaction)            { FactoryGirl.create(:emp_transaction,
+                                                        employee_id: employee.id) }
+  let!(:emp_transaction_old)        { FactoryGirl.create(:emp_transaction,
+                                                        employee_id: employee.id) }
+  let!(:emp_sec_profile)           { FactoryGirl.create(:emp_sec_profile,
+                                                        security_profile_id: sec_prof.id,
+                                                        emp_transaction_id: emp_transaction.id) }
+  let!(:emp_sec_profile_old)       { FactoryGirl.create(:emp_sec_profile,
+                                                        security_profile_id: sec_prof_old.id,
+                                                        emp_transaction_id: emp_transaction_old.id,
+                                                        revoking_transaction_id: emp_transaction.id) }
+  let!(:sec_prof)                   { FactoryGirl.create(:security_profile) }
+  let!(:sec_prof_old)               { FactoryGirl.create(:security_profile) }
+  let!(:sec_prof_access_level)     { FactoryGirl.create(:sec_prof_access_level,
+                                                        security_profile_id: sec_prof.id,
+                                                        access_level_id: access_lvl.id) }
+  let!(:sec_prof_access_level_old) { FactoryGirl.create(:sec_prof_access_level,
+                                                        security_profile_id: sec_prof_old.id,
+                                                        access_level_id: access_lvl_old.id) }
+  let!(:access_lvl)                 { FactoryGirl.create(:access_level,
+                                                        ad_security_group: "sec_dn",
+                                                        application_id: app.id) }
+  let!(:access_lvl_old)             { FactoryGirl.create(:access_level,
+                                                        ad_security_group: "old_sec_dn",
+                                                        application_id: app.id) }
   let(:app)                        { FactoryGirl.create(:application) }
+  let(:sas)                        { SecAccessService.new(emp_transaction) }
 
   before :each do
     allow(Net::LDAP).to receive(:new).and_return(ldap)

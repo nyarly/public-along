@@ -14,5 +14,6 @@ class WorkerType < ActiveRecord::Base
   validates :status,
             inclusion: { in: STATUS }
 
-  has_many :employees
+  has_many :profiles
+  has_many :employees, through: :profiles
 end
