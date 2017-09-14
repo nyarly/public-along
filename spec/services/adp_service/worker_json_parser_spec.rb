@@ -58,7 +58,8 @@ describe AdpService::WorkerJsonParser, type: :service do
         manager_id: "101734",
         location_id: location.id,
         department_id: department.id,
-        profile_status: "Active"
+        profile_status: "Active",
+        business_card_title: "Senior Backend Engineer, Restaurant Products"
       })
     end
 
@@ -89,6 +90,26 @@ describe AdpService::WorkerJsonParser, type: :service do
 
       expect(adp.gen_worker_hash(w_json)).to include({
         contract_end_date: "2017-01-20"
+      })
+    end
+
+    it "should find the business card title when given" do
+      w_json = json["workers"][2]
+
+      adp = AdpService::WorkerJsonParser.new
+
+      expect(adp.gen_worker_hash(w_json)).to include({
+        business_card_title: "Senior Backend Engineer, Restaurant Products"
+      })
+    end
+
+    it "should use the job title for business card title when not given" do
+      w_json = json["workers"][1]
+
+      adp = AdpService::WorkerJsonParser.new
+
+      expect(adp.gen_worker_hash(w_json)).to include({
+        business_card_title: "Sales Associate"
       })
     end
 
