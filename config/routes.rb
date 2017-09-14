@@ -19,9 +19,8 @@ Rails.application.routes.draw do
   end
   resource :emails, :only => [:create]
 
-  get '/update_al_opts' => "security_profiles#update_al_opts", as: 'update_al_opts'
-  get '/update_al_ids' => "security_profiles#update_al_ids", as: 'udpate_al_ids'
-  get '/remove_al_id' => "security_profiles#remove_al_id", as: 'remove_al_id'
+  get '/app_access_levels' => "security_profiles#app_access_levels", as: 'app_access_levels'
+  get '/sp_access_level' => "security_profiles#sp_access_level", as: 'sp_access_level'
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

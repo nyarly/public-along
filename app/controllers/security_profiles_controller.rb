@@ -16,54 +16,20 @@ class SecurityProfilesController < ApplicationController
 
   # GET /security_profiles/new
   def new
-    @security_profile_entry = SecurityProfileEntry.new
-    @security_profile = @security_profile_entry.security_profile
-    @access_level = @security_profile_entry.access_level
-    @al_opts = []
-    @al_ids = []
-  end
-
-  def update_al_opts
-    @security_profile_entry = SecurityProfileEntry.new
-    @security_profile = @security_profile_entry.security_profile
-    @al_opts = AccessLevel.where("application_id = ?", params[:application_id])
-    respond_to do |format|
-      format.js
-    end
-  end
-
-  def update_al_ids
-    @al_id = AccessLevel.find(params[:access_level_id])
-    respond_to do |format|
-      format.js
-    end
-  end
-
-  def remove_al_id
-    @security_profile_entry = SecurityProfileEntry.new
-    @security_profile = @security_profile_entry.security_profile
-    @security_profile.access_levels.delete(AccessLevel.find(params[:access_level_id]))
-    respond_to do |format|
-      format.json { render json: @security_profile.access_levels }
-    end
+    @security_profile = SecurityProfile.new
   end
 
   # GET /security_profiles/1/edit
   def edit
-    @security_profile_entry = SecurityProfileEntry.new("id" => params[:id])
-    @security_profile = @security_profile_entry.security_profile
-    @access_level = @security_profile_entry.access_level
-    @al_opts = []
+    @app_access_levels = []
   end
 
   # POST /security_profiles
   # POST /security_profiles.json
   def create
-    @security_profile_entry = SecurityProfileEntry.new(security_profile_entry_params)
-    @security_profile = @security_profile_entry.security_profile
-
+    @security_profile = SecurityProfile.new(security_profile_params)
     respond_to do |format|
-      if @security_profile_entry.save
+      if @security_profile.save
         format.html { redirect_to @security_profile, notice: 'Security profile was successfully created.' }
         format.json { render :show, status: :created, location: @security_profile }
       else
@@ -76,11 +42,8 @@ class SecurityProfilesController < ApplicationController
   # PATCH/PUT /security_profiles/1
   # PATCH/PUT /security_profiles/1.json
   def update
-    @security_profile_entry = SecurityProfileEntry.new(security_profile_entry_params.merge("id" => params[:id]))
-    @security_profile = @security_profile_entry.security_profile
-
     respond_to do |format|
-      if @security_profile.update(security_profile_entry_params)
+      if @security_profile.update(security_profile_params)
         format.html { redirect_to @security_profile, notice: 'Security profile was successfully updated.' }
         format.json { render :show, status: :ok, location: @security_profile }
       else
@@ -100,23 +63,27 @@ class SecurityProfilesController < ApplicationController
     end
   end
 
-  def persisted?
-    @security_profile.nil? ? false : @security_profile.persisted?
+  def app_access_levels
+    @app_access_levels = AccessLevel.where("application_id = ?", params[:application_id])
+    respond_to do |format|
+      format.js
+    end
   end
 
+  def sp_access_level
+    @sp_access_level = AccessLevel.find(params[:access_level_id])
+    respond_to do |format|
+      format.js
+    end
+  end
 
   private
     # Use callbacks to share common setup or constraints between actions.
-    def set_security_profile
-      @security_profile = SecurityProfile.find(params[:id])
-    end
+  def set_security_profile
+    @security_profile = SecurityProfile.find(params[:id])
+  end
 
-    def security_profile_entry_params
-      params.require(:security_profile_entry).permit(:name, :description, department_ids: [], access_level_ids: [])
-    end
-
-    def access_level_params
-      params.require(:access_level).permit(:name, :application_id, :ad_security_group, security_profile_ids: [])
-    end
-
+  def security_profile_params
+    params.require(:security_profile).permit(:name, :description, department_ids: [], access_level_ids: [])
+  end
 end

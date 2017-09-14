@@ -1,5 +1,0 @@
-<p id="al_id_<%= al_id.id %>">
-  <a id=<%= al_id.id %> aria-hidden="true" onclick="removeAccessLevelId(this)">&times;</a>
-  <%= hidden_field_tag id="security_profile_entry[access_level_ids][]", al_id.id %>
-  <span><%= Application.find(al_id.application_id).name %> - <%= al_id.name %></span>
-</p>
