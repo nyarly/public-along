@@ -20,7 +20,8 @@ RSpec.describe EmployeeProfile do
     hire_date: Date.new(2014, 6, 1),
     contract_end_date: nil,
     office_phone: nil,
-    personal_mobile_phone: "(888) 888-8888") }
+    personal_mobile_phone: "(888) 888-8888",
+    business_card_title: job_title.name) }
   let!(:profile) { FactoryGirl.create(:profile,
     employee: employee,
     adp_assoc_oid: "AAABBBCCCDDD",
