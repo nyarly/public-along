@@ -19,6 +19,7 @@ class EmployeeProfile
   attribute :home_city, String
   attribute :home_state, String
   attribute :home_zip, String
+  attribute :business_card_title, String
 
   # attributes for profile model
   attribute :adp_assoc_oid, String
