@@ -27,6 +27,7 @@ class Employee < ActiveRecord::Base
   attr_accessor :nearest_time_zone
 
   default_scope { order('last_name ASC') }
+  scope :active_or_inactive, -> { where('status IN (?)', ["Active", "Inactive"]) }
 
   [:manager_id, :department, :worker_type, :location, :job_title, :company, :adp_assoc_oid].each do |attribute|
     define_method :"#{attribute}" do
