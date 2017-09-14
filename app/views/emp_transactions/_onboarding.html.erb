@@ -1,6 +1,6 @@
 <h3 class="text-center">Employee Onboarding Form</h3>
 <div class="text-center" style="margin-left: 15%; margin-right: 15%;">
-  <p>This form must be submitted before <strong><%= @employee.onboarding_due_date %>.</strong>
+  <p>This form must be submitted by <strong><%= @employee.onboarding_due_date %>. If it is not submitted before the due date, this worker's access and equipment may not be ready on their first day.</strong>
     <br>
     Start Date: <strong><%= @employee.current_profile.start_date.strftime("%b %e, %Y")%></strong>
   </p>
