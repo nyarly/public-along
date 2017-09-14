@@ -25,7 +25,7 @@ namespace :adp do
   task :sync_all => [:sync_codelists, :sync_events, :sync_workers]
 
   # this syncs from Mezzo to ADP and is meant as a one-time update
-  desc "update all ADP accounts with work email address" do
+  desc "update all ADP accounts with work email address"
   task :update_all => :environment do
     Employee.find_each { |e| UpdateEmailWorker.perform_async(e.id) }
   end

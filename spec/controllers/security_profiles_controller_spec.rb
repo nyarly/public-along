@@ -80,30 +80,30 @@ RSpec.describe SecurityProfilesController, type: :controller do
 
       it "creates a new SecurityProfile" do
         expect {
-          post :create, {:security_profile_entry => valid_attributes}
+          post :create, {:security_profile => valid_attributes}
         }.to change(SecurityProfile, :count).by(1)
       end
 
       it "assigns a newly created security_profile as @security_profile" do
-        post :create, {:security_profile_entry => valid_attributes}
+        post :create, {:security_profile => valid_attributes}
         expect(assigns(:security_profile)).to be_a(SecurityProfile)
         expect(assigns(:security_profile)).to be_persisted
       end
 
       it "redirects to the created security_profile" do
-        post :create, {:security_profile_entry => valid_attributes}
+        post :create, {:security_profile => valid_attributes}
         expect(response).to redirect_to(SecurityProfile.find_by(:name => "this profile"))
       end
     end
 
     context "with invalid params" do
       it "assigns a newly created but unsaved security_profile as @security_profile" do
-        post :create, {:security_profile_entry => invalid_attributes}
+        post :create, {:security_profile => invalid_attributes}
         expect(assigns(:security_profile)).to be_a_new(SecurityProfile)
       end
 
       it "re-renders the 'new' template" do
-        post :create, {:security_profile_entry => invalid_attributes}
+        post :create, {:security_profile => invalid_attributes}
         expect(response).to render_template("new")
       end
     end
@@ -122,30 +122,30 @@ RSpec.describe SecurityProfilesController, type: :controller do
       }
 
       it "updates the requested security_profile" do
-        put :update, {:id => security_profile.id, :security_profile_entry => new_attributes}
+        put :update, {:id => security_profile.id, :security_profile => new_attributes}
         security_profile.reload
         expect(security_profile.name).to eq("new profile name")
       end
 
       it "assigns the requested security_profile as @security_profile" do
-        put :update, {:id => security_profile.id, :security_profile_entry => valid_attributes}
+        put :update, {:id => security_profile.id, :security_profile => valid_attributes}
         expect(assigns(:security_profile)).to eq(security_profile)
       end
 
       it "redirects to the security_profile" do
-        put :update, {:id => security_profile.id, :security_profile_entry => valid_attributes}
+        put :update, {:id => security_profile.id, :security_profile => valid_attributes}
         expect(response).to redirect_to(security_profile)
       end
     end
 
     context "with invalid params" do
       it "assigns the security_profile as @security_profile" do
-        put :update, {:id => security_profile.id, :security_profile_entry => invalid_attributes}
+        put :update, {:id => security_profile.id, :security_profile => invalid_attributes}
         expect(assigns(:security_profile)).to eq(security_profile)
       end
 
       it "re-renders the 'edit' template" do
-        put :update, {:id => security_profile.id, :security_profile_entry => invalid_attributes}
+        put :update, {:id => security_profile.id, :security_profile => invalid_attributes}
         expect(response).to render_template("edit")
       end
     end
@@ -168,9 +168,9 @@ RSpec.describe SecurityProfilesController, type: :controller do
     end
   end
 
-  describe "update_al_opts" do
+  describe "#app_access_levels" do
     before :each do
-      should_authorize(:update_al_opts, SecurityProfile)
+      should_authorize(:app_access_levels, SecurityProfile)
     end
 
     let!(:application) { FactoryGirl.create(:application)}
@@ -178,39 +178,22 @@ RSpec.describe SecurityProfilesController, type: :controller do
 
     it "gets the access levels for an application" do
       @params = {:application_id => application.id, :format => 'js'}
-      xhr :get, :update_al_opts, @params
+      xhr :get, :app_access_levels, @params
       expect(response.status).to eq(200)
     end
   end
 
-  describe "update_al_ids" do
+  describe "#sp_access_level" do
     before :each do
-      should_authorize(:update_al_ids, SecurityProfile)
+      should_authorize(:sp_access_level, SecurityProfile)
     end
 
     let!(:access_level) { FactoryGirl.create(:access_level)}
 
     it "gets the access levels selected" do
       @params = {:access_level_id => access_level.id, :format => 'js'}
-      xhr :get, :update_al_ids, @params
+      xhr :get, :sp_access_level, @params
       expect(response.status).to eq(200)
     end
   end
-
-  describe "remove_al_ids" do
-    before :each do
-      should_authorize(:remove_al_id, SecurityProfile)
-    end
-
-    let!(:access_level) { FactoryGirl.create(:access_level) }
-    let!(:security_profile) { FactoryGirl.create(:security_profile, :access_level_ids => [access_level.id]) }
-
-    it "should remove the access level from the security profile" do
-      @params = {:access_level_id => access_level.id, :format => 'json'}
-      xhr :get, :remove_al_id, @params
-      expect(response.status).to eq(200)
-    end
-
-  end
-
 end
