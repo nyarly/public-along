@@ -34,6 +34,7 @@ module AdpService
       company = find_biz_unit(biz_unit)
 
       job_title = find_job_title(work_assignment["jobCode"])
+      business_card_title = business_card_title(w).present? ? business_card_title(w) : job_title.name
       worker_type = find_worker_type(work_assignment)
 
       manager_id = work_assignment.dig("reportsTo",0,"workerID","idValue")
@@ -69,6 +70,7 @@ module AdpService
         manager_id: manager_id,
         profile_status: work_assignment_status,
         worker_type_id: worker_type.id,
+        business_card_title: business_card_title
       }
 
       if location.kind == "Remote Location"
@@ -144,6 +146,14 @@ module AdpService
       wt
     end
 
+    def business_card_title(json)
+      custom_strings = json.dig("customFieldGroup", "stringFields")
+      if custom_strings
+        business_card_title_json = custom_strings.find { |f| f["nameCode"]["codeValue"] == "Business Card Title" }
+        business_card_title = business_card_title_json.try(:dig, "stringValue")
+      end
+      business_card_title
+    end
 
     def find_job_title(json)
       if json == nil
