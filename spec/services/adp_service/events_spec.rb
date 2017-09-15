@@ -124,17 +124,20 @@ describe AdpService::Events, type: :service do
     end
 
     describe "sort_event" do
-      let(:adp_event) { FactoryGirl.create(:adp_event) }
+      let(:adp_event)    { FactoryGirl.create(:adp_event)}
+      let(:hire_event)   { FactoryGirl.create(:adp_event, kind: "worker.hire") }
+      let(:term_event)   { FactoryGirl.create(:adp_event, kind: "worker.terminate") }
+      let(:leave_event)  { FactoryGirl.create(:adp_event, kind: "worker.on-leave") }
 
       it "should process hire for new hire" do
         adp = AdpService::Events.new
         adp.token = "a-token-value"
 
         expect(adp).to receive(:process_hire).and_return(true)
-        expect(adp).to receive(:del_event).with(adp_event.msg_id)
-        expect(adp_event).to receive(:update_attributes).with(status: "Processed")
+        expect(adp).to receive(:del_event).with(hire_event.msg_id)
+        expect(hire_event).to receive(:update_attributes).with(status: "Processed")
 
-        adp.sort_event(hire_json, adp_event)
+        adp.sort_event(hire_json, hire_event)
       end
 
       it "should process hire for contract hire" do
@@ -142,10 +145,10 @@ describe AdpService::Events, type: :service do
         adp.token = "a-token-value"
 
         expect(adp).to receive(:process_hire).and_return(true)
-        expect(adp).to receive(:del_event).with(adp_event.msg_id)
-        expect(adp_event).to receive(:update_attributes).with(status: "Processed")
+        expect(adp).to receive(:del_event).with(hire_event.msg_id)
+        expect(hire_event).to receive(:update_attributes).with(status: "Processed")
 
-        adp.sort_event(contract_hire_json, adp_event)
+        adp.sort_event(contract_hire_json, hire_event)
       end
 
       it "should process term for term" do
@@ -153,10 +156,10 @@ describe AdpService::Events, type: :service do
         adp.token = "a-token-value"
 
         expect(adp).to receive(:process_term).and_return(true)
-        expect(adp).to receive(:del_event).with(adp_event.msg_id)
-        expect(adp_event).to receive(:update_attributes).with(status: "Processed")
+        expect(adp).to receive(:del_event).with(term_event.msg_id)
+        expect(term_event).to receive(:update_attributes).with(status: "Processed")
 
-        adp.sort_event(term_json, adp_event)
+        adp.sort_event(term_json, term_event)
       end
 
       it "should process leave for leave" do
@@ -164,10 +167,10 @@ describe AdpService::Events, type: :service do
         adp.token = "a-token-value"
 
         expect(adp).to receive(:process_leave).and_return(true)
-        expect(adp).to receive(:del_event).with(adp_event.msg_id)
-        expect(adp_event).to receive(:update_attributes).with(status: "Processed")
+        expect(adp).to receive(:del_event).with(leave_event.msg_id)
+        expect(leave_event).to receive(:update_attributes).with(status: "Processed")
 
-        adp.sort_event(leave_json, adp_event)
+        adp.sort_event(leave_json, leave_event)
       end
 
       it "should delete event for anything else" do
