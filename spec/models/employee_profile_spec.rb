@@ -20,7 +20,8 @@ RSpec.describe EmployeeProfile do
     hire_date: Date.new(2014, 6, 1),
     contract_end_date: nil,
     office_phone: nil,
-    personal_mobile_phone: "(888) 888-8888") }
+    personal_mobile_phone: "(888) 888-8888",
+    business_card_title: job_title.name) }
   let!(:profile) { FactoryGirl.create(:profile,
     employee: employee,
     adp_assoc_oid: "AAABBBCCCDDD",
@@ -205,6 +206,7 @@ RSpec.describe EmployeeProfile do
       expect(new_employee.contract_end_date).to eq(nil)
       expect(new_employee.home_state).to eq("MA")
       expect(new_employee.worker_type.code).to eq("OLFR")
+      expect(new_employee.business_card_title).to eq("Account Executive")
       expect(new_employee.profiles.count).to eq(1)
       expect(new_employee.profiles.last.adp_employee_id).to eq("if0rcdig4")
       expect(new_employee.profiles.last.worker_type.code).to eq("OLFR")
