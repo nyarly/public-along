@@ -45,6 +45,11 @@ every :weekday, at: '6:00am' do
   rake "report:missed_terminations"
 end
 
+# 3:30am UTC / 8:30pm PT
+every :saturday, at: '3:30am' do
+  rake "adp:update_all_email"
+end
+
 # 6:30am UTC / 11:30pm PT
 every :sunday, at: '6:30am' do
   rake "report:missed_deactivations"
