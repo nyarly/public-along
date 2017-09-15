@@ -1,0 +1,5 @@
+<p id="sp_access_level_<%= sp_access_level.id %>">
+  <a id=<%= sp_access_level.id %> aria-hidden="true" onclick="removeAccessLevel(this)">&times;</a>
+  <%= hidden_field_tag id="security_profile[access_level_ids][]", sp_access_level.id %>
+  <span><%= Application.find(sp_access_level.application_id).name %> - <%= sp_access_level.name %></span>
+</p>

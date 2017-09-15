@@ -77,6 +77,7 @@ RSpec.describe SecurityProfilesController, type: :controller do
     end
 
     context "with valid params" do
+
       it "creates a new SecurityProfile" do
         expect {
           post :create, {:security_profile => valid_attributes}
@@ -167,4 +168,32 @@ RSpec.describe SecurityProfilesController, type: :controller do
     end
   end
 
+  describe "#app_access_levels" do
+    before :each do
+      should_authorize(:app_access_levels, SecurityProfile)
+    end
+
+    let!(:application) { FactoryGirl.create(:application)}
+    let!(:access_level) { FactoryGirl.create(:access_level, application_id: application.id)}
+
+    it "gets the access levels for an application" do
+      @params = {:application_id => application.id, :format => 'js'}
+      xhr :get, :app_access_levels, @params
+      expect(response.status).to eq(200)
+    end
+  end
+
+  describe "#sp_access_level" do
+    before :each do
+      should_authorize(:sp_access_level, SecurityProfile)
+    end
+
+    let!(:access_level) { FactoryGirl.create(:access_level)}
+
+    it "gets the access levels selected" do
+      @params = {:access_level_id => access_level.id, :format => 'js'}
+      xhr :get, :sp_access_level, @params
+      expect(response.status).to eq(200)
+    end
+  end
 end

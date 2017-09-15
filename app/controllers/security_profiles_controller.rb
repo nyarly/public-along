@@ -21,13 +21,13 @@ class SecurityProfilesController < ApplicationController
 
   # GET /security_profiles/1/edit
   def edit
+    @app_access_levels = []
   end
 
   # POST /security_profiles
   # POST /security_profiles.json
   def create
     @security_profile = SecurityProfile.new(security_profile_params)
-
     respond_to do |format|
       if @security_profile.save
         format.html { redirect_to @security_profile, notice: 'Security profile was successfully created.' }
@@ -63,14 +63,27 @@ class SecurityProfilesController < ApplicationController
     end
   end
 
+  def app_access_levels
+    @app_access_levels = AccessLevel.where("application_id = ?", params[:application_id])
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def sp_access_level
+    @sp_access_level = AccessLevel.find(params[:access_level_id])
+    respond_to do |format|
+      format.js
+    end
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
-    def set_security_profile
-      @security_profile = SecurityProfile.find(params[:id])
-    end
+  def set_security_profile
+    @security_profile = SecurityProfile.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def security_profile_params
-      params.require(:security_profile).permit(:name, :description, department_ids: [])
-    end
+  def security_profile_params
+    params.require(:security_profile).permit(:name, :description, department_ids: [], access_level_ids: [])
+  end
 end

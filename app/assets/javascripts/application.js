@@ -20,12 +20,17 @@
 $(function(){ $(document).foundation(); });
 
 $(document).ready(function(){
+  toggleReuseEmail();
   showSelectedEmployee();
   selectLinkedEmployee();
   clearLinkedEmployee();
-  toggleReuseEmail();
+  getAppAccessLevels();
+  addAccessLevel();
 });
 
+/*
+JS for email reuse UI in emp transaction form
+*/
 function toggleReuseEmail() {
   $('#link-account-switch').on('click', function(event) {
     $('.switch-input').click(function(event) {
@@ -85,7 +90,50 @@ function clearLinkedEmployee() {
   });
 }
 
-// Custom form confirmation using Foundation
+/*
+JS for helpdesk security profile add/edit
+*/
+function getAppAccessLevels() {
+  $('#app_select').change(function() {
+    $.ajax({
+      type: 'get',
+      url: '/app_access_levels',
+      data: { application_id: $('#app_select').val()},
+      success: function(data) {
+        console.log("Dynamic select access level success");
+      },
+      error: function(error) {
+        console.log("Dynamic select access level error");
+      }
+    })
+  })
+}
+
+function addAccessLevel() {
+  $('#add_access_level').click(function() {
+    $.ajax({
+      type: 'get',
+      url: '/sp_access_level',
+      data: { access_level_id: $('#access_level_name_select').val()},
+      success: function(data) {
+        $('#getAccessLevel').foundation('close');
+        console.log("Add access level success");
+      },
+      error: function(error) {
+        console.log("Add access level error");
+      }
+    })
+  })
+}
+
+function removeAccessLevel(el) {
+  var access_level = '#sp_access_level_' + $(el).attr('id');
+  $(access_level).remove();
+}
+
+/*
+Custom form confirmation using Foundation
+*/
 (function() {
   var $;
 

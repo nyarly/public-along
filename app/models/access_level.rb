@@ -9,4 +9,8 @@ class AccessLevel < ActiveRecord::Base
   has_many :security_profiles, through: :sec_prof_access_levels
   has_many :emp_access_levels
   has_many :employees, through: :emp_access_levels
+
+  def display_name
+    "#{application.name} - #{name}"
+  end
 end
