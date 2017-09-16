@@ -20,8 +20,6 @@ class Employee < ActiveRecord::Base
   has_many :emp_sec_profiles, through: :emp_transactions
   has_many :security_profiles, through: :emp_sec_profiles
   has_many :emp_deltas # on delete, cascade in db
-  has_many :emp_access_levels # on delete, cascade in db
-  has_many :access_levels, through: :emp_access_levels
   has_many :profiles # on delete, cascade in db
 
   attr_accessor :nearest_time_zone
