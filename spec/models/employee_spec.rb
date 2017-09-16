@@ -681,12 +681,12 @@ describe Employee, type: :model do
   describe "#email_options" do
     it "should return EMAIL_OPTIONS with offboarding option" do
       employee = FactoryGirl.create(:employee, termination_date: Date.new(2018, 3, 6))
-      expect(Employee.email_options(employee.id)).to eq(Employee::EMAIL_OPTIONS)
+      expect(employee.email_options).to eq(Employee::EMAIL_OPTIONS)
     end
 
     it "should return EMAIL_OPTIONS without offboarding option" do
       employee = FactoryGirl.create(:employee, termination_date: nil)
-      expect(Employee.email_options(employee.id)).to_not include("Offboarding")
+      expect(employee.email_options).to_not include("Offboarding")
     end
   end
 

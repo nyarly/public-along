@@ -280,7 +280,6 @@ class Employee < ActiveRecord::Base
     reminder_group
   end
 
-
   def offboarding_cutoff
     if self.termination_date.present?
       # noon on termination date, when we send offboarding instructions to techtable
@@ -313,8 +312,7 @@ class Employee < ActiveRecord::Base
     end
   end
 
-  def self.email_options(emp_id)
-    emp = Employee.find(emp_id)
-    emp.termination_date ? EMAIL_OPTIONS : EMAIL_OPTIONS - ["Offboarding"]
+  def email_options
+    self.termination_date ? EMAIL_OPTIONS : EMAIL_OPTIONS - ["Offboarding"]
   end
 end
