@@ -62,26 +62,6 @@ describe Employee, type: :model do
       expect(Employee.managers).to_not include(emp)
     end
 
-    it "should scope the create group" do
-      create_group = FactoryGirl.create_list(:employee, 10)
-      existing_group = FactoryGirl.create_list(:employee, 10, :existing)
-
-      expect(Employee.create_group).to match_array(create_group)
-      expect(Employee.create_group).to_not include(existing_group)
-    end
-
-    it "should scope the update group" do
-      create_group = FactoryGirl.create_list(:employee, 10)
-      existing_group = FactoryGirl.create_list(:employee, 10, :existing)
-      update1 = FactoryGirl.create(:employee,
-        :updated_at => Time.now,
-        :ad_updated_at => Date.yesterday)
-
-      expect(Employee.update_group).to include(update1)
-      expect(Employee.update_group).to_not include(create_group)
-      expect(Employee.update_group).to_not include(existing_group)
-    end
-
     it "should scope the correct activation group" do
       activation_group = [
         FactoryGirl.create(:employee, :hire_date => Date.yesterday),

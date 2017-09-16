@@ -26,6 +26,11 @@ class Employee < ActiveRecord::Base
 
   default_scope { order('last_name ASC') }
   scope :active_or_inactive, -> { where('status IN (?)', ["Active", "Inactive"]) }
+  scope :activation_group, -> { where('hire_date BETWEEN ? AND ? OR leave_return_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow) }
+  scope :deactivation_group, -> { where('contract_end_date BETWEEN ? AND ? OR leave_start_date BETWEEN ? AND ? OR termination_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow) }
+  scope :full_termination_group, -> { where('termination_date BETWEEN ? AND ?', 8.days.ago, 7.days.ago) }
+  scope :onboarding_report_group, -> { where('hire_date >= ?', Date.today) }
+  scope :offboarding_report_group, -> { where('employees.termination_date BETWEEN ? AND ?', Date.today - 2.weeks, Date.today) }
 
   [:manager_id, :department, :worker_type, :location, :job_title, :company, :adp_assoc_oid].each do |attribute|
     define_method :"#{attribute}" do
@@ -73,26 +78,6 @@ class Employee < ActiveRecord::Base
     self.last_name = self.last_name.strip unless self.last_name.nil?
   end
 
-  def self.create_group
-    where(:ad_updated_at => nil)
-  end
-
-  def self.update_group
-    where('ad_updated_at < updated_at')
-  end
-
-  def self.activation_group
-    where('hire_date BETWEEN ? AND ? OR leave_return_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow)
-  end
-
-  def self.deactivation_group
-    where('contract_end_date BETWEEN ? AND ? OR leave_start_date BETWEEN ? AND ? OR termination_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow)
-  end
-
-  def self.full_termination_group
-    where('termination_date BETWEEN ? AND ?', 8.days.ago, 7.days.ago)
-  end
-
   def is_contingent_worker?
     worker_type.kind == "Temporary" || worker_type.kind == "Contractor"
   end
@@ -108,14 +93,6 @@ class Employee < ActiveRecord::Base
 
   def self.direct_reports_of(manager_emp_id)
     joins(:profiles).where("profiles.manager_id LIKE ?", manager_emp_id)
-  end
-
-  def self.onboarding_report_group
-    where('hire_date >= ?', Date.today)
-  end
-
-  def self.offboarding_report_group
-    where('employees.termination_date BETWEEN ? AND ?', Date.today - 2.weeks, Date.today)
   end
 
   def onboarding_complete?
