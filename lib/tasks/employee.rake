@@ -63,13 +63,6 @@ namespace :employee do
       end
     end
   end
-
-  desc "update active directory against mezzo employee db"
-  task :update_ad => :environment do
-    ads = ActiveDirectoryService.new
-    ads.create_disabled_accounts(Employee.create_group)
-    ads.update(Employee.update_group)
-  end
 end
 
 def in_time_window?(date, hour, zone)
