@@ -1,5 +1,6 @@
 class Employee < ActiveRecord::Base
   include EmpLdapEntry
+  include AASM
 
   default_scope { order('last_name ASC') }
 
@@ -29,30 +30,27 @@ class Employee < ActiveRecord::Base
 
   scope :active_or_inactive, -> { where('status IN (?)', ["Active", "Inactive"]) }
 
+  aasm :column => 'status' do
+    state :created, :initial => true
+    state :pending
+    state :active
+
+    event :hire do
+      after do
+        check_manager(self.manager_id)
+      end
+      transitions :from => :created, :to => :pending, :after => [:create_active_directory_account, :send_manager_onboarding_form]
+    end
+
+    event :activate do
+      transitions :from => :pending, :to => :active
+    end
+  end
+
   [:manager_id, :department, :worker_type, :location, :job_title, :company, :adp_assoc_oid].each do |attribute|
     define_method :"#{attribute}" do
       current_profile.try(:send, "#{attribute}")
     end
-  end
-
-  def self.activation_group
-    where('hire_date BETWEEN ? AND ? OR leave_return_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow)
-  end
-
-  def self.deactivation_group
-    where('contract_end_date BETWEEN ? AND ? OR leave_start_date BETWEEN ? AND ? OR termination_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow)
-  end
-
-  def self.full_termination_group
-    where('termination_date BETWEEN ? AND ?', 8.days.ago, 7.days.ago)
-  end
-
-  def self.onboarding_report_group
-    where('hire_date >= ?', Date.today)
-  end
-
-  def self.offboarding_report_group
-    where('employees.termination_date BETWEEN ? AND ?', Date.today - 2.weeks, Date.today)
   end
 
   def current_profile
@@ -63,7 +61,7 @@ class Employee < ActiveRecord::Base
         @current_profile ||= self.profiles.active
       elsif self.status == "Inactive"
         @current_profile ||= self.profiles.inactive
-      elsif self.status == "Pending"
+      elsif self.status == "pending"
         @current_profile ||= self.profiles.pending
       elsif self.status == "Terminated"
         @current_profile ||= self.profiles.terminated
@@ -84,6 +82,35 @@ class Employee < ActiveRecord::Base
     else
       nil
     end
+  end
+
+  def create_active_directory_account
+    ads = ActiveDirectoryService.new
+    ads.create_disabled_accounts([self])
+  end
+
+  def send_manager_onboarding_form
+    EmployeeWorker.perform_async("Onboarding", employee_id: self.id)
+  end
+
+  def self.activation_group
+    where('hire_date BETWEEN ? AND ? OR leave_return_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow)
+  end
+
+  def self.deactivation_group
+    where('contract_end_date BETWEEN ? AND ? OR leave_start_date BETWEEN ? AND ? OR termination_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow)
+  end
+
+  def self.full_termination_group
+    where('termination_date BETWEEN ? AND ?', 8.days.ago, 7.days.ago)
+  end
+
+  def self.onboarding_report_group
+    where('hire_date >= ?', Date.today)
+  end
+
+  def self.offboarding_report_group
+    where('employees.termination_date BETWEEN ? AND ?', Date.today - 2.weeks, Date.today)
   end
 
   def downcase_unique_attrs

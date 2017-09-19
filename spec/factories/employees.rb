@@ -6,7 +6,6 @@ FactoryGirl.define do
     personal_mobile_phone { Faker::PhoneNumber.phone_number }
     office_phone          { Faker::PhoneNumber.phone_number }
     image_code            { IMAGE }
-    status                { "Active" }
 
     trait :existing do
       created_at    { 2.months.ago }

@@ -85,11 +85,12 @@ module AdpService
       else
         profiler = EmployeeProfile.new
         employee = profiler.new_employee(event)
-        Employee.check_manager(employee.manager_id)
-        ads = ActiveDirectoryService.new
-        ads.create_disabled_accounts([employee])
+        employee.hire!
+        # Employee.check_manager(employee.manager_id)
+        # ads = ActiveDirectoryService.new
+        # ads.create_disabled_accounts([employee])
         add_basic_security_profile(employee)
-        EmployeeWorker.perform_async("Onboarding", employee_id: employee.id)
+        # EmployeeWorker.perform_async("Onboarding", employee_id: employee.id)
         return true
       end
     end
