@@ -218,7 +218,7 @@ RSpec.describe ManagerEntry do
     let(:ads) { double(ActiveDirectoryService) }
     let(:profiler) { EmployeeProfile.new }
 
-    it "should create a new profile on when manager links employees" do
+    it "should create a new profile on employee when manager links employees" do
       manager_entry = ManagerEntry.new(link_on_params)
 
       expect{

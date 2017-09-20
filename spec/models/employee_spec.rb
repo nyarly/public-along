@@ -38,7 +38,7 @@ describe Employee, type: :model do
       expect(employee).to receive(:create_active_directory_account).and_return(active_directory)
       expect(employee).to receive(:send_manager_onboarding_form).and_return(mailer)
       expect(Employee).to receive(:check_manager).and_return(true)
-      employee.hire!
+      expect(employee).to transition_from(:created).to(:pending).on_event(:hire)
       expect(employee).to have_state(:pending)
       expect(employee).to allow_event(:activate)
       expect(employee).to allow_transition_to(:active)
@@ -53,7 +53,7 @@ describe Employee, type: :model do
 
     it "should start" do
       expect(pending_employee).to receive(:activate_active_directory_account).and_return(active_directory)
-      pending_employee.activate!
+      expect(pending_employee).to transition_from(:pending).to(:active).on_event(:activate)
       expect(pending_employee).to have_state(:active)
       expect(pending_employee).to allow_event(:start_leave)
       expect(pending_employee).to allow_event(:terminate)
@@ -68,7 +68,7 @@ describe Employee, type: :model do
 
     it "should go on leave" do
       expect(active_employee).to receive(:deactivate_active_directory_account).and_return(active_directory)
-      active_employee.start_leave!
+      expect(active_employee).to transition_from(:active).to(:inactive).on_event(:start_leave)
       expect(active_employee).to have_state(:inactive)
       expect(active_employee).to allow_event(:activate)
       expect(active_employee).to allow_transition_to(:active)
@@ -83,7 +83,7 @@ describe Employee, type: :model do
 
     it "should return from leave" do
       expect(leave_employee).to receive(:activate_active_directory_account).and_return(active_directory)
-      leave_employee.activate!
+      expect(leave_employee).to transition_from(:inactive).to(:active).on_event(:activate)
       expect(leave_employee).to have_state(:active)
       expect(leave_employee).to allow_event(:start_leave)
       expect(leave_employee).to allow_event(:terminate)
@@ -99,7 +99,7 @@ describe Employee, type: :model do
     it "should be terminated" do
       expect(active_employee).to receive(:deactivate_active_directory_account).and_return(active_directory)
       expect(active_employee).to receive(:offboard).and_return(offboard_service)
-      active_employee.terminate!
+      expect(active_employee).to transition_from(:active).to(:terminated).on_event(:terminate)
       expect(active_employee).to have_state(:terminated)
       expect(active_employee).to allow_event(:rehire)
       expect(active_employee).to allow_transition_to(:pending)
@@ -113,7 +113,7 @@ describe Employee, type: :model do
     end
 
     it "should be rehired" do
-      terminated_employee.rehire!
+      expect(terminated_employee).to transition_from(:terminated).to(:pending).on_event(:rehire)
       expect(terminated_employee).to have_state(:pending)
       expect(terminated_employee).to allow_event(:activate)
       expect(terminated_employee).to allow_transition_to(:active)
