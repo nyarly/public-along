@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170914190837) do
+ActiveRecord::Schema.define(version: 20170916001335) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -67,17 +67,6 @@ ActiveRecord::Schema.define(version: 20170914190837) do
     t.datetime "created_at",          null: false
     t.datetime "updated_at",          null: false
   end
-
-  create_table "emp_access_levels", force: :cascade do |t|
-    t.integer  "access_level_id",                null: false
-    t.boolean  "active",          default: true, null: false
-    t.integer  "employee_id",                    null: false
-    t.datetime "created_at",                     null: false
-    t.datetime "updated_at",                     null: false
-  end
-
-  add_index "emp_access_levels", ["access_level_id"], name: "index_emp_access_levels_on_access_level_id", using: :btree
-  add_index "emp_access_levels", ["employee_id"], name: "index_emp_access_levels_on_employee_id", using: :btree
 
   create_table "emp_delta", force: :cascade do |t|
     t.integer  "employee_id", null: false
@@ -284,8 +273,6 @@ ActiveRecord::Schema.define(version: 20170914190837) do
   add_foreign_key "dept_mach_bundles", "machine_bundles", on_delete: :cascade
   add_foreign_key "dept_sec_profs", "departments", on_delete: :cascade
   add_foreign_key "dept_sec_profs", "security_profiles", on_delete: :cascade
-  add_foreign_key "emp_access_levels", "access_levels", on_delete: :cascade
-  add_foreign_key "emp_access_levels", "employees", on_delete: :cascade
   add_foreign_key "emp_delta", "employees", on_delete: :cascade
   add_foreign_key "emp_mach_bundles", "emp_transactions", on_delete: :cascade
   add_foreign_key "emp_mach_bundles", "machine_bundles", on_delete: :cascade
