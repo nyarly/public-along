@@ -50,25 +50,26 @@ class Employee < ActiveRecord::Base
     end
 
     event :activate do
-      transitions :from => :pending, :to => :active, :after => [:activate_active_directory_account]
+      transitions :from => [:pending, :inactive], :to => :active, :after => [:activate_active_directory_account]
     end
 
     event :start_leave do
       transitions :from => :active, :to => :inactive, :after => [:deactivate_active_directory_account]
     end
 
-    event :end_leave do
-      transitions :from => :inactive, :to => :active, :after => [:activate_active_directory_account]
+    event :terminate do
+      transitions :from => :active, :to => :terminated, :after => [:deactivate_active_directory_account, :offboard]
     end
+
+    # edge case
+    # event :will_not_start do
+    #   transitions :from => :pending, :to => :terminated
+    # end
 
     # edge case
     # event :terminate_from_leave do
     #   transitions :from => :inactive, :to => :terminated
     # end
-
-    event :terminate do
-      transitions :from => :active, :to => :terminated, :after => [:deactivate_active_directory_account, :offboard]
-    end
   end
 
   [:manager_id, :department, :worker_type, :location, :job_title, :company, :adp_assoc_oid].each do |attribute|

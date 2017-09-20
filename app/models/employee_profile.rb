@@ -51,7 +51,6 @@ class EmployeeProfile
     delta.save!
     new_profile.save!
     employee.save!
-
     employee
   end
 
@@ -73,7 +72,7 @@ class EmployeeProfile
       new_profile = employee.profiles.build(profile_attrs.to_h)
 
       if new_profile.start_date > Date.today
-        employee.status = "pending" if employee.status == "terminated"
+        # employee.status = "pending" if employee.status == "terminated"
         new_profile.profile_status = "pending"
         if new_profile.save!
           Rails.logger.info "Successfully linked account for #{employee.email}"

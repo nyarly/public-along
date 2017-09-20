@@ -6,7 +6,7 @@ namespace :employee do
     Employee.activation_group.each do |e|
       # Collect employees to activate if it is 3-4am on their hire date or leave return date in their respective nearest time zone
       if e.leave_return_date
-        e.end_leave! if in_time_window?(e.leave_return_date, 3, e.nearest_time_zone)
+        e.activate! if in_time_window?(e.leave_return_date, 3, e.nearest_time_zone)
       else
         e.activate! if in_time_window?(e.hire_date, 3, e.nearest_time_zone)
       end
