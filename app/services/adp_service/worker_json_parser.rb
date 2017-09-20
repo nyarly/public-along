@@ -51,7 +51,7 @@ module AdpService
       home_zip = w.dig("person","legalAddress","postalCode")
 
       worker = {
-        status: status,
+        status: status.downcase!,
         first_name: first_name,
         last_name: last_name,
         hire_date: hire_date,
@@ -68,7 +68,7 @@ module AdpService
         job_title_id: job_title.id,
         location_id: location.id,
         manager_id: manager_id,
-        profile_status: work_assignment_status,
+        profile_status: work_assignment_status.downcase!,
         worker_type_id: worker_type.id,
         business_card_title: business_card_title
       }

@@ -174,15 +174,13 @@ describe ActiveDirectoryService, type: :service do
 
   context "update attributes" do
     let!(:worker_type) { FactoryGirl.create(:worker_type) }
-    let!(:employee) { FactoryGirl.create(:employee,
-      :status => "Active",
+    let!(:employee) { FactoryGirl.create(:active_employee,
       :first_name => "Jeffrey",
       :last_name => "Lebowski",
       :office_phone => "123-456-7890",
       :sam_account_name => "jlebowski")}
     let!(:profile) { FactoryGirl.create(:profile,
       employee: employee,
-      profile_status: "Active",
       manager_id: manager.employee_id,
       department: department,
       location: location,

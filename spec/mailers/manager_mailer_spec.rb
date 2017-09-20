@@ -5,12 +5,12 @@ RSpec.describe ManagerMailer, type: :mailer do
     email: "manager@opentable.com") }
   let!(:man_profile) { FactoryGirl.create(:profile,
     employee: manager,
-    profile_status: "Active",
+    profile_status: "active",
     adp_employee_id: "654321")}
   let!(:employee) { FactoryGirl.create(:employee) }
   let!(:emp_profile) { FactoryGirl.create(:profile,
     employee: employee,
-    profile_status: "Active",
+    profile_status: "active",
     adp_employee_id: "123456",
     manager_id: "654321") }
   let!(:worker_type) { FactoryGirl.create(:worker_type, code: "FTR") }

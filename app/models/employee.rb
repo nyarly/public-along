@@ -26,24 +26,48 @@ class Employee < ActiveRecord::Base
             presence: true
 
   before_validation :downcase_unique_attrs
+  before_validation :downcase_status
   before_validation :strip_whitespace
 
-  scope :active_or_inactive, -> { where('status IN (?)', ["Active", "Inactive"]) }
+  scope :active_or_inactive, -> { where('status IN (?)', ["active", "inactive"]) }
 
   aasm :column => 'status' do
     state :created, :initial => true
     state :pending
     state :active
+    state :inactive
+    state :terminated
 
     event :hire do
       after do
-        check_manager(self.manager_id)
+        Employee.check_manager(self.manager_id)
       end
       transitions :from => :created, :to => :pending, :after => [:create_active_directory_account, :send_manager_onboarding_form]
     end
 
+    event :rehire do
+      transitions :from => :terminated, :to => :pending
+    end
+
     event :activate do
-      transitions :from => :pending, :to => :active
+      transitions :from => :pending, :to => :active, :after => [:activate_active_directory_account]
+    end
+
+    event :start_leave do
+      transitions :from => :active, :to => :inactive, :after => [:deactivate_active_directory_account]
+    end
+
+    event :end_leave do
+      transitions :from => :inactive, :to => :active, :after => [:activate_active_directory_account]
+    end
+
+    # edge case
+    # event :terminate_from_leave do
+    #   transitions :from => :inactive, :to => :terminated
+    # end
+
+    event :terminate do
+      transitions :from => :active, :to => :terminated, :after => [:deactivate_active_directory_account, :offboard]
     end
   end
 
@@ -57,14 +81,16 @@ class Employee < ActiveRecord::Base
     # if employee data is not persisted, like when previewing employee data from an event
     # scope on profiles is not available, so must access by method last
     if self.persisted?
-      if self.status == "Active"
+      if self.status == "active"
         @current_profile ||= self.profiles.active
-      elsif self.status == "Inactive"
+      elsif self.status == "inactive"
         @current_profile ||= self.profiles.inactive
       elsif self.status == "pending"
         @current_profile ||= self.profiles.pending
-      elsif self.status == "Terminated"
+      elsif self.status == "terminated"
         @current_profile ||= self.profiles.terminated
+      else
+        self.profiles.last
       end
     else
       @current_profile ||= self.profiles.last
@@ -89,8 +115,27 @@ class Employee < ActiveRecord::Base
     ads.create_disabled_accounts([self])
   end
 
+  def activate_active_directory_account
+    ads = ActiveDirectoryService.new
+    ads.activate([self])
+  end
+
+  def deactivate_active_directory_account
+    ads = ActiveDirectoryService.new
+    ads.deactivate([self])
+  end
+
   def send_manager_onboarding_form
     EmployeeWorker.perform_async("Onboarding", employee_id: self.id)
+  end
+
+  def send_techtable_offboard_instructions
+    TechTableMailer.offboard_instructions(self).deliver_now
+  end
+
+  def offboard
+    service = OffboardingService.new
+    service.offboard([self])
   end
 
   def self.activation_group
@@ -115,6 +160,10 @@ class Employee < ActiveRecord::Base
 
   def downcase_unique_attrs
     self.email = email.downcase if email.present?
+  end
+
+  def downcase_status
+    self.status = status.downcase if status.present?
   end
 
   def strip_whitespace
@@ -204,7 +253,7 @@ class Employee < ActiveRecord::Base
 
   def self.onboarding_reminder_group
     reminder_group = []
-    missing_onboards = Employee.where(status: "Pending").joins('LEFT OUTER JOIN emp_transactions ON employees.id = emp_transactions.employee_id').group('employees.id').having('count(emp_transactions) = 0')
+    missing_onboards = Employee.where(status: "pending").joins('LEFT OUTER JOIN emp_transactions ON employees.id = emp_transactions.employee_id').group('employees.id').having('count(emp_transactions) = 0')
 
     missing_onboards.each do |e|
       reminder_date = e.onboarding_due_date.to_date - 1.day

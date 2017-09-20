@@ -23,22 +23,32 @@ class Profile < ActiveRecord::Base
   belongs_to :location
   belongs_to :worker_type
 
+  #   aasm :column => 'profile_status' do
+  #   state :created, :initial => true
+  #   state :pending
+  #   state :onboarding
+  #   state :active
+  #   state :leave
+  #   state :offboarding
+  #   state :terminated
+  # end
+
   scope :regular_worker_type, -> { joins(:worker_type).where(:worker_types => {:kind => "Regular"})}
 
   def self.active
-    where(:profile_status => "Active").last
+    where(:profile_status => "active").last
   end
 
   def self.pending
-    where(:profile_status => "Pending").last
+    where(:profile_status => "pending").last
   end
 
   def self.terminated
-    where(:profile_status => "Terminated").last
+    where(:profile_status => "terminated").last
   end
 
   def self.inactive
-    where(:profile_status => "Leave").last
+    where(:profile_status => "leave").last
   end
 
   def downcase_unique_attrs

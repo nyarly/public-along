@@ -48,8 +48,7 @@ class ActiveDirectoryService
         TechTableMailer.alert_email("ERROR: #{e.first_name} #{e.last_name} requires manager to complete onboarding forms. Account not activated.").deliver_now
       else
         profile = e.current_profile
-        profile.update_attributes(profile_status: "Active")
-        e.update_attributes(status: "Active")
+        profile.update_attributes(profile_status: "active")
         ldap.replace_attribute(e.dn, :userAccountControl, "512")
       end
     end
@@ -60,8 +59,7 @@ class ActiveDirectoryService
       ldap_entry = find_entry("sAMAccountName", e.sam_account_name).first
       if ldap_entry.present?
         profile = e.current_profile
-        profile.update_attributes(profile_status: "Terminated")
-        e.update_attributes(status: "Terminated")
+        profile.update_attributes(profile_status: "terminated")
         ldap.replace_attribute(ldap_entry.dn, :userAccountControl, "514")
         ldap.rename(
           :olddn => ldap_entry.dn,

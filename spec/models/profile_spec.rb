@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Profile, type: :model do
-  let!(:profile) { FactoryGirl.create(:profile, profile_status: "Active") }
+  let!(:profile) { FactoryGirl.create(:profile, profile_status: "active") }
 
   it "should meet validations" do
     expect(profile).to be_valid
@@ -15,8 +15,8 @@ RSpec.describe Profile, type: :model do
     expect(profile).to_not allow_value(nil).for(:adp_employee_id)
   end
 
-  it "should always return the most recent profile for Active" do
-    new_profile = FactoryGirl.create(:profile, profile_status: "Active")
+  it "should always return the most recent profile for active" do
+    new_profile = FactoryGirl.create(:profile, profile_status: "active")
     expect(Profile.count).to eq(2)
     expect(Profile.active).to eq(new_profile)
   end

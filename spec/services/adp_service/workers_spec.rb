@@ -114,7 +114,7 @@ describe AdpService::Workers, type: :service do
 
   describe "sync_workers" do
     let(:worker_type) { FactoryGirl.create(:worker_type)}
-    let!(:employee) { FactoryGirl.create(:employee)}
+    let!(:employee) { FactoryGirl.create(:active_employee)}
     let!(:profile) { FactoryGirl.create(:profile,
       employee: employee,
       adp_employee_id: "101455",
@@ -124,7 +124,7 @@ describe AdpService::Workers, type: :service do
     let(:parser) { double(AdpService::WorkerJsonParser) }
     let(:sorted) {
       [{
-        status: "Active",
+        status: "active",
         adp_assoc_oid: "G32B8JAXA1W398Z8",
         first_name: "Sally Jesse",
         last_name: "Allansberg",
@@ -140,7 +140,7 @@ describe AdpService::Workers, type: :service do
         worker_type: worker_type,
         job_title: FactoryGirl.create(:job_title),
         start_date: 2.weeks.ago,
-        profile_status: "Active"
+        profile_status: "active"
       }]
     }
 
@@ -226,7 +226,7 @@ describe AdpService::Workers, type: :service do
     it "should send a security access form on department, worker type, location, or job title" do
       new_department = FactoryGirl.create(:department)
       sorted = [{
-        status: "Active",
+        status: "active",
         adp_assoc_oid: "G32B8JAXA1W398Z8",
         first_name: "Sally Jesse",
         last_name: "Allansberg",
@@ -242,7 +242,7 @@ describe AdpService::Workers, type: :service do
         worker_type: worker_type,
         job_title: FactoryGirl.create(:job_title),
         start_date: Date.today,
-        profile_status: "Active"
+        profile_status: "active"
       }]
 
       expect(response).to receive(:body).and_return(json)
@@ -264,7 +264,7 @@ describe AdpService::Workers, type: :service do
     it "should not send an email if it did recently" do
       new_job_title = FactoryGirl.create(:job_title)
       sorted = [{
-        status: "Active",
+        status: "active",
         adp_assoc_oid: "G32B8JAXA1W398Z8",
         first_name: "Sally Jesse",
         last_name: "Allansberg",
@@ -280,7 +280,7 @@ describe AdpService::Workers, type: :service do
         worker_type: FactoryGirl.create(:worker_type),
         job_title: new_job_title,
         start_date: Date.today,
-        profile_status: "Active"
+        profile_status: "active"
       }]
 
       previous_change = FactoryGirl.create(:emp_delta,
@@ -307,29 +307,26 @@ describe AdpService::Workers, type: :service do
   end
 
   describe "check leave return" do
-    let!(:leave_emp) {FactoryGirl.create(:employee,
-      status: "Inactive",
+    let!(:leave_emp) {FactoryGirl.create(:leave_employee,
       leave_return_date: nil,
       updated_at: 1.day.ago) }
     let!(:profile) { FactoryGirl.create(:profile,
       employee: leave_emp,
-      profile_status: "Leave",
+      profile_status: "leave",
       adp_assoc_oid: "123456") }
-    let!(:leave_cancel_emp) {FactoryGirl.create(:employee,
-      status: "Inactive",
+    let!(:leave_cancel_emp) {FactoryGirl.create(:leave_employee,
       leave_return_date: Date.today + 2.days,
       updated_at: 1.day.ago) }
     let!(:lce_profile) {FactoryGirl.create(:profile,
       employee: leave_cancel_emp,
-      profile_status: "Leave",
+      profile_status: "leave",
       adp_assoc_oid: "123457") }
-    let!(:do_nothing_emp) {FactoryGirl.create(:employee,
-      status: "Inactive",
+    let!(:do_nothing_emp) {FactoryGirl.create(:leave_employee,
       leave_return_date: nil,
       updated_at: 1.day.ago) }
     let!(:dn_profile) { FactoryGirl.create(:profile,
       employee: do_nothing_emp,
-      profile_status: "Leave",
+      profile_status: "leave",
       adp_assoc_oid: "123458")}
     let!(:future_date) { 1.day.from_now.change(:usec => 0) }
 
@@ -428,18 +425,16 @@ describe AdpService::Workers, type: :service do
 
   describe "check new hire changes" do
     let!(:regular_w_type) { FactoryGirl.create(:worker_type, code: "FTR")}
-    let!(:new_hire) {FactoryGirl.create(:employee,
+    let!(:new_hire) {FactoryGirl.create(:pending_employee,
       first_name: "Robert",
-      hire_date: Date.new(2017, 7, 12),
-      status: "Pending") }
+      hire_date: Date.new(2017, 7, 12)) }
     let!(:profile) { FactoryGirl.create(:profile,
       employee: new_hire,
       start_date: Date.new(2017, 7, 12),
-      profile_status: "Pending",
+      profile_status: "pending",
       adp_assoc_oid: "G3NQ5754ETA080N",
       adp_employee_id: "100015",
-      worker_type: regular_w_type
-    )}
+      worker_type: regular_w_type) }
     let!(:future_date) { 1.year.from_now.change(:usec => 0) }
 
     it "should create the right employee workers" do
@@ -480,7 +475,7 @@ describe AdpService::Workers, type: :service do
 
         emp_delta = EmpDelta.where(employee_id: new_hire.id).last
 
-        expect(new_hire.status).to eq("Pending")
+        expect(new_hire.status).to eq("pending")
         expect(new_hire.first_name).to eq("Bob")
         expect(new_hire.last_name).to eq("Seger")
         expect(new_hire.hire_date).to eq(DateTime.new(2018, 7, 12))
@@ -525,13 +520,12 @@ describe AdpService::Workers, type: :service do
       let!(:worker_type) {FactoryGirl.create(:worker_type,
         code: "ACW",
         kind: "Contractor")}
-      let!(:new_hire) {FactoryGirl.create(:employee,
-        status: "Pending",
+      let!(:new_hire) {FactoryGirl.create(:pending_employee,
         first_name: "Robert",
         contract_end_date: contract_end_date,
         hire_date: Date.today + 2.weeks)}
       let!(:profile) { FactoryGirl.create(:profile,
-        profile_status: "Pending",
+        profile_status: "pending",
         employee: new_hire,
         adp_employee_id: "100015",
         adp_assoc_oid: "G3NQ5754ETA080N",
@@ -560,9 +554,9 @@ describe AdpService::Workers, type: :service do
         new_hire.reload
         expect(new_hire.first_name).to eq("Bob")
         expect(new_hire.last_name).to eq("Seger")
-        expect(new_hire.status).to eq("Pending")
+        expect(new_hire.status).to eq("pending")
         expect(new_hire.profiles.count).to eq(1)
-        expect(new_hire.current_profile.profile_status).to eq("Pending")
+        expect(new_hire.current_profile.profile_status).to eq("pending")
       end
     end
 
@@ -573,16 +567,14 @@ describe AdpService::Workers, type: :service do
       let!(:new_manager) { FactoryGirl.create(:employee)}
       let!(:manager_prof) { FactoryGirl.create(:profile,
         employee: new_manager,
-        profile_status: "Active",
         adp_employee_id: "100345") }
       let!(:basic_manager_sec_prof) { FactoryGirl.create(:security_profile,
         name: "Basic Manager") }
-      let!(:new_hire) { FactoryGirl.create(:employee,
-        status: "Pending",
+      let!(:new_hire) { FactoryGirl.create(:pending_employee,
         hire_date: Date.today + 4.days)}
       let!(:profile) { FactoryGirl.create(:profile,
         employee: new_hire,
-        profile_status: "Pending",
+        profile_status: "pending",
         adp_employee_id: "123456",
         adp_assoc_oid: "TESTOID",
         manager_id: "100345")}

@@ -224,7 +224,7 @@ describe AdpService::Events, type: :service do
           adp.process_hire(parsed_reg_json, event)
         }.to change{Employee.count}.from(0).to(1)
         expect(Employee.last.employee_id).to eq("if0rcdig4")
-        expect(Employee.last.status).to eq("Pending")
+        expect(Employee.last.status).to eq("pending")
       end
 
       it "should make indicated manager if not already a manager" do
@@ -294,7 +294,7 @@ describe AdpService::Events, type: :service do
           adp.process_hire(parsed_contract_json, event)
         }.to change{Employee.count}.from(0).to(1)
         expect(Employee.last.employee_id).to eq("8vheos3zl")
-        expect(Employee.last.status).to eq("Pending")
+        expect(Employee.last.status).to eq("pending")
         expect(Employee.last.contract_end_date).to eq("2017-12-01")
       end
 
@@ -398,7 +398,7 @@ describe AdpService::Events, type: :service do
       let!(:man_prof) { FactoryGirl.create(:profile,
         employee: manager,
         adp_employee_id: "999999")}
-      let!(:term_emp) { FactoryGirl.create(:employee,
+      let!(:term_emp) { FactoryGirl.create(:active_employee,
         termination_date: nil) }
       let!(:profile) { FactoryGirl.create(:profile,
         employee: term_emp,
@@ -418,16 +418,16 @@ describe AdpService::Events, type: :service do
 
         adp = AdpService::Events.new
         adp.token = "a-token-value"
-
         expect(adp).to receive(:job_change?).and_return(false)
+
         expect{
           adp.process_term(parsed_json)
         }.to_not change{Employee.count}
         expect(term_emp.reload.termination_date).to eq("2017-01-24")
-        expect(term_emp.reload.status).to eq("Terminated")
-        expect(term_emp.current_profile.profile_status).to eq("Terminated")
-        expect(term_emp.emp_deltas.last.before).to eq({"status"=>"Active", "end_date"=>nil, "profile_status"=>"Active", "termination_date"=>nil})
-        expect(term_emp.emp_deltas.last.after).to eq({"status"=>"Terminated", "end_date"=>"2017-01-24 00:00:00 UTC", "profile_status"=>"Terminated", "termination_date"=>"2017-01-24 00:00:00 UTC"})
+        expect(term_emp.reload.status).to eq("terminated")
+        expect(term_emp.current_profile.profile_status).to eq("terminated")
+        expect(term_emp.emp_deltas.last.before).to eq({"status"=>"active", "end_date"=>nil, "profile_status"=>"active", "termination_date"=>nil})
+        expect(term_emp.emp_deltas.last.after).to eq({"status"=>"terminated", "end_date"=>"2017-01-24 00:00:00 UTC", "profile_status"=>"terminated", "termination_date"=>"2017-01-24 00:00:00 UTC"})
       end
 
     end
@@ -503,13 +503,13 @@ describe AdpService::Events, type: :service do
         let!(:rehired_emp) { FactoryGirl.create(:employee,
           hire_date: Date.new(2010, 9, 1),
           termination_date: term_date,
-          status: "Terminated")}
+          status: "terminated")}
         let!(:profile) { FactoryGirl.create(:profile,
           start_date: Date.new(2010, 9, 1),
           end_date: term_date,
           employee: rehired_emp,
           adp_employee_id: "123456",
-          profile_status: "Terminated")}
+          profile_status: "terminated")}
 
         it "finds and updates account with new position" do
           expect(ActiveDirectoryService).to receive(:new).and_return(ads)
@@ -525,13 +525,13 @@ describe AdpService::Events, type: :service do
           expect{
             adp.process_rehire(parsed_json, event)
           }.to_not change{Employee.count}
-          expect(rehired_emp.reload.status).to eq("Pending")
+          expect(rehired_emp.reload.status).to eq("pending")
           expect(rehired_emp.reload.location.code).to eq("SF")
           expect(rehired_emp.reload.job_title.code).to eq("SPMASR")
           expect(rehired_emp.reload.hire_date).to eq(Date.new(2010, 9, 1))
           expect(rehired_emp.profiles.count).to eq(2)
           expect(rehired_emp.current_profile.start_date).to eq(Date.new(2018, 9, 1))
-          expect(rehired_emp.current_profile.profile_status).to eq("Pending")
+          expect(rehired_emp.current_profile.profile_status).to eq("pending")
           expect(rehired_emp.profiles.terminated.start_date).to eq(Date.new(2010, 9, 1))
           expect(rehired_emp.profiles.terminated.end_date).to eq(term_date)
         end

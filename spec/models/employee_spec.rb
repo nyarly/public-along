@@ -346,30 +346,27 @@ describe Employee, type: :model do
   end
 
   describe "#onboarding_reminder_group" do
-    let!(:due_tomorrow_no_onboard) {FactoryGirl.create(:employee,
+    let!(:due_tomorrow_no_onboard) {FactoryGirl.create(:pending_employee,
       last_name: "Aaa",
-      status: "Pending",
       hire_date: 5.business_days.from_now)}
     let!(:profile) { FactoryGirl.create(:profile,
-      profile_status: "Pending",
+      profile_status: "pending",
       start_date: 5.business_days.from_now,
       employee: due_tomorrow_no_onboard)}
 
-    let!(:due_tomorrow_no_onboard_au) { FactoryGirl.create(:employee,
+    let!(:due_tomorrow_no_onboard_au) { FactoryGirl.create(:pending_employee,
       last_name: "Bbb",
-      status: "Pending",
       hire_date: 10.business_days.from_now)}
     let!(:au_profile) { FactoryGirl.create(:profile,
       employee: due_tomorrow_no_onboard_au,
-      profile_status: "Pending",
+      profile_status: "pending",
       start_date: 10.business_days.from_now,
       location: Location.find_by_name("Melbourne Office"))}
 
-    let!(:due_tomorrow_w_onboard) { FactoryGirl.create(:employee,
-      status: "Pending",
+    let!(:due_tomorrow_w_onboard) { FactoryGirl.create(:pending_employee,
       hire_date: 6.business_days.from_now)}
     let!(:due_tomorrow_no_onboard_profile) { FactoryGirl.create(:profile,
-      profile_status: "Pending",
+      profile_status: "pending",
       start_date: 6.business_days.from_now,
       employee: due_tomorrow_w_onboard)}
     let!(:emp_transaction) { FactoryGirl.create(:emp_transaction,
@@ -378,11 +375,10 @@ describe Employee, type: :model do
     let!(:onboard) { FactoryGirl.create(:onboarding_info,
       emp_transaction: emp_transaction)}
 
-    let!(:due_later_no_onboard) { FactoryGirl.create(:employee,
-      status: "Pending",
+    let!(:due_later_no_onboard) { FactoryGirl.create(:pending_employee,
       hire_date: 14.days.from_now)}
     let!(:due_later_profile) { FactoryGirl.create(:profile,
-      profile_status: "Pending",
+      profile_status: "pending",
       start_date: 14.business_days.from_now,
       employee: due_later_no_onboard)}
 

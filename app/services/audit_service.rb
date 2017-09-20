@@ -7,9 +7,9 @@ class AuditService
   # scenario: worker's contract has ended and they were not given a termination date
   def missed_terminations
     audit = []
-    missed_offboards = Employee.where('termination_date < ? AND status LIKE ?', 2.days.ago, "Active").to_a
-    missed_terminations = Employee.where('updated_at < ? AND status LIKE ?', 2.days.ago, "Active").to_a
-    contract_ended = Employee.where('contract_end_date < ? AND status LIKE ? AND termination_date IS NULL', 2.days.ago, "Active").to_a
+    missed_offboards = Employee.where('termination_date < ? AND status LIKE ?', 2.days.ago, "active").to_a
+    missed_terminations = Employee.where('updated_at < ? AND status LIKE ?', 2.days.ago, "active").to_a
+    contract_ended = Employee.where('contract_end_date < ? AND status LIKE ? AND termination_date IS NULL', 2.days.ago, "active").to_a
 
     employees_to_audit = missed_offboards + missed_terminations + contract_ended
     employees_to_audit.uniq.each do |employee|
@@ -22,7 +22,7 @@ class AuditService
 
   def ad_deactivation
     audit = []
-    terminated_employees = Employee.where(status: "Terminated")
+    terminated_employees = Employee.where(status: "terminated")
     ads = ActiveDirectoryService.new
 
     terminated_employees.each do |t|

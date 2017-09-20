@@ -10,8 +10,8 @@ RSpec.describe ManagerEntry do
 
   context "Onboarding New Hire" do
     let(:user) { FactoryGirl.create(:user) }
-    let(:buddy) { FactoryGirl.create(:regular_employee) }
-    let!(:employee) { FactoryGirl.create(:regular_employee) }
+    let(:buddy) { FactoryGirl.create(:active_employee) }
+    let!(:employee) { FactoryGirl.create(:active_employee) }
     let(:sp_1) { FactoryGirl.create(:security_profile) }
     let(:sp_2) { FactoryGirl.create(:security_profile) }
     let(:sp_3) { FactoryGirl.create(:security_profile) }
@@ -82,11 +82,10 @@ RSpec.describe ManagerEntry do
     let!(:worker_type) { FactoryGirl.create(:worker_type,
       code: "ACW",
       name: "Contractor")}
-    let(:old_employee) { FactoryGirl.create(:employee,
-      status: "Terminated")}
+    let(:old_employee) { FactoryGirl.create(:terminated_employee) }
     let!(:profile) { FactoryGirl.create(:profile,
       employee: old_employee,
-      profile_status: "Terminated")}
+      profile_status: "terminated")}
     let(:user) { FactoryGirl.create(:user) }
     let!(:hire_event) { File.read(Rails.root.to_s+"/spec/fixtures/adp_cat_change_hire_event.json") }
     let!(:event) { FactoryGirl.create(:adp_event,
@@ -140,7 +139,7 @@ RSpec.describe ManagerEntry do
       old_employee.reload
       event.reload
 
-      expect(old_employee.status).to eq("Pending")
+      expect(old_employee.status).to eq("pending")
       expect(old_employee.worker_type).to eq(worker_type)
       expect(old_employee.machine_bundles.first).to eq(machine_bundle)
       expect(old_employee.profiles.count).to eq(2)
@@ -160,7 +159,7 @@ RSpec.describe ManagerEntry do
       employee = Employee.reorder(:created_at).last
       event.reload
 
-      expect(employee.status).to eq("Pending")
+      expect(employee.status).to eq("pending")
       expect(employee.worker_type).to eq(worker_type)
       expect(employee.machine_bundles.first).to eq(machine_bundle)
       expect(employee.profiles.count).to eq(1)
@@ -174,11 +173,10 @@ RSpec.describe ManagerEntry do
     let!(:worker_type) { FactoryGirl.create(:worker_type,
       code: "FTR",
       name: "Regular Full-Time")}
-    let(:old_employee) { FactoryGirl.create(:employee,
-      status: "Terminated")}
+    let(:old_employee) { FactoryGirl.create(:terminated_employee) }
     let!(:profile) { FactoryGirl.create(:profile,
       employee: old_employee,
-      profile_status: "Terminated")}
+      profile_status: "terminated")}
     let(:user) { FactoryGirl.create(:user) }
     let!(:rehire_event) { File.read(Rails.root.to_s+"/spec/fixtures/adp_rehire_event.json") }
     let!(:event) { FactoryGirl.create(:adp_event,
@@ -232,7 +230,7 @@ RSpec.describe ManagerEntry do
       old_employee.reload
       event.reload
 
-      expect(old_employee.status).to eq("Pending")
+      expect(old_employee.status).to eq("pending")
       expect(old_employee.worker_type).to eq(worker_type)
       expect(old_employee.machine_bundles.first).to eq(machine_bundle)
       expect(old_employee.profiles.count).to eq(2)
@@ -249,7 +247,7 @@ RSpec.describe ManagerEntry do
       employee = Employee.reorder(:created_at).last
       event.reload
 
-      expect(employee.status).to eq("Pending")
+      expect(employee.status).to eq("pending")
       expect(employee.worker_type).to eq(worker_type)
       expect(employee.machine_bundles.first).to eq(machine_bundle)
       expect(employee.profiles.count).to eq(1)

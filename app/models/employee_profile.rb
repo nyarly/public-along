@@ -45,8 +45,8 @@ class EmployeeProfile
     employee.assign_attributes(employee_attrs.to_h.except(:status))
     new_profile = employee.profiles.build(profile_attrs.to_h.except(:profile_status))
 
-    employee.status = "Pending" if employee.status == "Terminated"
-    new_profile.profile_status = "Pending"
+    employee.rehire!
+    new_profile.profile_status = "pending"
     delta = EmpDelta.build_from_profile(new_profile)
 
     delta.save!
@@ -74,16 +74,16 @@ class EmployeeProfile
       new_profile = employee.profiles.build(profile_attrs.to_h)
 
       if new_profile.start_date > Date.today
-        employee.status = "Pending" if employee.status == "Terminated"
-        new_profile.profile_status = "Pending"
+        employee.status = "pending" if employee.status == "terminated"
+        new_profile.profile_status = "pending"
         if new_profile.save!
           Rails.logger.info "Successfully linked account for #{employee.email}"
         else
           Rails.logger.error "Block in profile save for #{employee.cn}"
         end
       else
-        profile.profile_status = "Terminated"
-        new_profile.profile_status = "Active"
+        profile.profile_status = "terminated"
+        new_profile.profile_status = "active"
         if profile.save! and new_profile.save!
           Rails.logger.info "Successfully linked account for #{employee.email}"
         else
@@ -111,12 +111,11 @@ class EmployeeProfile
     worker_hash = parse_event(event)
     employee_attrs, profile_attrs = worker_hash.partition{ |k,v| Employee.column_names.include?(k.to_s) }
 
-    employee = Employee.new(employee_attrs.to_h)
-    employee.status = "Pending"
+    employee = Employee.new(employee_attrs.to_h.except(:status))
     employee.save!
 
     profile = employee.profiles.build(profile_attrs.to_h)
-    profile.profile_status = "Pending"
+    profile.profile_status = "pending"
     profile.save!
 
     employee
@@ -146,7 +145,7 @@ class EmployeeProfile
     has_triggering_change = profile.department_id_changed? || profile.location_id_changed? || profile.job_title_id_changed?
     no_previous_changes = profile.employee.emp_deltas.important_changes.blank?
 
-    if has_changed && has_triggering_change && profile.profile_status == "Active"
+    if has_changed && has_triggering_change && profile.profile_status == "active"
       if no_previous_changes
         true
       else

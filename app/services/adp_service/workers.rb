@@ -64,13 +64,13 @@ module AdpService
     end
 
     def check_future_changes
-      Employee.where("status LIKE ? OR status LIKE ?", "Pending", "Inactive").find_each do |e|
+      Employee.where("status LIKE ? OR status LIKE ?", "pending", "inactive").find_each do |e|
         EmployeeChangeWorker.perform_async(e.id)
       end
     end
 
     def look_ahead(e)
-      if e.status == "Pending"
+      if e.status == "pending"
         check_new_hire_change(e)
       else
         # inactive worker status
