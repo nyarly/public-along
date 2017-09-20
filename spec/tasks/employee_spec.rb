@@ -286,7 +286,7 @@ describe "employee rake tasks", type: :tasks do
         location_id: mumbai.id)
       leave = FactoryGirl.create(:active_employee,
         hire_date: Date.new(2014, 5, 3),
-        leave_start_date: Date.new(2016, 7, 28))
+        leave_start_date: Date.new(2016, 7, 30))
       leave_profile = FactoryGirl.create(:profile,
         employee: leave,
         department_id: Department.find_by(:name => "Infrastructure Engineering").id,
@@ -308,6 +308,14 @@ describe "employee rake tasks", type: :tasks do
 
       allow(@ldap).to receive(:search).and_return([@ldap_entry])
       allow(@ldap_entry).to receive(:dn).and_return("the old dn")
+      expect(@ldap).to receive(:replace_attribute).once.with(
+        "the old dn", :userAccountControl, "514"
+      )
+      expect(@ldap).to receive(:rename).once.with({
+        :olddn=>"the old dn",
+        :newrdn=>"cn=#{leave.cn}",
+        :delete_attributes=>true,
+        :new_superior=>"ou=Disabled Users,ou=OT,dc=ottest,dc=opentable,dc=com"})
       expect(@ldap).to receive(:replace_attribute).once.with(
         "the old dn", :userAccountControl, "514"
       )

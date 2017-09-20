@@ -45,7 +45,6 @@ class EmployeeProfile
     employee.assign_attributes(employee_attrs.to_h.except(:status))
     new_profile = employee.profiles.build(profile_attrs.to_h.except(:profile_status))
 
-    employee.rehire!
     new_profile.profile_status = "pending"
     delta = EmpDelta.build_from_profile(new_profile)
 

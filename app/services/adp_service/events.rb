@@ -126,9 +126,10 @@ module AdpService
     def process_retro_term(e, profile)
       profile.profile_status = "terminated"
       e.terminate
+
       delta = EmpDelta.build_from_profile(profile)
 
-      if e.save! and profile.save
+      if e.save! and profile.save!
         # ads = ActiveDirectoryService.new
         # ads.deactivate([e])
         TechTableMailer.offboard_instructions(e).deliver_now

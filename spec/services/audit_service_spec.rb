@@ -17,28 +17,28 @@ describe AuditService, type: :service do
     first_name: "Diane",
     last_name: "Sawyer",
     termination_date: 1.week.ago,
-    sam_account_name: "dsawyer")}
+    sam_account_name: "dsawyer") }
   let!(:reg_term_prof) { FactoryGirl.create(:profile,
     employee: regular_termination,
     manager_id: manager.employee_id,
-    profile_status: "terminated")}
+    profile_status: "terminated") }
   let!(:missed_deactivation) { FactoryGirl.create(:terminated_employee,
     first_name: "Tom",
     last_name: "Brokaw",
     sam_account_name: "tbrowkow",
-    termination_date: 3.days.ago)}
+    termination_date: 3.days.ago) }
   let!(:md_profile) { FactoryGirl.create(:profile,
     employee: missed_deactivation,
     profile_status: "terminated",
-    manager_id: manager.employee_id)}
+    manager_id: manager.employee_id) }
   let!(:missed_offboard) { FactoryGirl.create(:active_employee,
-    termination_date: 4.days.ago)}
+    termination_date: 4.days.ago) }
   let!(:m_o_profile) { FactoryGirl.create(:profile,
     employee: missed_offboard,
     manager_id: manager.employee_id) }
   let!(:missed_termination) { FactoryGirl.create(:active_employee, :existing,
-    termination_date: nil,
-    updated_at: 3.days.ago)}
+    updated_at: 3.days.ago,
+    termination_date: nil) }
   let!(:mt_profile) { FactoryGirl.create(:profile,
     employee: missed_termination,
     manager_id: manager.employee_id) }
@@ -92,7 +92,6 @@ describe AuditService, type: :service do
   end
 
   context "confirming AD deactivation for terminated users" do
-
     let(:disabled_ldap_entry) do [{
       :dn=>["CN=Diane Sawyer,OU=Disabled Users,OU=Users,OU=OT,DC=ottest,DC=opentable,DC=com"],
       :useraccountcontrol=>["514"]}] end

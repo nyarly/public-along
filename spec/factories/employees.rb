@@ -8,62 +8,25 @@ FactoryGirl.define do
     image_code            { IMAGE }
 
     trait :existing do
-      after(:create) do |employee|
-        employee.created_at    = 2.months.ago
-        employee.updated_at    = 1.month.ago
-        employee.ad_updated_at = 1.month.ago
-      end
+      created_at    { 2.months.ago }
+      updated_at    { 1.month.ago }
+      ad_updated_at { 1.month.ago }
     end
 
     factory :pending_employee do
-      after(:create) do |employee|
-        class << employee
-          def create_active_directory_account; true; end
-          def send_manager_onboarding_form; true; end
-        end
-        employee.hire!
-      end
+      status { "pending" }
     end
 
     factory :active_employee do
-      after(:create) do |employee|
-        class << employee
-          def create_active_directory_account; true; end
-          def send_manager_onboarding_form; true; end
-          def activate_active_directory_account; true; end
-        end
-        employee.hire!
-        employee.activate!
-      end
+      status { "active" }
     end
 
     factory :terminated_employee do
-      after(:create) do |employee|
-        class << employee
-          def create_active_directory_account; true; end
-          def send_manager_onboarding_form; true; end
-          def activate_active_directory_account; true; end
-          def deactivate_active_directory_account; true; end
-          def offboard; true; end
-        end
-        employee.hire!
-        employee.activate!
-        employee.terminate!
-      end
+      status { "terminated" }
     end
 
     factory :leave_employee do
-      after(:create) do |employee|
-        class << employee
-          def create_active_directory_account; true; end
-          def send_manager_onboarding_form; true; end
-          def activate_active_directory_account; true; end
-          def deactivate_active_directory_account; true; end
-        end
-        employee.hire!
-        employee.activate!
-        employee.start_leave!
-      end
+      status { "inactive" }
     end
 
     factory :regular_employee do

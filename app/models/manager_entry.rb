@@ -49,6 +49,7 @@ class ManagerEntry
       if link_email == "on"
         if linked_account_id.present?
           employee = profiler.link_accounts(linked_account_id, event_id)
+          employee.rehire!
           event.status = "Processed"
           event.save!
           employee
@@ -58,11 +59,10 @@ class ManagerEntry
       # if rehire or job change, but wish to have new record/email
       elsif link_email == "off"
         employee = profiler.new_employee(event)
+        employee.hire!
         event.status = "Processed"
         event.save!
 
-        ads = ActiveDirectoryService.new
-        ads.create_disabled_accounts([employee])
         employee
       else
         # for new emp transactions before form filled out
