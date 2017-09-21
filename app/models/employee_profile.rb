@@ -37,56 +37,45 @@ class EmployeeProfile
 
   # link accounts takes an employee pk and event pk
   def link_accounts(employee_id, event_id)
-    employee = Employee.find employee_id
-    event = AdpEvent.find event_id
-    w_hash = parse_event(event)
+    w_hash = parse_event(AdpEvent.find(event_id))
 
-    employee_attrs, profile_attrs = w_hash.partition{ |k,v| Employee.column_names.include?(k.to_s) }
-    employee.assign_attributes(employee_attrs.to_h.except(:status))
-    new_profile = employee.profiles.build(profile_attrs.to_h.except(:profile_status))
+    employee = Employee.find(employee_id).tap do |employee|
+      employee.assign_attributes(parse_attributes(Employee, w_hash))
+      new_profile = build_new_profile(employee, w_hash)
+      new_profile.profile_status = "pending"
 
-    new_profile.profile_status = "pending"
-    delta = EmpDelta.build_from_profile(new_profile)
+      EmpDelta.build_from_profile(new_profile).save!
 
-    delta.save!
-    new_profile.save!
-    employee.save!
-    employee
+      new_profile.save!
+      employee.save!
+    end
   end
 
   # takes employee object and employee hash from the parser
   def update_employee(employee, employee_hash)
     profile = employee.current_profile
 
-    employee_attrs, profile_attrs = employee_hash.partition{ |k,v| Employee.column_names.include?(k.to_s) }
-    employee.assign_attributes(employee_attrs.to_h)
-    profile.assign_attributes(profile_attrs.to_h)
+    employee.assign_attributes(parse_attributes(Employee, employee_hash))
+    profile.assign_attributes(parse_attributes(Profile, employee_hash))
 
     delta = EmpDelta.build_from_profile(profile)
 
     # create new profile for changes to worker type or ADP record
-    if profile.worker_type_id_changed? || profile.adp_employee_id_changed? || profile.adp_assoc_oid_changed?
-      profile = Profile.find(employee.current_profile.id)
+    if needs_new_profile?(profile)
       # reload profile object to discard changes
+      profile = Profile.find(employee.current_profile.id)
       profile.reload
-      new_profile = employee.profiles.build(profile_attrs.to_h)
+
+      new_profile = build_new_profile(employee, employee_hash)
 
       if new_profile.start_date > Date.today
-        # employee.status = "pending" if employee.status == "terminated"
         new_profile.profile_status = "pending"
-        if new_profile.save!
-          Rails.logger.info "Successfully linked account for #{employee.email}"
-        else
-          Rails.logger.error "Block in profile save for #{employee.cn}"
-        end
+        new_profile.save!
       else
         profile.profile_status = "terminated"
         new_profile.profile_status = "active"
-        if profile.save! and new_profile.save!
-          Rails.logger.info "Successfully linked account for #{employee.email}"
-        else
-          Rails.logger.error "Block in profile save for #{employee.cn}"
-        end
+        profile.save!
+        new_profile.save!
       end
 
     # update current profile
@@ -104,28 +93,35 @@ class EmployeeProfile
     employee
   end
 
+
   # new employee takes an event object and returns saved employee
   def new_employee(event)
     worker_hash = parse_event(event)
-    employee_attrs, profile_attrs = worker_hash.partition{ |k,v| Employee.column_names.include?(k.to_s) }
-
-    employee = Employee.new(employee_attrs.to_h.except(:status))
-    employee.save!
-
-    profile = employee.profiles.build(profile_attrs.to_h)
-    profile.profile_status = "pending"
-    profile.save!
-
-    employee
+    employee = Employee.new(parse_attributes(Employee, worker_hash).except(:status)).tap do |employee|
+      employee.save!
+      profile = build_new_profile(employee, worker_hash)
+      profile.profile_status = "pending"
+      profile.save!
+    end
   end
 
   # takes json attribute from event object and returns unsaved employee
   def build_employee(event)
     worker_hash = parse_event(event)
-    employee_attrs, profile_attrs = worker_hash.except.partition{ |k,v| Employee.column_names.include?(k.to_s) }
-    employee = Employee.new(employee_attrs.to_h)
-    profile = employee.profiles.build(profile_attrs.to_h)
-    employee
+    employee = Employee.new(parse_attributes(Employee, worker_hash)).tap do |employee|
+      build_new_profile(employee, worker_hash)
+    end
+  end
+
+  private
+
+  def build_new_profile(employee, employee_hash)
+    new_profile = employee.profiles.build(parse_attributes(Profile, employee_hash))
+  end
+
+  def parse_attributes(klass, worker_hash)
+    class_attrs, discard = worker_hash.partition{ |k, v| klass.column_names.include?(k.to_s) }
+    class_attrs.to_h
   end
 
   # takes an event object and returns the worker hash
@@ -134,8 +130,11 @@ class EmployeeProfile
     json = JSON.parse(data)
     worker_json = json.dig("events", 0, "data", "output", "worker")
     parser = AdpService::WorkerJsonParser.new
-    worker_hash = parser.gen_worker_hash(worker_json)
-    worker_hash
+    parser.gen_worker_hash(worker_json)
+  end
+
+  def needs_new_profile?(profile)
+    profile.worker_type_id_changed? || profile.adp_employee_id_changed?
   end
 
   def send_email?(profile)
@@ -154,5 +153,4 @@ class EmployeeProfile
       end
     end
   end
-
 end

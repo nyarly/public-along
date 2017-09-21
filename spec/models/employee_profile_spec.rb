@@ -19,7 +19,6 @@ RSpec.describe EmployeeProfile do
     hire_date: Date.new(2014, 6, 1),
     contract_end_date: nil,
     office_phone: nil,
-    # status: "active",
     personal_mobile_phone: "(888) 888-8888",
     business_card_title: job_title.name) }
   let!(:profile) { FactoryGirl.create(:profile,
@@ -34,7 +33,26 @@ RSpec.describe EmployeeProfile do
     start_date: Date.new(2017, 01, 01),
     worker_type: worker_type )}
   let(:json) { JSON.parse(File.read(Rails.root.to_s+"/spec/fixtures/adp_worker.json"))}
+  let(:rehire_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_rehire_event.json") }
   let(:parser) { AdpService::WorkerJsonParser.new }
+  let(:employee_profile) { EmployeeProfile.new }
+
+  context "link existing employee to new adp profile" do
+    let(:terminated_employee) { FactoryGirl.create(:terminated_employee) }
+    let!(:terminated_profile)  { FactoryGirl.create(:profile,
+      employee: terminated_employee,
+      profile_status: "terminated") }
+    let(:event) { FactoryGirl.create(:adp_event,
+      json: rehire_json,
+      status: "New")}
+
+    it "should create a new profile on a terminated employee" do
+      employee = employee_profile.link_accounts(terminated_employee.id, event.id)
+      expect(employee.profiles.count).to eq(2)
+      expect(employee.profiles.terminated).to eq(terminated_profile)
+      expect(employee.profiles.pending.profile_status).to eq("pending")
+    end
+  end
 
   context "sync existing employee with updated employee info" do
     it "should update the info" do
