@@ -89,7 +89,7 @@ class Employee < ActiveRecord::Base
       if self.status == "active"
         @current_profile ||= self.profiles.active
       elsif self.status == "inactive"
-        @current_profile ||= self.profiles.inactive
+        @current_profile ||= self.profiles.last
       elsif self.status == "pending"
         @current_profile ||= self.profiles.last
       elsif self.status == "terminated"

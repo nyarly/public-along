@@ -29,7 +29,6 @@ class Profile < ActiveRecord::Base
     state :waiting_for_onboard
     state :onboard_received
     state :active
-    state :leave
     state :waiting_for_offboard
     state :offboard_received
     state :terminated
@@ -37,6 +36,7 @@ class Profile < ActiveRecord::Base
     event :request_manager_action do
       transitions :from => :pending, :to => :waiting_for_onboard
       transitions :from => :active, :to => :waiting_for_offboard
+      transitions :from => :terminated, :to => :waiting_for_onboard
     end
 
     event :receive_manager_action do
@@ -44,9 +44,16 @@ class Profile < ActiveRecord::Base
       transitions :from => :waiting_for_offboard, :to => :offboard_received
     end
 
-    event :activate_profile do
+    event :activate do
       # TODO add guard clause for contracts without contract end date
       transitions :from => :onboard_received, :to => :active
+      transitions :from => :pending, :to => :active
+    end
+
+    event :terminate do
+      transitions :from => :active, :to => :terminated
+      transitions :from => :waiting_for_offboard, :to => :terminated
+      transitions :from => :offboard_received, :to => :terminated
     end
   end
 
@@ -66,10 +73,6 @@ class Profile < ActiveRecord::Base
 
   def self.terminated
     where(:profile_status => "terminated").last
-  end
-
-  def self.inactive
-    where(:profile_status => "leave").last
   end
 
   def downcase_unique_attrs
