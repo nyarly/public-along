@@ -50,7 +50,7 @@ class Employee < ActiveRecord::Base
     end
 
     event :activate do
-      transitions :from => [:pending, :inactive], :to => :active, :after => [:activate_active_directory_account]
+      transitions :from => :pending, :to => :active, :after => [:activate_active_directory_account, :update_profile]
     end
 
     event :start_leave do
@@ -78,6 +78,10 @@ class Employee < ActiveRecord::Base
     end
   end
 
+  def update_profile
+    current_profile.activate_profile!
+  end
+
   def current_profile
     # if employee data is not persisted, like when previewing employee data from an event
     # scope on profiles is not available, so must access by method last
@@ -87,7 +91,7 @@ class Employee < ActiveRecord::Base
       elsif self.status == "inactive"
         @current_profile ||= self.profiles.inactive
       elsif self.status == "pending"
-        @current_profile ||= self.profiles.pending
+        @current_profile ||= self.profiles.last
       elsif self.status == "terminated"
         @current_profile ||= self.profiles.terminated
       else

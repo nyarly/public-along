@@ -17,6 +17,7 @@ namespace :employee do
       if e.leave_start_date && in_time_window?(e.leave_start_date - 1.day, 21, e.nearest_time_zone)
         e.start_leave!
       elsif e.contract_end_date && in_time_window?(e.contract_end_date, 21, e.nearest_time_zone)
+        # TODO handle contract end dates
         e.deactivate_active_directory_account
       elsif e.termination_date && in_time_window?(e.termination_date, 21, e.nearest_time_zone)
         e.terminate!

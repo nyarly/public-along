@@ -1,4 +1,5 @@
 class Profile < ActiveRecord::Base
+  include AASM
 
   before_validation :downcase_unique_attrs
 
@@ -23,17 +24,37 @@ class Profile < ActiveRecord::Base
   belongs_to :location
   belongs_to :worker_type
 
-  #   aasm :column => 'profile_status' do
-  #   state :created, :initial => true
-  #   state :pending
-  #   state :onboarding
-  #   state :active
-  #   state :leave
-  #   state :offboarding
-  #   state :terminated
-  # end
+  aasm :column => 'profile_status' do
+    state :pending, :initial => true
+    state :waiting_for_onboard
+    state :onboard_received
+    state :active
+    state :leave
+    state :waiting_for_offboard
+    state :offboard_received
+    state :terminated
+
+    event :request_manager_action do
+      transitions :from => :pending, :to => :waiting_for_onboard
+      transitions :from => :active, :to => :waiting_for_offboard
+    end
+
+    event :receive_manager_action do
+      transitions :from => :waiting_for_onboard, :to => :onboard_received
+      transitions :from => :waiting_for_offboard, :to => :offboard_received
+    end
+
+    event :activate_profile do
+      # TODO add guard clause for contracts without contract end date
+      transitions :from => :onboard_received, :to => :active
+    end
+  end
 
   scope :regular_worker_type, -> { joins(:worker_type).where(:worker_types => {:kind => "Regular"})}
+
+  def self.current
+
+  end
 
   def self.active
     where(:profile_status => "active").last
