@@ -29,13 +29,14 @@ class Profile < ActiveRecord::Base
     state :waiting_for_onboard
     state :onboard_received
     state :active
+    state :leave
     state :waiting_for_offboard
     state :offboard_received
     state :terminated
 
     event :request_manager_action do
-      transitions :from => :pending, :to => :waiting_for_onboard
-      transitions :from => :active, :to => :waiting_for_offboard
+      transitions :from => :pending, :to => :waiting_for_onboard, :after => :send_manager_onboarding_form
+      transitions :from => :active, :to => :waiting_for_offboard, :after => :send_manager_offboarding_forms
       transitions :from => :terminated, :to => :waiting_for_onboard
     end
 
@@ -44,10 +45,15 @@ class Profile < ActiveRecord::Base
       transitions :from => :waiting_for_offboard, :to => :offboard_received
     end
 
+    event :start_leave do
+      transitions :from => :active, :to => :leave
+    end
+
     event :activate do
       # TODO add guard clause for contracts without contract end date
       transitions :from => :onboard_received, :to => :active
       transitions :from => :pending, :to => :active
+      transitions :from => :leave, :to => :active
     end
 
     event :terminate do
@@ -59,8 +65,13 @@ class Profile < ActiveRecord::Base
 
   scope :regular_worker_type, -> { joins(:worker_type).where(:worker_types => {:kind => "Regular"})}
 
-  def self.current
+  def send_manager_onboarding_form
+    EmployeeWorker.perform_async("Onboarding", employee_id: self.employee.id)
+  end
 
+  def send_offboard_forms
+    TechTableMailer.offboard_notice(self.employee.id).deliver_now
+    EmployeeWorker.perform_async("Offboarding", employee_id: self.employee.id)
   end
 
   def self.active

@@ -47,8 +47,6 @@ class ActiveDirectoryService
       elsif !e.onboarding_complete? && e.leave_return_date.blank?
         TechTableMailer.alert_email("ERROR: #{e.first_name} #{e.last_name} requires manager to complete onboarding forms. Account not activated.").deliver_now
       else
-        profile = e.current_profile
-        profile.update_attributes(profile_status: "active")
         ldap.replace_attribute(e.dn, :userAccountControl, "512")
       end
     end

@@ -41,16 +41,25 @@ class Employee < ActiveRecord::Base
     event :hire do
       after do
         Employee.check_manager(self.manager_id)
+        add_basic_security_profile(employee)
+        self.current_profile.request_manager_action!
       end
-      transitions :from => :created, :to => :pending, :after => [:create_active_directory_account, :send_manager_onboarding_form]
+      transitions :from => :created, :to => :pending, :after => [:create_active_directory_account]
     end
 
     event :rehire do
-      transitions :from => :terminated, :to => :pending
+      after do
+        Employee.check_manager(self.manager_id)
+        self.current_profile.request_manager_action!
+      end
+      transitions :from => :terminated, :to => :pending, :after => [:update_active_directory_account]
     end
 
     event :activate do
-      transitions :from => :pending, :to => :active, :after => [:activate_active_directory_account, :update_profile]
+      after do
+        self.current_profile.activate!
+      end
+      transitions :from => :pending, :to => :active, :after => [:activate_active_directory_account]
     end
 
     event :start_leave do
@@ -58,6 +67,9 @@ class Employee < ActiveRecord::Base
     end
 
     event :terminate do
+      after do
+        self.current_profile.terminate!
+      end
       transitions :from => :active, :to => :terminated, :after => [:deactivate_active_directory_account, :offboard]
     end
 
@@ -76,10 +88,6 @@ class Employee < ActiveRecord::Base
     define_method :"#{attribute}" do
       current_profile.try(:send, "#{attribute}")
     end
-  end
-
-  def update_profile
-    current_profile.activate_profile!
   end
 
   def current_profile
@@ -115,6 +123,11 @@ class Employee < ActiveRecord::Base
     end
   end
 
+  def update_active_directory_account
+    ads = ActiveDirectoryService.new
+    ads.update([self])
+  end
+
   def create_active_directory_account
     ads = ActiveDirectoryService.new
     ads.create_disabled_accounts([self])
@@ -130,9 +143,32 @@ class Employee < ActiveRecord::Base
     ads.deactivate([self])
   end
 
-  def send_manager_onboarding_form
-    EmployeeWorker.perform_async("Onboarding", employee_id: self.id)
-  end
+    def add_basic_security_profile(employee)
+      default_sec_group = ""
+
+      if employee.worker_type.kind == "Regular"
+        default_sec_group = SecurityProfile.find_by(name: "Basic Regular Worker Profile").id
+      elsif employee.worker_type.kind == "Temporary"
+        default_sec_group = SecurityProfile.find_by(name: "Basic Temp Worker Profile").id
+      elsif employee.worker_type.kind == "Contractor"
+        default_sec_group = SecurityProfile.find_by(name: "Basic Contract Worker Profile").id
+      end
+
+      emp_trans = EmpTransaction.new(
+        kind: "Service",
+        notes: "Initial provisioning by Mezzo",
+        employee_id: employee.id
+      )
+
+      emp_trans.emp_sec_profiles.build(security_profile_id: default_sec_group)
+
+      emp_trans.save!
+
+      if emp_trans.emp_sec_profiles.count > 0
+        sas = SecAccessService.new(emp_trans)
+        sas.apply_ad_permissions
+      end
+    end
 
   def send_techtable_offboard_instructions
     TechTableMailer.offboard_instructions(self).deliver_now

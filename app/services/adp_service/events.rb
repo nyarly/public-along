@@ -86,12 +86,6 @@ module AdpService
         profiler = EmployeeProfile.new
         employee = profiler.new_employee(event)
         employee.hire!
-        # Employee.check_manager(employee.manager_id)
-        # ads = ActiveDirectoryService.new
-        # ads.create_disabled_accounts([employee])
-        add_basic_security_profile(employee)
-        # EmployeeWorker.perform_async("Onboarding", employee_id: employee.id)
-        return true
       end
     end
 
@@ -113,9 +107,8 @@ module AdpService
           if e.save and profile.save
             ads = ActiveDirectoryService.new
             ads.update([e])
-            send_offboard_forms(e)
             delta.save if delta.present?
-            return true
+            profile.request_manager_action!
           else
             return false
           end
@@ -124,17 +117,12 @@ module AdpService
     end
 
     def process_retro_term(e, profile)
-      profile.profile_status = "terminated"
       e.terminate
 
       delta = EmpDelta.build_from_profile(profile)
 
-      if e.save! and profile.save!
-        # ads = ActiveDirectoryService.new
-        # ads.deactivate([e])
+      if e.save!
         TechTableMailer.offboard_instructions(e).deliver_now
-        # off = OffboardingService.new
-        # off.offboard([e])
 
         delta.save if delta.present?
         return true
@@ -178,14 +166,8 @@ module AdpService
       if e.present?
         profiler = EmployeeProfile.new
         updated_account = profiler.link_accounts(e.id, rehire_event.id)
-        updated_account.status = "Pending"
         updated_account.save!
-
-        Employee.check_manager(updated_account.manager_id)
-        ads = ActiveDirectoryService.new
-        ads.update([updated_account])
-        EmployeeWorker.perform_async("Onboarding", employee_id: updated_account.id)
-        return true
+        e.rehire!
       else
         EmployeeWorker.perform_async("Onboarding", event_id: event.id)
         return false
@@ -211,41 +193,9 @@ module AdpService
       end
     end
 
-    def send_offboard_forms(e)
-      TechTableMailer.offboard_notice(e).deliver_now
-      EmployeeWorker.perform_async("Offboarding", employee_id: e.id)
-    end
-
     def del_event(num)
       set_http("https://#{SECRETS.adp_api_domain}/core/v1/event-notification-messages/#{num}")
       res = @http.delete(@uri.request_uri, {'Authorization' => "Bearer #{@token}"})
-    end
-
-    def add_basic_security_profile(employee)
-      default_sec_group = ""
-
-      if employee.worker_type.kind == "Regular"
-        default_sec_group = SecurityProfile.find_by(name: "Basic Regular Worker Profile").id
-      elsif employee.worker_type.kind == "Temporary"
-        default_sec_group = SecurityProfile.find_by(name: "Basic Temp Worker Profile").id
-      elsif employee.worker_type.kind == "Contractor"
-        default_sec_group = SecurityProfile.find_by(name: "Basic Contract Worker Profile").id
-      end
-
-      emp_trans = EmpTransaction.new(
-        kind: "Service",
-        notes: "Initial provisioning by Mezzo",
-        employee_id: employee.id
-      )
-
-      emp_trans.emp_sec_profiles.build(security_profile_id: default_sec_group)
-
-      emp_trans.save!
-
-      if emp_trans.emp_sec_profiles.count > 0
-        sas = SecAccessService.new(emp_trans)
-        sas.apply_ad_permissions
-      end
     end
 
     private

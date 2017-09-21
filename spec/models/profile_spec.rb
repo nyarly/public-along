@@ -23,13 +23,6 @@ RSpec.describe Profile, type: :model do
   end
 
   describe "state machine" do
-    # let!(:profile)         { FactoryGirl.create(:profile) }
-    # let!(:wait_onboard_prof)   { FactoryGirl.create(:waiting_onboard_profile) }
-    # let!(:has_onboard_profile) { FactoryGirl.create(:has_onboard_profile) }
-    # let!(:active_profile)      { FactoryGirl.create(:active_profile) }
-    # let!(:wait_offboard_prof)  { FactoryGirl.create(:waiting_offboard_profile) }
-    # let!(:has_offboard_profi)  { FactoryGirl.create(:has_offboard_profile) }
-    # let!(:terminated_profile)  { FactoryGirl.create(:terminated_profile) }
 
     it "should initialize as pending" do
       expect(profile).to have_state(:pending)
