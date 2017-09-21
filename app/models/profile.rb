@@ -36,8 +36,12 @@ class Profile < ActiveRecord::Base
 
     event :request_manager_action do
       transitions :from => :pending, :to => :waiting_for_onboard, :after => :send_manager_onboarding_form
-      transitions :from => :active, :to => :waiting_for_offboard, :after => :send_manager_offboarding_forms
+      transitions :from => :active, :to => :waiting_for_offboard, :after => :send_offboarding_forms
       transitions :from => :terminated, :to => :waiting_for_onboard
+    end
+
+    event :rehire_from_event do
+      transitions :from => :pending, :to => :waiting_for_onboard
     end
 
     event :receive_manager_action do
@@ -51,6 +55,7 @@ class Profile < ActiveRecord::Base
 
     event :activate do
       # TODO add guard clause for contracts without contract end date
+      # add guard clause if no onboarding form received
       transitions :from => :onboard_received, :to => :active
       transitions :from => :pending, :to => :active
       transitions :from => :leave, :to => :active
@@ -69,13 +74,13 @@ class Profile < ActiveRecord::Base
     EmployeeWorker.perform_async("Onboarding", employee_id: self.employee.id)
   end
 
-  def send_offboard_forms
-    TechTableMailer.offboard_notice(self.employee.id).deliver_now
+  def send_offboarding_forms
+    TechTableMailer.offboard_notice(self.employee).deliver_now
     EmployeeWorker.perform_async("Offboarding", employee_id: self.employee.id)
   end
 
   def self.active
-    where(:profile_status => "active").last
+    where(:profile_status => "active").last || last
   end
 
   def self.pending

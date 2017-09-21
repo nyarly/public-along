@@ -40,8 +40,8 @@ class EmployeeProfile
     w_hash = parse_event(AdpEvent.find(event_id))
 
     employee = Employee.find(employee_id).tap do |employee|
-      employee.assign_attributes(parse_attributes(Employee, w_hash))
-      new_profile = build_new_profile(employee, w_hash)
+      employee.assign_attributes(parse_attributes(Employee, w_hash.except(:status)))
+      new_profile = build_new_profile(employee, w_hash.except(:profile_status))
 
       EmpDelta.build_from_profile(new_profile).save!
 

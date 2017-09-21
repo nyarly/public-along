@@ -115,7 +115,7 @@ describe AdpService::Workers, type: :service do
   describe "sync_workers" do
     let(:worker_type) { FactoryGirl.create(:worker_type)}
     let!(:employee) { FactoryGirl.create(:active_employee)}
-    let!(:profile) { FactoryGirl.create(:profile,
+    let!(:profile) { FactoryGirl.create(:active_profile,
       employee: employee,
       adp_employee_id: "101455",
       adp_assoc_oid: "G32B8JAXA1W398Z8",
@@ -135,10 +135,10 @@ describe AdpService::Workers, type: :service do
         manager_id: "101734",
         office_phone: "(212) 555-4411",
         personal_mobile_phone: "(212) 555-4411",
-        department: FactoryGirl.create(:department),
-        location: FactoryGirl.create(:location),
-        worker_type: worker_type,
-        job_title: FactoryGirl.create(:job_title),
+        department_id: FactoryGirl.create(:department).id,
+        location_id: FactoryGirl.create(:location).id,
+        worker_type_id: worker_type.id,
+        job_title_id: FactoryGirl.create(:job_title).id,
         start_date: 2.weeks.ago,
         profile_status: "active"
       }]
@@ -237,10 +237,10 @@ describe AdpService::Workers, type: :service do
         manager_id: "101734",
         office_phone: "(212) 555-4411",
         personal_mobile_phone: "(212) 555-4411",
-        department: new_department,
-        location: FactoryGirl.create(:location),
-        worker_type: worker_type,
-        job_title: FactoryGirl.create(:job_title),
+        department_id: new_department.id,
+        location_id: FactoryGirl.create(:location).id,
+        worker_type_id: worker_type.id,
+        job_title_id: FactoryGirl.create(:job_title).id,
         start_date: Date.today,
         profile_status: "active"
       }]
@@ -275,10 +275,10 @@ describe AdpService::Workers, type: :service do
         manager_id: "101734",
         office_phone: "(212) 555-4411",
         personal_mobile_phone: "(212) 555-4411",
-        department: FactoryGirl.create(:department),
-        location: FactoryGirl.create(:location),
-        worker_type: FactoryGirl.create(:worker_type),
-        job_title: new_job_title,
+        department_id: FactoryGirl.create(:department).id,
+        location_id: FactoryGirl.create(:location).id,
+        worker_type_id: FactoryGirl.create(:worker_type).id,
+        job_title_id: new_job_title.id,
         start_date: Date.today,
         profile_status: "active"
       }]

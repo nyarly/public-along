@@ -23,6 +23,10 @@ FactoryGirl.define do
       profile_status { "active" }
     end
 
+    factory :leave_profile do
+      profile_status { "leave" }
+    end
+
     factory :waiting_offboard_profile do
       profile_status { "waiting_for_offboard" }
     end

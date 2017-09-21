@@ -6,8 +6,8 @@ describe ActiveDirectoryService, type: :service do
 
   let(:department) { Department.find_or_create_by(:name => "People & Culture-HR & Total Rewards") }
   let(:location) { Location.find_or_create_by(:name => "San Francisco Headquarters") }
-      let!(:job_title) { FactoryGirl.create(:job_title) }
-    let!(:new_job_title) { FactoryGirl.create(:job_title) }
+  let!(:job_title) { FactoryGirl.create(:job_title) }
+  let!(:new_job_title) { FactoryGirl.create(:job_title) }
   let(:manager) { FactoryGirl.create(:employee) }
   let!(:manager_profile) { FactoryGirl.create(:profile,
     :with_valid_ou,
@@ -218,9 +218,8 @@ describe ActiveDirectoryService, type: :service do
         :last_name => "Lebowski",
         :office_phone => "555-555-5555",
         :sam_account_name => "jlebowski")
-      profile = FactoryGirl.create(:profile,
+      profile = FactoryGirl.create(:active_profile,
         employee: employee,
-        profile_status: "Active",
         manager_id: manager.employee_id,
         department: department,
         location: location,
@@ -272,9 +271,8 @@ describe ActiveDirectoryService, type: :service do
         :last_name => "Lebowski",
         :office_phone => "123-456-7890",
         :sam_account_name => "jlebowski")
-      profile = FactoryGirl.create(:profile,
+      profile = FactoryGirl.create(:active_profile,
         employee: employee,
-        profile_status: "Active",
         manager_id: manager.employee_id,
         department: department,
         location: new_location,
@@ -301,9 +299,8 @@ describe ActiveDirectoryService, type: :service do
         :last_name => "Lebowski",
         :office_phone => "123-456-7890",
         :sam_account_name => "jlebowski")
-      profile = FactoryGirl.create(:profile,
+      profile = FactoryGirl.create(:active_profile,
         employee: employee,
-        profile_status: "Active",
         manager_id: manager.employee_id,
         department: new_department,
         job_title: job_title,

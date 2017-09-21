@@ -51,7 +51,7 @@ class ManagerEntry
           employee = profiler.link_accounts(linked_account_id, event_id)
           event.status = "Processed"
           event.save!
-          employee.rehire!
+          employee.rehire_from_event!
         else
           emp_transaction.errors.add(:base, :employee_blank, message: "You didn't chose an email to reuse. Did you mean to create a new email? If so, please select 'no' in the Rehire or Worker Type Change.")
         end
@@ -140,16 +140,17 @@ class ManagerEntry
           build_onboarding
           build_security_profiles
           build_machine_bundles
+          @employee.current_profile.receive_manager_action!
           UpdateEmailWorker.perform_async(@employee.id)
         elsif kind == "Security Access"
           build_security_profiles
         elsif kind == "Offboarding"
           build_offboarding
+          @employee.current_profile.receive_manager_action!
         elsif kind == "Equipment"
           build_machine_bundles
         end
         emp_transaction.save!
-        employee.current_profile.receive_manager_action!
       else
         emp_transaction.errors.add(:base, :employee_blank, message: "Employee can not be blank. Please revisit email link to refresh page.")
         raise ActiveRecord::RecordInvalid.new(emp_transaction)

@@ -41,7 +41,7 @@ class Employee < ActiveRecord::Base
     event :hire do
       after do
         Employee.check_manager(self.manager_id)
-        add_basic_security_profile(employee)
+        add_basic_security_profile
         self.current_profile.request_manager_action!
       end
       transitions :from => :created, :to => :pending, :after => [:create_active_directory_account]
@@ -55,11 +55,19 @@ class Employee < ActiveRecord::Base
       transitions :from => :terminated, :to => :pending, :after => [:update_active_directory_account]
     end
 
+    event :rehire_from_event do
+      after do
+        self.current_profile.rehire_from_event!
+      end
+      transitions :from => :terminated, :to => :pending
+    end
+
     event :activate do
       after do
         self.current_profile.activate!
       end
       transitions :from => :pending, :to => :active, :after => [:activate_active_directory_account]
+      transitions :from => :inactive, :to => :active, :after => [:activate_active_directory_account]
     end
 
     event :start_leave do
@@ -68,7 +76,7 @@ class Employee < ActiveRecord::Base
 
     event :terminate do
       after do
-        self.current_profile.terminate!
+        # self.current_profile.terminate!
       end
       transitions :from => :active, :to => :terminated, :after => [:deactivate_active_directory_account, :offboard]
     end
@@ -143,32 +151,32 @@ class Employee < ActiveRecord::Base
     ads.deactivate([self])
   end
 
-    def add_basic_security_profile(employee)
-      default_sec_group = ""
+  def add_basic_security_profile
+    default_sec_group = ""
 
-      if employee.worker_type.kind == "Regular"
-        default_sec_group = SecurityProfile.find_by(name: "Basic Regular Worker Profile").id
-      elsif employee.worker_type.kind == "Temporary"
-        default_sec_group = SecurityProfile.find_by(name: "Basic Temp Worker Profile").id
-      elsif employee.worker_type.kind == "Contractor"
-        default_sec_group = SecurityProfile.find_by(name: "Basic Contract Worker Profile").id
-      end
-
-      emp_trans = EmpTransaction.new(
-        kind: "Service",
-        notes: "Initial provisioning by Mezzo",
-        employee_id: employee.id
-      )
-
-      emp_trans.emp_sec_profiles.build(security_profile_id: default_sec_group)
-
-      emp_trans.save!
-
-      if emp_trans.emp_sec_profiles.count > 0
-        sas = SecAccessService.new(emp_trans)
-        sas.apply_ad_permissions
-      end
+    if self.worker_type.kind == "Regular"
+      default_sec_group = SecurityProfile.find_by(name: "Basic Regular Worker Profile").id
+    elsif self.worker_type.kind == "Temporary"
+      default_sec_group = SecurityProfile.find_by(name: "Basic Temp Worker Profile").id
+    elsif self.worker_type.kind == "Contractor"
+      default_sec_group = SecurityProfile.find_by(name: "Basic Contract Worker Profile").id
     end
+
+    emp_trans = EmpTransaction.new(
+      kind: "Service",
+      notes: "Initial provisioning by Mezzo",
+      employee_id: self.id
+    )
+
+    emp_trans.emp_sec_profiles.build(security_profile_id: default_sec_group)
+
+    emp_trans.save!
+
+    if emp_trans.emp_sec_profiles.count > 0
+      sas = SecAccessService.new(emp_trans)
+      sas.apply_ad_permissions
+    end
+  end
 
   def send_techtable_offboard_instructions
     TechTableMailer.offboard_instructions(self).deliver_now

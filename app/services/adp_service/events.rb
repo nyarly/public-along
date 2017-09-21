@@ -100,7 +100,12 @@ module AdpService
         profile.assign_attributes(end_date: term_date)
 
         if is_retroactive?(e, term_date)
-          process_retro_term(e, profile)
+          profile.terminate
+          e.terminate
+          delta = EmpDelta.build_from_profile(profile)
+          TechTableMailer.offboard_instructions(e).deliver_now
+          e.save and delta.save and profile.save
+          # process_retro_term(e, profile)
         else
           delta = EmpDelta.build_from_profile(profile)
 
@@ -117,14 +122,12 @@ module AdpService
     end
 
     def process_retro_term(e, profile)
-      e.terminate
 
-      delta = EmpDelta.build_from_profile(profile)
+      # delta = EmpDelta.build_from_profile(profile)
 
       if e.save!
-        TechTableMailer.offboard_instructions(e).deliver_now
 
-        delta.save if delta.present?
+        # delta.save if delta.present?
         return true
       end
     end

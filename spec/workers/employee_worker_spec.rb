@@ -3,9 +3,8 @@ require 'rails_helper'
 RSpec.describe EmployeeWorker, type: :worker do
   let!(:manager) { FactoryGirl.create(:employee,
     email: "manager@opentable.com") }
-  let!(:man_profile) { FactoryGirl.create(:profile,
+  let!(:man_profile) { FactoryGirl.create(:active_profile,
     employee: manager,
-    profile_status: "Active",
     adp_employee_id: "654321")}
   let!(:employee) { FactoryGirl.create(:employee) }
   let!(:profile) { FactoryGirl.create(:profile,

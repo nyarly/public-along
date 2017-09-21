@@ -3,6 +3,7 @@ require 'aasm/rspec'
 
 RSpec.describe Profile, type: :model do
   let!(:profile) { FactoryGirl.create(:profile) }
+  let(:mailer)   { double(TechTableMailer) }
 
   it "should meet validations" do
     expect(profile).to be_valid
@@ -78,6 +79,8 @@ RSpec.describe Profile, type: :model do
     end
 
     it "should wait for offboarding form" do
+      expect(TechTableMailer).to receive(:offboard_notice).and_return(mailer)
+      expect(mailer).to receive(:deliver_now)
       expect(profile).to transition_from(:active).to(:waiting_for_offboard).on_event(:request_manager_action)
       expect(profile).to have_state(:waiting_for_offboard)
       expect(profile).to allow_event(:receive_manager_action)

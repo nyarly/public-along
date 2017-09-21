@@ -11,14 +11,13 @@ describe Employee, type: :model do
     ad_updated_at: 2.years.ago) }
 
   describe "state machine" do
-    let(:employee) { FactoryGirl.create(:employee) }
-    let(:pending_employee) { FactoryGirl.create(:pending_employee) }
-    let(:active_employee) { FactoryGirl.create(:active_employee) }
-    let(:leave_employee) { FactoryGirl.create(:leave_employee) }
-    let(:terminated_employee) { FactoryGirl.create(:terminated_employee) }
-    let(:active_directory) { double(ActiveDirectoryService) }
-    let(:mailer) { double(ManagerMailer) }
-    let(:offboard_service) { double(OffboardingService) }
+    let!(:regular_sp) { FactoryGirl.create(:security_profile, name: "Basic Regular Worker Profile") }
+    let(:employee)    { FactoryGirl.create(:employee) }
+    let!(:profile)    { FactoryGirl.create(:profile, employee: employee) }
+    let(:ad)          { double(ActiveDirectoryService) }
+    let(:mailer)      { double(ManagerMailer) }
+    let(:os)          { double(OffboardingService) }
+    let(:sas)         { double(SecAccessService) }
 
     it "should initialize as created" do
       expect(employee).to have_state(:created)
@@ -35,8 +34,9 @@ describe Employee, type: :model do
     end
 
     it "should create accounts and set as pending" do
-      expect(employee).to receive(:create_active_directory_account).and_return(active_directory)
-      expect(employee).to receive(:send_manager_onboarding_form).and_return(mailer)
+      expect(SecAccessService).to receive(:new).and_return(sas)
+      expect(sas).to receive(:apply_ad_permissions)
+      expect(employee).to receive(:create_active_directory_account).and_return(ad)
       expect(Employee).to receive(:check_manager).and_return(true)
       expect(employee).to transition_from(:created).to(:pending).on_event(:hire)
       expect(employee).to have_state(:pending)
@@ -52,77 +52,77 @@ describe Employee, type: :model do
     end
 
     it "should start" do
-      expect(pending_employee).to receive(:activate_active_directory_account).and_return(active_directory)
-      expect(pending_employee).to transition_from(:pending).to(:active).on_event(:activate)
-      expect(pending_employee).to have_state(:active)
-      expect(pending_employee).to allow_event(:start_leave)
-      expect(pending_employee).to allow_event(:terminate)
-      expect(pending_employee).to allow_transition_to(:inactive)
-      expect(pending_employee).to allow_transition_to(:terminated)
-      expect(pending_employee).not_to allow_transition_to(:created)
-      expect(pending_employee).not_to allow_transition_to(:pending)
-      expect(pending_employee).not_to allow_event(:hire)
-      expect(pending_employee).not_to allow_event(:rehire)
-      expect(pending_employee).not_to allow_event(:activate)
+      expect(employee).to receive(:activate_active_directory_account).and_return(ad)
+      expect(employee).to transition_from(:pending).to(:active).on_event(:activate)
+      expect(employee).to have_state(:active)
+      expect(employee).to allow_event(:start_leave)
+      expect(employee).to allow_event(:terminate)
+      expect(employee).to allow_transition_to(:inactive)
+      expect(employee).to allow_transition_to(:terminated)
+      expect(employee).not_to allow_transition_to(:created)
+      expect(employee).not_to allow_transition_to(:pending)
+      expect(employee).not_to allow_event(:hire)
+      expect(employee).not_to allow_event(:rehire)
+      expect(employee).not_to allow_event(:activate)
     end
 
     it "should go on leave" do
-      expect(active_employee).to receive(:deactivate_active_directory_account).and_return(active_directory)
-      expect(active_employee).to transition_from(:active).to(:inactive).on_event(:start_leave)
-      expect(active_employee).to have_state(:inactive)
-      expect(active_employee).to allow_event(:activate)
-      expect(active_employee).to allow_transition_to(:active)
-      expect(active_employee).not_to allow_transition_to(:created)
-      expect(active_employee).not_to allow_transition_to(:pending)
-      expect(active_employee).not_to allow_transition_to(:terminated)
-      expect(active_employee).not_to allow_event(:hire)
-      expect(active_employee).not_to allow_event(:rehire)
-      expect(active_employee).not_to allow_event(:terminate)
-      expect(active_employee).not_to allow_event(:start_leave)
+      expect(employee).to receive(:deactivate_active_directory_account).and_return(ad)
+      expect(employee).to transition_from(:active).to(:inactive).on_event(:start_leave)
+      expect(employee).to have_state(:inactive)
+      expect(employee).to allow_event(:activate)
+      expect(employee).to allow_transition_to(:active)
+      expect(employee).not_to allow_transition_to(:created)
+      expect(employee).not_to allow_transition_to(:pending)
+      expect(employee).not_to allow_transition_to(:terminated)
+      expect(employee).not_to allow_event(:hire)
+      expect(employee).not_to allow_event(:rehire)
+      expect(employee).not_to allow_event(:terminate)
+      expect(employee).not_to allow_event(:start_leave)
     end
 
     it "should return from leave" do
-      expect(leave_employee).to receive(:activate_active_directory_account).and_return(active_directory)
-      expect(leave_employee).to transition_from(:inactive).to(:active).on_event(:activate)
-      expect(leave_employee).to have_state(:active)
-      expect(leave_employee).to allow_event(:start_leave)
-      expect(leave_employee).to allow_event(:terminate)
-      expect(leave_employee).to allow_transition_to(:inactive)
-      expect(leave_employee).to allow_transition_to(:terminated)
-      expect(leave_employee).not_to allow_transition_to(:created)
-      expect(leave_employee).not_to allow_transition_to(:pending)
-      expect(leave_employee).not_to allow_event(:hire)
-      expect(leave_employee).not_to allow_event(:rehire)
-      expect(leave_employee).not_to allow_event(:activate)
+      expect(employee).to receive(:activate_active_directory_account).and_return(ad)
+      expect(employee).to transition_from(:inactive).to(:active).on_event(:activate)
+      expect(employee).to have_state(:active)
+      expect(employee).to allow_event(:start_leave)
+      expect(employee).to allow_event(:terminate)
+      expect(employee).to allow_transition_to(:inactive)
+      expect(employee).to allow_transition_to(:terminated)
+      expect(employee).not_to allow_transition_to(:created)
+      expect(employee).not_to allow_transition_to(:pending)
+      expect(employee).not_to allow_event(:hire)
+      expect(employee).not_to allow_event(:rehire)
+      expect(employee).not_to allow_event(:activate)
     end
 
     it "should be terminated" do
-      expect(active_employee).to receive(:deactivate_active_directory_account).and_return(active_directory)
-      expect(active_employee).to receive(:offboard).and_return(offboard_service)
-      expect(active_employee).to transition_from(:active).to(:terminated).on_event(:terminate)
-      expect(active_employee).to have_state(:terminated)
-      expect(active_employee).to allow_event(:rehire)
-      expect(active_employee).to allow_transition_to(:pending)
-      expect(active_employee).not_to allow_transition_to(:created)
-      expect(active_employee).not_to allow_transition_to(:inactive)
-      expect(active_employee).not_to allow_transition_to(:active)
-      expect(active_employee).not_to allow_event(:hire)
-      expect(active_employee).not_to allow_event(:activate)
-      expect(active_employee).not_to allow_event(:terminate)
-      expect(active_employee).not_to allow_event(:start_leave)
+      expect(employee).to receive(:deactivate_active_directory_account).and_return(ad)
+      expect(employee).to receive(:offboard).and_return(os)
+      expect(employee).to transition_from(:active).to(:terminated).on_event(:terminate)
+      expect(employee).to have_state(:terminated)
+      expect(employee).to allow_event(:rehire)
+      expect(employee).to allow_transition_to(:pending)
+      expect(employee).not_to allow_transition_to(:created)
+      expect(employee).not_to allow_transition_to(:inactive)
+      expect(employee).not_to allow_transition_to(:active)
+      expect(employee).not_to allow_event(:hire)
+      expect(employee).not_to allow_event(:activate)
+      expect(employee).not_to allow_event(:terminate)
+      expect(employee).not_to allow_event(:start_leave)
     end
 
     it "should be rehired" do
-      expect(terminated_employee).to transition_from(:terminated).to(:pending).on_event(:rehire)
-      expect(terminated_employee).to have_state(:pending)
-      expect(terminated_employee).to allow_event(:activate)
-      expect(terminated_employee).to allow_transition_to(:active)
-      expect(terminated_employee).not_to allow_transition_to(:terminated)
-      expect(terminated_employee).not_to allow_transition_to(:created)
-      expect(terminated_employee).not_to allow_transition_to(:inactive)
-      expect(terminated_employee).not_to allow_event(:hire)
-      expect(terminated_employee).not_to allow_event(:start_leave)
-      expect(terminated_employee).not_to allow_event(:terminate)
+      expect(employee).to transition_from(:terminated).to(:pending).on_event(:rehire)
+      expect(employee).to have_state(:pending)
+      expect(employee).to allow_event(:activate)
+      expect(employee).to allow_transition_to(:active)
+      expect(employee).not_to allow_transition_to(:terminated)
+      expect(employee).not_to allow_transition_to(:created)
+      expect(employee).not_to allow_transition_to(:inactive)
+      expect(employee).not_to allow_event(:hire)
+      expect(employee).not_to allow_event(:start_leave)
+      expect(employee).not_to allow_event(:terminate)
     end
   end
 
