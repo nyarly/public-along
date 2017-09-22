@@ -33,7 +33,7 @@ class Employee < ActiveRecord::Base
 
   scope :active_or_inactive, -> { where('status IN (?)', ["active", "inactive"]) }
 
-  aasm :column => 'status' do
+  aasm do
     state :created, :initial => true
     state :pending
     state :active
@@ -65,6 +65,8 @@ class Employee < ActiveRecord::Base
     end
 
     event :activate do
+            # TODO add guard clause for contracts without contract end date
+      # add guard clause if no onboarding form received
       after do
         self.current_profile.activate!
       end
@@ -94,6 +96,24 @@ class Employee < ActiveRecord::Base
     # end
   end
 
+  aasm(:request_status) do
+    state :none, :initial => true
+    state :waiting
+    state :completed
+
+    event :wait do
+      transitions :from => :none, :to => :waiting
+    end
+
+    event :complete do
+      transitions :from => :waiting, :to => :complete
+    end
+
+    event :clear do
+      transitions :from => [:complete, :waiting], :to => :none
+    end
+  end
+
   [:manager_id, :department, :worker_type, :location, :job_title, :company, :adp_assoc_oid].each do |attribute|
     define_method :"#{attribute}" do
       current_profile.try(:send, "#{attribute}")
@@ -105,13 +125,13 @@ class Employee < ActiveRecord::Base
     # scope on profiles is not available, so must access by method last
     if self.persisted?
       if self.status == "active"
-        @current_profile ||= self.profiles.active
+        @current_profile ||= self.profiles.active.last
       elsif self.status == "inactive"
-        @current_profile ||= self.profiles.last
+        @current_profile ||= self.profiles.leave.last
       elsif self.status == "pending"
-        @current_profile ||= self.profiles.last
+        @current_profile ||= self.profiles.pending.last
       elsif self.status == "terminated"
-        @current_profile ||= self.profiles.terminated
+        @current_profile ||= self.profiles.terminated.last
       else
         self.profiles.last
       end
