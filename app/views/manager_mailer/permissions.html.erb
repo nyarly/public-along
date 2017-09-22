@@ -33,7 +33,7 @@
   <% elsif @kind == "Onboarding" %>
     <p>
       <strong style="color: red; text-decoration: underline">
-        You must complete this form by <%= @employee.termination_date.strftime("%b %e, %Y") %>. The onboarding form is necessary to have your new hire’s equipment and access ready for their first day. Please fill it out as soon as possible so that we can provide the best possible onboarding experience.
+        You must complete this form by <%= @employee.onboarding_start_date %>. The onboarding form is necessary to have your new hire’s equipment and access ready for their first day. Please fill it out as soon as possible so that we can provide the best possible onboarding experience.
       </strong>
     </p>
   <% elsif @kind == "Offboarding" %>
