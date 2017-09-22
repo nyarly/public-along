@@ -1,11 +1,12 @@
 <h3 class="text-center">Employee Onboarding Form</h3>
-<div class="text-center" style="margin-left: 15%; margin-right: 15%;">
-  <p>This form must be submitted by <strong><%= @employee.onboarding_due_date %>. If it is not submitted before the due date, this worker's access and equipment may not be ready on their first day.</strong>
+<div class="text-center" style="margin-left: 7%; margin-right: 7%;">
+  <p><strong>Due: <%= @employee.onboarding_due_date %>.</strong>
     <br>
-    Start Date: <strong><%= @employee.current_profile.start_date.strftime("%b %e, %Y")%></strong>
+    <strong>Start Date: <%= @employee.current_profile.start_date.strftime("%b %e, %Y")%></strong>
   </p>
   <hr>
-  <p>You are receiving this action request because you are listed as the manager of new hire <%= @employee.cn %>, who will be starting in the <%= @employee.location.name %> office on <%= @employee.current_profile.start_date.strftime("%b %e, %Y") %>. </br>If this information is incorrect, please contact People & Culture.</p>
+  <p>You are receiving this action request because you are listed as the manager of new hire <%= @employee.cn %>. This form helps TechTable and People & Culture prepare your new hire’s equipment and access. It must be submitted by the due date in order for the worker to be onboarded in time for their start date.</p>
+  <p>If you have questions about the information on this form, please contact TechTable as soon as possible, or submit the form with your questions in the note section below.</p>
 </div>
 
 <% if @employee.is_contingent_worker? %>
