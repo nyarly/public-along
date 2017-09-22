@@ -13,75 +13,52 @@ module AdpService
     end
 
     def process_event(str, body)
-      json = JSON.parse(body)
-      if json.dig("events", 0, "data", "output", "worker", "person", "governmentIDs").present?
-        json['events'][0]['data']['output']['worker']['person']['governmentIDs'].each do |government_id|
-          government_id['idValue'] = "REDACTED"
-        end
-      elsif json.dig("events", 0, "data", "output", "worker", "person", "governmentID").present?
-        json['events'][0]['data']['output']['worker']['person']['governmentID']['idValue'] = "REDACTED"
-      end
-      scrubbed_json = JSON.dump(json)
-      kind = json.dig("events", 0, "eventNameCode", "codeValue")
+      event_body = JSON.dump(redact_confidential_info(body))
 
       ae = AdpEvent.new(
-        json: scrubbed_json,
+        json: event_body,
         msg_id: str.to_hash["adp-msg-msgid"][0],
-        kind: kind,
+        kind: kind(event_body),
         status: "New"
       )
 
       if ae.save
-        sort_event(scrubbed_json, ae)
+        sort_event(ae)
         return true
       else
         return false
       end
     end
 
-    def sort_event(body, adp_event)
-      json = JSON.parse(body)
-
+    def sort_event(adp_event)
       case adp_event.kind
       when "worker.hire"
-        if process_hire(json, adp_event)
+        if process_hire(adp_event)
           adp_event.update_attributes(status: "Processed")
         end
       when "worker.terminate"
-        if process_term(json)
+        if process_term(adp_event)
           adp_event.update_attributes(status: "Processed")
         end
       when "worker.on-leave"
-        if process_leave(json)
+        if process_leave(adp_event)
           adp_event.update_attributes(status: "Processed")
         end
       when "worker.rehire"
-        if process_rehire(json, adp_event)
+        if process_rehire(adp_event)
           adp_event.update_attributes(status: "Processed")
         end
       end
       del_event(adp_event.msg_id)
     end
 
-    def process_hire(json, event)
-      worker_json = json.dig("events", 0, "data", "output", "worker")
-      custom_indicators = json.dig("events", 0, "data", "output", "worker", "customFieldGroup", "indicatorFields")
+    def process_hire(event)
+      json = JSON.parse(event.json)
 
-      if custom_indicators.present?
-        rehire_json = custom_indicators.find { |f| f["nameCode"]["codeValue"] == "Is this a Worker Type Change?"}
-        rehire = rehire_json.try(:dig, "indicatorValue")
-      end
-
-      if rehire.present? and rehire == true
-        parser = WorkerJsonParser.new
-        worker_hash = parser.gen_worker_hash(worker_json)
-
-        if worker_hash[:manager_id].present?
-          EmployeeWorker.perform_async("Onboarding", event_id: event.id)
-          return false
-        else
-          return false
-        end
+      if is_rehire?(json)
+        worker_hash = event_json_to_hash(json)
+        send_onboard_with_event(event) unless worker_hash[:manager_id].blank?
+        return false
       else
         profiler = EmployeeProfile.new
         employee = profiler.new_employee(event)
@@ -89,31 +66,23 @@ module AdpService
       end
     end
 
-    def process_term(json)
-      worker_id = json.dig("events", 0, "data", "output", "worker", "workerID", "idValue").downcase
-      term_date = json.dig("events", 0, "data", "output", "worker", "workerDates", "terminationDate")
-      e = Employee.find_by_employee_id(worker_id)
-      profile = e.current_profile
+    def process_term(event)
+      json = JSON.parse(event.json)
+      employee = Employee.find_by_employee_id(worker_id(json))
+      term_date = term_date(json)
 
-      if e.present? && !job_change?(e, term_date)
-        e.assign_attributes(termination_date: term_date)
-        profile.assign_attributes(end_date: term_date)
+      if employee.present? && !job_change?(employee, term_date)
+        employee.assign_attributes(termination_date: term_date)
+        employee.current_profile.assign_attributes(end_date: term_date)
 
-        if is_retroactive?(e, term_date)
-          profile.terminate
-          e.terminate
-          delta = EmpDelta.build_from_profile(profile)
-          TechTableMailer.offboard_instructions(e).deliver_now
-          e.save and delta.save and profile.save
-          # process_retro_term(e, profile)
+        if is_retroactive?(employee, term_date)
+          process_retro_term(employee)
         else
-          delta = EmpDelta.build_from_profile(profile)
+          EmpDelta.build_from_profile(employee.current_profile).save!
 
-          if e.save and profile.save
-            ads = ActiveDirectoryService.new
-            ads.update([e])
-            delta.save if delta.present?
-            profile.request_manager_action!
+          if employee.save!
+            employee.update_active_directory_account
+            employee.current_profile.request_manager_action!
           else
             return false
           end
@@ -121,56 +90,34 @@ module AdpService
       end
     end
 
-    def process_retro_term(e, profile)
+    def process_retro_term(employee)
+      employee.current_profile.terminate
+      employee.terminate
+      EmpDelta.build_from_profile(employee.current_profile).save!
+      TechTableMailer.offboard_instructions(employee).deliver_now
+      employee.save && employee.current_profile.save
+    end
 
-      # delta = EmpDelta.build_from_profile(profile)
+    def process_leave(event)
+      json = JSON.parse(event.json)
+      employee = Employee.find_by_employee_id(worker_id(json))
 
-      if e.save!
-
-        # delta.save if delta.present?
-        return true
+      unless employee.blank?
+        employee.assign_attributes(leave_start_date: leave_date(json))
+        EmpDelta.build_from_profile(employee.current_profile).save!
+        employee.update_active_directory_account
+        employee.save!
       end
     end
 
-    def is_retroactive?(e, term_date)
-      date = DateTime.parse(term_date)
-      hour = 21
-      zone = e.nearest_time_zone
-      term_date_time = ActiveSupport::TimeZone.new(zone).local_to_utc(DateTime.new(date.year, date.month, date.day, hour))
-      term_date_time <= DateTime.now.in_time_zone("UTC")
-    end
+    def process_rehire(event)
+      json = JSON.parse(event.json)
+      employee = Employee.find_by_employee_id(worker_id(json))
 
-    def process_leave(json)
-      worker_id = json.dig("events", 0, "data", "output", "worker", "workerID", "idValue").downcase
-      leave_date = json.dig("events", 0, "data", "output", "worker", "workerStatus", "effectiveDate")
-      e = Employee.find_by_employee_id(worker_id)
-      profile = e.current_profile
-
-      if e.present?
-        e.assign_attributes(leave_start_date: leave_date)
-        delta = EmpDelta.build_from_profile(profile)
-      end
-
-      if e.present? && e.save
-        ads = ActiveDirectoryService.new
-        ads.update([e])
-        delta.save if delta.present?
-        return true
-      else
-        return false
-      end
-    end
-
-    def process_rehire(json, event)
-      rehire_event = event
-      worker_id = json.dig("events", 0, "data", "output", "worker", "workerID", "idValue").downcase
-      e = Employee.find_by_employee_id(worker_id)
-
-      if e.present?
+      if employee.present?
         profiler = EmployeeProfile.new
-        updated_account = profiler.link_accounts(e.id, rehire_event.id)
-        updated_account.save!
-        e.rehire!
+        updated_account = profiler.link_accounts(employee.id, event.id)
+        employee.rehire!
       else
         EmployeeWorker.perform_async("Onboarding", event_id: event.id)
         return false
@@ -208,5 +155,63 @@ module AdpService
       set_http(url)
       @http.get(@uri.request_uri, {'Accept' => 'application/json', 'Authorization' => "Bearer #{@token}"})
     end
+
+    def send_onboard_with_event(event)
+      EmployeeWorker.perform_async("Onboarding", event_id: event.id)
+    end
+
+    def event_json_to_hash(json)
+      worker_json = json.dig("events", 0, "data", "output", "worker")
+      parser = WorkerJsonParser.new
+      parser.gen_worker_hash(worker_json)
+    end
+
+    def is_rehire?(json)
+      custom_indicators = json.dig("events", 0, "data", "output", "worker", "customFieldGroup", "indicatorFields")
+
+      if custom_indicators.present?
+        rehire_json = custom_indicators.find { |f| f["nameCode"]["codeValue"] == "Is this a Worker Type Change?"}
+        rehire = rehire_json.try(:dig, "indicatorValue")
+      end
+      rehire == true
+    end
+
+    def kind(body)
+      JSON.parse(body).dig("events", 0, "eventNameCode", "codeValue")
+    end
+
+    def redact_confidential_info(body)
+      json = JSON.parse(body)
+      if json.dig("events", 0, "data", "output", "worker", "person", "governmentIDs").present?
+        json['events'][0]['data']['output']['worker']['person']['governmentIDs'].each do |government_id|
+          government_id['idValue'] = "REDACTED"
+        end
+      elsif json.dig("events", 0, "data", "output", "worker", "person", "governmentID").present?
+        json['events'][0]['data']['output']['worker']['person']['governmentID']['idValue'] = "REDACTED"
+      end
+      json
+    end
+
+    def is_retroactive?(e, term_date)
+      date = DateTime.parse(term_date)
+      hour = 21
+      zone = e.nearest_time_zone
+      term_date_time = ActiveSupport::TimeZone.new(zone).local_to_utc(DateTime.new(date.year, date.month, date.day, hour))
+      term_date_time <= DateTime.now.in_time_zone("UTC")
+    end
+
+    def worker_id(json)
+      json.dig("events", 0, "data", "output", "worker", "workerID", "idValue").downcase
+    end
+
+    def leave_date(json)
+      json.dig("events", 0, "data", "output", "worker", "workerStatus", "effectiveDate")
+    end
+
+    def term_date(json)
+      json.dig("events", 0, "data", "output", "worker", "workerDates", "terminationDate")
+    end
+
+
   end
 end

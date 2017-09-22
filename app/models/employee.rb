@@ -4,6 +4,11 @@ class Employee < ActiveRecord::Base
 
   default_scope { order('last_name ASC') }
 
+  before_validation :downcase_unique_attrs
+  before_validation :downcase_status
+  before_validation :strip_whitespace
+  # after_update :update_active_directory_account
+
   EMAIL_OPTIONS = ["Onboarding", "Offboarding", "Security Access"]
 
   attr_accessor :nearest_time_zone
@@ -25,9 +30,6 @@ class Employee < ActiveRecord::Base
   validates :hire_date,
             presence: true
 
-  before_validation :downcase_unique_attrs
-  before_validation :downcase_status
-  before_validation :strip_whitespace
 
   scope :active_or_inactive, -> { where('status IN (?)', ["active", "inactive"]) }
 
@@ -52,7 +54,7 @@ class Employee < ActiveRecord::Base
         Employee.check_manager(self.manager_id)
         self.current_profile.request_manager_action!
       end
-      transitions :from => :terminated, :to => :pending, :after => [:update_active_directory_account]
+      transitions :from => :terminated, :to => :pending, :after => :update_active_directory_account
     end
 
     event :rehire_from_event do
