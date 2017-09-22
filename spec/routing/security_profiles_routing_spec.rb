@@ -35,5 +35,12 @@ RSpec.describe SecurityProfilesController, type: :routing do
       expect(:delete => "/security_profiles/1").to route_to("security_profiles#destroy", :id => "1")
     end
 
+    it "routes #app_access_levels" do
+      expect(:get => "/app_access_levels").to route_to("security_profiles#app_access_levels")
+    end
+
+    it "routes #sp_access_level" do
+      expect(:get => "/sp_access_level").to route_to("security_profiles#sp_access_level")
+    end
   end
 end

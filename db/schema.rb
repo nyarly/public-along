@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170912184323) do
+ActiveRecord::Schema.define(version: 20170916001335) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -68,17 +68,6 @@ ActiveRecord::Schema.define(version: 20170912184323) do
     t.datetime "updated_at",          null: false
   end
 
-  create_table "emp_access_levels", force: :cascade do |t|
-    t.integer  "access_level_id",                null: false
-    t.boolean  "active",          default: true, null: false
-    t.integer  "employee_id",                    null: false
-    t.datetime "created_at",                     null: false
-    t.datetime "updated_at",                     null: false
-  end
-
-  add_index "emp_access_levels", ["access_level_id"], name: "index_emp_access_levels_on_access_level_id", using: :btree
-  add_index "emp_access_levels", ["employee_id"], name: "index_emp_access_levels_on_employee_id", using: :btree
-
   create_table "emp_delta", force: :cascade do |t|
     t.integer  "employee_id", null: false
     t.hstore   "before"
@@ -114,9 +103,9 @@ ActiveRecord::Schema.define(version: 20170912184323) do
 
   create_table "employees", force: :cascade do |t|
     t.string   "email"
-    t.string   "first_name",                 null: false
-    t.string   "last_name",                  null: false
-    t.datetime "hire_date",                  null: false
+    t.string   "first_name",                             null: false
+    t.string   "last_name",                              null: false
+    t.datetime "hire_date",                              null: false
     t.datetime "contract_end_date"
     t.datetime "termination_date"
     t.string   "personal_mobile_phone"
@@ -127,8 +116,8 @@ ActiveRecord::Schema.define(version: 20170912184323) do
     t.string   "home_state"
     t.string   "home_zip"
     t.string   "image_code"
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
+    t.datetime "created_at",                             null: false
+    t.datetime "updated_at",                             null: false
     t.datetime "ad_updated_at"
     t.datetime "leave_start_date"
     t.datetime "leave_return_date"
@@ -151,6 +140,7 @@ ActiveRecord::Schema.define(version: 20170912184323) do
     t.string   "del_adp_assoc_oid"
     t.integer  "del_worker_type_id"
     t.integer  "del_job_title_id"
+    t.string   "business_card_title",        limit: 150
   end
 
   add_index "employees", ["email"], name: "index_employees_on_email", unique: true, using: :btree
@@ -283,8 +273,6 @@ ActiveRecord::Schema.define(version: 20170912184323) do
   add_foreign_key "dept_mach_bundles", "machine_bundles", on_delete: :cascade
   add_foreign_key "dept_sec_profs", "departments", on_delete: :cascade
   add_foreign_key "dept_sec_profs", "security_profiles", on_delete: :cascade
-  add_foreign_key "emp_access_levels", "access_levels", on_delete: :cascade
-  add_foreign_key "emp_access_levels", "employees", on_delete: :cascade
   add_foreign_key "emp_delta", "employees", on_delete: :cascade
   add_foreign_key "emp_mach_bundles", "emp_transactions", on_delete: :cascade
   add_foreign_key "emp_mach_bundles", "machine_bundles", on_delete: :cascade

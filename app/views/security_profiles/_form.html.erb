@@ -1,8 +1,8 @@
-<%= form_for(@security_profile, :html => {:class => "form"} ) do |f| %>
+<%= form_for(@security_profile, :html => {:class => "form"}) do |f| %>
+
   <% if @security_profile.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@security_profile.errors.count, "error") %> prohibited this security_profile from being saved:</h2>
-
       <ul>
       <% @security_profile.errors.full_messages.each do |message| %>
         <li><%= message %></li>
@@ -21,10 +21,46 @@
   </div>
   <div class="field">
     <%= f.label :departments %><br>
-    <%= f.select :department_ids, Department.all.collect {|x| [x.name, x.id]}, {}, :multiple => true %>
+    <%= f.select :department_ids, Department.all.collect {|x| [x.name, x.id]}, {}, :selected => @security_profile.department_ids, :multiple => true %>
   </div>
+
+  <h5>Permissions</h5>
+  <div class="callout">
+    <div class="field" id="sp_access_levels">
+    <%= render :partial => 'sp_access_level', :collection => @security_profile.access_levels, :as => :sp_access_level %>
+    </div>
+  </div>
+
+  <p><a data-open="getAccessLevel" class="button">+ Permission</a></p>
+
   <div class="actions">
     <%= link_to 'Back to List', security_profiles_path, :class => "button secondary" %>
-    <%= f.submit "Submit", :class => "button"%>
+    <%= f.submit "Submit", :class => "button" %>
   </div>
 <% end %>
+
+<!-- Modal to select application/access level to add to security profile -->
+<div class="small reveal" id="getAccessLevel" data-reveal>
+  <div class="row">
+    <div class="large-12 columns">
+      <button class="close-button" data-close aria-label="Close modal" type="button">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="large-12 columns">
+      <br>
+      <%= form_tag "access_level" do |g| %>
+        <%= collection_select("access_level", :application_id, Application.all, :id, :name, { prompt: "Select Application", required: true}, {id: 'app_select'}) %>
+        <%= collection_select("access_level", :name, [], :id, :name, { prompt: "Select Permission Level", required: true}, {id: 'access_level_name_select'}) %>
+      <% end %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="large-12 columns">
+      <button type="button" class="button" id="add_access_level">Add to Security Profile</button>
+    </div>
+  </div>
+</div>
