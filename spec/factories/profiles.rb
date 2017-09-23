@@ -11,28 +11,12 @@ FactoryGirl.define do
     adp_assoc_oid   { Faker::Number.number(10) }
     adp_employee_id { Faker::Number.number(6) }
 
-    factory :waiting_onboard_profile do
-      profile_status { "waiting_for_onboard" }
-    end
-
-    factory :has_onboard_profile do
-      profile_status { "onboard_received" }
-    end
-
     factory :active_profile do
       profile_status { "active" }
     end
 
     factory :leave_profile do
       profile_status { "leave" }
-    end
-
-    factory :waiting_offboard_profile do
-      profile_status { "waiting_for_offboard" }
-    end
-
-    factory :has_offboard_profile do
-      profile_status { "offboard_received" }
     end
 
     factory :terminated_profile do

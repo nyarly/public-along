@@ -1,5 +1,4 @@
-module EmpLdapEntry
-
+module Employee::LdapEntry
   def ad_attrs
     {
       cn: cn,

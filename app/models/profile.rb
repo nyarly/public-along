@@ -43,16 +43,7 @@ class Profile < ActiveRecord::Base
     end
   end
 
-  scope :regular_worker_type, -> { joins(:worker_type).where(:worker_types => {:kind => "Regular"})}
-
-  def send_manager_onboarding_form
-    EmployeeWorker.perform_async("Onboarding", employee_id: self.employee.id)
-  end
-
-  def send_offboarding_forms
-    TechTableMailer.offboard_notice(self.employee).deliver_now
-    EmployeeWorker.perform_async("Offboarding", employee_id: self.employee.id)
-  end
+  scope :regular_worker_type, -> { joins(:worker_type).where(:worker_types => {:kind => "Regular"}) }
 
   def downcase_unique_attrs
     self.adp_employee_id = adp_employee_id.downcase if adp_employee_id.present?

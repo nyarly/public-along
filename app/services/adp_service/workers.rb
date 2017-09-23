@@ -46,7 +46,7 @@ module AdpService
           if e.present?
             profiler = EmployeeProfile.new
             profiler.update_employee(e, w)
-            Employee.check_manager(e.manager_id)
+            e.check_manager
 
             workers_to_update << e
           else
@@ -94,7 +94,7 @@ module AdpService
         w_hash = workers[0]
         profiler = EmployeeProfile.new
         profiler.update_employee(e, w_hash.except(:status, :profile_status))
-        Employee.check_manager(e.manager_id)
+        e.check_manager
 
         if e.updated_at >= 1.minute.ago
           ad = ActiveDirectoryService.new
