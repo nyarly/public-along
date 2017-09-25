@@ -95,7 +95,7 @@ module AdpService
       employee.terminate
       EmpDelta.build_from_profile(employee.current_profile).save!
       TechTableMailer.offboard_instructions(employee).deliver_now
-      employee.save && employee.current_profile.save
+      employee.save! && employee.current_profile.save!
     end
 
     def process_leave(event)
@@ -103,10 +103,16 @@ module AdpService
       employee = Employee.find_by_employee_id(worker_id(json))
 
       unless employee.blank?
-        employee.assign_attributes(leave_start_date: leave_date(json))
-        EmpDelta.build_from_profile(employee.current_profile).save!
-        employee.update_active_directory_account
-        employee.save!
+        leave_date = leave_date(json)
+        employee.assign_attributes(leave_start_date: leave_date))
+        if is_retroactive?(employee, leave_date)
+          employee.start_leave
+          EmpDelta.build_from_profile(employee.current_profile).save!
+          employee.save!
+        else
+          employee.update_active_directory_account
+          employee.save!
+        end
       end
     end
 
@@ -192,12 +198,12 @@ module AdpService
       json
     end
 
-    def is_retroactive?(e, term_date)
-      date = DateTime.parse(term_date)
+    def is_retroactive?(e, emp_date)
+      date = DateTime.parse(emp_date)
       hour = 21
       zone = e.nearest_time_zone
-      term_date_time = ActiveSupport::TimeZone.new(zone).local_to_utc(DateTime.new(date.year, date.month, date.day, hour))
-      term_date_time <= DateTime.now.in_time_zone("UTC")
+      emp_date_time = ActiveSupport::TimeZone.new(zone).local_to_utc(DateTime.new(date.year, date.month, date.day, hour))
+      emp_date_time <= DateTime.now.in_time_zone("UTC")
     end
 
     def worker_id(json)

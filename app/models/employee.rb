@@ -47,7 +47,7 @@ class Employee < ActiveRecord::Base
       after do
         check_manager
         add_basic_security_profile
-        self.current_profile.request_manager_action!
+        send_manager_onboarding_form
       end
       transitions :from => :created, :to => :pending, :after => :create_active_directory_account
     end
@@ -66,8 +66,7 @@ class Employee < ActiveRecord::Base
       after do
         self.current_profile.activate!
       end
-      transitions :from => :pending, :to => :active, :after => :activate_active_directory_account
-      transitions :from => :inactive, :to => :active, :after => :activate_active_directory_account
+      transitions :from => [:pending, :inactive], :to => :active, :after => :activate_active_directory_account
     end
 
     event :start_leave do

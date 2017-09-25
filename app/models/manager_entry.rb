@@ -140,7 +140,7 @@ class ManagerEntry
           build_onboarding
           build_security_profiles
           build_machine_bundles
-          @employee.current_profile.receive_manager_action!
+          @employee.complete!
           UpdateEmailWorker.perform_async(@employee.id)
         elsif kind == "Security Access"
           build_security_profiles
