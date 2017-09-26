@@ -11,13 +11,20 @@ describe Employee, type: :model do
     ad_updated_at: 2.years.ago) }
 
   describe "state machine" do
-    let!(:regular_sp) { FactoryGirl.create(:security_profile, name: "Basic Regular Worker Profile") }
-    let(:employee)    { FactoryGirl.create(:employee) }
-    let!(:profile)    { FactoryGirl.create(:profile, employee: employee) }
-    let(:ad)          { double(ActiveDirectoryService) }
-    let(:mailer)      { double(ManagerMailer) }
-    let(:os)          { double(OffboardingService) }
-    let(:sas)         { double(SecAccessService) }
+    let!(:regular_sp)      { FactoryGirl.create(:security_profile, name: "Basic Regular Worker Profile") }
+    let(:employee)         { FactoryGirl.create(:employee) }
+    let!(:profile)         { FactoryGirl.create(:profile, employee: employee) }
+    let!(:active_employee) { FactoryGirl.create(:active_employee) }
+    let!(:active_profile)  { FactoryGirl.create(:active_profile, employee: active_employee)}
+    let!(:leave_employee)  { FactoryGirl.create(:leave_employee) }
+    let!(:leave_profile)   { FactoryGirl.create(:leave_profile, employee: leave_employee) }
+    let!(:termed_employee) { FactoryGirl.create(:terminated_employee) }
+    let!(:termed_profile)  { FactoryGirl.create(:terminated_profile, employee: termed_employee) }
+    let!(:new_profile)     { FactoryGirl.create(:profile, employee: termed_employee) }
+    let(:ad)               { double(ActiveDirectoryService) }
+    let(:mailer)           { double(ManagerMailer) }
+    let(:os)               { double(OffboardingService) }
+    let(:sas)              { double(SecAccessService) }
 
     it "should initialize as created" do
       expect(employee).to have_state(:created)
@@ -37,13 +44,17 @@ describe Employee, type: :model do
       expect(employee).to allow_transition_to(:waiting).on(:request_status)
       expect(employee).not_to allow_event(:complete).on(:request_status)
       expect(employee).not_to allow_event(:clear).on(:request_status)
+
+      expect(employee.profiles.count).to eq(1)
+      expect(employee.current_profile.profile_status).to eq("pending")
     end
 
-    it "should create accounts and set as pending" do
+    it "employee.hire! should create accounts and set as pending" do
       expect(SecAccessService).to receive(:new).and_return(sas)
       expect(sas).to receive(:apply_ad_permissions)
       expect(employee).to receive(:create_active_directory_account).and_return(ad)
       expect(employee).to receive(:check_manager).and_return(true)
+      expect(EmployeeWorker).to receive(:perform_async)
       expect(employee).to transition_from(:created).to(:pending).on_event(:hire)
       expect(employee).to have_state(:pending)
       expect(employee).to allow_event(:activate)
@@ -55,9 +66,17 @@ describe Employee, type: :model do
       expect(employee).not_to allow_event(:start_leave)
       expect(employee).not_to allow_event(:end_leave)
       expect(employee).not_to allow_event(:terminate)
+
+      expect(employee).to have_state(:waiting).on(:request_status)
+      expect(employee).to allow_event(:complete).on(:request_status)
+
+      expect(employee.profiles.count).to eq(1)
+      expect(employee.current_profile.profile_status).to eq("pending")
     end
 
-    it "should start" do
+    it "employee.activate! should make employee active" do
+      employee.request_status = "completed"
+
       expect(employee).to receive(:activate_active_directory_account).and_return(ad)
       expect(employee).to transition_from(:pending).to(:active).on_event(:activate)
       expect(employee).to have_state(:active)
@@ -70,65 +89,92 @@ describe Employee, type: :model do
       expect(employee).not_to allow_event(:hire)
       expect(employee).not_to allow_event(:rehire)
       expect(employee).not_to allow_event(:activate)
+
+      expect(employee).to have_state(:none).on(:request_status)
+
+      expect(employee.profiles.count).to eq(1)
+      expect(employee.current_profile.profile_status).to eq("active")
     end
 
-    it "should go on leave" do
-      expect(employee).to receive(:deactivate_active_directory_account).and_return(ad)
-      expect(employee).to transition_from(:active).to(:inactive).on_event(:start_leave)
-      expect(employee).to have_state(:inactive)
-      expect(employee).to allow_event(:activate)
-      expect(employee).to allow_transition_to(:active)
-      expect(employee).not_to allow_transition_to(:created)
-      expect(employee).not_to allow_transition_to(:pending)
-      expect(employee).not_to allow_transition_to(:terminated)
-      expect(employee).not_to allow_event(:hire)
-      expect(employee).not_to allow_event(:rehire)
-      expect(employee).not_to allow_event(:terminate)
-      expect(employee).not_to allow_event(:start_leave)
+    it "employee.start_leave! should put employee on leave" do
+      expect(active_employee).to receive(:deactivate_active_directory_account).and_return(ad)
+      expect(active_employee).to transition_from(:active).to(:inactive).on_event(:start_leave)
+      expect(active_employee).to have_state(:inactive)
+      expect(active_employee).to allow_event(:activate)
+      expect(active_employee).to allow_transition_to(:active)
+      expect(active_employee).not_to allow_transition_to(:created)
+      expect(active_employee).not_to allow_transition_to(:pending)
+      expect(active_employee).not_to allow_transition_to(:terminated)
+      expect(active_employee).not_to allow_event(:hire)
+      expect(active_employee).not_to allow_event(:rehire)
+      expect(active_employee).not_to allow_event(:terminate)
+      expect(active_employee).not_to allow_event(:start_leave)
+
+      expect(active_employee).to have_state(:none).on(:request_status)
+
+      expect(active_employee.current_profile.profile_status).to eq("leave")
     end
 
-    it "should return from leave" do
-      expect(employee).to receive(:activate_active_directory_account).and_return(ad)
-      expect(employee).to transition_from(:inactive).to(:active).on_event(:activate)
-      expect(employee).to have_state(:active)
-      expect(employee).to allow_event(:start_leave)
-      expect(employee).to allow_event(:terminate)
-      expect(employee).to allow_transition_to(:inactive)
-      expect(employee).to allow_transition_to(:terminated)
-      expect(employee).not_to allow_transition_to(:created)
-      expect(employee).not_to allow_transition_to(:pending)
-      expect(employee).not_to allow_event(:hire)
-      expect(employee).not_to allow_event(:rehire)
-      expect(employee).not_to allow_event(:activate)
+    it "employee.activate! should return employee from leave" do
+      expect(leave_employee).to receive(:activate_active_directory_account).and_return(ad)
+      expect(leave_employee).to transition_from(:inactive).to(:active).on_event(:activate)
+      expect(leave_employee).to have_state(:active)
+      expect(leave_employee).to allow_event(:start_leave)
+      expect(leave_employee).to allow_event(:terminate)
+      expect(leave_employee).to allow_transition_to(:inactive)
+      expect(leave_employee).to allow_transition_to(:terminated)
+      expect(leave_employee).not_to allow_transition_to(:created)
+      expect(leave_employee).not_to allow_transition_to(:pending)
+      expect(leave_employee).not_to allow_event(:hire)
+      expect(leave_employee).not_to allow_event(:rehire)
+      expect(leave_employee).not_to allow_event(:activate)
+
+      expect(leave_employee).to have_state(:none).on(:request_status)
+
+      expect(leave_employee.current_profile.profile_status).to eq("active")
     end
 
-    it "should be terminated" do
-      expect(employee).to receive(:deactivate_active_directory_account).and_return(ad)
-      expect(employee).to receive(:offboard).and_return(os)
-      expect(employee).to transition_from(:active).to(:terminated).on_event(:terminate)
-      expect(employee).to have_state(:terminated)
-      expect(employee).to allow_event(:rehire)
-      expect(employee).to allow_transition_to(:pending)
-      expect(employee).not_to allow_transition_to(:created)
-      expect(employee).not_to allow_transition_to(:inactive)
-      expect(employee).not_to allow_transition_to(:active)
-      expect(employee).not_to allow_event(:hire)
-      expect(employee).not_to allow_event(:activate)
-      expect(employee).not_to allow_event(:terminate)
-      expect(employee).not_to allow_event(:start_leave)
+    it "employee.terminate! should terminate employee" do
+      expect(active_employee).to receive(:deactivate_active_directory_account).and_return(ad)
+      expect(active_employee).to receive(:offboard).and_return(os)
+      expect(active_employee).to transition_from(:active).to(:terminated).on_event(:terminate)
+      expect(active_employee).to have_state(:terminated)
+      expect(active_employee).to allow_event(:rehire)
+      expect(active_employee).to allow_transition_to(:pending)
+      expect(active_employee).not_to allow_transition_to(:created)
+      expect(active_employee).not_to allow_transition_to(:inactive)
+      expect(active_employee).not_to allow_transition_to(:active)
+      expect(active_employee).not_to allow_event(:hire)
+      expect(active_employee).not_to allow_event(:activate)
+      expect(active_employee).not_to allow_event(:terminate)
+      expect(active_employee).not_to allow_event(:start_leave)
+
+      expect(active_employee).to have_state(:none).on(:request_status)
+
+      expect(active_employee.current_profile.profile_status).to eq("terminated")
     end
 
-    it "should be rehired" do
-      expect(employee).to transition_from(:terminated).to(:pending).on_event(:rehire)
-      expect(employee).to have_state(:pending)
-      expect(employee).to allow_event(:activate)
-      expect(employee).to allow_transition_to(:active)
-      expect(employee).not_to allow_transition_to(:terminated)
-      expect(employee).not_to allow_transition_to(:created)
-      expect(employee).not_to allow_transition_to(:inactive)
-      expect(employee).not_to allow_event(:hire)
-      expect(employee).not_to allow_event(:start_leave)
-      expect(employee).not_to allow_event(:terminate)
+    it "employee.rehire! should kick off rehire process" do
+      expect(SecAccessService).to receive(:new).and_return(sas)
+      expect(sas).to receive(:apply_ad_permissions)
+      expect(termed_employee).to receive(:update_active_directory_account).and_return(ad)
+      expect(termed_employee).to receive(:check_manager).and_return(true)
+      expect(EmployeeWorker).to receive(:perform_async)
+      expect(termed_employee).to transition_from(:terminated).to(:pending).on_event(:rehire)
+      expect(termed_employee).to have_state(:pending)
+      expect(termed_employee).to allow_event(:activate)
+      expect(termed_employee).to allow_transition_to(:active)
+      expect(termed_employee).not_to allow_transition_to(:terminated)
+      expect(termed_employee).not_to allow_transition_to(:created)
+      expect(termed_employee).not_to allow_transition_to(:inactive)
+      expect(termed_employee).not_to allow_event(:hire)
+      expect(termed_employee).not_to allow_event(:start_leave)
+      expect(termed_employee).not_to allow_event(:terminate)
+
+      expect(termed_employee).to have_state(:waiting).on(:request_status)
+
+      expect(termed_employee.profiles.first.profile_status).to eq("terminated")
+      expect(termed_employee.current_profile.profile_status).to eq("pending")
     end
   end
 
@@ -348,19 +394,19 @@ describe Employee, type: :model do
     end
 
     it "should calculate an onboarding due date according to location" do
-      emp_1 = FactoryGirl.create(:employee,
+      emp_1 = FactoryGirl.create(:pending_employee,
         hire_date: Date.new(2016, 7, 25, 2))
       prof_1 = FactoryGirl.create(:profile,
         employee: emp_1,
         start_date: Date.new(2016, 7, 25),
         location: Location.find_by_name("San Francisco Headquarters"))
-      emp_2 = FactoryGirl.create(:employee,
+      emp_2 = FactoryGirl.create(:pending_employee,
         hire_date: Date.new(2016, 7, 25, 2))
       prof_2 = FactoryGirl.create(:profile,
         employee: emp_2,
         start_date: Date.new(2016, 7, 25),
         location: Location.find_by_name("London Office"))
-      emp_3 = FactoryGirl.create(:employee,
+      emp_3 = FactoryGirl.create(:pending_employee,
         hire_date: Date.new(2016, 7, 25, 2))
       prof_3 = FactoryGirl.create(:profile,
         employee: emp_3,
@@ -389,26 +435,26 @@ describe Employee, type: :model do
   end
 
   describe "#check_manager" do
-    let(:manager) { FactoryGirl.create(:regular_employee) }
+    let(:manager)     { FactoryGirl.create(:regular_employee) }
     let(:mgr_profile) { FactoryGirl.create(:security_profile, name: "Basic Manager") }
-    let(:app) { FactoryGirl.create(:application) }
-    let(:access_level_1) {FactoryGirl.create(:access_level,
-      application_id: app.id,
-      ad_security_group: nil
-    )}
-    let(:access_level_2) {FactoryGirl.create(:access_level,
-      application_id: app.id,
-      ad_security_group: "distinguished name of AD sec group"
-    )}
-    let!(:spal_1) { FactoryGirl.create(:sec_prof_access_level,
-      security_profile_id: mgr_profile.id,
-      access_level_id: access_level_1.id
-    )}
-    let!(:spal_2) { FactoryGirl.create(:sec_prof_access_level,
-      security_profile_id: mgr_profile.id,
-      access_level_id: access_level_2.id
-    )}
-    let(:sas) { double(SecAccessService) }
+    let!(:employee)   { FactoryGirl.create(:employee) }
+    let!(:e_profile)  { FactoryGirl.create(:profile,
+                        employee: employee,
+                        manager_id: manager.employee_id) }
+    let(:app)         { FactoryGirl.create(:application) }
+    let(:acc_level_1) { FactoryGirl.create(:access_level,
+                        application_id: app.id,
+                        ad_security_group: nil) }
+    let(:acc_level_2) { FactoryGirl.create(:access_level,
+                        application_id: app.id,
+                        ad_security_group: "distinguished name of AD sec group") }
+    let!(:spal_1)     { FactoryGirl.create(:sec_prof_access_level,
+                        security_profile_id: mgr_profile.id,
+                        access_level_id: acc_level_1.id) }
+    let!(:spal_2)     { FactoryGirl.create(:sec_prof_access_level,
+                        security_profile_id: mgr_profile.id,
+                        access_level_id: acc_level_2.id) }
+    let(:sas)         { double(SecAccessService) }
 
     before :each do
       allow(SecAccessService).to receive(:new).and_return(sas)
@@ -418,7 +464,7 @@ describe Employee, type: :model do
       expect(sas).to receive(:apply_ad_permissions)
 
       expect{
-        Employee.check_manager(manager.employee_id)
+        employee.check_manager
       }.to change{Employee.managers.include?(manager)}.from(false).to(true)
       expect(manager.emp_sec_profiles.last.security_profile_id).to eq(mgr_profile.id)
       expect(manager.active_security_profiles).to include(mgr_profile)
@@ -427,29 +473,21 @@ describe Employee, type: :model do
     it "should apply AD security group if not nil" do
       expect(sas).to receive(:apply_ad_permissions)
 
-      Employee.check_manager(manager.employee_id)
+      employee.check_manager
     end
 
     it "should do nothing if worker already has 'Basic Manager' profile" do
-      emp_transaction = FactoryGirl.create(:emp_transaction,
-        employee_id: manager.id)
+      emp_transaction = FactoryGirl.create(:emp_transaction, employee_id: manager.id)
       FactoryGirl.create(:emp_sec_profile,
-        security_profile_id: mgr_profile.id,
-        emp_transaction_id: emp_transaction.id)
+                         security_profile_id: mgr_profile.id,
+                         emp_transaction_id: emp_transaction.id)
 
       expect(sas).to_not receive(:apply_ad_permissions)
 
       expect{
-        Employee.check_manager(manager.employee_id)
+        employee.check_manager
       }.to_not change{Employee.managers.include?(manager)}
       expect(Employee.managers.include?(manager)).to eq(true)
-    end
-
-    it "should not execute if nil is passed in" do
-      expect(Employee).to_not receive(:managers)
-      expect(SecurityProfile).to_not receive(:find)
-
-      Employee.check_manager(nil)
     end
   end
 
