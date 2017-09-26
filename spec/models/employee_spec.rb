@@ -31,13 +31,19 @@ describe Employee, type: :model do
       expect(employee).not_to allow_event(:start_leave)
       expect(employee).not_to allow_event(:end_leave)
       expect(employee).not_to allow_event(:terminate)
+
+      expect(employee).to have_state(:none).on(:request_status)
+      expect(employee).to allow_event(:wait).on(:request_status)
+      expect(employee).to allow_transition_to(:waiting).on(:request_status)
+      expect(employee).not_to allow_event(:complete).on(:request_status)
+      expect(employee).not_to allow_event(:clear).on(:request_status)
     end
 
     it "should create accounts and set as pending" do
       expect(SecAccessService).to receive(:new).and_return(sas)
       expect(sas).to receive(:apply_ad_permissions)
       expect(employee).to receive(:create_active_directory_account).and_return(ad)
-      expect(Employee).to receive(:check_manager).and_return(true)
+      expect(employee).to receive(:check_manager).and_return(true)
       expect(employee).to transition_from(:created).to(:pending).on_event(:hire)
       expect(employee).to have_state(:pending)
       expect(employee).to allow_event(:activate)

@@ -36,7 +36,7 @@ class Employee < ActiveRecord::Base
 
   scope :active_or_inactive, -> { where('status IN (?)', ["active", "inactive"]) }
 
-  aasm(:status) do
+  aasm :column => "status" do
     state :created, :initial => true
     state :pending
     state :active
@@ -161,12 +161,12 @@ class Employee < ActiveRecord::Base
   end
 
   def send_manager_onboarding_form
-    EmployeeWorker.perform_async("Onboarding", employee_id: self.employee.id)
+    EmployeeWorker.perform_async("Onboarding", employee_id: self.id)
   end
 
   def send_offboarding_forms
-    TechTableMailer.offboard_notice(self.employee).deliver_now
-    EmployeeWorker.perform_async("Offboarding", employee_id: self.employee.id)
+    TechTableMailer.offboard_notice(self.id).deliver_now
+    EmployeeWorker.perform_async("Offboarding", employee_id: self.id)
   end
 
   def downcase_unique_attrs

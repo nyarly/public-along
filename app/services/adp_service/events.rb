@@ -104,7 +104,7 @@ module AdpService
 
       unless employee.blank?
         leave_date = leave_date(json)
-        employee.assign_attributes(leave_start_date: leave_date))
+        employee.assign_attributes(leave_start_date: leave_date)
         if is_retroactive?(employee, leave_date)
           employee.start_leave
           EmpDelta.build_from_profile(employee.current_profile).save!
