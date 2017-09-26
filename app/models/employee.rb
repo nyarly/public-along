@@ -5,7 +5,6 @@ class Employee < ActiveRecord::Base
 
   before_validation :downcase_unique_attrs
   before_validation :strip_whitespace
-  # after_update :update_active_directory_account
 
   EMAIL_OPTIONS = ["Onboarding", "Offboarding", "Security Access"]
 
@@ -69,6 +68,14 @@ class Employee < ActiveRecord::Base
       transitions :from => :active, :to => :terminated, :after => [:deactivate_active_directory_account, :terminate_profile, :offboard]
     end
 
+    event :terminate_immediately do
+      transitions :from => :active, :to => :terminated, :after => [:deactivate_active_directory_account, :offboard, :send_techtable_offboard_instructions]
+    end
+
+    event :leave_immediately do
+      transitions :from => :active, :to => :inactive, :after => :deactivate_active_directory_account
+    end
+
     # edge case
     # event :will_not_start do
     #   transitions :from => :pending, :to => :terminated
@@ -90,12 +97,21 @@ class Employee < ActiveRecord::Base
     end
 
     event :complete do
-      transitions :from => :waiting, :to => :completed
+      transitions :from => [:none, :waiting], :to => :completed
     end
 
     event :clear_queue do
       transitions :from => [:completed, :waiting, :none], :to => :none
     end
+
+    event :start_offboard_process do
+      transitions :from => :none, :to => :waiting, :after => :process_upcoming_termination
+    end
+  end
+
+  def process_upcoming_termination
+    update_active_directory_account
+    send_offboarding_forms
   end
 
   [:manager_id, :department, :worker_type, :location, :job_title, :company, :adp_assoc_oid].each do |attribute|
@@ -408,7 +424,7 @@ class Employee < ActiveRecord::Base
   end
 
   def send_techtable_offboard_instructions
-    TechTableMailer.offboard_instructions(self).deliver_now
+    TechTableMailer.offboard_instructions(self.id).deliver_now
   end
 
   def offboard

@@ -11,8 +11,8 @@ RSpec.describe ManagerEntry do
   context "Onboarding New Hire" do
     let(:user) { FactoryGirl.create(:user) }
     let(:buddy) { FactoryGirl.create(:active_employee) }
-    let!(:employee) { FactoryGirl.create(:active_employee) }
-    let!(:profile)  { FactoryGirl.create(:waiting_onboard_profile, employee: employee) }
+    let!(:employee) { FactoryGirl.create(:active_employee, request_status: "waiting") }
+    let!(:profile)  { FactoryGirl.create(:profile, employee: employee) }
     let(:sp_1) { FactoryGirl.create(:security_profile) }
     let(:sp_2) { FactoryGirl.create(:security_profile) }
     let(:sp_3) { FactoryGirl.create(:security_profile) }
@@ -143,8 +143,8 @@ RSpec.describe ManagerEntry do
       expect(old_employee.worker_type).to eq(worker_type)
       expect(old_employee.machine_bundles.first).to eq(machine_bundle)
       expect(old_employee.profiles.count).to eq(2)
-      expect(old_employee.profiles.terminated).to eq(profile)
-      expect(old_employee.profiles.active.worker_type).to eq(worker_type)
+      expect(old_employee.profiles.terminated.last).to eq(profile)
+      expect(old_employee.profiles.pending.last.worker_type).to eq(worker_type)
       expect(event.status).to eq("Processed")
     end
 
@@ -163,8 +163,8 @@ RSpec.describe ManagerEntry do
       expect(employee.worker_type).to eq(worker_type)
       expect(employee.machine_bundles.first).to eq(machine_bundle)
       expect(employee.profiles.count).to eq(1)
-      expect(employee.profiles.terminated).to eq(nil)
-      expect(employee.profiles.active.worker_type).to eq(worker_type)
+      expect(employee.profiles.terminated.last).to eq(nil)
+      expect(employee.profiles.pending.last.worker_type).to eq(worker_type)
       expect(event.status).to eq("Processed")
     end
   end
@@ -233,9 +233,9 @@ RSpec.describe ManagerEntry do
       expect(old_employee.worker_type).to eq(worker_type)
       expect(old_employee.machine_bundles.first).to eq(machine_bundle)
       expect(old_employee.profiles.count).to eq(2)
-      expect(old_employee.profiles.terminated).to eq(profile)
-      expect(old_employee.profiles.active.worker_type).to eq(worker_type)
-      expect(old_employee.profiles.active.start_date).to eq(DateTime.new(2018, 9, 1))
+      expect(old_employee.profiles.terminated.last).to eq(profile)
+      expect(old_employee.profiles.pending.last.worker_type).to eq(worker_type)
+      expect(old_employee.profiles.pending.last.start_date).to eq(DateTime.new(2018, 9, 1))
       expect(event.status).to eq("Processed")
     end
 
@@ -250,9 +250,9 @@ RSpec.describe ManagerEntry do
       expect(employee.worker_type).to eq(worker_type)
       expect(employee.machine_bundles.first).to eq(machine_bundle)
       expect(employee.profiles.count).to eq(1)
-      expect(employee.profiles.terminated).to eq(nil)
-      expect(employee.profiles.active.worker_type).to eq(worker_type)
-      expect(employee.profiles.active.job_title.name).to eq("Specialist - Major Accounts - Sr.")
+      expect(employee.profiles.terminated.last).to eq(nil)
+      expect(employee.profiles.pending.last.worker_type).to eq(worker_type)
+      expect(employee.profiles.pending.last.job_title.name).to eq("Specialist - Major Accounts - Sr.")
       expect(event.status).to eq("Processed")
     end
   end
@@ -319,7 +319,7 @@ RSpec.describe ManagerEntry do
     let(:forward) { FactoryGirl.create(:employee) }
     let(:manager_entry) { ManagerEntry.new(params) }
     let!(:employee) { FactoryGirl.create(:active_employee) }
-    let!(:profile) { FactoryGirl.create(:waiting_offboard_profile, employee: employee) }
+    let!(:profile) { FactoryGirl.create(:active_profile, employee: employee) }
     let!(:security_profile) { FactoryGirl.create(:security_profile) }
     let!(:emp_sec_profile) { FactoryGirl.create(:emp_sec_profile, security_profile_id: security_profile.id) }
 

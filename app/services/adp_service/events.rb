@@ -81,8 +81,7 @@ module AdpService
           EmpDelta.build_from_profile(employee.current_profile).save!
 
           if employee.save!
-            employee.update_active_directory_account
-            employee.current_profile.request_manager_action!
+            employee.start_offboard_process!
           else
             return false
           end
@@ -92,9 +91,8 @@ module AdpService
 
     def process_retro_term(employee)
       employee.current_profile.terminate
-      employee.terminate
+      employee.terminate_immediately
       EmpDelta.build_from_profile(employee.current_profile).save!
-      TechTableMailer.offboard_instructions(employee).deliver_now
       employee.save! && employee.current_profile.save!
     end
 
@@ -106,10 +104,12 @@ module AdpService
         leave_date = leave_date(json)
         employee.assign_attributes(leave_start_date: leave_date)
         if is_retroactive?(employee, leave_date)
-          employee.start_leave
+          employee.current_profile.start_leave
+          employee.leave_immediately
           EmpDelta.build_from_profile(employee.current_profile).save!
           employee.save!
         else
+          EmpDelta.build_from_profile(employee.current_profile).save!
           employee.update_active_directory_account
           employee.save!
         end

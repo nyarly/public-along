@@ -41,6 +41,7 @@ class EmployeeProfile
 
     employee = Employee.find(employee_id).tap do |employee|
       employee.assign_attributes(parse_attributes(Employee, w_hash.except(:status)))
+      employee.assign_attributes(termination_date: nil)
       new_profile = build_new_profile(employee, w_hash.except(:profile_status))
 
       EmpDelta.build_from_profile(new_profile).save!

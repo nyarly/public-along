@@ -146,7 +146,7 @@ class ManagerEntry
           build_security_profiles
         elsif kind == "Offboarding"
           build_offboarding
-          @employee.current_profile.receive_manager_action!
+          @employee.complete!
         elsif kind == "Equipment"
           build_machine_bundles
         end

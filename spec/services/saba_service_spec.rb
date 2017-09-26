@@ -152,7 +152,7 @@ describe SabaService, type: :service do
     let(:dept) { FactoryGirl.create(:department)}
     let!(:emp1) {FactoryGirl.create(:active_employee,
       email: "test1@opentable.com")}
-    let!(:profile_1) { FactoryGirl.create(:profile,
+    let!(:profile_1) { FactoryGirl.create(:active_profile,
       employee: emp1,
       job_title_id: job_title.id,
       worker_type_id: contractor_type.id,
@@ -161,9 +161,8 @@ describe SabaService, type: :service do
       company: "OpenTable, Inc.")}
     let!(:emp2) {FactoryGirl.create(:leave_employee,
       email: "test2@opentable.com")}
-    let!(:profile_2) { FactoryGirl.create(:profile,
+    let!(:profile_2) { FactoryGirl.create(:leave_profile,
       employee: emp2,
-      profile_status: "leave",
       job_title_id: job_title.id,
       worker_type_id: reg_type.id,
       location_id: loc.id,
@@ -171,9 +170,8 @@ describe SabaService, type: :service do
       company: "OpenTable, Inc.")}
     let!(:emp3) {FactoryGirl.create(:terminated_employee,
       email: "test3@opentable.com")}
-    let!(:profile_3) { FactoryGirl.create(:profile,
+    let!(:profile_3) { FactoryGirl.create(:terminated_profile,
       employee: emp3,
-      profile_status: "terminated",
       job_title_id: job_title.id,
       worker_type_id: reg_type.id,
       location_id: loc.id,
@@ -183,7 +181,6 @@ describe SabaService, type: :service do
       email: "test4@opentable.com")}
     let!(:profile_4) { FactoryGirl.create(:profile,
       employee: emp4,
-      profile_status: "pending",
       job_title_id: job_title.id,
       worker_type_id: reg_type.id,
       location_id: loc.id,

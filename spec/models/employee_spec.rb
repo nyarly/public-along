@@ -42,7 +42,6 @@ describe Employee, type: :model do
       expect(employee).to have_state(:none).on(:request_status)
       expect(employee).to allow_event(:wait).on(:request_status)
       expect(employee).to allow_transition_to(:waiting).on(:request_status)
-      expect(employee).not_to allow_event(:complete).on(:request_status)
       expect(employee).not_to allow_event(:clear).on(:request_status)
 
       expect(employee.profiles.count).to eq(1)

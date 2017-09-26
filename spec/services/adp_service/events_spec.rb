@@ -212,6 +212,7 @@ describe AdpService::Events, type: :service do
         expect(ads).to receive(:create_disabled_accounts)
         expect(sec_access_service).to receive(:apply_ad_permissions)
         expect(SecAccessService).to receive(:new).and_return(sec_access_service)
+        expect(EmployeeWorker).to receive(:perform_async)
       end
 
       it "should create Employee w/ pending status if regular hire event" do
@@ -222,13 +223,12 @@ describe AdpService::Events, type: :service do
           json: hire_json
         )
 
-        expect(Employee).to receive(:check_manager)
 
         expect{
           adp.process_hire(event)
-        }.to change{Employee.count}.from(0).to(1)
-        expect(Employee.last.employee_id).to eq("if0rcdig4")
-        expect(Employee.last.status).to eq("pending")
+        }.to change{Employee.count}.by(1)
+        expect(Employee.reorder(:created_at).last.employee_id).to eq("if0rcdig4")
+        expect(Employee.reorder(:created_at).last.status).to eq("pending")
       end
 
       it "should make indicated manager if not already a manager" do
@@ -287,7 +287,6 @@ describe AdpService::Events, type: :service do
           json: contract_hire_json
         )
 
-        expect(Employee).to receive(:check_manager)
         expect{
           adp.process_hire(event)
         }.to change{Employee.count}.from(0).to(1)
@@ -305,7 +304,6 @@ describe AdpService::Events, type: :service do
           json: hire_json
         )
 
-        expect(Employee).to receive(:check_manager)
         expect{
           adp.process_hire(event)
         }.to change{Employee.count}.from(0).to(1)
@@ -421,18 +419,23 @@ describe AdpService::Events, type: :service do
         expect(term_emp.current_profile.profile_status).to eq("terminated")
         expect(term_emp.emp_deltas.last.before).to eq({"status"=>"active", "end_date"=>nil, "profile_status"=>"active", "termination_date"=>nil})
         expect(term_emp.emp_deltas.last.after).to eq({"status"=>"terminated", "end_date"=>"2017-01-24 00:00:00 UTC", "profile_status"=>"terminated", "termination_date"=>"2017-01-24 00:00:00 UTC"})
+        expect(term_emp.request_status).to eq("none")
       end
 
     end
 
     describe "leave event" do
-      let!(:leave_emp) { FactoryGirl.create(:employee, leave_start_date: nil) }
-      let!(:profile)   { FactoryGirl.create(:profile,
+      let!(:leave_emp) { FactoryGirl.create(:active_employee, leave_start_date: nil) }
+      let!(:profile)   { FactoryGirl.create(:active_profile,
                          employee: leave_emp,
                          adp_employee_id: "100344") }
       let(:event)      { FactoryGirl.create(:adp_event,
                          kind: "worker.on-leave",
                          json: leave_json) }
+
+      after :each do
+        Timecop.return
+      end
 
       it "should update leave date" do
         expect(ActiveDirectoryService).to receive(:new).and_return(ads)
@@ -441,12 +444,29 @@ describe AdpService::Events, type: :service do
         adp = AdpService::Events.new
         adp.token = "a-token-value"
 
+        Timecop.freeze(Time.new(2017, 1, 01, 5, 0, 0, "-07:00"))
+
         expect{
           adp.process_leave(event)
         }.to_not change{Employee.count}
         expect(leave_emp.reload.leave_start_date).to eq("2017-01-23")
         expect(leave_emp.emp_deltas.last.before).to eq({"leave_start_date"=>nil})
         expect(leave_emp.emp_deltas.last.after).to eq({"leave_start_date"=>"2017-01-23 00:00:00 UTC"})
+      end
+
+      it "should immediately put on leave if leave date is retroactive" do
+        expect(ActiveDirectoryService).to receive(:new).and_return(ads)
+        expect(ads).to receive(:deactivate)
+
+        adp = AdpService::Events.new
+        adp.token = "a-token-value"
+
+        expect{
+          adp.process_leave(event)
+        }.to_not change{Employee.count}
+        expect(leave_emp.reload.leave_start_date).to eq("2017-01-23")
+        expect(leave_emp.emp_deltas.last.before).to eq({"status"=> "active", "profile_status"=>"active", "leave_start_date"=>nil,})
+        expect(leave_emp.emp_deltas.last.after).to eq({"status"=> "inactive", "profile_status"=>"leave", "leave_start_date"=>"2017-01-23 00:00:00 UTC"})
       end
     end
 
@@ -498,8 +518,11 @@ describe AdpService::Events, type: :service do
                              end_date: term_date,
                              employee: rehired_emp,
                              adp_employee_id: "123456") }
+        let!(:sas)         { double(SecAccessService) }
 
         it "finds and updates account with new position" do
+          expect(SecAccessService).to receive(:new).and_return(sas)
+          expect(sas).to receive(:apply_ad_permissions)
           expect(ActiveDirectoryService).to receive(:new).and_return(ads)
           expect(ads).to receive(:update)
 
@@ -514,14 +537,15 @@ describe AdpService::Events, type: :service do
             adp.process_rehire(event)
           }.to_not change{Employee.count}
           expect(rehired_emp.reload.status).to eq("pending")
+          expect(rehired_emp.reload.termination_date).to eq(nil)
           expect(rehired_emp.reload.location.code).to eq("SF")
           expect(rehired_emp.reload.job_title.code).to eq("SPMASR")
           expect(rehired_emp.reload.hire_date).to eq(Date.new(2010, 9, 1))
           expect(rehired_emp.profiles.count).to eq(2)
           expect(rehired_emp.current_profile.start_date).to eq(Date.new(2018, 9, 1))
-          expect(rehired_emp.current_profile.profile_status).to eq("waiting_for_onboard")
-          expect(rehired_emp.profiles.terminated.start_date).to eq(Date.new(2010, 9, 1))
-          expect(rehired_emp.profiles.terminated.end_date).to eq(term_date)
+          expect(rehired_emp.current_profile.profile_status).to eq("pending")
+          expect(rehired_emp.profiles.terminated.last.start_date).to eq(Date.new(2010, 9, 1))
+          expect(rehired_emp.profiles.terminated.last.end_date).to eq(term_date)
         end
       end
 

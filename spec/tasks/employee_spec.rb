@@ -39,7 +39,7 @@ describe "employee rake tasks", type: :tasks do
     it "should call ldap and update only GB new hires and returning leave workers at 3am BST" do
       new_hire_uk = FactoryGirl.create(:pending_employee,
         hire_date: Date.new(2016, 7, 29))
-      nh_uk_prof = FactoryGirl.create(:has_onboard_profile,
+      nh_uk_prof = FactoryGirl.create(:profile,
         employee: new_hire_uk,
         location: london)
       returning_uk = FactoryGirl.create(:leave_employee,
@@ -56,7 +56,7 @@ describe "employee rake tasks", type: :tasks do
 
       new_hire_us = FactoryGirl.create(:pending_employee,
         hire_date: Date.new(2016, 7, 29))
-      nh_us_prof = FactoryGirl.create(:has_onboard_profile,
+      nh_us_prof = FactoryGirl.create(:profile,
         employee: new_hire_us,
         location: sf)
       returning_us = FactoryGirl.create(:leave_employee,
@@ -116,7 +116,7 @@ describe "employee rake tasks", type: :tasks do
     it "should call ldap and update only US new hires and returning leave workers at 3am PST" do
       new_hire_us = FactoryGirl.create(:pending_employee,
         hire_date: Date.new(2016, 7, 29))
-      nh_us_profile = FactoryGirl.create(:has_onboard_profile,
+      nh_us_profile = FactoryGirl.create(:profile,
         employee: new_hire_us,
         location: sf)
       returning_us = FactoryGirl.create(:leave_employee,
@@ -128,7 +128,7 @@ describe "employee rake tasks", type: :tasks do
 
       new_hire_uk = FactoryGirl.create(:pending_employee,
         hire_date: Date.new(2016, 7, 29))
-      nh_uk_profile = FactoryGirl.create(:has_onboard_profile,
+      nh_uk_profile = FactoryGirl.create(:profile,
         employee: new_hire_uk,
         location: london)
       returning_uk = FactoryGirl.create(:leave_employee,
@@ -194,7 +194,7 @@ describe "employee rake tasks", type: :tasks do
       termination_us = FactoryGirl.create(:active_employee,
         hire_date: 5.years.ago,
         termination_date: Date.new(2016, 7, 29))
-      t_prof = FactoryGirl.create(:has_offboard_profile,
+      t_prof = FactoryGirl.create(:active_profile,
         employee: termination_us,
         location: sf)
 
@@ -358,7 +358,7 @@ describe "employee rake tasks", type: :tasks do
 
       termination = FactoryGirl.create(:active_employee,
         termination_date: Date.new(2016, 7, 29))
-      profile = FactoryGirl.create(:profile,
+      profile = FactoryGirl.create(:active_profile,
         employee: termination,
         manager_id: manager.employee_id,
         location: mumbai,
@@ -375,7 +375,7 @@ describe "employee rake tasks", type: :tasks do
       termination = FactoryGirl.create(:active_employee,
         hire_date: Date.new(2014, 5, 3),
         termination_date: Date.new(2016, 8, 21))
-      profile = FactoryGirl.create(:profile,
+      profile = FactoryGirl.create(:active_profile,
         employee: termination,
         manager_id: manager.employee_id,
         department: Department.find_by(:name => "Technology/CTO Admin"),
@@ -383,8 +383,7 @@ describe "employee rake tasks", type: :tasks do
       recent_termination = FactoryGirl.create(:terminated_employee,
         hire_date: Date.new(2014, 5, 3),
         termination_date: Date.new(2016, 8, 20))
-      profile = FactoryGirl.create(:profile,
-        profile_status: "terminated",
+      profile = FactoryGirl.create(:terminated_profile,
         employee: recent_termination,
         manager_id: manager.employee_id,
         department: Department.find_by(:name => "Technology/CTO Admin"),

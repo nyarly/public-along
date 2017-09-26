@@ -132,7 +132,7 @@ describe BetterworksService, type: :service do
       last_name: "Golightly",
       termination_date: nil,
       hire_date: Date.new(2016, 1, 1)) }
-    let!(:emp_prof) { FactoryGirl.create(:profile,
+    let!(:emp_prof) { FactoryGirl.create(:active_profile,
       employee: emp,
       adp_employee_id: "123A",
       start_date: 1.month.ago,
@@ -140,9 +140,8 @@ describe BetterworksService, type: :service do
       job_title: job_title,
       worker_type: ftr_worker_type,
       manager_id: nil )}
-    let!(:old_emp_prof) { FactoryGirl.create(:profile,
+    let!(:old_emp_prof) { FactoryGirl.create(:terminated_profile,
       employee: emp,
-      profile_status: "terminated",
       adp_employee_id: "123A",
       department: department,
       job_title: job_title,
@@ -156,7 +155,7 @@ describe BetterworksService, type: :service do
       last_name: "Parson",
       hire_date: 1.year.ago,
       termination_date: Date.new(2017, 7, 24))}
-    let!(:term_emp_prof) { FactoryGirl.create(:profile,
+    let!(:term_emp_prof) { FactoryGirl.create(:terminated_profile,
       employee: term_emp,
       profile_status: "terminated",
       adp_employee_id: "123B",
@@ -170,7 +169,7 @@ describe BetterworksService, type: :service do
       last_name: "Wallace",
       hire_date: 1.year.ago,
       leave_start_date: 1.month.ago)}
-    let!(:leave_emp_prof) { FactoryGirl.create(:profile,
+    let!(:leave_emp_prof) { FactoryGirl.create(:leave_profile,
       employee: leave_emp,
       profile_status: "leave",
       adp_employee_id: "123C",

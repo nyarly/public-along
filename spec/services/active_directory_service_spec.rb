@@ -179,7 +179,7 @@ describe ActiveDirectoryService, type: :service do
       :last_name => "Lebowski",
       :office_phone => "123-456-7890",
       :sam_account_name => "jlebowski")}
-    let!(:profile) { FactoryGirl.create(:profile,
+    let!(:profile) { FactoryGirl.create(:active_profile,
       employee: employee,
       manager_id: manager.employee_id,
       department: department,
@@ -213,7 +213,7 @@ describe ActiveDirectoryService, type: :service do
     end
 
     it "should update changed attributes" do
-      employee = FactoryGirl.create(:employee,
+      employee = FactoryGirl.create(:active_employee,
         :first_name => "The Dude",
         :last_name => "Lebowski",
         :office_phone => "555-555-5555",
@@ -266,7 +266,7 @@ describe ActiveDirectoryService, type: :service do
       new_location = FactoryGirl.create(:location,
         name: location.name,
         country: "GB")
-      employee = FactoryGirl.create(:employee,
+      employee = FactoryGirl.create(:active_employee,
         :first_name => "Jeffrey",
         :last_name => "Lebowski",
         :office_phone => "123-456-7890",
@@ -294,7 +294,7 @@ describe ActiveDirectoryService, type: :service do
 
     it "should update dn if department changes" do
       new_department = Department.find_by(:name => "Customer Support")
-      employee = FactoryGirl.create(:employee,
+      employee = FactoryGirl.create(:active_employee,
         :first_name => "Jeffrey",
         :last_name => "Lebowski",
         :office_phone => "123-456-7890",

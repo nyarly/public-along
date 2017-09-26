@@ -22,7 +22,7 @@ describe "db:sample_data", type: :tasks do
       Rake::Task["db:sample_data:lebowski"].invoke
       expect(Employee.count).to eq(1)
       expect(Employee.first.last_name).to eq("Lebowski")
-      expect(Employee.first.profiles.active.job_title.name).to eq("Test")
+      expect(Employee.first.profiles.active.last.job_title.name).to eq("Test")
       expect(Employee.first.job_title.name).to eq("Test")
     end
   end

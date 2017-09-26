@@ -8,11 +8,10 @@ describe AdpService::Workers, type: :service do
   let(:request_uri) { "/auth/oauth/v2/token?grant_type=client_credentials" }
   let(:http)        { double(Net::HTTP) }
   let(:response)    { double(Net::HTTPResponse) }
-  let(:ads) { double(ActiveDirectoryService) }
+  let(:ads)         { double(ActiveDirectoryService) }
   let(:pending_hire_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_pending_hire.json") }
-  let(:contractor_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_contractor.json") }
-  let(:terminated_contractor_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_terminated_contractor.json") }
-  let(:not_found_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_worker_not_found.json") }
+  let(:contractor_json)   { File.read(Rails.root.to_s+"/spec/fixtures/adp_contractor.json") }
+  let(:not_found_json)    { File.read(Rails.root.to_s+"/spec/fixtures/adp_worker_not_found.json") }
 
   before :each do
     allow(uri).to receive(:host).and_return(host)
@@ -163,11 +162,10 @@ describe AdpService::Workers, type: :service do
 
       expect(AdpService::WorkerJsonParser).to receive(:new).and_return(parser)
       expect(parser).to receive(:sort_workers).and_return(sorted)
-      expect(Employee).to receive(:check_manager)
       expect(ActiveDirectoryService).to receive(:new).and_return(ads)
       expect(ads).to receive(:update).with([employee])
       expect(EmployeeWorker).to receive(:perform_async)
-      allow(Employee).to receive(:check_manager)
+      allow(employee).to receive(:check_manager)
 
       adp.sync_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
       expect(employee.reload.first_name).to eq("Sally Jesse")
