@@ -29,7 +29,7 @@ RSpec.describe ManagerMailer, type: :mailer do
     it "should have the right content" do
       expect(email.from).to eq(["mezzo-no-reply@opentable.com"])
       expect(email.to).to eq(["manager@opentable.com"])
-      expect(email.subject).to eq("Mezzo Onboarding Form Due Tomorrow for #{employee.first_name} #{employee.last_name}")
+      expect(email.subject).to eq("Urgent: Mezzo Onboarding Form Due Tomorrow for #{employee.first_name} #{employee.last_name}")
       expect(email.text_part.body).to include("Follow the link below to complete the employee event form")
       expect(email.html_part.body).to include("Follow the link below to complete the employee event form")
     end
