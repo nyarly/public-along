@@ -50,23 +50,37 @@ class BetterworksService
       csv << headers
 
       betterworks_users.each do |u|
-        manager_email = u.manager_id.present? ? u.manager.email : ""
-        manager_id = u.manager_id.present? ? u.manager_id : ""
-        on_leave = u.status == "Inactive"
+        if is_pending_rehire?(u)
+          terminated_profile = u.profiles.terminated
+          employee_id = terminated_profile.adp_employee_id
+          department = terminated_profile.department.name
+          location = terminated_profile.location.name
+          job_title = terminated_profile.job_title.name
+          manager_email = terminated_profile.manager_id.present? ? terminated_profile.manager.email : ""
+          manager_id = terminated_profile.manager_id.present? ? terminated_profile.manager_id : ""
+        else
+          employee_id = u.employee_id
+          department = u.department.try(:name)
+          location = u.location.try(:name)
+          job_title = u.job_title.try(:name)
+          manager_email = u.manager_id.present? ? u.manager.email : ""
+          manager_id = u.manager_id.present? ? u.manager_id : ""
+        end
+          on_leave = u.status == "Inactive"
 
-        csv << [
-          u.email,
-          u.employee_id,
-          u.first_name,
-          u.last_name,
-          u.department.name,
-          u.job_title.name,
-          u.location.name,
-          deactivation_date(u),
-          on_leave,
-          manager_id,
-          manager_email
-        ]
+          csv << [
+            u.email,
+            employee_id,
+            u.first_name,
+            u.last_name,
+            department,
+            job_title,
+            location,
+            deactivation_date(u),
+            on_leave,
+            manager_id,
+            manager_email
+          ]
       end
     end
   end
