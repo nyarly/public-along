@@ -95,6 +95,31 @@ describe Employee, type: :model do
       expect(employee.current_profile.profile_status).to eq("active")
     end
 
+    it "should not activate employee if onboarding form is not complete" do
+      employee.status = "pending"
+      employee.request_status = "waiting"
+
+      employee.activate!
+
+      # expect(employee).to receive(:activate_active_directory_account).and_return(ad)
+      expect(employee).not_to transition_from(:pending).to(:active).on_event(:activate)
+      # expect(employee).to have_state(:active)
+      # expect(employee).to allow_event(:start_leave)
+      # expect(employee).to allow_event(:terminate)
+      # expect(employee).to allow_transition_to(:inactive)
+      # expect(employee).to allow_transition_to(:terminated)
+      # expect(employee).not_to allow_transition_to(:created)
+      # expect(employee).not_to allow_transition_to(:pending)
+      # expect(employee).not_to allow_event(:hire)
+      # expect(employee).not_to allow_event(:rehire)
+      # expect(employee).not_to allow_event(:activate)
+
+      # expect(employee).to have_state(:none).on(:request_status)
+
+      # expect(employee.profiles.count).to eq(1)
+      # expect(employee.current_profile.profile_status).to eq("active")
+    end
+
     it "employee.start_leave! should put employee on leave" do
       expect(active_employee).to receive(:deactivate_active_directory_account).and_return(ad)
       expect(active_employee).to transition_from(:active).to(:inactive).on_event(:start_leave)

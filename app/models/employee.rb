@@ -36,55 +36,44 @@ class Employee < ActiveRecord::Base
     state :inactive
     state :terminated
 
-    event :hire, :binding_event => :wait do
+    event :hire, binding_event: :wait do
       after do
         onboard_new_position
       end
-      transitions :from => :created, :to => :pending, :after => :create_active_directory_account
+      transitions from: :created, to: :pending, after: :create_active_directory_account
     end
 
-    event :rehire, :binding_event => :wait do
+    event :rehire, binding_event: :wait do
       after do
         onboard_new_position
       end
-      transitions :from => :terminated, :to => :pending, :after => :update_active_directory_account
+      transitions from: :terminated, to: :pending, after: :update_active_directory_account
     end
 
     event :rehire_from_event do
-      transitions :from => :terminated, :to => :pending
+      transitions from: :terminated, to: :pending
     end
 
-    event :activate, :binding_event => :clear_queue do
-       # TODO add guard clause for contracts without contract end date
-      # add guard clause if no onboarding form received
-      transitions :from => [:pending, :inactive], :to => :active, :after => [:activate_active_directory_account, :activate_profile]
+    event :activate, binding_event: :clear_queue, after: [:activate_profile, :activate_active_directory_account] do
+      transitions from: :inactive, to: :active, after: :activate_active_directory_account
+      transitions from: :pending, to: :active, guard: [:onboarded?, :contract_end_date_needed?]
     end
 
     event :start_leave do
-      transitions :from => :active, :to => :inactive, :after => [:deactivate_active_directory_account, :deactivate_profile]
+      transitions from: :active, to: :inactive, after: [:deactivate_active_directory_account, :deactivate_profile]
     end
 
-    event :terminate, :binding_event => :clear_queue do
-      transitions :from => :active, :to => :terminated, :after => [:deactivate_active_directory_account, :terminate_profile, :offboard]
+    event :terminate, binding_event: :clear_queue do
+      transitions from: :active, to: :terminated, after: [:deactivate_active_directory_account, :terminate_profile, :offboard]
     end
 
     event :terminate_immediately do
-      transitions :from => :active, :to => :terminated, :after => [:deactivate_active_directory_account, :offboard, :send_techtable_offboard_instructions]
+      transitions from: :active, to: :terminated, after: [:deactivate_active_directory_account, :offboard, :send_techtable_offboard_instructions]
     end
 
     event :leave_immediately do
-      transitions :from => :active, :to => :inactive, :after => :deactivate_active_directory_account
+      transitions from: :active, to: :inactive, after: :deactivate_active_directory_account
     end
-
-    # edge case
-    # event :will_not_start do
-    #   transitions :from => :pending, :to => :terminated
-    # end
-
-    # edge case
-    # event :terminate_from_leave do
-    #   transitions :from => :inactive, :to => :terminated
-    # end
   end
 
   aasm(:request_status) do
@@ -93,19 +82,19 @@ class Employee < ActiveRecord::Base
     state :completed
 
     event :wait do
-      transitions :from => :none, :to => :waiting
+      transitions from: :none, to: :waiting
     end
 
     event :complete do
-      transitions :from => [:none, :waiting], :to => :completed
+      transitions from: [:none, :waiting], to: :completed
     end
 
     event :clear_queue do
-      transitions :from => [:completed, :waiting, :none], :to => :none
+      transitions from: [:completed, :waiting, :none], to: :none
     end
 
     event :start_offboard_process do
-      transitions :from => :none, :to => :waiting, :after => :process_upcoming_termination
+      transitions from: :none, to: :waiting, after: :process_upcoming_termination
     end
   end
 
@@ -118,6 +107,10 @@ class Employee < ActiveRecord::Base
     define_method :"#{attribute}" do
       current_profile.try(:send, "#{attribute}")
     end
+  end
+
+  def onboarded?
+    request_status == "complete"
   end
 
   def onboard_new_position
