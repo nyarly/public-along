@@ -13,7 +13,7 @@ class BetterworksService
 
     user_group = Employee.where("termination_date >= ? OR termination_date IS NULL", launch_date)
     current_users = user_group.where("hire_date <= ?", Date.today)
-    current_users.joins(:profiles).merge(Profile.regular_worker_type).to_a
+    current_users.joins(:profiles).merge(Profile.regular_worker_type).to_a.uniq
   end
 
   # betterworks recommends the following columns:
@@ -82,7 +82,15 @@ class BetterworksService
   def deactivation_date(emp)
     if emp.termination_date.present? && emp.termination_date <= Date.today
       emp.termination_date.strftime("%m/%d/%Y")
+    elsif is_pending_rehire?(emp)
+      emp.profiles.terminated.end_date.strftime("%m/%d/%Y")
+    else
+      nil
     end
+  end
+
+  def is_pending_rehire?(emp)
+    emp.status == "Pending" && emp.profiles.terminated.present?
   end
 
 end

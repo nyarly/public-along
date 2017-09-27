@@ -55,10 +55,21 @@ describe BetterworksService, type: :service do
         employee: temp,
         worker_type: temp_worker_type,
         profile_status: "Active")
+      rehired_worker = FactoryGirl.create(:employee,
+        hire_date: 2.years.ago)
+      rehired_profile = FactoryGirl.create(:profile,
+        profile_status: "Pending",
+        employee: rehired_worker,
+        worker_type: ftr_worker_type)
+      rehired_old_prof = FactoryGirl.create(:profile,
+        worker_type: ftr_worker_type,
+        profile_status: "Terminated",
+        employee: rehired_worker)
 
-      expect(service.betterworks_users.count).to eq(2)
+      expect(service.betterworks_users.count).to eq(3)
       expect(service.betterworks_users).to include(ftr_emp)
       expect(service.betterworks_users).to include(ptr_emp)
+      expect(service.betterworks_users).to include(rehired_worker)
       expect(service.betterworks_users).not_to include(temp)
     end
 
@@ -181,12 +192,30 @@ describe BetterworksService, type: :service do
       job_title: job_title,
       worker_type: ptr_worker_type,
       manager_id: emp.employee_id)}
+    let!(:rehired_worker) { FactoryGirl.create(:employee,
+      status: "Pending",
+      email: "cklein@example.com",
+      first_name: "Calvin",
+      last_name: "Klein",
+      hire_date: 2.years.ago) }
+    let!(:rehired_profile) { FactoryGirl.create(:profile,
+      start_date: Date.new(2017, 9, 1),
+      profile_status: "Pending",
+      employee: rehired_worker,
+      worker_type: ftr_worker_type) }
+    let!(:rehired_old_prof) { FactoryGirl.create(:profile,
+      start_date: 2.years.ago,
+      end_date: Date.new(2017, 7, 30),
+      worker_type: ftr_worker_type,
+      profile_status: "Terminated",
+      employee: rehired_worker) }
 
     let(:filepath) { Rails.root.to_s+"/tmp/betterworks/OT_Betterworks_users_#{DateTime.now.strftime('%Y%m%d')}.csv" }
     let(:csv) {
       <<-EOS.strip_heredoc
       email,employee_id,first_name,last_name,department_name,title,location,deactivation_date,on_leave,manager_id,manager_email
       #{emp.email},#{emp.employee_id},#{emp.first_name},#{emp.last_name},#{emp.department.name},#{emp.job_title.name},#{emp.location.name},,false,"",""
+      #{rehired_worker.email},#{rehired_worker.employee_id},#{rehired_worker.first_name},#{rehired_worker.last_name},#{rehired_worker.department.name},#{rehired_worker.job_title.name},#{rehired_worker.location.name},#{rehired_worker.profiles.terminated.end_date.strftime('%m/%d/%Y')},false,"",""
       #{term_emp.email},#{term_emp.employee_id},#{term_emp.first_name},#{term_emp.last_name},#{term_emp.department.name},#{term_emp.job_title.name},#{term_emp.location.name},#{DateTime.now.strftime('%m/%d/%Y')},false,#{term_emp.manager_id},#{emp.email}
       #{leave_emp.email},#{leave_emp.employee_id},#{leave_emp.first_name},#{leave_emp.last_name},#{leave_emp.department.name},#{leave_emp.job_title.name},#{leave_emp.location.name},,true,#{leave_emp.manager_id},#{emp.email}
       EOS
@@ -194,7 +223,6 @@ describe BetterworksService, type: :service do
 
     it "should output csv string" do
       Timecop.freeze(Time.new(2017, 7, 24, 5, 0, 0, "-07:00"))
-
       service.generate_employee_csv
       expect(File.read(filepath)).to eq(csv)
     end
