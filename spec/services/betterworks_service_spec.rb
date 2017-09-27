@@ -49,11 +49,23 @@ describe BetterworksService, type: :service do
         hire_date: 1.year.ago)
       temp_prf = FactoryGirl.create(:profile,
         employee: temp,
-        worker_type: temp_worker_type)
+        worker_type: temp_worker_type,
+        profile_status: "Active")
+      rehired_worker = FactoryGirl.create(:employee,
+        hire_date: 2.years.ago)
+      rehired_profile = FactoryGirl.create(:profile,
+        profile_status: "Pending",
+        employee: rehired_worker,
+        worker_type: ftr_worker_type)
+      rehired_old_prof = FactoryGirl.create(:profile,
+        worker_type: ftr_worker_type,
+        profile_status: "Terminated",
+        employee: rehired_worker)
 
-      expect(service.betterworks_users.count).to eq(2)
+      expect(service.betterworks_users.count).to eq(3)
       expect(service.betterworks_users).to include(ftr_emp)
       expect(service.betterworks_users).to include(ptr_emp)
+      expect(service.betterworks_users).to include(rehired_worker)
       expect(service.betterworks_users).not_to include(temp)
     end
 
@@ -154,7 +166,7 @@ describe BetterworksService, type: :service do
       first_name: "Fred",
       last_name: "Parson",
       hire_date: 1.year.ago,
-      termination_date: Date.new(2017, 7, 24))}
+      termination_date: Date.new(2017, 7, 24)) }
     let!(:term_emp_prof) { FactoryGirl.create(:terminated_profile,
       employee: term_emp,
       profile_status: "terminated",
@@ -162,13 +174,15 @@ describe BetterworksService, type: :service do
       department: department,
       job_title: job_title,
       worker_type: ftr_worker_type,
-      manager_id: emp.employee_id)}
+      manager_id: emp.employee_id,
+      start_date: 1.year.ago,
+      end_date: Date.new(2017, 7, 24)) }
     let!(:leave_emp) { FactoryGirl.create(:leave_employee,
       email: "dwallace@example.com",
       first_name: "David",
       last_name: "Wallace",
       hire_date: 1.year.ago,
-      leave_start_date: 1.month.ago)}
+      leave_start_date: 1.month.ago) }
     let!(:leave_emp_prof) { FactoryGirl.create(:leave_profile,
       employee: leave_emp,
       profile_status: "leave",
@@ -176,23 +190,66 @@ describe BetterworksService, type: :service do
       department: department,
       job_title: job_title,
       worker_type: ptr_worker_type,
-      manager_id: emp.employee_id)}
+      manager_id: emp.employee_id) }
+    let!(:rehired_worker) { FactoryGirl.create(:pending_employee,
+      email: "cklein@example.com",
+      first_name: "Calvin",
+      last_name: "Klein",
+      hire_date: 2.years.ago) }
+    let!(:rehired_old_prof) { FactoryGirl.create(:terminated_profile,
+      start_date: 2.years.ago,
+      end_date: Date.new(2017, 7, 24),
+      worker_type: ftr_worker_type,
+      employee: rehired_worker,
+      adp_employee_id: "222bbb") }
+    let!(:rehired_profile) { FactoryGirl.create(:pending_profile,
+      start_date: Date.new(2017, 9, 1),
+      employee: rehired_worker,
+      worker_type: ftr_worker_type,
+      adp_employee_id: "111aaa") }
 
     let(:filepath) { Rails.root.to_s+"/tmp/betterworks/OT_Betterworks_users_#{DateTime.now.strftime('%Y%m%d')}.csv" }
     let(:csv) {
       <<-EOS.strip_heredoc
       email,employee_id,first_name,last_name,department_name,title,location,deactivation_date,on_leave,manager_id,manager_email
       #{emp.email},#{emp.employee_id},#{emp.first_name},#{emp.last_name},#{emp.department.name},#{emp.job_title.name},#{emp.location.name},,false,"",""
+      #{rehired_worker.email},#{rehired_old_prof.adp_employee_id},#{rehired_worker.first_name},#{rehired_worker.last_name},#{rehired_old_prof.department.name},#{rehired_old_prof.job_title.name},#{rehired_old_prof.location.name},#{rehired_old_prof.end_date.strftime('%m/%d/%Y')},false,"",""
       #{term_emp.email},#{term_emp.employee_id},#{term_emp.first_name},#{term_emp.last_name},#{term_emp.department.name},#{term_emp.job_title.name},#{term_emp.location.name},#{DateTime.now.strftime('%m/%d/%Y')},false,#{term_emp.manager_id},#{emp.email}
       #{leave_emp.email},#{leave_emp.employee_id},#{leave_emp.first_name},#{leave_emp.last_name},#{leave_emp.department.name},#{leave_emp.job_title.name},#{leave_emp.location.name},,true,#{leave_emp.manager_id},#{emp.email}
       EOS
     }
+    let(:future_csv) {
+      <<-EOS.strip_heredoc
+      email,employee_id,first_name,last_name,department_name,title,location,deactivation_date,on_leave,manager_id,manager_email
+      #{emp.email},#{emp.employee_id},#{emp.first_name},#{emp.last_name},#{emp.department.name},#{emp.job_title.name},#{emp.location.name},,false,"",""
+      #{rehired_worker.email},#{rehired_profile.adp_employee_id},#{rehired_worker.first_name},#{rehired_worker.last_name},#{rehired_profile.department.name},#{rehired_profile.job_title.name},#{rehired_profile.location.name},,false,"",""
+      #{term_emp.email},#{term_emp.employee_id},#{term_emp.first_name},#{term_emp.last_name},#{term_emp.department.name},#{term_emp.job_title.name},#{term_emp.location.name},#{term_emp.termination_date.strftime('%m/%d/%Y')},false,#{term_emp.manager_id},#{term_emp.manager.email}
+      #{leave_emp.email},#{leave_emp.employee_id},#{leave_emp.first_name},#{leave_emp.last_name},#{leave_emp.department.name},#{leave_emp.job_title.name},#{leave_emp.location.name},,true,#{leave_emp.manager_id},#{emp.email}
+      EOS
+    }
+
+    after :each do
+      Timecop.return
+    end
 
     it "should output csv string" do
       Timecop.freeze(Time.new(2017, 7, 24, 5, 0, 0, "-07:00"))
-
       service.generate_employee_csv
       expect(File.read(filepath)).to eq(csv)
+    end
+
+    it "should output csv string after rehired worker starts new position" do
+      Timecop.freeze(Time.new(2017, 9, 3, 0, 0, 0, "-07:00"))
+      rehired_profile.assign_attributes(profile_status: "Active")
+      rehired_worker.assign_attributes(status: "Active")
+      rehired_worker.assign_attributes(hire_date: Date.new(2017, 9, 1))
+      term_emp_prof.assign_attributes(profile_status: "Terminated")
+      term_emp.assign_attributes(status: "Terminated")
+      rehired_worker.save && rehired_profile.save
+      term_emp.save && term_emp_prof.save
+
+      service.generate_employee_csv
+      expect(File.read(filepath)).to eq(future_csv)
     end
   end
 

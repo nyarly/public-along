@@ -13,7 +13,7 @@ class BetterworksService
 
     user_group = Employee.where("termination_date >= ? OR termination_date IS NULL", launch_date)
     current_users = user_group.where("hire_date <= ?", Date.today)
-    current_users.joins(:profiles).merge(Profile.regular_worker_type).to_a
+    current_users.joins(:profiles).merge(Profile.regular_worker_type).to_a.uniq
   end
 
   # betterworks recommends the following columns:
@@ -50,23 +50,37 @@ class BetterworksService
       csv << headers
 
       betterworks_users.each do |u|
-        manager_email = u.manager_id.present? ? u.manager.email : ""
-        manager_id = u.manager_id.present? ? u.manager_id : ""
-        on_leave = u.status == "inactive"
+        if is_pending_rehire?(u)
+          terminated_profile = u.profiles.terminated
+          employee_id = terminated_profile.adp_employee_id
+          department = terminated_profile.department.name
+          location = terminated_profile.location.name
+          job_title = terminated_profile.job_title.name
+          manager_email = terminated_profile.manager_id.present? ? terminated_profile.manager.email : ""
+          manager_id = terminated_profile.manager_id.present? ? terminated_profile.manager_id : ""
+        else
+          employee_id = u.employee_id
+          department = u.department.try(:name)
+          location = u.location.try(:name)
+          job_title = u.job_title.try(:name)
+          manager_email = u.manager_id.present? ? u.manager.email : ""
+          manager_id = u.manager_id.present? ? u.manager_id : ""
+        end
+          on_leave = u.status == "Inactive"
 
-        csv << [
-          u.email,
-          u.employee_id,
-          u.first_name,
-          u.last_name,
-          u.department.name,
-          u.job_title.name,
-          u.location.name,
-          deactivation_date(u),
-          on_leave,
-          manager_id,
-          manager_email
-        ]
+          csv << [
+            u.email,
+            employee_id,
+            u.first_name,
+            u.last_name,
+            department,
+            job_title,
+            location,
+            deactivation_date(u),
+            on_leave,
+            manager_id,
+            manager_email
+          ]
       end
     end
   end
@@ -82,7 +96,15 @@ class BetterworksService
   def deactivation_date(emp)
     if emp.termination_date.present? && emp.termination_date <= Date.today
       emp.termination_date.strftime("%m/%d/%Y")
+    elsif is_pending_rehire?(emp)
+      emp.profiles.terminated.end_date.strftime("%m/%d/%Y")
+    else
+      nil
     end
+  end
+
+  def is_pending_rehire?(emp)
+    emp.status == "Pending" && emp.profiles.terminated.present?
   end
 
 end
