@@ -252,6 +252,25 @@ describe Employee, type: :model do
       expect(emp_3.onboarding_due_date).to eq("Jul 11, 2016")
     end
 
+    it "should calculate the onboarding due date for a rehired worker" do
+      employee = FactoryGirl.create(:employee,
+        status: "Pending",
+        hire_date: Date.new(2016, 1, 1))
+      old_profile = FactoryGirl.create(:profile,
+        employee: employee,
+        profile_status: "Terminated",
+        start_date: Date.new(2016, 1, 1),
+        end_date: Date.new(2017, 1, 1))
+      new_profile = FactoryGirl.create(:profile,
+        employee: employee,
+        profile_status: "Pending",
+        start_date: Date.new(2017, 9, 25),
+        location: Location.find_by_name("San Francisco Headquarters"))
+
+      expect(employee.onboarding_due_date).to eq("Sep 18, 2017")
+      expect(employee.start_date).to eq("Sep 25, 2017")
+    end
+
     it "should calculate the offboarding submission cutoff" do
       past_due_emp = FactoryGirl.create(:employee,
         termination_date: Date.new(2016, 7, 25, 2))

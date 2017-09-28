@@ -73,6 +73,14 @@ class Employee < ActiveRecord::Base
     end
   end
 
+  def start_date
+    current_profile.start_date.strftime("%b %e, %Y")
+  end
+
+  def is_rehire?
+    status == "Pending" && emp.profiles.terminated.present?
+  end
+
   def employee_id
     current_profile.try(:send, :adp_employee_id)
   end

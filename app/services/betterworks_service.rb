@@ -50,7 +50,7 @@ class BetterworksService
       csv << headers
 
       betterworks_users.each do |u|
-        if is_pending_rehire?(u)
+        if u.is_rehire?(u)
           terminated_profile = u.profiles.terminated
           employee_id = terminated_profile.adp_employee_id
           department = terminated_profile.department.name
@@ -102,9 +102,4 @@ class BetterworksService
       nil
     end
   end
-
-  def is_pending_rehire?(emp)
-    emp.status == "Pending" && emp.profiles.terminated.present?
-  end
-
 end

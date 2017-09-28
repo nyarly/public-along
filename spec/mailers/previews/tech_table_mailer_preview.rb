@@ -42,7 +42,30 @@ class TechTableMailerPreview < ActionMailer::Preview
 
   def onboard_instructions
     emp_trans = EmpTransaction.where(kind: "Onboarding").last
-    emp = Employee.find(emp_trans.employee_id)
-    TechTableMailer.onboard_instructions(emp)
+    TechTableMailer.onboard_instructions(emp_trans)
+  end
+
+  def rehire_onboard_instructions
+    # employee = FactoryGirl.create(:employee,
+    #   first_name: "Trish",
+    #   hire_date: Date.new(2017, 1, 1),
+    #   status: "Pending")
+    # old_profile = FactoryGirl.create(:profile,
+    #   employee: employee,
+    #   profile_status: "Terminated",
+    #   start_date: Date.new(2017, 1, 1),
+    #   end_date: Date.new(2017, 6, 1))
+    # new_profile = FactoryGirl.create(:profile,
+    #   employee: employee,
+    #   profile_status: "Pending",
+    #   start_date: Date.new(2017, 7, 1))
+    # emp_transaction = FactoryGirl.create(:emp_transaction,
+    #   employee: employee,
+    #   kind: "Onboarding")
+
+        emp_trans = EmpTransaction.where(kind: "Onboarding").last
+
+
+    TechTableMailer.onboard_instructions(emp_trans)
   end
 end

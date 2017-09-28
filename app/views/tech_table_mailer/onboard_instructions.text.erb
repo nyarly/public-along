@@ -2,7 +2,7 @@ Onboarding Worker Request
 ====================================
 
 Name: <%= @employee.cn %>
-Start Date: <%= @employee.hire_date.strftime("%b %e, %Y") %>
+Start Date: <%= @employee.start_date %>
 EmployeeID: <%= @employee.employee_id %>
 Title: <%= @employee.job_title.try(:name) %>
 Department: <%= @employee.department.name %>
