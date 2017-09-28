@@ -33,8 +33,6 @@ class TechTableMailer < ApplicationMailer
 
   def onboard_instructions(emp_transaction, opts={})
     @employee = emp_transaction.employee
-    puts "opts"
-    puts opts
     if opts[:link_email]
       @link_email = true
     end

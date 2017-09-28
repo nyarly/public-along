@@ -79,6 +79,10 @@ RSpec.describe ManagerEntry do
   end
 
   context "Onboarding Job Change with Linked Accounts" do
+    let!(:manager) { FactoryGirl.create(:employee) }
+    let!(:manager_profile) { FactoryGirl.create(:profile,
+      employee: manager,
+      adp_employee_id: "101836") }
     let!(:worker_type) { FactoryGirl.create(:worker_type,
       code: "ACW",
       name: "Contractor")}
@@ -134,7 +138,7 @@ RSpec.describe ManagerEntry do
       expect{
         manager_entry.save
       }.not_to change{Employee.count}
-      expect(Profile.count).to eq(2)
+      expect(Employee.reorder(:created_at).last.profiles.count).to eq(2)
       expect(manager_entry.emp_transaction.employee).to eq(old_employee)
 
       old_employee.reload
@@ -171,6 +175,10 @@ RSpec.describe ManagerEntry do
   end
 
   context "Onboard Rehire with Linked Accounts" do
+    let!(:manager) { FactoryGirl.create(:employee) }
+    let!(:manager_profile) { FactoryGirl.create(:profile,
+      employee: manager,
+      adp_employee_id: "654321") }
     let!(:worker_type) { FactoryGirl.create(:worker_type,
       code: "FTR",
       name: "Regular Full-Time")}
@@ -226,7 +234,7 @@ RSpec.describe ManagerEntry do
       expect{
         manager_entry.save
       }.not_to change{Employee.count}
-      expect(Profile.count).to eq(2)
+      expect(Employee.reorder(:created_at).last.profiles.count).to eq(2)
       expect(manager_entry.emp_transaction.employee).to eq(old_employee)
 
       old_employee.reload
@@ -272,6 +280,7 @@ RSpec.describe ManagerEntry do
     let(:user) { FactoryGirl.create(:user) }
     let(:manager_entry) { ManagerEntry.new(params) }
     let!(:employee) { FactoryGirl.create(:employee) }
+    let!(:profile) { FactoryGirl.create(:profile, employee: employee) }
     let(:sp_1) { FactoryGirl.create(:security_profile) }
     let(:sp_2) { FactoryGirl.create(:security_profile) }
     let(:sp_3) { FactoryGirl.create(:security_profile) }
@@ -319,9 +328,10 @@ RSpec.describe ManagerEntry do
     end
 
     let(:user) { FactoryGirl.create(:user) }
-    let(:forward) { FactoryGirl.create(:employee)}
+    let(:forward) { FactoryGirl.create(:employee) }
     let(:manager_entry) { ManagerEntry.new(params) }
     let!(:employee) { FactoryGirl.create(:employee) }
+    let!(:profile) { FactoryGirl.create(:profile, employee: employee) }
     let!(:security_profile) { FactoryGirl.create(:security_profile) }
     let!(:emp_sec_profile) { FactoryGirl.create(:emp_sec_profile, security_profile_id: security_profile.id) }
 
@@ -350,6 +360,7 @@ RSpec.describe ManagerEntry do
     end
 
     let(:employee) { FactoryGirl.create(:employee) }
+    let!(:profile) { FactoryGirl.create(:profile, employee: employee) }
     let(:user) { FactoryGirl.create(:user) }
     let(:machine_bundle) { FactoryGirl.create(:machine_bundle) }
     let(:manager_entry) { ManagerEntry.new(params) }

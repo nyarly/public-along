@@ -78,7 +78,7 @@ class Employee < ActiveRecord::Base
   end
 
   def is_rehire?
-    status == "Pending" && çprofiles.terminated.present?
+    status == "Pending" && profiles.terminated.present?
   end
 
   def employee_id
