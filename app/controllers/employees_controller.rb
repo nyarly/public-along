@@ -42,7 +42,7 @@ class EmployeesController < ApplicationController
   private
 
   def set_employee
-    @employee = Employee.find(params[:id])
+    @employee = Employee.includes(:profiles => [:job_title, :department, :location, :worker_type]).find(params[:id])
   end
 
   def employee_params
