@@ -57,7 +57,6 @@ class EmpTransactionsController < ApplicationController
 
     respond_to do |format|
       if @manager_entry.save
-        send_email
         format.html { redirect_to emp_transaction_path(@emp_transaction), notice: 'Success! TechTable will be notified with the details of your request.' }
         format.json { render :show, status: :created, location: @emp_transaction }
       else
@@ -68,20 +67,6 @@ class EmpTransactionsController < ApplicationController
   end
 
   private
-
-  def send_email
-    if @emp_transaction.kind == "Onboarding"
-      if @manager_entry.link_email == true
-        TechTableMailer.onboard_instructions(@emp_transaction, link_email: true).deliver_now
-      else
-        TechTableMailer.onboard_instructions(@emp_transaction).deliver_now
-      end
-    else
-      if @emp_transaction.kind != "Offboarding"
-        TechTableMailer.permissions(@emp_transaction).deliver_now
-      end
-    end
-  end
 
   # Use callbacks to share common setup or constraints between actions.
   def set_emp_transaction

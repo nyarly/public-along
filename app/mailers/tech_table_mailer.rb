@@ -33,8 +33,10 @@ class TechTableMailer < ApplicationMailer
 
   def onboard_instructions(emp_transaction, opts={})
     @employee = emp_transaction.employee
-    if opts[:link_accounts]
-      @link_accounts = true
+    puts "opts"
+    puts opts
+    if opts[:link_email]
+      @link_email = true
     end
     @info = TransitionInfo::Onboard.new(@employee.employee_id)
     mail(subject: "Mezzo Onboarding Request for #{@employee.first_name} #{@employee.last_name}")
