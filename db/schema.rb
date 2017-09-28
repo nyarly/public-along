@@ -141,7 +141,6 @@ ActiveRecord::Schema.define(version: 20170922220659) do
     t.integer  "del_worker_type_id"
     t.integer  "del_job_title_id"
     t.string   "business_card_title",        limit: 150
-    t.string   "request_status"
   end
 
   add_index "employees", ["email"], name: "index_employees_on_email", unique: true, using: :btree
