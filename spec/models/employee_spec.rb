@@ -62,28 +62,21 @@ describe Employee, type: :model do
       expect(Employee.managers).to_not include(emp)
     end
 
-    it "should scope the correct activation group" do
+    it "should scope the correct leave return group" do
       activation_group = [
-        FactoryGirl.create(:employee, :hire_date => Date.yesterday),
-        FactoryGirl.create(:employee, :hire_date => Date.today),
-        FactoryGirl.create(:employee, :hire_date => Date.tomorrow),
         FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.yesterday),
         FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.today),
         FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.tomorrow)
       ]
       non_activation_group = [
-        FactoryGirl.create(:employee, :hire_date => 1.week.ago),
-        FactoryGirl.create(:employee, :hire_date => 2.days.ago),
-        FactoryGirl.create(:employee, :hire_date => 2.days.from_now),
-        FactoryGirl.create(:employee, :hire_date => 1.week.from_now),
         FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 1.week.ago),
         FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 2.days.ago),
         FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 2.days.from_now),
         FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 1.week.from_now)
       ]
 
-      expect(Employee.activation_group).to match_array(activation_group)
-      expect(Employee.activation_group).to_not include(non_activation_group)
+      expect(Employee.leave_return_group).to match_array(activation_group)
+      expect(Employee.leave_return_group).to_not include(non_activation_group)
     end
 
     it "should scope the correct deactivation group" do
@@ -368,28 +361,28 @@ describe Employee, type: :model do
     let!(:due_tomorrow_no_onboard) {FactoryGirl.create(:employee,
       last_name: "Aaa",
       status: "Pending",
-      hire_date: 5.business_days.from_now)}
+      hire_date: Date.new(2017, 5, 8))}
     let!(:profile) { FactoryGirl.create(:profile,
       profile_status: "Pending",
-      start_date: 5.business_days.from_now,
+      start_date: Date.new(2017, 5, 8),
       employee: due_tomorrow_no_onboard)}
 
     let!(:due_tomorrow_no_onboard_au) { FactoryGirl.create(:employee,
       last_name: "Bbb",
       status: "Pending",
-      hire_date: 10.business_days.from_now)}
+      hire_date: Date.new(2017, 5, 15))}
     let!(:au_profile) { FactoryGirl.create(:profile,
       employee: due_tomorrow_no_onboard_au,
       profile_status: "Pending",
-      start_date: 10.business_days.from_now,
+      start_date: Date.new(2017, 5, 15),
       location: Location.find_by_name("Melbourne Office"))}
 
     let!(:due_tomorrow_w_onboard) { FactoryGirl.create(:employee,
       status: "Pending",
-      hire_date: 6.business_days.from_now)}
+      hire_date: Date.new(2017, 5, 8))}
     let!(:due_tomorrow_no_onboard_profile) { FactoryGirl.create(:profile,
       profile_status: "Pending",
-      start_date: 6.business_days.from_now,
+      start_date: Date.new(2017, 5, 8),
       employee: due_tomorrow_w_onboard)}
     let!(:emp_transaction) { FactoryGirl.create(:emp_transaction,
       kind: "Onboarding",
@@ -399,14 +392,16 @@ describe Employee, type: :model do
 
     let!(:due_later_no_onboard) { FactoryGirl.create(:employee,
       status: "Pending",
-      hire_date: 14.days.from_now)}
+      hire_date: Date.new(2017, 9, 1))}
     let!(:due_later_profile) { FactoryGirl.create(:profile,
       profile_status: "Pending",
-      start_date: 14.business_days.from_now,
+      start_date: Date.new(2017, 9, 1),
       employee: due_later_no_onboard)}
 
-    it "should return the right employees" do
+    it "should return the right employee" do
+      Timecop.freeze(Time.new(2017, 4, 29, 16, 00, 0, "+00:00"))
       expect(Employee.onboarding_reminder_group).to eq([due_tomorrow_no_onboard, due_tomorrow_no_onboard_au])
     end
+
   end
 end

@@ -35,8 +35,8 @@ class Employee < ActiveRecord::Base
     end
   end
 
-  def self.activation_group
-    where('hire_date BETWEEN ? AND ? OR leave_return_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow)
+  def self.leave_return_group
+    where('leave_return_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow)
   end
 
   def self.deactivation_group

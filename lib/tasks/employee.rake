@@ -6,17 +6,20 @@ namespace :employee do
     offboards = []
     full_terminations = []
 
-    Employee.activation_group.each do |e|
-      # Collect employees to activate if it is 3-4am on their hire date or leave return date in their respective nearest time zone
+    Employee.leave_return_group.each do |e|
+      # Collect employees to activate on leave return date in their respective nearest time zone
       if e.leave_return_date
         activations << e if in_time_window?(e.leave_return_date, 3, e.nearest_time_zone)
-      else
-        activations << e if in_time_window?(e.hire_date, 3, e.nearest_time_zone)
       end
     end
 
-    Employee.deactivation_group.each do |e|
+    Profile.onboarding_group.each do |p|
+      # Collect employees to activate on position start date in their respective nearest time zone
+      e = p.employee
+      activations << e if in_time_window?(p.start_date, 3, e.nearest_time_zone)
+    end
 
+    Employee.deactivation_group.each do |e|
       # Collect employees to deactivate if it is 9-10pm on their end date or day before leave start date in their respective nearest time zone
       if e.leave_start_date && in_time_window?(e.leave_start_date - 1.day, 21, e.nearest_time_zone)
         deactivations << e
