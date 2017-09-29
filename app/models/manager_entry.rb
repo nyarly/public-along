@@ -49,6 +49,8 @@ class ManagerEntry
       if link_email == "on"
         if linked_account_id.present?
           employee = profiler.link_accounts(linked_account_id, event_id)
+          employee.termination_date = nil
+          employee.save!
           event.status = "Processed"
           event.save!
           employee

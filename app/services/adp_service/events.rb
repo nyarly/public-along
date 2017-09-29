@@ -176,6 +176,7 @@ module AdpService
       if e.present?
         profiler = EmployeeProfile.new
         updated_account = profiler.link_accounts(e.id, rehire_event.id)
+        updated_account.termination_date = nil
         updated_account.status = "Pending"
         updated_account.save!
 

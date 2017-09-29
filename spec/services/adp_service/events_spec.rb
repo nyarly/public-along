@@ -529,6 +529,7 @@ describe AdpService::Events, type: :service do
           expect(rehired_emp.reload.location.code).to eq("SF")
           expect(rehired_emp.reload.job_title.code).to eq("SPMASR")
           expect(rehired_emp.reload.hire_date).to eq(Date.new(2010, 9, 1))
+          expect(rehired_emp.reload.termination_date).to eq(nil)
           expect(rehired_emp.profiles.count).to eq(2)
           expect(rehired_emp.current_profile.start_date).to eq(Date.new(2018, 9, 1))
           expect(rehired_emp.current_profile.profile_status).to eq("Pending")
