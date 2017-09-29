@@ -98,9 +98,9 @@ module AdpService
       worker_id = json.dig("events", 0, "data", "output", "worker", "workerID", "idValue").downcase
       term_date = json.dig("events", 0, "data", "output", "worker", "workerDates", "terminationDate")
       e = Employee.find_by_employee_id(worker_id)
-      profile = e.current_profile
 
       if e.present? && !job_change?(e, term_date)
+        profile = e.current_profile
         e.assign_attributes(termination_date: term_date)
         profile.assign_attributes(end_date: term_date)
 
@@ -119,6 +119,8 @@ module AdpService
             return false
           end
         end
+      else
+        return false
       end
     end
 
@@ -151,20 +153,19 @@ module AdpService
       worker_id = json.dig("events", 0, "data", "output", "worker", "workerID", "idValue").downcase
       leave_date = json.dig("events", 0, "data", "output", "worker", "workerStatus", "effectiveDate")
       e = Employee.find_by_employee_id(worker_id)
-      profile = e.current_profile
 
       if e.present?
+        profile = e.current_profile
         e.assign_attributes(leave_start_date: leave_date)
         delta = EmpDelta.build_from_profile(profile)
-      end
-
-      if e.present? && e.save
-        ads = ActiveDirectoryService.new
-        ads.update([e])
-        delta.save if delta.present?
-        return true
-      else
-        return false
+        if e.present? && e.save
+          ads = ActiveDirectoryService.new
+          ads.update([e])
+          delta.save if delta.present?
+          return true
+        else
+          return false
+        end
       end
     end
 
