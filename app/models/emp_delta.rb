@@ -80,7 +80,7 @@ class EmpDelta < ActiveRecord::Base
       if k.include? "date"
         value = Date.parse(v).strftime('%b %-d, %Y')
       elsif k.include? "manager"
-        value = Employee.find_by(employee_id: v).try(:cn)
+        value = Employee.find_by_employee_id(v).try(:cn)
       elsif k.include? "location"
         value = Location.find(v).try(:name)
       elsif k.include? "department"

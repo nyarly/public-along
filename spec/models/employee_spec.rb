@@ -15,7 +15,9 @@ describe Employee, type: :model do
     let(:employee)         { FactoryGirl.create(:employee) }
     let!(:profile)         { FactoryGirl.create(:profile, employee: employee) }
     let!(:active_employee) { FactoryGirl.create(:active_employee) }
-    let!(:active_profile)  { FactoryGirl.create(:active_profile, employee: active_employee)}
+    let!(:active_profile)  { FactoryGirl.create(:active_profile, employee: active_employee) }
+    let!(:pending_employee){ FactoryGirl.create(:pending_employee) }
+    let!(:pending_profile) { FactoryGirl.create(:profile, employee: pending_employee) }
     let!(:leave_employee)  { FactoryGirl.create(:leave_employee) }
     let!(:leave_profile)   { FactoryGirl.create(:leave_profile, employee: leave_employee) }
     let!(:termed_employee) { FactoryGirl.create(:terminated_employee) }
@@ -51,26 +53,26 @@ describe Employee, type: :model do
     it "employee.hire! should create accounts and set as pending" do
       expect(SecAccessService).to receive(:new).and_return(sas)
       expect(sas).to receive(:apply_ad_permissions)
-      expect(employee).to receive(:create_active_directory_account).and_return(ad)
-      expect(employee).to receive(:check_manager).and_return(true)
+      expect(pending_employee).to receive(:create_active_directory_account).and_return(ad)
+      expect(pending_employee).to receive(:check_manager).and_return(true)
       expect(EmployeeWorker).to receive(:perform_async)
-      expect(employee).to transition_from(:created).to(:pending).on_event(:hire)
-      expect(employee).to have_state(:pending)
-      expect(employee).to allow_event(:activate)
-      expect(employee).to allow_transition_to(:active)
-      expect(employee).not_to allow_transition_to(:created)
-      expect(employee).not_to allow_transition_to(:terminated)
-      expect(employee).not_to allow_transition_to(:inactive)
-      expect(employee).not_to allow_event(:rehire)
-      expect(employee).not_to allow_event(:start_leave)
-      expect(employee).not_to allow_event(:end_leave)
-      expect(employee).not_to allow_event(:terminate)
+      expect(pending_employee).to transition_from(:created).to(:pending).on_event(:hire)
+      expect(pending_employee).to have_state(:pending)
+      # expect(pending_employee).to allow_event(:activate)
+      expect(pending_employee).to allow_transition_to(:active)
+      expect(pending_employee).not_to allow_transition_to(:created)
+      expect(pending_employee).not_to allow_transition_to(:terminated)
+      expect(pending_employee).not_to allow_transition_to(:inactive)
+      expect(pending_employee).not_to allow_event(:rehire)
+      expect(pending_employee).not_to allow_event(:start_leave)
+      expect(pending_employee).not_to allow_event(:end_leave)
+      expect(pending_employee).not_to allow_event(:terminate)
 
-      expect(employee).to have_state(:waiting).on(:request_status)
-      expect(employee).to allow_event(:complete).on(:request_status)
+      expect(pending_employee).to have_state(:waiting).on(:request_status)
+      expect(pending_employee).to allow_event(:complete).on(:request_status)
 
-      expect(employee.profiles.count).to eq(1)
-      expect(employee.current_profile.profile_status).to eq("pending")
+      expect(pending_employee.profiles.count).to eq(1)
+      expect(pending_employee.current_profile.profile_status).to eq("pending")
     end
 
     it "employee.activate! should make employee active" do
@@ -252,28 +254,21 @@ describe Employee, type: :model do
       expect(Employee.managers).to_not include(emp)
     end
 
-    it "should scope the correct activation group" do
+    it "should scope the correct leave return group" do
       activation_group = [
-        FactoryGirl.create(:employee, :hire_date => Date.yesterday),
-        FactoryGirl.create(:employee, :hire_date => Date.today),
-        FactoryGirl.create(:employee, :hire_date => Date.tomorrow),
         FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.yesterday),
         FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.today),
         FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => Date.tomorrow)
       ]
       non_activation_group = [
-        FactoryGirl.create(:employee, :hire_date => 1.week.ago),
-        FactoryGirl.create(:employee, :hire_date => 2.days.ago),
-        FactoryGirl.create(:employee, :hire_date => 2.days.from_now),
-        FactoryGirl.create(:employee, :hire_date => 1.week.from_now),
         FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 1.week.ago),
         FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 2.days.ago),
         FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 2.days.from_now),
         FactoryGirl.create(:employee, :hire_date => 1.year.ago, :leave_return_date => 1.week.from_now)
       ]
 
-      expect(Employee.activation_group).to match_array(activation_group)
-      expect(Employee.activation_group).to_not include(non_activation_group)
+      expect(Employee.leave_return_group).to match_array(activation_group)
+      expect(Employee.leave_return_group).to_not include(non_activation_group)
     end
 
     it "should scope the correct deactivation group" do
@@ -442,6 +437,22 @@ describe Employee, type: :model do
       expect(emp_3.onboarding_due_date).to eq("Jul 11, 2016")
     end
 
+    it "should calculate the onboarding due date for a rehired worker" do
+      employee = FactoryGirl.create(:pending_employee,
+        hire_date: Date.new(2016, 1, 1))
+      old_profile = FactoryGirl.create(:terminated_profile,
+        employee: employee,
+        start_date: Date.new(2016, 1, 1),
+        end_date: Date.new(2017, 1, 1))
+      new_profile = FactoryGirl.create(:profile,
+        employee: employee,
+        start_date: Date.new(2017, 9, 25),
+        location: Location.find_by_name("San Francisco Headquarters"))
+
+      expect(employee.onboarding_due_date).to eq("Sep 18, 2017")
+      expect(employee.start_date).to eq("Sep 25, 2017")
+    end
+
     it "should calculate the offboarding submission cutoff" do
       past_due_emp = FactoryGirl.create(:employee,
         termination_date: Date.new(2016, 7, 25, 2))
@@ -529,43 +540,41 @@ describe Employee, type: :model do
 
   describe "#onboarding_reminder_group" do
     let!(:due_tomorrow_no_onboard) {FactoryGirl.create(:pending_employee,
-      last_name: "Aaa",
-      hire_date: 5.business_days.from_now)}
-    let!(:profile) { FactoryGirl.create(:profile,
-      profile_status: "pending",
-      start_date: 5.business_days.from_now,
-      employee: due_tomorrow_no_onboard)}
+      last_name: "Aaaa",
+      hire_date: Date.new(2017, 5, 8)) }
+    let!(:due_tomorrow_no_onboard_profile) { FactoryGirl.create(:profile,
+      start_date: Date.new(2017, 5, 8),
+      employee: due_tomorrow_no_onboard) }
 
     let!(:due_tomorrow_no_onboard_au) { FactoryGirl.create(:pending_employee,
-      last_name: "Bbb",
-      hire_date: 10.business_days.from_now)}
-    let!(:au_profile) { FactoryGirl.create(:profile,
+      last_name: "Bbbb",
+      hire_date: Date.new(2017, 5, 15)) }
+    let!(:due_tomorrow_no_onboard_au_profile) { FactoryGirl.create(:profile,
       employee: due_tomorrow_no_onboard_au,
-      profile_status: "pending",
-      start_date: 10.business_days.from_now,
-      location: Location.find_by_name("Melbourne Office"))}
+      start_date: Date.new(2017, 5, 15),
+      location: Location.find_by_name("Melbourne Office")) }
 
     let!(:due_tomorrow_w_onboard) { FactoryGirl.create(:pending_employee,
-      hire_date: 6.business_days.from_now)}
-    let!(:due_tomorrow_no_onboard_profile) { FactoryGirl.create(:profile,
-      profile_status: "pending",
-      start_date: 6.business_days.from_now,
-      employee: due_tomorrow_w_onboard)}
+      hire_date: Date.new(2017, 5, 8)) }
+    let!(:due_tomorrow_w_onboard_profile) { FactoryGirl.create(:profile,
+      start_date: Date.new(2017, 5, 8),
+      employee: due_tomorrow_w_onboard) }
     let!(:emp_transaction) { FactoryGirl.create(:emp_transaction,
       kind: "Onboarding",
       employee: due_tomorrow_w_onboard) }
     let!(:onboard) { FactoryGirl.create(:onboarding_info,
-      emp_transaction: emp_transaction)}
+      emp_transaction: emp_transaction) }
 
     let!(:due_later_no_onboard) { FactoryGirl.create(:pending_employee,
-      hire_date: 14.days.from_now)}
+      hire_date: Date.new(2017, 9, 1)) }
     let!(:due_later_profile) { FactoryGirl.create(:profile,
-      profile_status: "pending",
-      start_date: 14.business_days.from_now,
-      employee: due_later_no_onboard)}
+      start_date: Date.new(2017, 9, 1),
+      employee: due_later_no_onboard) }
 
-    it "should return the right employees" do
+    it "should return the right employee" do
+      Timecop.freeze(Time.new(2017, 4, 29, 16, 00, 0, "+00:00"))
       expect(Employee.onboarding_reminder_group).to eq([due_tomorrow_no_onboard, due_tomorrow_no_onboard_au])
     end
+
   end
 end

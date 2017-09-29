@@ -40,6 +40,7 @@ describe "employee rake tasks", type: :tasks do
       new_hire_uk = FactoryGirl.create(:pending_employee,
         hire_date: Date.new(2016, 7, 29))
       nh_uk_prof = FactoryGirl.create(:profile,
+        start_date: Date.new(2016, 7, 29),
         employee: new_hire_uk,
         location: london)
       returning_uk = FactoryGirl.create(:leave_employee,
@@ -53,10 +54,10 @@ describe "employee rake tasks", type: :tasks do
       c_uk_prof = FactoryGirl.create(:active_profile,
         employee: contract_uk,
         location: london)
-
       new_hire_us = FactoryGirl.create(:pending_employee,
         hire_date: Date.new(2016, 7, 29))
       nh_us_prof = FactoryGirl.create(:profile,
+        start_date: Date.new(2016, 7, 29),
         employee: new_hire_us,
         location: sf)
       returning_us = FactoryGirl.create(:leave_employee,
@@ -117,6 +118,7 @@ describe "employee rake tasks", type: :tasks do
       new_hire_us = FactoryGirl.create(:pending_employee,
         hire_date: Date.new(2016, 7, 29))
       nh_us_profile = FactoryGirl.create(:profile,
+        start_date: Date.new(2016, 7, 29),
         employee: new_hire_us,
         location: sf)
       returning_us = FactoryGirl.create(:leave_employee,
@@ -129,6 +131,7 @@ describe "employee rake tasks", type: :tasks do
       new_hire_uk = FactoryGirl.create(:pending_employee,
         hire_date: Date.new(2016, 7, 29))
       nh_uk_profile = FactoryGirl.create(:profile,
+        start_date: Date.new(2016, 7, 29),
         employee: new_hire_uk,
         location: london)
       returning_uk = FactoryGirl.create(:leave_employee,
@@ -142,6 +145,19 @@ describe "employee rake tasks", type: :tasks do
       term_profile = FactoryGirl.create(:active_profile,
         employee: termination,
         location: london)
+
+      rehire = FactoryGirl.create(:employee,
+        status: "Pending",
+        hire_date: Date.new(2016, 1, 1))
+      rehire_old_profile = FactoryGirl.create(:profile,
+        profile_status: "Terminated",
+        employee: rehire,
+        start_date: Date.new(2016, 1, 1),
+        end_date: Date.new(2016, 2, 1))
+      rehire_new_profile = FactoryGirl.create(:profile,
+        profile_status: "Pending",
+        employee: rehire,
+        start_date: Date.new(2016, 7, 29))
 
       # 7/29/2016 at 3am PST/10am UTC
       Timecop.freeze(Time.new(2016, 7, 29, 10, 0, 0, "+00:00"))
@@ -163,6 +179,14 @@ describe "employee rake tasks", type: :tasks do
       emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile,
         emp_transaction_id: emp_trans_2.id,
         security_profile_id: sec_prof.id)
+      emp_trans_3 = FactoryGirl.create(:emp_transaction,
+        kind: "Onboarding",
+        employee_id: rehire.id)
+      onboarding_info_3 = FactoryGirl.create(:onboarding_info,
+        emp_transaction_id: emp_trans_3.id)
+      emp_sec_prof_3 = FactoryGirl.create(:emp_sec_profile,
+        emp_transaction_id: emp_trans_3.id,
+        security_profile_id: sec_prof.id)
 
       expect(@ldap).to receive(:replace_attribute).once.with(
         new_hire_us.dn, :userAccountControl, "512"
@@ -179,6 +203,9 @@ describe "employee rake tasks", type: :tasks do
       expect(@ldap).to_not receive(:replace_attribute).with(
         termination.dn, :userAccountControl, "514"
       )
+      expect(@ldap).to receive(:replace_attribute).once.with(
+        rehire.dn, :userAccountControl, "512"
+      )
 
       allow(@ldap).to receive(:get_operation_result)
       Rake::Task["employee:change_status"].invoke
@@ -186,8 +213,11 @@ describe "employee rake tasks", type: :tasks do
       expect(new_hire_us.reload.status).to eq("active")
       expect(returning_us.reload.status).to eq("active")
       expect(new_hire_uk.reload.status).to eq("pending")
-      expect(returning_uk.reload.status).to eq("inactive")
+      expect(returning_uk.reload.status).to eq("Inactive")
       expect(termination.reload.status).to eq("active")
+      expect(rehire.reload.status).to eq("active")
+      expect(rehire_new_profile.reload.profile_status).to eq("active")
+      expect(rehire_old_profile.reload.profile_status).to eq("terminated")
     end
 
     it "should call ldap and update only terminations or workers on leave at 9pm in PST" do

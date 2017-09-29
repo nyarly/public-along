@@ -1,9 +1,22 @@
 class ManagerMailerPreview < ActionMailer::Preview
-
   def onboarding_permissions
     employee = Employee.where(status: "Pending").last
     manager = Employee.find_by_employee_id(employee.manager_id) if employee && employee.manager_id
     ManagerMailer.permissions("Onboarding", manager, employee)
+  end
+
+  def event_onboarding_permissions
+    event = AdpEvent.where("adp_events.json LIKE '%worker.rehire%'").last
+    profiler = EmployeeProfile.new
+    employee = profiler.build_employee(event)
+    manager = employee.manager
+    ManagerMailer.permissions("Onboarding", manager, employee, event: event)
+  end
+
+  def onboarding_reminder
+    employee = Employee.where(status: "Pending").last
+    manager = Employee.find_by_employee_id(employee.manager_id) if employee && employee.manager_id
+    ManagerMailer.reminder(manager, employee)
   end
 
   def offboarding_permissions
@@ -23,19 +36,5 @@ class ManagerMailerPreview < ActionMailer::Preview
     employee = Employee.unscoped.order('created_at ASC').last
     manager = Employee.find_by_employee_id(employee.manager_id) if employee && employee.manager_id
     ManagerMailer.permissions("Equipment", manager, employee)
-  end
-
-  def event_onboarding_permissions
-    event = AdpEvent.where("adp_events.json LIKE '%worker.rehire%'").last
-    profiler = EmployeeProfile.new
-    employee = profiler.build_employee(event)
-    manager = employee.manager
-    ManagerMailer.permissions("Onboarding", manager, employee, event: event)
-  end
-
-  def onboarding_reminder
-    employee = Employee.where(status: "Pending").last
-    manager = Employee.find_by_employee_id(employee.manager_id) if employee && employee.manager_id
-    ManagerMailer.reminder(manager, employee)
   end
 end

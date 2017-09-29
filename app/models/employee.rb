@@ -98,15 +98,15 @@ class Employee < ActiveRecord::Base
     end
   end
 
-  def process_upcoming_termination
-    update_active_directory_account
-    send_offboarding_forms
-  end
-
   [:manager_id, :department, :worker_type, :location, :job_title, :company, :adp_assoc_oid].each do |attribute|
     define_method :"#{attribute}" do
       current_profile.try(:send, "#{attribute}")
     end
+  end
+
+  def process_upcoming_termination
+    update_active_directory_account
+    send_offboarding_forms
   end
 
   def onboarded?
@@ -138,11 +138,8 @@ class Employee < ActiveRecord::Base
 
   def self.find_by_employee_id(value)
     p = Profile.find_by(adp_employee_id: value)
-    if p.present?
-      p.employee
-    else
-      nil
-    end
+    return nil if p.blank?
+    p.employee
   end
 
   def active_security_profiles
@@ -200,46 +197,32 @@ class Employee < ActiveRecord::Base
   end
 
   def generated_address
-    if home_address_1.present? && home_address_2.present?
-      home_address_1 + ", " + home_address_2
-    elsif home_address_1.present?
-      home_address_1
-    else
-      nil
-    end
+    return nil if home_address_1.blank?
+    return home_address_1 + ", " + home_address_2 if home_address_1.present? && home_address_2.present?
+    home_address_1
   end
 
   def generated_account_expires
-    if termination_date.present?
-      date = termination_date
-    elsif contract_end_date.present?
-      date = contract_end_date
-    else
-      date = nil
-    end
+    # The expiration date needs to be set a day after term date
+    # AD expires the account at midnight of the day before the expiry date
+    expiration_date = end_date + 1.day
+    time_conversion = ActiveSupport::TimeZone.new(nearest_time_zone).local_to_utc(expiration_date)
+    DateTimeHelper::FileTime.wtime(time_conversion)
+  end
 
-    if date.present?
-      # The expiration date needs to be set a day after term date
-      # AD expires the account at midnight of the day before the expiry date
-      expiration_date = date + 1.day
-      time_conversion = ActiveSupport::TimeZone.new(nearest_time_zone).local_to_utc(expiration_date)
-      DateTimeHelper::FileTime.wtime(time_conversion)
-    else
-      NEVER_EXPIRES
-    end
+  def end_date
+    return termination_date if termination_date.present?
+    return contract_end_date if contract_end_date.present?
+    NEVER_EXPIRES
   end
 
   def generated_email
-    if email.present?
-      email
-    elsif sam_account_name.present?
-      # TODO: this is always running, what kind of workers shouldn't have email addresses?
-      gen_email = sam_account_name + "@opentable.com"
-      update_attribute(:email, gen_email)
-      gen_email
-    else
-      nil
-    end
+    return nil if email.blank? && sam_account_name.blank?
+    return email if email.present?
+    # TODO: this is always running, what kind of workers shouldn't have email addresses?
+    gen_email = sam_account_name + "@opentable.com"
+    update_attribute(:email, gen_email)
+    gen_email
   end
 
   def dn
@@ -252,22 +235,17 @@ class Employee < ActiveRecord::Base
   end
 
   def ou
-    if status == "Terminated"
-      "ou=Disabled Users,"
-    else
-      match = OUS.select { |k,v|
-        v[:department].include?(department.name) && v[:country].include?(location.country)
-      }
+    return "ou=Disabled Users," if status == "Terminated"
 
-      if match.length == 1
-        match.keys[0]
-      else
-        TechTableMailer.alert_email("WARNING: could not find an exact ou match for #{first_name} #{last_name}; placed in default ou. To remedy, assign appropriate department and country values in Mezzo or contact your developer to create an OU mapping for this department and location combination.").deliver_now
-        return "ou=Provisional,ou=Users,"
-      end
-    end
+    match = OUS.select { |k,v|
+      v[:department].include?(department.name) && v[:country].include?(location.country)
+    }
+    return match.keys[0] if match.length == 1
+
+    # put worker in provisional OU if it cannot find another one
+    TechTableMailer.alert_email("WARNING: could not find an exact ou match for #{first_name} #{last_name}; placed in default ou. To remedy, assign appropriate department and country values in Mezzo or contact your developer to create an OU mapping for this department and location combination.").deliver_now
+    "ou=Provisional,ou=Users,"
   end
-
 
   def add_basic_security_profile
     default_sec_group = ""
@@ -296,7 +274,6 @@ class Employee < ActiveRecord::Base
     end
   end
 
-
   def self.search(term)
     where("lower(last_name) LIKE ? OR lower(first_name) LIKE ? ", "%#{term.downcase}%", "%#{term.downcase}%").reorder("last_name ASC")
   end
@@ -309,37 +286,36 @@ class Employee < ActiveRecord::Base
     Employee.find_by_employee_id(manager_id) if manager_id
   end
 
-  def Employee.direct_reports_of(manager_emp_id)
+  def self.direct_reports_of(manager_emp_id)
     joins(:profiles).where("profiles.manager_id LIKE ?", manager_emp_id)
   end
 
   def check_manager
     manager = self.manager
+    return false if manager.blank? || Employee.managers.include?(manager)
 
-    if manager.present? && !Employee.managers.include?(manager)
-      sp = SecurityProfile.find_by(name: "Basic Manager")
+    sp = SecurityProfile.find_by(name: "Basic Manager")
 
-      emp_trans = EmpTransaction.new(
-        kind: "Service",
-        notes: "Manager permissions added by Mezzo",
-        employee_id: manager.id
-      )
+    emp_trans = EmpTransaction.new(
+      kind: "Service",
+      notes: "Manager permissions added by Mezzo",
+      employee_id: manager.id
+    )
 
-      emp_trans.emp_sec_profiles.build(
-        security_profile_id: sp.id
-      )
+    emp_trans.emp_sec_profiles.build(
+      security_profile_id: sp.id
+    )
 
-      emp_trans.save!
+    emp_trans.save!
 
-      if emp_trans.emp_sec_profiles.count > 0
-        sas = SecAccessService.new(emp_trans)
-        sas.apply_ad_permissions
-      end
+    if emp_trans.emp_sec_profiles.count > 0
+      sas = SecAccessService.new(emp_trans)
+      sas.apply_ad_permissions
     end
   end
 
-  def self.activation_group
-    where('hire_date BETWEEN ? AND ? OR leave_return_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow)
+  def self.leave_return_group
+    where('leave_return_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow)
   end
 
   def self.deactivation_group
@@ -364,9 +340,7 @@ class Employee < ActiveRecord::Base
 
     missing_onboards.each do |e|
       reminder_date = e.onboarding_due_date.to_date - 1.day
-      if reminder_date.between?(Date.yesterday, Date.tomorrow)
-        reminder_group << e
-      end
+      reminder_group << e if reminder_date.between?(Date.yesterday, Date.tomorrow)
     end
     reminder_group
   end
@@ -379,21 +353,28 @@ class Employee < ActiveRecord::Base
   def current_profile
     # if employee data is not persisted, like when previewing employee data from an event
     # scope on profiles is not available, so must access by method last
-    if self.persisted?
-      if self.status == "active"
-        @current_profile ||= self.profiles.active.last
-      elsif self.status == "inactive"
-        @current_profile ||= self.profiles.leave.last
-      elsif self.status == "pending"
-        @current_profile ||= self.profiles.pending.last
-      elsif self.status == "terminated"
-        @current_profile ||= self.profiles.terminated.last
-      else
-        self.profiles.last
-      end
+    @current_profile ||= self.profiles.last if !self.persisted?
+
+    case self.status
+    when "active"
+      @current_profile ||= self.profiles.active.last
+    when "inactive"
+      @current_profile ||= self.profiles.leave.last
+    when "pending"
+      @current_profile ||= self.profiles.pending.last
+    when "terminated"
+      @current_profile ||= self.profiles.terminated.last
     else
-      @current_profile ||= self.profiles.last
+      self.profiles.last
     end
+  end
+
+  def start_date
+    current_profile.start_date.strftime("%b %e, %Y")
+  end
+
+  def is_rehire?
+    status == "Pending" && profiles.terminated.present?
   end
 
   def update_active_directory_account

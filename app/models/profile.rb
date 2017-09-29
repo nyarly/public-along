@@ -48,4 +48,8 @@ class Profile < ActiveRecord::Base
   def downcase_unique_attrs
     self.adp_employee_id = adp_employee_id.downcase if adp_employee_id.present?
   end
+
+  def self.onboarding_group
+    where('start_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow)
+  end
 end

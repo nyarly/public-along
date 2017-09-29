@@ -3,13 +3,15 @@ namespace :employee do
   task :change_status => :environment do
     full_terminations = []
 
-    Employee.activation_group.each do |e|
-      # Collect employees to activate if it is 3-4am on their hire date or leave return date in their respective nearest time zone
-      if e.leave_return_date
-        e.activate! if in_time_window?(e.leave_return_date, 3, e.nearest_time_zone)
-      else
-        e.activate! if in_time_window?(e.hire_date, 3, e.nearest_time_zone)
-      end
+    Employee.leave_return_group.each do |e|
+      # Collect employees to activate on leave return date in their respective nearest time zone
+      e.activate! if in_time_window?(e.leave_return_date, 3, e.nearest_time_zone)
+    end
+
+    Profile.onboarding_group.each do |p|
+      # Collect employees to activate on position start date in their respective nearest time zone
+      e = p.employee
+      activations << e if in_time_window?(p.start_date, 3, e.nearest_time_zone)
     end
 
     Employee.deactivation_group.each do |e|
