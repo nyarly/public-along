@@ -83,6 +83,7 @@ RSpec.describe ManagerEntry do
       code: "ACW",
       name: "Contractor")}
     let(:old_employee) { FactoryGirl.create(:employee,
+      termination_date: Date.new(2017, 6, 1),
       status: "Terminated")}
     let!(:profile) { FactoryGirl.create(:profile,
       employee: old_employee,
@@ -146,6 +147,7 @@ RSpec.describe ManagerEntry do
       expect(old_employee.profiles.count).to eq(2)
       expect(old_employee.profiles.terminated).to eq(profile)
       expect(old_employee.profiles.pending.worker_type).to eq(worker_type)
+      expect(old_employee.termination_date).to eq(nil)
       expect(event.status).to eq("Processed")
     end
 
@@ -165,6 +167,7 @@ RSpec.describe ManagerEntry do
       expect(employee.machine_bundles.first).to eq(machine_bundle)
       expect(employee.profiles.count).to eq(1)
       expect(employee.profiles.terminated).to eq(nil)
+      expect(old_employee.termination_date).to eq(Date.new(2017, 6, 1))
       expect(employee.profiles.pending.worker_type).to eq(worker_type)
       expect(event.status).to eq("Processed")
     end
@@ -175,6 +178,7 @@ RSpec.describe ManagerEntry do
       code: "FTR",
       name: "Regular Full-Time")}
     let(:old_employee) { FactoryGirl.create(:employee,
+      termination_date: Date.new(2017, 6, 1),
       status: "Terminated")}
     let!(:profile) { FactoryGirl.create(:profile,
       employee: old_employee,
@@ -239,6 +243,7 @@ RSpec.describe ManagerEntry do
       expect(old_employee.profiles.terminated).to eq(profile)
       expect(old_employee.profiles.pending.worker_type).to eq(worker_type)
       expect(old_employee.profiles.pending.start_date).to eq(DateTime.new(2018, 9, 1))
+      expect(old_employee.termination_date).to eq(nil)
       expect(event.status).to eq("Processed")
     end
 
@@ -256,6 +261,7 @@ RSpec.describe ManagerEntry do
       expect(employee.profiles.terminated).to eq(nil)
       expect(employee.profiles.pending.worker_type).to eq(worker_type)
       expect(employee.profiles.pending.job_title.name).to eq("Specialist - Major Accounts - Sr.")
+      expect(old_employee.termination_date).to eq(Date.new(2017, 6, 1))
       expect(event.status).to eq("Processed")
     end
   end
