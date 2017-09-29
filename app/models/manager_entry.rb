@@ -167,11 +167,7 @@ class ManagerEntry
           emp_transaction.revoked_emp_sec_profiles.update_all(revoking_transaction_id: @emp_transaction.id)
         end
 
-        if immediately_update_security_profiles?
-          SecAccessService.new(emp_transaction).apply_ad_permissions
-        elsif kind == "Onboarding"
-          update_sec_profs_on_position_start_date
-        end
+        update_security_profiles
       end
       emp_transaction.errors.blank?
     end
@@ -205,9 +201,9 @@ class ManagerEntry
     emp_transaction.revoked_emp_sec_profiles.count > 0
   end
 
-  def immediately_update_security_profiles?
-    return false if kind == "Onboarding" && link_email == "on" && @employee.status == "Active"
-    true
+  def update_security_profiles
+    return update_sec_profs_on_position_start_date if kind == "Onboarding" && link_email == "on" && @employee.status == "Active"
+    SecAccessService.new(emp_transaction).apply_ad_permissions
   end
 
 end
