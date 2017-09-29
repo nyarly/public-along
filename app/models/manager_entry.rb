@@ -184,12 +184,11 @@ class ManagerEntry
   private
 
   def send_email
-    if emp_transaction.kind != "Offboarding"
-      if emp_transaction.kind == "Onboarding" && link_email == "on"
-        TechTableMailer.onboard_instructions(emp_transaction, link_email: true).deliver_now
-      else
-        TechTableMailer.permissions(emp_transaction).deliver_now
-      end
+    return false if emp_transaction.kind == "Offboarding"
+    if emp_transaction.kind == "Onboarding" && link_email == "on"
+      TechTableMailer.onboard_instructions(emp_transaction, link_email: true).deliver_now
+    else
+      TechTableMailer.permissions(emp_transaction).deliver_now
     end
   end
 
@@ -207,15 +206,8 @@ class ManagerEntry
   end
 
   def immediately_update_security_profiles?
-    if kind == "Security Access"
-      true
-    elsif kind == "Onboarding"
-      if link_email == "on" and @employee.status == "Active"
-        false
-      else
-        true
-      end
-    end
+    return false if kind == "Onboarding" && link_email == "on" && @employee.status == "Active"
+    true
   end
 
 end
