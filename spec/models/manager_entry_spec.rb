@@ -138,7 +138,7 @@ RSpec.describe ManagerEntry do
       expect{
         manager_entry.save
       }.not_to change{Employee.count}
-      expect(Employee.reorder(:created_at).last.profiles.count).to eq(2)
+      expect(Employee.find_by(last_name: "LN_FAKE_JP").profiles.count).to eq(2)
       expect(manager_entry.emp_transaction.employee).to eq(old_employee)
 
       old_employee.reload
@@ -161,7 +161,7 @@ RSpec.describe ManagerEntry do
       manager_entry = ManagerEntry.new(link_off_params)
       manager_entry.save
 
-      employee = Employee.reorder(:created_at).last
+      employee = Employee.find_by(last_name: "LN_FAKE_JP")
       event.reload
 
       expect(employee.status).to eq("Pending")
@@ -234,7 +234,7 @@ RSpec.describe ManagerEntry do
       expect{
         manager_entry.save
       }.not_to change{Employee.count}
-      expect(Employee.reorder(:created_at).last.profiles.count).to eq(2)
+      expect(Employee.find_by(last_name: "Fakename").profiles.count).to eq(2)
       expect(manager_entry.emp_transaction.employee).to eq(old_employee)
 
       old_employee.reload
@@ -254,7 +254,7 @@ RSpec.describe ManagerEntry do
       manager_entry = ManagerEntry.new(link_off_params)
       manager_entry.save
 
-      employee = Employee.reorder(:created_at).last
+      employee = Employee.find_by(last_name: "Fakename")
       event.reload
 
       expect(employee.status).to eq("Pending")
