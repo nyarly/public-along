@@ -68,25 +68,18 @@ module AdpService
 
     def process_term(event)
       json = JSON.parse(event.json)
-      employee = Employee.find_by_employee_id(worker_id(json))
       term_date = term_date(json)
+      employee = Employee.find_by_employee_id(worker_id(json))
 
-      if employee.present? && !job_change?(employee, term_date)
-        employee.assign_attributes(termination_date: term_date)
-        employee.current_profile.assign_attributes(end_date: term_date)
+      return false if employee.blank? || job_change?(employee, term_date)
 
-        if is_retroactive?(employee, term_date)
-          process_retro_term(employee)
-        else
-          EmpDelta.build_from_profile(employee.current_profile).save!
+      employee.assign_attributes(termination_date: term_date)
+      employee.current_profile.assign_attributes(end_date: term_date)
 
-          if employee.save!
-            employee.start_offboard_process!
-          else
-            return false
-          end
-        end
-      end
+      return process_retro_term(e, profile) if is_retroactive?(e, term_date)
+
+      EmpDelta.build_from_profile(employee.current_profile).save!
+      employee.save! && employee.start_offboard_process!
     end
 
     def process_retro_term(employee)
@@ -100,19 +93,19 @@ module AdpService
       json = JSON.parse(event.json)
       employee = Employee.find_by_employee_id(worker_id(json))
 
-      unless employee.blank?
-        leave_date = leave_date(json)
-        employee.assign_attributes(leave_start_date: leave_date)
-        if is_retroactive?(employee, leave_date)
-          employee.current_profile.start_leave
-          employee.leave_immediately
-          EmpDelta.build_from_profile(employee.current_profile).save!
-          employee.save!
-        else
-          EmpDelta.build_from_profile(employee.current_profile).save!
-          employee.update_active_directory_account
-          employee.save!
-        end
+      return false if employee.blank?
+
+      leave_date = leave_date(json)
+      employee.assign_attributes(leave_start_date: leave_date)
+      if is_retroactive?(employee, leave_date)
+        employee.current_profile.start_leave
+        employee.leave_immediately
+        EmpDelta.build_from_profile(employee.current_profile).save!
+        employee.save!
+      else
+        EmpDelta.build_from_profile(employee.current_profile).save!
+        employee.update_active_directory_account
+        employee.save!
       end
     end
 
@@ -120,15 +113,13 @@ module AdpService
       json = JSON.parse(event.json)
       employee = Employee.find_by_employee_id(worker_id(json))
 
-      if employee.present?
-        profiler = EmployeeProfile.new
-        updated_account = profiler.link_accounts(employee.id, event.id)
-        employee.rehire!
-      else
-        EmployeeWorker.perform_async("Onboarding", event_id: event.id)
-        return false
-      end
+      return send_onboarding_with_event(event) if employee.blank?
+
+      profiler = EmployeeProfile.new
+      updated_account = profiler.link_accounts(employee.id, event.id)
+      employee.rehire!
     end
+
 
     def job_change?(e, term_date)
       date = DateTime.parse(term_date) + 1.day
@@ -217,7 +208,6 @@ module AdpService
     def term_date(json)
       json.dig("events", 0, "data", "output", "worker", "workerDates", "terminationDate")
     end
-
 
   end
 end

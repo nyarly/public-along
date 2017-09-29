@@ -385,6 +385,20 @@ describe AdpService::Events, type: :service do
       end
     end
 
+    describe "termination event should continue if employee not found" do
+      let(:parsed_json) { JSON.parse(term_json) }
+
+      it "should save the event and return" do
+
+        adp = AdpService::Events.new
+        adp.token = "a-token-value"
+
+        expect{
+          adp.process_term(parsed_json)
+        }.to_not change{Employee.count}
+      end
+    end
+
     describe "retroactive termination" do
       let(:manager)   { FactoryGirl.create(:employee) }
       let!(:man_prof) { FactoryGirl.create(:profile,
@@ -470,6 +484,20 @@ describe AdpService::Events, type: :service do
       end
     end
 
+    describe "leave event where employee not found" do
+      let(:parsed_json) { JSON.parse(leave_json) }
+
+      it "should save the event and return" do
+
+        adp = AdpService::Events.new
+        adp.token = "a-token-value"
+
+        expect{
+          adp.process_leave(parsed_json)
+        }.to_not change{Employee.count}
+      end
+    end
+
     describe "rehire event" do
       let!(:worker_type)        { FactoryGirl.create(:worker_type, code: "FTR", kind: "Regular") }
       let!(:security_profile)   { FactoryGirl.create(:security_profile, name: "Basic Regular Worker Profile") }
@@ -541,6 +569,7 @@ describe AdpService::Events, type: :service do
           expect(rehired_emp.reload.location.code).to eq("SF")
           expect(rehired_emp.reload.job_title.code).to eq("SPMASR")
           expect(rehired_emp.reload.hire_date).to eq(Date.new(2010, 9, 1))
+          expect(rehired_emp.reload.termination_date).to eq(nil)
           expect(rehired_emp.profiles.count).to eq(2)
           expect(rehired_emp.current_profile.start_date).to eq(Date.new(2018, 9, 1))
           expect(rehired_emp.current_profile.profile_status).to eq("pending")
