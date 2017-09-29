@@ -393,6 +393,20 @@ describe AdpService::Events, type: :service do
       end
     end
 
+    describe "termination event should continue if employee not found" do
+      let(:parsed_json) { JSON.parse(term_json) }
+
+      it "should save the event and return" do
+
+        adp = AdpService::Events.new
+        adp.token = "a-token-value"
+
+        expect{
+          adp.process_term(parsed_json)
+        }.to_not change{Employee.count}
+      end
+    end
+
     describe "retroactive termination" do
       let(:manager) { FactoryGirl.create(:employee) }
       let!(:man_prof) { FactoryGirl.create(:profile,
@@ -453,6 +467,20 @@ describe AdpService::Events, type: :service do
         expect(leave_emp.reload.leave_start_date).to eq("2017-01-23")
         expect(leave_emp.emp_deltas.last.before).to eq({"leave_start_date"=>nil})
         expect(leave_emp.emp_deltas.last.after).to eq({"leave_start_date"=>"2017-01-23 00:00:00 UTC"})
+      end
+    end
+
+    describe "leave event where employee not found" do
+      let(:parsed_json) { JSON.parse(leave_json) }
+
+      it "should save the event and return" do
+
+        adp = AdpService::Events.new
+        adp.token = "a-token-value"
+
+        expect{
+          adp.process_leave(parsed_json)
+        }.to_not change{Employee.count}
       end
     end
 

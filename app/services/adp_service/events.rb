@@ -98,27 +98,28 @@ module AdpService
       worker_id = json.dig("events", 0, "data", "output", "worker", "workerID", "idValue").downcase
       term_date = json.dig("events", 0, "data", "output", "worker", "workerDates", "terminationDate")
       e = Employee.find_by_employee_id(worker_id)
+
+      return false if e.blank? || job_change?(e, term_date)
+
       profile = e.current_profile
+      e.assign_attributes(termination_date: term_date)
+      profile.assign_attributes(end_date: term_date)
 
-      if e.present? && !job_change?(e, term_date)
-        e.assign_attributes(termination_date: term_date)
-        profile.assign_attributes(end_date: term_date)
+      return process_retro_term(e, profile) if is_retroactive?(e, term_date)
+      process_future_term(e, profile)
+    end
 
-        if is_retroactive?(e, term_date)
-          process_retro_term(e, profile)
-        else
-          delta = EmpDelta.build_from_profile(profile)
+    def process_future_term(e, profile)
+      delta = EmpDelta.build_from_profile(profile)
+      delta.save if delta.present?
 
-          if e.save and profile.save
-            ads = ActiveDirectoryService.new
-            ads.update([e])
-            send_offboard_forms(e)
-            delta.save if delta.present?
-            return true
-          else
-            return false
-          end
-        end
+      if e.save! && profile.save!
+        ads = ActiveDirectoryService.new
+        ads.update([e])
+        send_offboard_forms(e)
+        return true
+      else
+        return false
       end
     end
 
@@ -127,7 +128,7 @@ module AdpService
       profile.profile_status = "Terminated"
       delta = EmpDelta.build_from_profile(profile)
 
-      if e.save and profile.save
+      if e.save && profile.save
         ads = ActiveDirectoryService.new
         ads.deactivate([e])
         TechTableMailer.offboard_instructions(e).deliver_now
@@ -151,20 +152,19 @@ module AdpService
       worker_id = json.dig("events", 0, "data", "output", "worker", "workerID", "idValue").downcase
       leave_date = json.dig("events", 0, "data", "output", "worker", "workerStatus", "effectiveDate")
       e = Employee.find_by_employee_id(worker_id)
-      profile = e.current_profile
 
       if e.present?
+        profile = e.current_profile
         e.assign_attributes(leave_start_date: leave_date)
         delta = EmpDelta.build_from_profile(profile)
-      end
-
-      if e.present? && e.save
-        ads = ActiveDirectoryService.new
-        ads.update([e])
-        delta.save if delta.present?
-        return true
-      else
-        return false
+        if e.save
+          ads = ActiveDirectoryService.new
+          ads.update([e])
+          delta.save if delta.present?
+          return true
+        else
+          return false
+        end
       end
     end
 
