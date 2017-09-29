@@ -1,5 +1,5 @@
 <div class="row">
-  <div>
+  <div class="row">
     <ul class="tabs" role="tablist" data-active-collapse="true" data-tabs id="employee-info">
       <li class="tabs-title is-active" role="presentation">
         <a href="#basic-info" role="tab" aria-controls="basic-info" id="basic-info-label">Basic Info</a>
@@ -15,12 +15,12 @@
       </li>
     </ul>
   </div>
-  <div class="tabs-content" data-tabs-content="employee-info">
+  <div class="tabs-content row" data-tabs-content="employee-info">
     <div class="tabs-panel is-active" id="basic-info">
 
       <!-- Begin trigger email section -->
       <% if (can? :create, Email) && (@employee.status != "Terminated") %>
-        <div class="callout secondary large-4 medium-6 small-12 columns float-right">
+        <div class="callout secondary large-4 medium-6 small-10 columns float-right">
           <div id="email-info"><p>Send Manager Email<span data-tooltip aria-haspopup="true" class="has-tip float-right" data-disable-hover="false" tabindex="1" title="Use this form to immediately resend a form prompt for this employee to their manager.">?</span></p>
           </div>
           <%= render'emails/form', employee: @employee %>
@@ -28,76 +28,83 @@
       <% end %>
       <!-- End trigger email section -->
 
-      <p>
-        <strong>First Name:</strong>
-        <%= @employee.first_name %>
-      </p>
+      <div class="large-8 medium-6 small-2 columns float-left">
+        <h3><%= @employee.first_name %> <%= @employee.last_name %></h3>
+        <h4><%= @employee.status %></h4>
 
-      <p>
-        <strong>Last Name:</strong>
-        <%= @employee.last_name %>
-      </p>
+        <% @employee.profiles.order(created_at: :desc).each do |p| %>
+          <div class="callout">
+            <p>
+              <strong>Profile Status:</strong>
+              <%= p.profile_status %>
+            </p>
+            <p>
+              <strong>Position Start Date:</strong>
+              <%= p.start_date.try(:strftime, "%B %e, %Y") %>
+            </p>
+           <p>
+              <strong>Position End Date:</strong>
+              <%= p.end_date.try(:strftime, "%B %e, %Y") %>
+            </p>
+            <p>
+              <strong>Business Title:</strong>
+              <%= p.job_title.try(:name) %>
+            </p>
 
-      <p>
-        <strong>Business Title:</strong>
-        <%= @employee.job_title.try(:name) %>
-      </p>
+            <p>
+              <strong>Department:</strong>
+              <%= p.department.try(:name) %>
+            </p>
 
-      <p>
-        <strong>Department:</strong>
-        <%= @employee.department.try(:name) %>
-      </p>
+            <p>
+              <strong>Location:</strong>
+              <%= p.location.try(:name) %>
+            </p>
 
-      <p>
-        <strong>Location:</strong>
-        <%= @employee.location.try(:name) %>
-      </p>
+            <p>
+              <strong>Manager:</strong>
+              <%= @employee.manager.try(:cn) %>
+            </p>
 
-      <p>
-        <strong>Manager:</strong>
-        <%= @employee.manager.try(:cn) %>
-      </p>
+            <p>
+              <strong>Worker Type:</strong>
+              <%= p.worker_type.try(:name) %>
+            </p>
+            <p>
+              <strong>Employee ID:</strong>
+              <%= p.try(:employee_id) %>
+            </p>
+            <% if can? :manage, Employee %>
+              <div class="callout secondary">
+                <p><strong>Admin Only</strong></p>
+                <p>ADP Assoc. OID: <%= p.try(:adp_assoc_oid) %></p>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
 
-      <p>
-        <strong>Worker Type:</strong>
-        <%= @employee.worker_type.try(:name) %>
-      </p>
-
-      <p>
-        <strong>Status:</strong>
-        <%= @employee.status %>
-      </p>
-
-      <p>
-        <strong>Employee ID:</strong>
-        <%= @employee.try(:employee_id) %>
-      </p>
-
-      <!-- Start admin info section -->
-      <% if can? :manage, Employee %>
-        <p>
-          <strong>ADP Assoc. OID:</strong>
-          <%= @employee.try(:adp_assoc_oid) %>
-        </p>
-
-        <p>
-          <strong>Record Created at:</strong>
-          <%= @employee.created_at %>
-        </p>
-
-        <p>
-          <strong>Record Updated at:</strong>
-          <%= @employee.updated_at %>
-        </p>
-
-        <p>
-          <strong>Active Directory Updated at:</strong>
-          <%= @employee.ad_updated_at %>
-        </p>
-      <% end %>
+        <!-- Start admin info section -->
+        <% if can? :manage, Employee %>
+          <div class="callout secondary float-left">
+            <p><strong>Admin Only</strong></p>
+            <p>
+              <strong>Record Created at:</strong>
+              <%= @employee.created_at %>
+            </p>
+            <p>
+              <strong>Record Updated at:</strong>
+              <%= @employee.updated_at %>
+            </p>
+            <p>
+              <strong>Active Directory Updated at:</strong>
+              <%= @employee.ad_updated_at %>
+            </p>
+          </div>
+        <% end %>
+      </div>
       <!-- End admin info section -->
-
     </div>
+
     <div class="tabs-panel" id="contact-info">
       <p>
         <strong>Email:</strong>
@@ -115,55 +122,46 @@
       </p>
 
       <% if can? :manage, Employee %>
-        <p>
-          <strong>Home Address 1:</strong>
-          <%= @employee.home_address_1 %>
-        </p>
-
-        <p>
-          <strong>Home Address 2:</strong>
-          <%= @employee.home_address_2 %>
-        </p>
-
-        <p>
-          <strong>Home City:</strong>
-          <%= @employee.home_city %>
-        </p>
-
-        <p>
-          <strong>Home State:</strong>
-          <%= @employee.home_state %>
-        </p>
-
-        <p>
-          <strong>Home Zip:</strong>
-          <%= @employee.home_zip %>
-        </p>
+        <div class="callout secondary">
+          <p><strong>Admin Only</strong></p>
+          <p>
+            Home Address 1: <%= @employee.home_address_1 %>
+          </p>
+          <p>
+            Home Address 2: <%= @employee.home_address_2 %>
+          </p>
+          <p>
+            Home City: <%= @employee.home_city %>
+          </p>
+          <p>
+            Home State: <%= @employee.home_state %>
+          </p>
+          <p>
+            Home Zip: <%= @employee.home_zip %>
+          </p>
+        </div>
       <% end %>
     </div>
     <div class="tabs-panel" id="important-dates">
       <p>
-        <strong>Hire Date:</strong>
-        <%= @employee.hire_date %>
+        <strong>Date of Original Hire:</strong>
+        <%= @employee.hire_date.try(:strftime, "%B %e, %Y") %>
+      </p>
+      <p>
+        <strong>Termination Date:</strong>
+        <%= @employee.termination_date.try(:strftime, "%B %e, %Y") %>
+      </p>
+      <p>
+        <strong>Contract End Date:</strong>
+        <%= @employee.contract_end_date.try(:strftime, "%B %e, %Y") %>
       </p>
       <p>
         <strong>Leave Start Date:</strong>
-        <%= @employee.leave_start_date %>
+        <%= @employee.leave_start_date.try(:strftime, "%B %e, %Y") %>
       </p>
-
       <p>
         <strong>Leave Return Date:</strong>
-        <%= @employee.leave_return_date %>
-      </p>
-
-      <p>
-        <strong>Contract End Date:</strong>
-        <%= @employee.contract_end_date %>
-      </p>
-
-      <p>
-        <strong>Termination Date:</strong>
-        <%= @employee.termination_date %>
+        <%= @employee.leave_return_date.try(:strftime, "%B %e, %Y") %>
       </p>
     </div>
     <div class="tabs-panel" id="security-profiles">
