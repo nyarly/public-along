@@ -37,11 +37,11 @@ class ManagerEntry
   end
 
   def find_employee
-    employee = Employee.find(employee_id)
-    return employee if employee.present?
+    if employee_id.present?
+      employee = Employee.find(employee_id)
 
     # employee transaction for rehire or job change
-    if event_id.present?
+    elsif event_id.present?
       profiler = EmployeeProfile.new
       event = AdpEvent.find(event_id)
 
@@ -49,8 +49,8 @@ class ManagerEntry
       if link_email == "on"
         if linked_account_id.present?
           employee = profiler.link_accounts(linked_account_id, event_id)
-          employee.update_attribute(termination_date: nil)
-          event.update_attribute(status: "Processed")
+          employee.update_attributes(termination_date: nil)
+          event.update_attributes(status: "Processed")
           employee.rehire_from_event!
         else
           emp_transaction.errors.add(:base, :employee_blank, message: "You didn't chose an email to reuse. Did you mean to create a new email? If so, please select 'no' in the Rehire or Worker Type Change.")
@@ -60,7 +60,7 @@ class ManagerEntry
       elsif link_email == "off"
         employee = profiler.new_employee(event)
         employee.hire!
-        event.update_attribute(status: "Processed")
+        event.update_attributes(status: "Processed")
         employee
       else
         # for new emp transactions before form filled out
@@ -71,6 +71,7 @@ class ManagerEntry
       errors.add(:base, :employee_blank, message: "Employee can not be blank. Please revisit email link to refresh page.")
       return nil
     end
+    employee
   end
 
   def emp_transaction
@@ -151,7 +152,14 @@ class ManagerEntry
         raise ActiveRecord::RecordInvalid.new(emp_transaction)
       end
 
-      return update_security_profiles if emp_transaction.emp_sec_profiles.count > 0
+      if emp_transaction.emp_sec_profiles.count > 0 || emp_transaction.revoked_emp_sec_profiles.count
+        if emp_transaction.revoked_emp_sec_profiles.count
+          emp_transaction.revoked_emp_sec_profiles.update_all(revoking_transaction_id: @emp_transaction.id)
+        end
+
+        update_security_profiles
+      end
+      emp_transaction.errors.blank?
     end
 
     rescue ActiveRecord::RecordInvalid => e
@@ -189,14 +197,8 @@ class ManagerEntry
     JobChangeWorker.perform_at(change_at_datetime, emp_transaction.id)
   end
 
-  def has_profiles_to_revoke?
-    emp_transaction.revoked_emp_sec_profiles.count > 0
-  end
-
   def update_security_profiles
-    if has_profiles_to_revoke?
-      emp_transaction.revoked_emp_sec_profiles.update_all(revoking_transaction_id: @emp_transaction.id)
-    end
+    return false if kind == "Offboarding"
     return update_sec_profs_on_position_start_date if kind == "Onboarding" && link_email == "on" && @employee.status == "Active"
     SecAccessService.new(emp_transaction).apply_ad_permissions
   end

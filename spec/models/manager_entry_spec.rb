@@ -2,6 +2,7 @@ require 'rails_helper'
 
 RSpec.describe ManagerEntry do
   let(:sas) { double(SecAccessService) }
+  let!(:manager_sec_prof) { FactoryGirl.create(:security_profile, name: "Basic Manager") }
 
   before :each do
     allow(SecAccessService).to receive(:new).and_return(sas)
@@ -11,7 +12,7 @@ RSpec.describe ManagerEntry do
   context "Onboarding New Hire" do
     let(:user) { FactoryGirl.create(:user) }
     let(:buddy) { FactoryGirl.create(:active_employee) }
-    let!(:employee) { FactoryGirl.create(:active_employee, request_status: "waiting") }
+    let!(:employee) { FactoryGirl.create(:pending_employee, request_status: "waiting") }
     let!(:profile)  { FactoryGirl.create(:profile, employee: employee) }
     let(:sp_1) { FactoryGirl.create(:security_profile) }
     let(:sp_2) { FactoryGirl.create(:security_profile) }
