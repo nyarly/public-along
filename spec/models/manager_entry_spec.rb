@@ -79,6 +79,10 @@ RSpec.describe ManagerEntry do
   end
 
   context "Onboarding Job Change with Linked Accounts" do
+    let!(:manager) { FactoryGirl.create(:employee) }
+    let!(:manager_profile) { FactoryGirl.create(:profile,
+      employee: manager,
+      adp_employee_id: "101836") }
     let!(:worker_type) { FactoryGirl.create(:worker_type,
       code: "ACW",
       name: "Contractor")}
@@ -111,7 +115,7 @@ RSpec.describe ManagerEntry do
         link_email: "on",
         linked_account_id: old_employee.id
       }
-      end
+    end
     let(:link_off_params) do
       {
         kind: "Onboarding",
@@ -129,13 +133,13 @@ RSpec.describe ManagerEntry do
     let(:ads) { double(ActiveDirectoryService) }
     let(:profiler) { EmployeeProfile.new }
 
-    it "should create a new profile on when manager links employees" do
+    it "should create a new profile on employee when manager links employees" do
       manager_entry = ManagerEntry.new(link_on_params)
 
       expect{
         manager_entry.save
       }.not_to change{Employee.count}
-      expect(Profile.count).to eq(2)
+      expect(Employee.find_by(last_name: "LN_FAKE_JP").profiles.count).to eq(2)
       expect(manager_entry.emp_transaction.employee).to eq(old_employee)
 
       old_employee.reload
@@ -159,7 +163,7 @@ RSpec.describe ManagerEntry do
       manager_entry = ManagerEntry.new(link_off_params)
       manager_entry.save
 
-      employee = Employee.reorder(:created_at).last
+      employee = Employee.find_by(last_name: "LN_FAKE_JP")
       event.reload
 
       expect(employee.status).to eq("Pending")
@@ -174,6 +178,10 @@ RSpec.describe ManagerEntry do
   end
 
   context "Onboard Rehire with Linked Accounts" do
+    let!(:manager) { FactoryGirl.create(:employee) }
+    let!(:manager_profile) { FactoryGirl.create(:profile,
+      employee: manager,
+      adp_employee_id: "654321") }
     let!(:worker_type) { FactoryGirl.create(:worker_type,
       code: "FTR",
       name: "Regular Full-Time")}
@@ -230,7 +238,7 @@ RSpec.describe ManagerEntry do
       expect{
         manager_entry.save
       }.not_to change{Employee.count}
-      expect(Profile.count).to eq(2)
+      expect(Employee.find_by(last_name: "Fakename").profiles.count).to eq(2)
       expect(manager_entry.emp_transaction.employee).to eq(old_employee)
 
       old_employee.reload
@@ -251,7 +259,7 @@ RSpec.describe ManagerEntry do
       manager_entry = ManagerEntry.new(link_off_params)
       manager_entry.save
 
-      employee = Employee.reorder(:created_at).last
+      employee = Employee.find_by(last_name: "Fakename")
       event.reload
 
       expect(employee.status).to eq("Pending")
@@ -278,6 +286,7 @@ RSpec.describe ManagerEntry do
     let(:user) { FactoryGirl.create(:user) }
     let(:manager_entry) { ManagerEntry.new(params) }
     let!(:employee) { FactoryGirl.create(:employee) }
+    let!(:profile) { FactoryGirl.create(:profile, employee: employee) }
     let(:sp_1) { FactoryGirl.create(:security_profile) }
     let(:sp_2) { FactoryGirl.create(:security_profile) }
     let(:sp_3) { FactoryGirl.create(:security_profile) }
@@ -325,9 +334,10 @@ RSpec.describe ManagerEntry do
     end
 
     let(:user) { FactoryGirl.create(:user) }
-    let(:forward) { FactoryGirl.create(:employee)}
+    let(:forward) { FactoryGirl.create(:employee) }
     let(:manager_entry) { ManagerEntry.new(params) }
     let!(:employee) { FactoryGirl.create(:employee) }
+    let!(:profile) { FactoryGirl.create(:profile, employee: employee) }
     let!(:security_profile) { FactoryGirl.create(:security_profile) }
     let!(:emp_sec_profile) { FactoryGirl.create(:emp_sec_profile, security_profile_id: security_profile.id) }
 
@@ -356,6 +366,7 @@ RSpec.describe ManagerEntry do
     end
 
     let(:employee) { FactoryGirl.create(:employee) }
+    let!(:profile) { FactoryGirl.create(:profile, employee: employee) }
     let(:user) { FactoryGirl.create(:user) }
     let(:machine_bundle) { FactoryGirl.create(:machine_bundle) }
     let(:manager_entry) { ManagerEntry.new(params) }

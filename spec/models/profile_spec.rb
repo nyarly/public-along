@@ -20,4 +20,22 @@ RSpec.describe Profile, type: :model do
     expect(Profile.count).to eq(2)
     expect(Profile.active).to eq(new_profile)
   end
+
+  it "should scope the correct onboarding group" do
+    onboarding_group = [
+      FactoryGirl.create(:profile, start_date: Date.yesterday),
+      FactoryGirl.create(:profile, start_date: Date.today),
+      FactoryGirl.create(:profile, start_date: Date.tomorrow)
+    ]
+
+    non_onboarding_group = [
+      FactoryGirl.create(:profile, start_date: 1.week.ago),
+      FactoryGirl.create(:profile, start_date: 2.days.ago),
+      FactoryGirl.create(:profile, start_date: 2.days.from_now),
+      FactoryGirl.create(:profile, start_date: 1.week.from_now)
+    ]
+
+    expect(Profile.onboarding_group).to eq(onboarding_group)
+    expect(Profile.onboarding_group).to_not include(non_onboarding_group)
+  end
 end

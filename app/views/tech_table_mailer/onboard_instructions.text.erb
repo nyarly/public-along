@@ -2,7 +2,7 @@ Onboarding Worker Request
 ====================================
 
 Name: <%= @employee.cn %>
-Start Date: <%= @employee.hire_date.strftime("%b %e, %Y") %>
+Start Date: <%= @employee.start_date %>
 EmployeeID: <%= @employee.employee_id %>
 Title: <%= @employee.job_title.try(:name) %>
 Department: <%= @employee.department.name %>
@@ -14,7 +14,7 @@ Submission Date: <%= @info.onboarding_info.emp_transaction.created_at.strftime("
 Contract End Date: <%= @employee.contract_end_date.strftime("%b %e, %Y") %>
 <% end %>
 <% if @employee.is_contingent_worker? %>
-Contingent Worker:
+Contingent Worker: true
 <% if @info.onboarding_info.cw_email.present? %>
 Create OpenTable Email: <%= @info.onboarding_info.cw_email %>
 <% end %>

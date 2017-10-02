@@ -25,6 +25,10 @@ class Profile < ActiveRecord::Base
 
   scope :regular_worker_type, -> { joins(:worker_type).where(:worker_types => {:kind => "Regular"})}
 
+  def self.onboarding_group
+    where('start_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow)
+  end
+
   def self.active
     where(:profile_status => "Active").last
   end

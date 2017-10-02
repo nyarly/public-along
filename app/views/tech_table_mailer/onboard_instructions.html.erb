@@ -3,7 +3,7 @@
   <div>
     <h1 style="font-size: 1.5em;">Onboarding Worker Request</h1>
     <p><strong>Name: </strong><%= @employee.cn %></p>
-    <p><strong>Start Date: </strong><%= @employee.hire_date.strftime("%b %e, %Y") %></p>
+    <p><strong>Start Date: </strong><%= @employee.start_date %></p>
     <p><strong>EmployeeID: </strong><%= @employee.employee_id %></p>
     <p><strong>Title: </strong><%= @employee.job_title.try(:name) %></p>
     <p><strong>Department: </strong><%= @employee.department.name %></p>
@@ -15,7 +15,7 @@
       <strong>Contract End Date:</strong><%= @employee.contract_end_date.strftime("%b %e, %Y") %>
     <% end %>
     <% if @employee.is_contingent_worker? %>
-      <p><strong>Contingent Worker: </strong>
+      <p><strong>Contingent Worker: true</strong>
         <div style="margin-left: 2em">
           <ul>
             <li style="color: <%= @info.onboarding_info.cw_email ? 'red' : 'limegreen' %>"><p>Create OpenTable Email: <%= @info.onboarding_info.cw_email %></p></li>
@@ -28,7 +28,7 @@
     <% end %>
   </div>
 
-  <% if @link_accounts %>
+  <% if @link_email %>
     <p><strong>Reusing Account:</strong></p>
     <p>This worker is a rehire or is changing worker types. They are reusing their email address, <%= @employee.email %>. Please transition their accounts accordingly.</p>
   <% end %>

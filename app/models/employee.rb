@@ -35,8 +35,8 @@ class Employee < ActiveRecord::Base
     end
   end
 
-  def self.activation_group
-    where('hire_date BETWEEN ? AND ? OR leave_return_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow)
+  def self.leave_return_group
+    where('leave_return_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow)
   end
 
   def self.deactivation_group
@@ -71,6 +71,14 @@ class Employee < ActiveRecord::Base
     else
       @current_profile ||= self.profiles.last
     end
+  end
+
+  def start_date
+    current_profile.start_date.strftime("%b %e, %Y")
+  end
+
+  def is_rehire?
+    status == "Pending" && profiles.terminated.present?
   end
 
   def employee_id
