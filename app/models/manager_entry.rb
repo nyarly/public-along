@@ -162,8 +162,8 @@ class ManagerEntry
         raise ActiveRecord::RecordInvalid.new(emp_transaction)
       end
 
-      if emp_transaction.emp_sec_profiles.count > 0 || emp_transaction.revoked_emp_sec_profiles.count
-        if emp_transaction.revoked_emp_sec_profiles.count
+      if emp_transaction.emp_sec_profiles.count > 0 || emp_transaction.revoked_emp_sec_profiles.count > 0
+        if emp_transaction.revoked_emp_sec_profiles.count > 0
           emp_transaction.revoked_emp_sec_profiles.update_all(revoking_transaction_id: @emp_transaction.id)
         end
 
