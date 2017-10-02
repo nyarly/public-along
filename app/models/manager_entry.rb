@@ -162,8 +162,8 @@ class ManagerEntry
         raise ActiveRecord::RecordInvalid.new(emp_transaction)
       end
 
-      if emp_transaction.emp_sec_profiles.count > 0
-        if has_profiles_to_revoke?
+      if emp_transaction.emp_sec_profiles.count > 0 || emp_transaction.revoked_emp_sec_profiles.count
+        if emp_transaction.revoked_emp_sec_profiles.count
           emp_transaction.revoked_emp_sec_profiles.update_all(revoking_transaction_id: @emp_transaction.id)
         end
 
@@ -197,11 +197,8 @@ class ManagerEntry
     JobChangeWorker.perform_at(change_at_datetime, emp_transaction.id)
   end
 
-  def has_profiles_to_revoke?
-    emp_transaction.revoked_emp_sec_profiles.count > 0
-  end
-
   def update_security_profiles
+    return false if kind == "Offboarding"
     return update_sec_profs_on_position_start_date if kind == "Onboarding" && link_email == "on" && @employee.status == "Active"
     SecAccessService.new(emp_transaction).apply_ad_permissions
   end
