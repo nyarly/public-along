@@ -11,7 +11,7 @@ namespace :employee do
     Profile.onboarding_group.each do |p|
       # Collect employees to activate on position start date in their respective nearest time zone
       e = p.employee
-      activations << e if in_time_window?(p.start_date, 3, e.nearest_time_zone)
+      e.activate! if in_time_window?(p.start_date, 3, e.nearest_time_zone)
     end
 
     Employee.deactivation_group.each do |e|

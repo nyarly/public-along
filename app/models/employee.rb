@@ -30,6 +30,7 @@ class Employee < ActiveRecord::Base
   scope :active_or_inactive, -> { where('status IN (?)', ["active", "inactive"]) }
 
   aasm :column => "status" do
+    error_on_all_events { |e| Rails.logger.info e.message }
     state :created, :initial => true
     state :pending
     state :active
@@ -50,13 +51,13 @@ class Employee < ActiveRecord::Base
       transitions from: :terminated, to: :pending, after: :update_active_directory_account
     end
 
-    event :rehire_from_event do
+    event :rehire_from_event, binding_event: :clear_queue, after: :update_active_directory_account do
       transitions from: :terminated, to: :pending
     end
 
     event :activate, binding_event: :clear_queue, after: [:activate_profile, :activate_active_directory_account] do
-      transitions from: :inactive, to: :active, after: :activate_active_directory_account
-      transitions from: :pending, to: :active, guard: [:onboarded?, :contract_end_date_needed?]
+      transitions from: :inactive, to: :active
+      transitions from: :pending, to: :active, guard: [:onboarded?, :record_complete?]
     end
 
     event :start_leave do
@@ -86,7 +87,7 @@ class Employee < ActiveRecord::Base
     end
 
     event :complete do
-      transitions from: [:none, :waiting], to: :completed
+      transitions from: [:none, :waiting, :completed], to: :completed
     end
 
     event :clear_queue do
@@ -110,7 +111,7 @@ class Employee < ActiveRecord::Base
   end
 
   def onboarded?
-    request_status == "complete"
+    request_status == "completed" || request_status == "none"
   end
 
   def onboard_new_position
@@ -327,23 +328,13 @@ class Employee < ActiveRecord::Base
     where('termination_date BETWEEN ? AND ?', 8.days.ago, 7.days.ago)
   end
 
-  def self.onboarding_report_group
-    where('hire_date >= ?', Date.today)
-  end
-
   def self.offboarding_report_group
     where('employees.termination_date BETWEEN ? AND ?', Date.today - 2.weeks, Date.today)
   end
 
   def self.onboarding_reminder_group
-    reminder_group = []
-    missing_onboards = Employee.where(status: "pending").joins('LEFT OUTER JOIN emp_transactions ON employees.id = emp_transactions.employee_id').group('employees.id').having('count(emp_transactions) = 0')
-
-    missing_onboards.each do |e|
-      reminder_date = e.onboarding_due_date.to_date - 1.day
-      reminder_group << e if reminder_date.between?(Date.yesterday, Date.tomorrow)
-    end
-    reminder_group
+    missing_onboards = Employee.where(status: "pending", request_status: "waiting")
+    missing_onboards.select { |e| e if (e.onboarding_due_date.to_date - 1.day).between?(Date.yesterday, Date.tomorrow) }
   end
 
   def self.managers
@@ -375,7 +366,7 @@ class Employee < ActiveRecord::Base
   end
 
   def is_rehire?
-    status == "Pending" && profiles.terminated.present?
+    status == "pending" && profiles.terminated.present?
   end
 
   def update_active_directory_account
@@ -430,13 +421,14 @@ class Employee < ActiveRecord::Base
     worker_type.kind == "Temporary" || worker_type.kind == "Contractor"
   end
 
-  def contract_end_date_needed?
-    worker_type.kind != "Regular" && contract_end_date.blank?
+  def record_complete?
+    return true if worker_type.kind == "Regular"
+    contract_end_date.present?
   end
 
-  def onboarding_complete?
-    self.onboarding_infos.count > 0
-  end
+  # def onboarding_complete?
+  #   self.onboarding_infos.count > 0
+  # end
 
   def offboarding_complete?
     self.offboarding_infos.count > 0

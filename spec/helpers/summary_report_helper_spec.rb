@@ -10,6 +10,16 @@ describe SummaryReportHelper, type: :helper do
   let!(:profile) { FactoryGirl.create(:profile,
     employee: employee,
     manager_id: manager.employee_id) }
+  let!(:rehire) { FactoryGirl.create(:pending_employee,
+    last_name: "Cork",
+    hire_date: 3.years.ago,
+    request_status: "waiting") }
+  let!(:re_new_p) { FactoryGirl.create(:profile,
+    employee: rehire,
+    start_date: 1.week.from_now) }
+  let!(:re_old_p) { FactoryGirl.create(:terminated_profile,
+    employee: rehire,
+    start_date: 3.years.ago)}
   let(:emp_delta_group) { FactoryGirl.create_list(:emp_delta, 5,
     employee_id: manager.id,
     before: { some: "stuff"},
@@ -19,8 +29,7 @@ describe SummaryReportHelper, type: :helper do
 
   context "onboarding" do
     it "should call the correct Employee scope" do
-      expect(Employee).to receive(:onboarding_report_group).and_return([employee])
-
+      expect(Profile).to receive(:onboarding_report_group).and_return([profile, re_new_p])
       helper.onboarding_data
     end
 

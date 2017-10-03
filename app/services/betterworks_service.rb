@@ -50,8 +50,9 @@ class BetterworksService
       csv << headers
 
       betterworks_users.each do |u|
+
         if u.is_rehire?
-          terminated_profile = u.profiles.terminated
+          terminated_profile = u.profiles.terminated.last
           employee_id = terminated_profile.adp_employee_id
           department = terminated_profile.department.name
           location = terminated_profile.location.name
@@ -66,7 +67,7 @@ class BetterworksService
           manager_email = u.manager_id.present? ? u.manager.email : ""
           manager_id = u.manager_id.present? ? u.manager_id : ""
         end
-          on_leave = u.status == "Inactive"
+          on_leave = u.status == "inactive"
 
           csv << [
             u.email,
@@ -97,9 +98,14 @@ class BetterworksService
     if emp.termination_date.present? && emp.termination_date <= Date.today
       emp.termination_date.strftime("%m/%d/%Y")
     elsif emp.is_rehire?
-      emp.profiles.terminated.end_date.strftime("%m/%d/%Y")
+      emp.profiles.terminated.last.end_date.strftime("%m/%d/%Y")
     else
       nil
     end
   end
+
+  def is_pending_rehire?(emp)
+    emp.status == "Pending" && emp.profiles.terminated.present?
+  end
+
 end

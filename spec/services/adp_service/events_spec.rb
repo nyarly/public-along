@@ -353,7 +353,7 @@ describe AdpService::Events, type: :service do
                         employee: term_emp,
                         adp_employee_id: "101652") }
       let(:mailer)    { double(TechTableMailer) }
-      let(:event)     { FactoryGirl.create(:adp_event,
+      let!(:event)    { FactoryGirl.create(:adp_event,
                         kind: "worker.terminate",
                         json: term_json) }
 
@@ -386,15 +386,17 @@ describe AdpService::Events, type: :service do
     end
 
     describe "termination event should continue if employee not found" do
-      let(:parsed_json) { JSON.parse(term_json) }
+      let!(:event)    { FactoryGirl.create(:adp_event,
+                        kind: "worker.terminate",
+                        json: term_json) }
+
 
       it "should save the event and return" do
-
         adp = AdpService::Events.new
         adp.token = "a-token-value"
 
         expect{
-          adp.process_term(parsed_json)
+          adp.process_term(event)
         }.to_not change{Employee.count}
       end
     end
@@ -485,15 +487,16 @@ describe AdpService::Events, type: :service do
     end
 
     describe "leave event where employee not found" do
-      let(:parsed_json) { JSON.parse(leave_json) }
+      let(:event)  { FactoryGirl.create(:adp_event,
+                     kind: "worker.on-leave",
+                     json: leave_json) }
 
       it "should save the event and return" do
-
         adp = AdpService::Events.new
         adp.token = "a-token-value"
 
         expect{
-          adp.process_leave(parsed_json)
+          adp.process_leave(event)
         }.to_not change{Employee.count}
       end
     end

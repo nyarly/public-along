@@ -57,7 +57,7 @@ module AdpService
 
       if is_rehire?(json)
         worker_hash = event_json_to_hash(json)
-        send_onboard_with_event(event) unless worker_hash[:manager_id].blank?
+        send_onboard_form_with_event(event) unless worker_hash[:manager_id].blank?
         return false
       else
         profiler = EmployeeProfile.new
@@ -76,7 +76,7 @@ module AdpService
       employee.assign_attributes(termination_date: term_date)
       employee.current_profile.assign_attributes(end_date: term_date)
 
-      return process_retro_term(e, profile) if is_retroactive?(e, term_date)
+      return process_retro_term(employee) if is_retroactive?(employee, term_date)
 
       EmpDelta.build_from_profile(employee.current_profile).save!
       employee.save! && employee.start_offboard_process!
@@ -113,7 +113,7 @@ module AdpService
       json = JSON.parse(event.json)
       employee = Employee.find_by_employee_id(worker_id(json))
 
-      return send_onboarding_with_event(event) if employee.blank?
+      return send_onboard_form_with_event(event) if employee.blank?
 
       profiler = EmployeeProfile.new
       updated_account = profiler.link_accounts(employee.id, event.id)
@@ -153,7 +153,7 @@ module AdpService
       @http.get(@uri.request_uri, {'Accept' => 'application/json', 'Authorization' => "Bearer #{@token}"})
     end
 
-    def send_onboard_with_event(event)
+    def send_onboard_form_with_event(event)
       EmployeeWorker.perform_async("Onboarding", event_id: event.id)
     end
 

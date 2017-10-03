@@ -17,6 +17,7 @@ describe BetterworksService, type: :service do
     Dir["tmp/betterworks/*"].each do |f|
       File.delete(f)
     end
+    Timecop.return
   end
 
   describe "get betterworks users" do
@@ -37,29 +38,26 @@ describe BetterworksService, type: :service do
     it "should scope only regular employees" do
       ftr_emp = FactoryGirl.create(:active_employee,
         hire_date: 1.year.ago)
-      ftr_prof = FactoryGirl.create(:profile,
+      ftr_prof = FactoryGirl.create(:active_profile,
         employee: ftr_emp,
         worker_type: ftr_worker_type)
       ptr_emp = FactoryGirl.create(:active_employee,
         hire_date: 1.year.ago)
-      ptr_prf = FactoryGirl.create(:profile,
+      ptr_prf = FactoryGirl.create(:active_profile,
         employee: ptr_emp,
         worker_type: ptr_worker_type)
       temp = FactoryGirl.create(:active_employee,
         hire_date: 1.year.ago)
-      temp_prf = FactoryGirl.create(:profile,
+      temp_prf = FactoryGirl.create(:active_profile,
         employee: temp,
-        worker_type: temp_worker_type,
-        profile_status: "Active")
-      rehired_worker = FactoryGirl.create(:employee,
+        worker_type: temp_worker_type)
+      rehired_worker = FactoryGirl.create(:pending_employee,
         hire_date: 2.years.ago)
       rehired_profile = FactoryGirl.create(:profile,
-        profile_status: "Pending",
         employee: rehired_worker,
         worker_type: ftr_worker_type)
-      rehired_old_prof = FactoryGirl.create(:profile,
+      rehired_old_prof = FactoryGirl.create(:terminated_profile,
         worker_type: ftr_worker_type,
-        profile_status: "Terminated",
         employee: rehired_worker)
 
       expect(service.betterworks_users.count).to eq(3)
@@ -86,12 +84,15 @@ describe BetterworksService, type: :service do
     it "should not include old terminated employees" do
       ftr_emp = FactoryGirl.create(:active_employee,
         hire_date: 1.year.ago)
-      ftr_prof = FactoryGirl.create(:profile,
+      ftr_prof = FactoryGirl.create(:active_profile,
         employee: ftr_emp,
         worker_type: ftr_worker_type)
       ftr_termed_emp = FactoryGirl.create(:terminated_employee,
         hire_date: 1.year.ago,
         termination_date: Date.new(2017, 5, 4))
+      ftr_termed_prof = FactoryGirl.create(:terminated_profile,
+        employee: ftr_termed_emp,
+        end_date: Date.new(2017, 5, 1))
 
       expect(service.betterworks_users.count).to eq(1)
       expect(service.betterworks_users).to include(ftr_emp)
@@ -102,7 +103,8 @@ describe BetterworksService, type: :service do
       scoped_term = FactoryGirl.create(:terminated_employee,
         hire_date: 1.year.ago,
         termination_date: Date.new(2017, 7, 25))
-      ftr_prof = FactoryGirl.create(:profile,
+      ftr_prof = FactoryGirl.create(:terminated_profile,
+        end_date: Date.new(2017, 7, 25),
         employee: scoped_term,
         worker_type: ftr_worker_type)
 
@@ -202,7 +204,7 @@ describe BetterworksService, type: :service do
       worker_type: ftr_worker_type,
       employee: rehired_worker,
       adp_employee_id: "222bbb") }
-    let!(:rehired_profile) { FactoryGirl.create(:pending_profile,
+    let!(:rehired_profile) { FactoryGirl.create(:profile,
       start_date: Date.new(2017, 9, 1),
       employee: rehired_worker,
       worker_type: ftr_worker_type,
@@ -228,23 +230,19 @@ describe BetterworksService, type: :service do
       EOS
     }
 
-    after :each do
-      Timecop.return
-    end
-
     it "should output csv string" do
       Timecop.freeze(Time.new(2017, 7, 24, 5, 0, 0, "-07:00"))
+
       service.generate_employee_csv
       expect(File.read(filepath)).to eq(csv)
     end
 
     it "should output csv string after rehired worker starts new position" do
       Timecop.freeze(Time.new(2017, 9, 3, 0, 0, 0, "-07:00"))
-      rehired_profile.assign_attributes(profile_status: "Active")
-      rehired_worker.assign_attributes(status: "Active")
-      rehired_worker.assign_attributes(hire_date: Date.new(2017, 9, 1))
-      term_emp_prof.assign_attributes(profile_status: "Terminated")
-      term_emp.assign_attributes(status: "Terminated")
+      rehired_worker.assign_attributes(status: "active")
+      rehired_profile.assign_attributes(profile_status: "active")
+      term_emp_prof.assign_attributes(profile_status: "terminated")
+      term_emp.assign_attributes(status: "terminated")
       rehired_worker.save && rehired_profile.save
       term_emp.save && term_emp_prof.save
 

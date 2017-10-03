@@ -58,8 +58,6 @@ describe Employee, type: :model do
       expect(EmployeeWorker).to receive(:perform_async)
       expect(pending_employee).to transition_from(:created).to(:pending).on_event(:hire)
       expect(pending_employee).to have_state(:pending)
-      # expect(pending_employee).to allow_event(:activate)
-      expect(pending_employee).to allow_transition_to(:active)
       expect(pending_employee).not_to allow_transition_to(:created)
       expect(pending_employee).not_to allow_transition_to(:terminated)
       expect(pending_employee).not_to allow_transition_to(:inactive)
@@ -73,6 +71,12 @@ describe Employee, type: :model do
 
       expect(pending_employee.profiles.count).to eq(1)
       expect(pending_employee.current_profile.profile_status).to eq("pending")
+    end
+
+    it "should allow employee to activate if onboarding is complete" do
+      pending_employee.request_status = "completed"
+      expect(pending_employee).to allow_event(:activate)
+      expect(pending_employee).to allow_transition_to(:active)
     end
 
     it "employee.activate! should make employee active" do
@@ -103,23 +107,19 @@ describe Employee, type: :model do
 
       employee.activate!
 
-      # expect(employee).to receive(:activate_active_directory_account).and_return(ad)
       expect(employee).not_to transition_from(:pending).to(:active).on_event(:activate)
-      # expect(employee).to have_state(:active)
-      # expect(employee).to allow_event(:start_leave)
-      # expect(employee).to allow_event(:terminate)
-      # expect(employee).to allow_transition_to(:inactive)
-      # expect(employee).to allow_transition_to(:terminated)
-      # expect(employee).not_to allow_transition_to(:created)
-      # expect(employee).not_to allow_transition_to(:pending)
-      # expect(employee).not_to allow_event(:hire)
-      # expect(employee).not_to allow_event(:rehire)
-      # expect(employee).not_to allow_event(:activate)
+      expect(employee).to have_state(:pending)
+      expect(employee).not_to allow_event(:terminate)
+      expect(employee).not_to allow_transition_to(:created)
+      expect(employee).not_to allow_transition_to(:active)
+      expect(employee).not_to allow_event(:hire)
+      expect(employee).not_to allow_event(:rehire)
+      expect(employee).not_to allow_event(:activate)
 
-      # expect(employee).to have_state(:none).on(:request_status)
+      expect(employee).to have_state(:waiting).on(:request_status)
 
-      # expect(employee.profiles.count).to eq(1)
-      # expect(employee.current_profile.profile_status).to eq("active")
+      expect(employee.profiles.count).to eq(1)
+      expect(employee.current_profile.profile_status).to eq("pending")
     end
 
     it "employee.start_leave! should put employee on leave" do
@@ -142,7 +142,7 @@ describe Employee, type: :model do
     end
 
     it "employee.activate! should return employee from leave" do
-      expect(leave_employee).to receive(:activate_active_directory_account).and_return(ad)
+      # expect(leave_employee).to receive(:activate_active_directory_account).and_return(ad)
       expect(leave_employee).to transition_from(:inactive).to(:active).on_event(:activate)
       expect(leave_employee).to have_state(:active)
       expect(leave_employee).to allow_event(:start_leave)
@@ -156,8 +156,6 @@ describe Employee, type: :model do
       expect(leave_employee).not_to allow_event(:activate)
 
       expect(leave_employee).to have_state(:none).on(:request_status)
-
-      expect(leave_employee.current_profile.profile_status).to eq("active")
     end
 
     it "employee.terminate! should terminate employee" do
@@ -188,11 +186,11 @@ describe Employee, type: :model do
       expect(EmployeeWorker).to receive(:perform_async)
       expect(termed_employee).to transition_from(:terminated).to(:pending).on_event(:rehire)
       expect(termed_employee).to have_state(:pending)
-      expect(termed_employee).to allow_event(:activate)
-      expect(termed_employee).to allow_transition_to(:active)
+      expect(termed_employee).not_to allow_transition_to(:active)
       expect(termed_employee).not_to allow_transition_to(:terminated)
       expect(termed_employee).not_to allow_transition_to(:created)
       expect(termed_employee).not_to allow_transition_to(:inactive)
+      expect(termed_employee).not_to allow_event(:activate)
       expect(termed_employee).not_to allow_event(:hire)
       expect(termed_employee).not_to allow_event(:start_leave)
       expect(termed_employee).not_to allow_event(:terminate)
@@ -303,23 +301,6 @@ describe Employee, type: :model do
       expect(contingent_emp.is_contingent_worker?).to eq(true)
     end
 
-    it "should scope the onboarding group" do
-      onboarding_group = [
-        FactoryGirl.create(:employee, :hire_date => Date.today),
-        FactoryGirl.create(:employee, :hire_date => Date.today + 1.day),
-        FactoryGirl.create(:employee, :hire_date => Date.today + 1.week),
-        FactoryGirl.create(:employee, :hire_date => Date.today + 2.weeks)
-      ]
-      non_onboarding_group = [
-        FactoryGirl.create(:employee, :hire_date => Date.today - 1.day),
-        FactoryGirl.create(:employee, :hire_date => Date.today - 1.week),
-        FactoryGirl.create(:employee, :hire_date => Date.today - 2.weeks)
-      ]
-
-      expect(Employee.onboarding_report_group).to match_array(onboarding_group)
-      expect(Employee.onboarding_report_group).to_not include(non_onboarding_group)
-    end
-
     it "should scope the offboarding groups" do
       offboarding_group = [
         FactoryGirl.create(:employee, :termination_date => Date.today),
@@ -344,10 +325,10 @@ describe Employee, type: :model do
       onboarding_info = FactoryGirl.create(:onboarding_info,
         emp_transaction_id: emp_trans_1.id)
 
-      not_completed = FactoryGirl.create(:employee)
+      not_completed = FactoryGirl.create(:employee, request_status: "waiting")
 
-      expect(completed.onboarding_complete?).to eq(true)
-      expect(not_completed.onboarding_complete?).to eq(false)
+      expect(completed.onboarded?).to eq(true)
+      expect(not_completed.onboarded?).to eq(false)
     end
 
     it "should check offboarding is complete" do
@@ -541,20 +522,23 @@ describe Employee, type: :model do
   describe "#onboarding_reminder_group" do
     let!(:due_tomorrow_no_onboard) {FactoryGirl.create(:pending_employee,
       last_name: "Aaaa",
-      hire_date: Date.new(2017, 5, 8)) }
+      hire_date: Date.new(2017, 5, 8),
+      request_status: "waiting") }
     let!(:due_tomorrow_no_onboard_profile) { FactoryGirl.create(:profile,
       start_date: Date.new(2017, 5, 8),
       employee: due_tomorrow_no_onboard) }
 
     let!(:due_tomorrow_no_onboard_au) { FactoryGirl.create(:pending_employee,
       last_name: "Bbbb",
-      hire_date: Date.new(2017, 5, 15)) }
+      hire_date: Date.new(2017, 5, 15),
+      request_status: "waiting") }
     let!(:due_tomorrow_no_onboard_au_profile) { FactoryGirl.create(:profile,
       employee: due_tomorrow_no_onboard_au,
       start_date: Date.new(2017, 5, 15),
       location: Location.find_by_name("Melbourne Office")) }
 
     let!(:due_tomorrow_w_onboard) { FactoryGirl.create(:pending_employee,
+      request_status: "completed",
       hire_date: Date.new(2017, 5, 8)) }
     let!(:due_tomorrow_w_onboard_profile) { FactoryGirl.create(:profile,
       start_date: Date.new(2017, 5, 8),
@@ -566,6 +550,7 @@ describe Employee, type: :model do
       emp_transaction: emp_transaction) }
 
     let!(:due_later_no_onboard) { FactoryGirl.create(:pending_employee,
+      request_status: "waiting",
       hire_date: Date.new(2017, 9, 1)) }
     let!(:due_later_profile) { FactoryGirl.create(:profile,
       start_date: Date.new(2017, 9, 1),

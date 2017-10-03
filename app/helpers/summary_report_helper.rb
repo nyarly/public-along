@@ -23,7 +23,8 @@ module SummaryReportHelper
       CSV.generate(headers: true) do |csv|
         csv << attrs
 
-        Employee.onboarding_report_group.each do |employee|
+        Profile.onboarding_report_group.each do |profile|
+          employee = profile.employee
           csv << [
             employee.cn,
             employee.employee_id,
@@ -33,11 +34,11 @@ module SummaryReportHelper
             employee.manager.try(:cn),
             employee.location.name,
             employee.onboarding_due_date,
-            employee.onboarding_complete?,
+            employee.request_status,
             employee.email,
             buddy(employee).try(:cn),
             buddy(employee).try(:email),
-            employee.hire_date.strftime("%b %e, %Y"),
+            employee.start_date,
             employee.contract_end_date.try(:strftime, "%b %e, %Y"),
             last_changed(employee).try(:strftime, "%b %e, %Y at %H:%M:%S")
           ]

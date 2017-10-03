@@ -86,6 +86,7 @@ describe ActiveDirectoryService, type: :service do
 
     it "should fail and send alert email if it is a contract worker and there is no contract end date set" do
       invalid_contract_worker = FactoryGirl.create(:contract_worker,
+        status: "pending",
         contract_end_date: nil)
       emp_trans = FactoryGirl.create(:onboarding_emp_transaction,
        employee_id: invalid_contract_worker.id)
@@ -101,7 +102,10 @@ describe ActiveDirectoryService, type: :service do
     end
 
     it "should activate for properly set contract worker" do
-      valid_contract_worker = FactoryGirl.create(:contract_worker)
+      valid_contract_worker = FactoryGirl.create(:contract_worker,
+        status: "pending",
+        request_status: "completed",
+        contract_end_date: 1.year.from_now)
       emp_trans = FactoryGirl.create(:onboarding_emp_transaction,
         employee_id: valid_contract_worker.id)
       onboarding_info = FactoryGirl.create(:onboarding_info,
@@ -118,7 +122,10 @@ describe ActiveDirectoryService, type: :service do
     end
 
     it "should activate for properly set contract worker with no security profiles" do
-      valid_contract_worker = FactoryGirl.create(:contract_worker)
+      valid_contract_worker = FactoryGirl.create(:contract_worker,
+        status: "pending",
+        request_status: "completed",
+        contract_end_date: 1.year.from_now)
       emp_trans = FactoryGirl.create(:onboarding_emp_transaction,
         employee_id: valid_contract_worker.id)
       onboarding_info = FactoryGirl.create(:onboarding_info,
@@ -131,7 +138,8 @@ describe ActiveDirectoryService, type: :service do
     end
 
     it "should fail if the manager has not completed the onboarding forms" do
-      invalid_worker = FactoryGirl.create(:regular_employee)
+      invalid_worker = FactoryGirl.create(:regular_employee,
+        request_status: "waiting")
 
       expect(TechTableMailer).to receive(:alert_email).once.and_return(mailer)
       expect(mailer).to receive(:deliver_now).once
