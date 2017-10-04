@@ -168,10 +168,10 @@ class SabaService
       csv << headers
 
       Employee.find_each do |e|
-        if e.status == "Pending"
-          status = "Active"
-        elsif e.status == "Inactive"
-          status = "Leave"
+        if e.status == "pending"
+          status = "active"
+        elsif e.status == "inactive"
+          status = "leave"
         else
           status = e.status
         end

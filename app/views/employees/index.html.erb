@@ -14,6 +14,7 @@
         <th>Last Name</th>
         <th>First Name</th>
         <th>Status</th>
+        <th>Manager Action Needed</th>
         <th>Email</th>
         <th>Worker Type</th>
         <% if can? :manage, Employee %>
@@ -37,7 +38,8 @@
         <tr>
           <td><%= link_to e.last_name, employee_path(e) %></td>
           <td><%= link_to e.first_name, employee_path(e) %></td>
-          <td><%= e.status %></td>
+          <td><%= e.status.titleize %></td>
+          <td><%= e.request_status.titleize %></td>
           <td><%= e.email %></td>
           <td><%= e.worker_type.try(:name) %></td>
           <% if can? :manage, Employee %>

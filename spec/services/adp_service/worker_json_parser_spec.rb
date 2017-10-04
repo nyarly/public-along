@@ -41,7 +41,7 @@ describe AdpService::WorkerJsonParser, type: :service do
       adp = AdpService::WorkerJsonParser.new
 
       expect(adp.gen_worker_hash(w_json)).to eq({
-        status: "Active",
+        status: "active",
         adp_assoc_oid: "G32B8JAXA1W398Z8",
         adp_employee_id: "101455",
         first_name: "Shirley",
@@ -58,7 +58,7 @@ describe AdpService::WorkerJsonParser, type: :service do
         manager_id: "101734",
         location_id: location.id,
         department_id: department.id,
-        profile_status: "Active",
+        profile_status: "active",
         business_card_title: "Senior Backend Engineer, Restaurant Products"
       })
     end

@@ -2,6 +2,7 @@ require 'rails_helper'
 
 RSpec.describe ManagerEntry do
   let(:sas) { double(SecAccessService) }
+  let!(:manager_sec_prof) { FactoryGirl.create(:security_profile, name: "Basic Manager") }
 
   before :each do
     allow(SecAccessService).to receive(:new).and_return(sas)
@@ -10,8 +11,9 @@ RSpec.describe ManagerEntry do
 
   context "Onboarding New Hire" do
     let(:user) { FactoryGirl.create(:user) }
-    let(:buddy) { FactoryGirl.create(:regular_employee) }
-    let!(:employee) { FactoryGirl.create(:regular_employee) }
+    let(:buddy) { FactoryGirl.create(:active_employee) }
+    let!(:employee) { FactoryGirl.create(:pending_employee, request_status: "waiting") }
+    let!(:profile)  { FactoryGirl.create(:profile, employee: employee) }
     let(:sp_1) { FactoryGirl.create(:security_profile) }
     let(:sp_2) { FactoryGirl.create(:security_profile) }
     let(:sp_3) { FactoryGirl.create(:security_profile) }
@@ -86,20 +88,17 @@ RSpec.describe ManagerEntry do
     let!(:worker_type) { FactoryGirl.create(:worker_type,
       code: "ACW",
       name: "Contractor")}
-    let(:old_employee) { FactoryGirl.create(:employee,
-      termination_date: Date.new(2017, 6, 1),
-      status: "Terminated")}
-    let!(:profile) { FactoryGirl.create(:profile,
-      employee: old_employee,
-      profile_status: "Terminated")}
+    let(:old_employee) { FactoryGirl.create(:terminated_employee) }
+    let!(:profile) { FactoryGirl.create(:terminated_profile,
+      employee: old_employee)}
     let(:user) { FactoryGirl.create(:user) }
     let!(:hire_event) { File.read(Rails.root.to_s+"/spec/fixtures/adp_cat_change_hire_event.json") }
     let!(:event) { FactoryGirl.create(:adp_event,
       status: "New",
       json: hire_event) }
-    let(:sp_1) { FactoryGirl.create(:security_profile) }
-    let(:sp_2) { FactoryGirl.create(:security_profile) }
-    let(:sp_3) { FactoryGirl.create(:security_profile) }
+    let(:sp_1) { FactoryGirl.create(:security_profile, name: "Basic Regular Worker Profile") }
+    let(:sp_2) { FactoryGirl.create(:security_profile, name: "Basic Temp Worker Profile") }
+    let(:sp_3) { FactoryGirl.create(:security_profile, name: "Basic Contract Worker Profile") }
     let(:machine_bundle) { FactoryGirl.create(:machine_bundle) }
     let(:link_on_params) do
       {
@@ -145,13 +144,12 @@ RSpec.describe ManagerEntry do
       old_employee.reload
       event.reload
 
-      expect(old_employee.status).to eq("Pending")
+      expect(old_employee.status).to eq("pending")
       expect(old_employee.worker_type).to eq(worker_type)
       expect(old_employee.machine_bundles.first).to eq(machine_bundle)
       expect(old_employee.profiles.count).to eq(2)
-      expect(old_employee.profiles.terminated).to eq(profile)
-      expect(old_employee.profiles.pending.worker_type).to eq(worker_type)
-      expect(old_employee.termination_date).to eq(nil)
+      expect(old_employee.profiles.terminated.last).to eq(profile)
+      expect(old_employee.profiles.pending.last.worker_type).to eq(worker_type)
       expect(event.status).to eq("Processed")
     end
 
@@ -166,13 +164,12 @@ RSpec.describe ManagerEntry do
       employee = Employee.find_by(last_name: "LN_FAKE_JP")
       event.reload
 
-      expect(employee.status).to eq("Pending")
+      expect(employee.status).to eq("pending")
       expect(employee.worker_type).to eq(worker_type)
       expect(employee.machine_bundles.first).to eq(machine_bundle)
       expect(employee.profiles.count).to eq(1)
-      expect(employee.profiles.terminated).to eq(nil)
-      expect(old_employee.termination_date).to eq(Date.new(2017, 6, 1))
-      expect(employee.profiles.pending.worker_type).to eq(worker_type)
+      expect(employee.profiles.terminated.last).to eq(nil)
+      expect(employee.profiles.pending.last.worker_type).to eq(worker_type)
       expect(event.status).to eq("Processed")
     end
   end
@@ -185,20 +182,17 @@ RSpec.describe ManagerEntry do
     let!(:worker_type) { FactoryGirl.create(:worker_type,
       code: "FTR",
       name: "Regular Full-Time")}
-    let(:old_employee) { FactoryGirl.create(:employee,
-      termination_date: Date.new(2017, 6, 1),
-      status: "Terminated")}
-    let!(:profile) { FactoryGirl.create(:profile,
-      employee: old_employee,
-      profile_status: "Terminated")}
+    let(:old_employee) { FactoryGirl.create(:terminated_employee) }
+    let!(:profile) { FactoryGirl.create(:terminated_profile,
+      employee: old_employee)}
     let(:user) { FactoryGirl.create(:user) }
     let!(:rehire_event) { File.read(Rails.root.to_s+"/spec/fixtures/adp_rehire_event.json") }
     let!(:event) { FactoryGirl.create(:adp_event,
       status: "New",
       json: rehire_event) }
-    let(:sp_1) { FactoryGirl.create(:security_profile) }
-    let(:sp_2) { FactoryGirl.create(:security_profile) }
-    let(:sp_3) { FactoryGirl.create(:security_profile) }
+    let(:sp_1) { FactoryGirl.create(:security_profile, name: "Basic Regular Worker Profile") }
+    let(:sp_2) { FactoryGirl.create(:security_profile, name: "Basic Temp Worker Profile") }
+    let(:sp_3) { FactoryGirl.create(:security_profile, name: "Basic Contract Worker Profile") }
     let(:machine_bundle) { FactoryGirl.create(:machine_bundle) }
     let(:link_on_params) do
       {
@@ -232,7 +226,7 @@ RSpec.describe ManagerEntry do
     let(:ads) { double(ActiveDirectoryService) }
     let(:profiler) { EmployeeProfile.new }
 
-    it "should create a new profile on when manager links employees" do
+    it "should create a new profile on employee when manager links employees" do
       manager_entry = ManagerEntry.new(link_on_params)
 
       expect{
@@ -244,14 +238,13 @@ RSpec.describe ManagerEntry do
       old_employee.reload
       event.reload
 
-      expect(old_employee.status).to eq("Pending")
+      expect(old_employee.status).to eq("pending")
       expect(old_employee.worker_type).to eq(worker_type)
       expect(old_employee.machine_bundles.first).to eq(machine_bundle)
       expect(old_employee.profiles.count).to eq(2)
-      expect(old_employee.profiles.terminated).to eq(profile)
-      expect(old_employee.profiles.pending.worker_type).to eq(worker_type)
-      expect(old_employee.profiles.pending.start_date).to eq(DateTime.new(2018, 9, 1))
-      expect(old_employee.termination_date).to eq(nil)
+      expect(old_employee.profiles.terminated.last).to eq(profile)
+      expect(old_employee.profiles.pending.last.worker_type).to eq(worker_type)
+      expect(old_employee.profiles.pending.last.start_date).to eq(DateTime.new(2018, 9, 1))
       expect(event.status).to eq("Processed")
     end
 
@@ -262,14 +255,13 @@ RSpec.describe ManagerEntry do
       employee = Employee.find_by(last_name: "Fakename")
       event.reload
 
-      expect(employee.status).to eq("Pending")
+      expect(employee.status).to eq("pending")
       expect(employee.worker_type).to eq(worker_type)
       expect(employee.machine_bundles.first).to eq(machine_bundle)
       expect(employee.profiles.count).to eq(1)
-      expect(employee.profiles.terminated).to eq(nil)
-      expect(employee.profiles.pending.worker_type).to eq(worker_type)
-      expect(employee.profiles.pending.job_title.name).to eq("Specialist - Major Accounts - Sr.")
-      expect(old_employee.termination_date).to eq(Date.new(2017, 6, 1))
+      expect(employee.profiles.terminated.last).to eq(nil)
+      expect(employee.profiles.pending.last.worker_type).to eq(worker_type)
+      expect(employee.profiles.pending.last.job_title.name).to eq("Specialist - Major Accounts - Sr.")
       expect(event.status).to eq("Processed")
     end
   end
@@ -336,8 +328,8 @@ RSpec.describe ManagerEntry do
     let(:user) { FactoryGirl.create(:user) }
     let(:forward) { FactoryGirl.create(:employee) }
     let(:manager_entry) { ManagerEntry.new(params) }
-    let!(:employee) { FactoryGirl.create(:employee) }
-    let!(:profile) { FactoryGirl.create(:profile, employee: employee) }
+    let!(:employee) { FactoryGirl.create(:active_employee) }
+    let!(:profile) { FactoryGirl.create(:active_profile, employee: employee) }
     let!(:security_profile) { FactoryGirl.create(:security_profile) }
     let!(:emp_sec_profile) { FactoryGirl.create(:emp_sec_profile, security_profile_id: security_profile.id) }
 

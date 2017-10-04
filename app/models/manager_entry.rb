@@ -49,11 +49,9 @@ class ManagerEntry
       if link_email == "on"
         if linked_account_id.present?
           employee = profiler.link_accounts(linked_account_id, event_id)
-          employee.termination_date = nil
-          employee.save!
-          event.status = "Processed"
-          event.save!
-          employee
+          employee.update_attributes(termination_date: nil)
+          event.update_attributes(status: "Processed")
+          employee.rehire_from_event!
         else
           emp_transaction.errors.add(:base, :employee_blank, message: "You didn't chose an email to reuse. Did you mean to create a new email? If so, please select 'no' in the Rehire or Worker Type Change.")
         end
@@ -61,11 +59,8 @@ class ManagerEntry
       # if rehire or job change, but wish to have new record/email
       elsif link_email == "off"
         employee = profiler.new_employee(event)
-        event.status = "Processed"
-        event.save!
-
-        ads = ActiveDirectoryService.new
-        ads.create_disabled_accounts([employee])
+        employee.hire!
+        event.update_attributes(status: "Processed")
         employee
       else
         # for new emp transactions before form filled out
@@ -92,23 +87,22 @@ class ManagerEntry
   def build_security_profiles
     # The security access form automatically understands old department security profiles to be unchecked
     # It will automatically add those to revoke_profile_ids
-    if security_profile_ids.present?
+    return true if security_profile_ids.blank?
 
-      old_profile_ids = @employee.active_security_profiles.present? ? @employee.active_security_profiles.pluck(:id).map(&:to_i) : []
-      new_profile_ids = security_profile_ids.map(&:to_i)
+    old_profile_ids = @employee.active_security_profiles.present? ? @employee.active_security_profiles.pluck(:id).map(&:to_i) : []
+    new_profile_ids = security_profile_ids.map(&:to_i)
 
-      add_profile_ids = new_profile_ids - old_profile_ids
-      revoke_profile_ids = old_profile_ids - new_profile_ids
+    add_profile_ids = new_profile_ids - old_profile_ids
+    revoke_profile_ids = old_profile_ids - new_profile_ids
 
-      revoke_profile_ids.each do |sp_id|
-        esp_to_revoke = @employee.emp_sec_profiles.where("security_profile_id = ? AND revoking_transaction_id IS NULL", sp_id).last
-        emp_transaction.revoked_emp_sec_profiles << esp_to_revoke
-      end unless revoke_profile_ids.blank?
+    revoke_profile_ids.each do |sp_id|
+      esp_to_revoke = @employee.emp_sec_profiles.where("security_profile_id = ? AND revoking_transaction_id IS NULL", sp_id).last
+      emp_transaction.revoked_emp_sec_profiles << esp_to_revoke
+    end unless revoke_profile_ids.blank?
 
-      add_profile_ids.each do |sp_id|
-        emp_transaction.emp_sec_profiles.build(security_profile_id: sp_id)
-      end unless add_profile_ids.blank?
-    end
+    add_profile_ids.each do |sp_id|
+      emp_transaction.emp_sec_profiles.build(security_profile_id: sp_id)
+    end unless add_profile_ids.blank?
   end
 
   def build_machine_bundles
@@ -137,13 +131,6 @@ class ManagerEntry
     )
   end
 
-  def onboard_employee
-    build_onboarding
-    build_security_profiles
-    build_machine_bundles
-    UpdateEmailWorker.perform_async(@employee.id)
-  end
-
   def save
     ActiveRecord::Base.transaction do
       if @errors.blank? and @employee.present?
@@ -154,6 +141,7 @@ class ManagerEntry
           build_security_profiles
         when "Offboarding"
           build_offboarding
+          @employee.complete!
         when "Equipment"
           build_machine_bundles
         end
@@ -177,9 +165,19 @@ class ManagerEntry
     rescue ActiveRecord::RecordInvalid => e
       @errors = emp_transaction.errors
       errors.blank?
+
+    emp_transaction.errors.blank?
   end
 
   private
+
+  def onboard_employee
+    build_onboarding
+    build_security_profiles
+    build_machine_bundles
+    @employee.complete!
+    UpdateEmailWorker.perform_async(@employee.id)
+  end
 
   def send_email
     return false if emp_transaction.kind == "Offboarding"

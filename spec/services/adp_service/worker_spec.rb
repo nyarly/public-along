@@ -14,7 +14,6 @@ describe AdpService::Worker, type: :service do
                       email: "ggarbo@example.com")}
   let!(:profile)    { FactoryGirl.create(:profile,
                       employee: employee,
-                      profile_status: "Active",
                       adp_assoc_oid: "qwerty12345",
                       adp_employee_id: "123456")}
 

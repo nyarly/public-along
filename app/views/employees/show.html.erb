@@ -30,13 +30,14 @@
 
       <div class="large-8 medium-6 small-2 columns float-left">
         <h3><%= @employee.first_name %> <%= @employee.last_name %></h3>
-        <h4><%= @employee.status %></h4>
+        <h5>Status: <%= @employee.status.titleize %></h5>
+        <h5>Manager Action Needed: <%= @employee.request_status.titleize %></h5>
 
         <% @employee.profiles.order(created_at: :desc).each do |p| %>
           <div class="callout">
             <p>
               <strong>Profile Status:</strong>
-              <%= p.profile_status %>
+              <%= p.profile_status.titleize %>
             </p>
             <p>
               <strong>Position Start Date:</strong>
@@ -178,7 +179,7 @@
           </div>
         <% end %>
       </div>
-      <% if @employee.status == "Active" %>
+      <% if @employee.status == "active" %>
         <%= link_to "Update Security Profile",
               { controller: "emp_transactions",
               action: "new",

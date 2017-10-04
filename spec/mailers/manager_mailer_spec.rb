@@ -3,14 +3,12 @@ require "rails_helper"
 RSpec.describe ManagerMailer, type: :mailer do
   let!(:manager) { FactoryGirl.create(:employee,
     email: "manager@opentable.com") }
-  let!(:man_profile) { FactoryGirl.create(:profile,
+  let!(:man_profile) { FactoryGirl.create(:active_profile,
     employee: manager,
-    profile_status: "Active",
     adp_employee_id: "654321")}
-  let!(:employee) { FactoryGirl.create(:employee) }
-  let!(:emp_profile) { FactoryGirl.create(:profile,
+  let!(:employee) { FactoryGirl.create(:active_employee) }
+  let!(:emp_profile) { FactoryGirl.create(:active_profile,
     employee: employee,
-    profile_status: "Active",
     adp_employee_id: "123456",
     manager_id: "654321") }
   let!(:worker_type) { FactoryGirl.create(:worker_type, code: "FTR") }

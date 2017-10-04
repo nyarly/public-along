@@ -8,55 +8,43 @@ describe AuditService, type: :service do
 
   let!(:manager) { FactoryGirl.create(:employee) }
   let!(:manager_prof) { FactoryGirl.create(:profile,
-    employee: manager)}
-  let!(:regular_employee) { FactoryGirl.create(:regular_employee)}
-  let!(:profile) { FactoryGirl.create(:profile,
+    employee: manager) }
+  let!(:regular_employee) { FactoryGirl.create(:active_employee) }
+  let!(:profile) { FactoryGirl.create(:active_profile,
     employee: regular_employee,
-    manager_id: manager.employee_id,
-    profile_status: "Active")}
-  let!(:regular_termination) { FactoryGirl.create(:employee,
+    manager_id: manager.employee_id) }
+  let!(:regular_termination) { FactoryGirl.create(:terminated_employee,
     first_name: "Diane",
     last_name: "Sawyer",
-    status: "Terminated",
     termination_date: 1.week.ago,
-    sam_account_name: "dsawyer")}
-  let!(:reg_term_prof) { FactoryGirl.create(:profile,
+    sam_account_name: "dsawyer") }
+  let!(:reg_term_prof) { FactoryGirl.create(:terminated_profile,
     employee: regular_termination,
-    manager_id: manager.employee_id,
-    profile_status: "Terminated")}
-  let!(:missed_deactivation) { FactoryGirl.create(:employee,
+    manager_id: manager.employee_id) }
+  let!(:missed_deactivation) { FactoryGirl.create(:terminated_employee,
     first_name: "Tom",
     last_name: "Brokaw",
     sam_account_name: "tbrowkow",
-    status: "Terminated",
-    termination_date: 3.days.ago)}
-  let!(:md_profile) { FactoryGirl.create(:profile,
+    termination_date: 3.days.ago) }
+  let!(:md_profile) { FactoryGirl.create(:terminated_profile,
     employee: missed_deactivation,
-    profile_status: "Terminated",
-    manager_id: manager.employee_id)}
-  let!(:missed_offboard) { FactoryGirl.create(:employee,
-    status: "Active",
-    termination_date: 3.days.ago)}
-  let!(:m_o_profile) { FactoryGirl.create(:profile,
+    manager_id: manager.employee_id) }
+  let!(:missed_offboard) { FactoryGirl.create(:active_employee,
+    termination_date: 4.days.ago) }
+  let!(:m_o_profile) { FactoryGirl.create(:active_profile,
     employee: missed_offboard,
-    manager_id: manager.employee_id,
-    profile_status: "Active")}
-  let!(:missed_termination) { FactoryGirl.create(:employee,
-    status: "Active",
-    termination_date: nil,
-    updated_at: 3.days.ago)}
-  let!(:mt_profile) { FactoryGirl.create(:profile,
+    manager_id: manager.employee_id) }
+  let!(:missed_termination) { FactoryGirl.create(:active_employee, :existing,
+    updated_at: 3.days.ago,
+    termination_date: nil) }
+  let!(:mt_profile) { FactoryGirl.create(:active_profile,
     employee: missed_termination,
-    manager_id: manager.employee_id,
-    profile_status: "Active")}
-  let!(:missed_contract_end) { FactoryGirl.create(:employee,
-    status: "Active",
-    contract_end_date: 1.week.ago)}
-  let!(:mc_profile) { FactoryGirl.create(:profile,
+    manager_id: manager.employee_id) }
+  let!(:missed_contract_end) { FactoryGirl.create(:active_employee,
+    contract_end_date: 1.week.ago) }
+  let!(:mc_profile) { FactoryGirl.create(:active_profile,
     employee: missed_contract_end,
-    manager_id: manager.employee_id,
-    profile_status: "Active",
-    )}
+    manager_id: manager.employee_id) }
   let!(:terminated_worker_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_termed_worker.json")}
 
   before :each do
@@ -68,15 +56,16 @@ describe AuditService, type: :service do
     let(:term_csv) {
       <<-EOS.strip_heredoc
       name,job_title,department,location,manager,mezzo_status,mezzo_term_date,contract_end_date,adp_status,adp_term_date
-      #{missed_offboard.cn},#{missed_offboard.job_title.name},#{missed_offboard.department.name},#{missed_offboard.location.name},#{missed_offboard.manager.first_name} #{missed_offboard.manager.last_name},Active,#{missed_offboard.termination_date.strftime('%Y-%m-%d')},"",Terminated,2017-06-01
-      #{missed_termination.cn},#{missed_termination.job_title.name},#{missed_termination.department.name},#{missed_termination.location.name},#{missed_termination.manager.first_name} #{missed_termination.manager.last_name},Active,"","",Terminated,2017-06-01
-      #{missed_contract_end.cn},#{missed_contract_end.job_title.name},#{missed_contract_end.department.name},#{missed_contract_end.location.name},#{missed_contract_end.manager.first_name} #{missed_contract_end.manager.last_name},Active,"",#{missed_contract_end.contract_end_date.strftime('%Y-%m-%d')},Terminated,2017-06-01
+      #{missed_offboard.cn},#{missed_offboard.job_title.name},#{missed_offboard.department.name},#{missed_offboard.location.name},#{missed_offboard.manager.first_name} #{missed_offboard.manager.last_name},active,#{missed_offboard.termination_date.strftime('%Y-%m-%d')},"",Terminated,2017-06-01
+      #{missed_termination.cn},#{missed_termination.job_title.name},#{missed_termination.department.name},#{missed_termination.location.name},#{missed_termination.manager.first_name} #{missed_termination.manager.last_name},active,"","",Terminated,2017-06-01
+      #{missed_contract_end.cn},#{missed_contract_end.job_title.name},#{missed_contract_end.department.name},#{missed_contract_end.location.name},#{missed_contract_end.manager.first_name} #{missed_contract_end.manager.last_name},active,"",#{missed_contract_end.contract_end_date.strftime('%Y-%m-%d')},Terminated,2017-06-01
       EOS
     }
 
     it "should find the missed offboards" do
       allow(adp_service).to receive(:worker).and_return(JSON.parse(terminated_worker_json))
       missing_terminations = audit_service.missed_terminations
+
       expect(missing_terminations.length).to eq(3)
       expect(missing_terminations.any? { |hash| hash[:name] == "#{missed_termination.cn}"}).to eq(true)
       expect(missing_terminations.any? { |hash| hash[:name] == "#{missed_offboard.cn}"}).to eq(true)
@@ -101,7 +90,6 @@ describe AuditService, type: :service do
   end
 
   context "confirming AD deactivation for terminated users" do
-
     let(:disabled_ldap_entry) do [{
       :dn=>["CN=Diane Sawyer,OU=Disabled Users,OU=Users,OU=OT,DC=ottest,DC=opentable,DC=com"],
       :useraccountcontrol=>["514"]}] end
@@ -111,7 +99,7 @@ describe AuditService, type: :service do
     let(:ad_csv) {
       <<-EOS.strip_heredoc
       name,job_title,department,location,manager,mezzo_status,mezzo_term_date,contract_end_date,ldap_dn
-      #{missed_deactivation.cn},#{missed_deactivation.job_title.name},#{missed_deactivation.department.name},#{missed_deactivation.location.name},#{missed_deactivation.manager.first_name} #{missed_deactivation.manager.last_name},Terminated,#{missed_deactivation.termination_date.strftime('%Y-%m-%d')},"","cn=tom browkaw,ou=it,ou=users,ou=ot,dc=ottest,dc=opentable,dc=com"
+      #{missed_deactivation.cn},#{missed_deactivation.job_title.name},#{missed_deactivation.department.name},#{missed_deactivation.location.name},#{missed_deactivation.manager.first_name} #{missed_deactivation.manager.last_name},terminated,#{missed_deactivation.termination_date.strftime('%Y-%m-%d')},"","cn=tom browkaw,ou=it,ou=users,ou=ot,dc=ottest,dc=opentable,dc=com"
       EOS
     }
 

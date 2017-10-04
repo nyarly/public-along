@@ -1,14 +1,13 @@
 require 'rails_helper'
 
 RSpec.describe EmailsController, type: :controller do
-  let(:user) { FactoryGirl.create(:user, :role_names => ["Admin"])}
-  let(:manager) { FactoryGirl.create(:regular_employee,
-    email: "something@example.com")}
-  let(:employee) { FactoryGirl.create(:employee)}
-  let!(:profile) { FactoryGirl.create(:profile,
-    employee: employee,
-    profile_status: "Active",
-    manager_id: manager.employee_id)}
+  let(:user)     { FactoryGirl.create(:user, :role_names => ["Admin"])}
+  let(:manager)  { FactoryGirl.create(:regular_employee, email: "something@example.com")}
+  let(:employee) { FactoryGirl.create(:active_employee)}
+  let!(:profile) { FactoryGirl.create(:active_profile,
+                   employee: employee,
+                   manager_id: manager.employee_id)}
+
   let(:valid_attributes) do
     {
       employee_id: employee.id,

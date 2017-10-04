@@ -13,16 +13,15 @@ RSpec.describe EmployeeProfile do
   let(:job_title) { FactoryGirl.create(:job_title,
     code: "SADEN",
     name: "Sales Associate")}
-  let(:employee) { FactoryGirl.create(:employee,
+  let(:employee) { FactoryGirl.create(:active_employee,
     first_name: "Jane",
     last_name: "Goodall",
-    status: "Active",
     hire_date: Date.new(2014, 6, 1),
     contract_end_date: nil,
     office_phone: nil,
     personal_mobile_phone: "(888) 888-8888",
     business_card_title: job_title.name) }
-  let!(:profile) { FactoryGirl.create(:profile,
+  let!(:profile) { FactoryGirl.create(:active_profile,
     employee: employee,
     adp_assoc_oid: "AAABBBCCCDDD",
     adp_employee_id: "123456",
@@ -31,11 +30,29 @@ RSpec.describe EmployeeProfile do
     job_title: job_title,
     location: location,
     manager_id: "654321",
-    profile_status: "Active",
     start_date: Date.new(2017, 01, 01),
     worker_type: worker_type )}
   let(:json) { JSON.parse(File.read(Rails.root.to_s+"/spec/fixtures/adp_worker.json"))}
+  let(:rehire_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_rehire_event.json") }
   let(:parser) { AdpService::WorkerJsonParser.new }
+  let(:employee_profile) { EmployeeProfile.new }
+
+  context "link existing employee to new adp profile" do
+    let(:terminated_employee) { FactoryGirl.create(:terminated_employee) }
+    let!(:terminated_profile)  { FactoryGirl.create(:profile,
+      employee: terminated_employee,
+      profile_status: "terminated") }
+    let(:event) { FactoryGirl.create(:adp_event,
+      json: rehire_json,
+      status: "New")}
+
+    it "should create a new profile on a terminated employee" do
+      employee = employee_profile.link_accounts(terminated_employee.id, event.id)
+      expect(employee.profiles.count).to eq(2)
+      expect(employee.profiles.terminated.last).to eq(terminated_profile)
+      expect(employee.profiles.pending.last.profile_status).to eq("pending")
+    end
+  end
 
   context "sync existing employee with updated employee info" do
     it "should update the info" do
@@ -71,7 +88,7 @@ RSpec.describe EmployeeProfile do
       expect(Employee.count).to eq(1)
       expect(employee.worker_type).to eq(worker_type)
       expect(employee.profiles.count).to eq(1)
-      expect(employee.profiles.active).to eq(profile)
+      expect(employee.profiles.active.reorder(:created_at).last).to eq(profile)
     end
   end
 
@@ -88,7 +105,7 @@ RSpec.describe EmployeeProfile do
       job_title: job_title,
       location: location,
       manager_id: "654321",
-      profile_status: "Active",
+      profile_status: "active",
       start_date: Date.new(2016, 6, 1),
       worker_type: old_worker_type )}
 
@@ -102,12 +119,12 @@ RSpec.describe EmployeeProfile do
 
       expect(Employee.count).to eq(1)
       expect(employee.profiles.count).to eq(2)
-      expect(employee.status).to eq("Active")
-      expect(employee.current_profile.profile_status).to eq("Active")
+      expect(employee.status).to eq("active")
+      expect(employee.current_profile.profile_status).to eq("active")
       expect(employee.worker_type).to eq(worker_type)
-      expect(employee.profiles.terminated).to eq(profile)
-      expect(employee.profiles.terminated.profile_status).to eq("Terminated")
-      expect(employee.profiles.terminated.worker_type).to eq(old_worker_type)
+      expect(employee.profiles.terminated.reorder(:created_at).last).to eq(profile)
+      expect(employee.profiles.terminated.reorder(:created_at).last.profile_status).to eq("terminated")
+      expect(employee.profiles.terminated.reorder(:created_at).last.worker_type).to eq(old_worker_type)
       expect(employee.emp_deltas.last.before).to eq({"start_date"=>"2016-06-01 00:00:00 UTC", "worker_type_id"=>"#{old_worker_type.id}"})
       expect(employee.emp_deltas.last.after).to eq({"start_date"=>"2017-01-01 00:00:00 UTC", "worker_type_id"=>"#{worker_type.id}"})
     end
@@ -126,7 +143,7 @@ RSpec.describe EmployeeProfile do
       job_title: job_title,
       location: location,
       manager_id: "654321",
-      profile_status: "Active",
+      profile_status: "active",
       start_date: Date.new(2016, 6, 1),
       worker_type: old_worker_type )}
 
@@ -146,11 +163,11 @@ RSpec.describe EmployeeProfile do
       expect(employee.emp_deltas.count).to eq(1)
       expect(employee.emp_deltas.last.before).to eq({"last_name"=>"Good All", "start_date"=>"2016-06-01 00:00:00 UTC", "worker_type_id"=>"#{old_worker_type.id}"})
       expect(employee.emp_deltas.last.after).to eq({"last_name"=>"Goodall", "start_date"=>"2017-01-01 00:00:00 UTC", "worker_type_id"=>"#{worker_type.id}"})
-      expect(employee.profiles.active.profile_status).to eq("Active")
+      expect(employee.profiles.active.last.profile_status).to eq("active")
       expect(employee.worker_type).to eq(worker_type)
-      expect(employee.profiles.terminated).to eq(profile)
-      expect(employee.profiles.terminated.profile_status).to eq("Terminated")
-      expect(employee.profiles.terminated.worker_type).to eq(old_worker_type)
+      expect(employee.profiles.terminated.reorder(:created_at).last).to eq(profile)
+      expect(employee.profiles.terminated.reorder(:created_at).last.profile_status).to eq("terminated")
+      expect(employee.profiles.terminated.reorder(:created_at).last.worker_type).to eq(old_worker_type)
     end
   end
 
@@ -165,7 +182,7 @@ RSpec.describe EmployeeProfile do
       job_title: job_title,
       location: location,
       manager_id: "654321",
-      profile_status: "Active",
+      profile_status: "active",
       start_date: Date.new(2017, 01, 01),
       worker_type: worker_type )}
 
@@ -181,12 +198,12 @@ RSpec.describe EmployeeProfile do
       expect(employee.emp_deltas.count).to eq(1)
       expect(employee.emp_deltas.last.before).to eq({"department_id"=>"#{old_department.id}"})
       expect(employee.emp_deltas.last.after).to eq({"department_id"=>"#{department.id}"})
-      expect(employee.profiles.active.profile_status).to eq("Active")
+      expect(employee.profiles.active.reorder(:created_at).last.profile_status).to eq("active")
       expect(employee.department).to eq(department)
     end
   end
 
-  context "new employee event" do
+  context "create from new employee event" do
     let(:hire_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_hire_event.json") }
     let!(:new_hire_wt) { FactoryGirl.create(:worker_type, code: "OLFR")}
 
@@ -201,7 +218,7 @@ RSpec.describe EmployeeProfile do
       expect(Employee.count).to eq(2)
       expect(new_employee.first_name).to eq("Hire")
       expect(new_employee.last_name).to eq("Testone")
-      expect(new_employee.status).to eq("Pending")
+      expect(new_employee.status).to eq("created")
       expect(new_employee.hire_date).to eq(Date.new(2017, 1, 23))
       expect(new_employee.contract_end_date).to eq(nil)
       expect(new_employee.home_state).to eq("MA")
@@ -210,7 +227,7 @@ RSpec.describe EmployeeProfile do
       expect(new_employee.profiles.count).to eq(1)
       expect(new_employee.profiles.last.adp_employee_id).to eq("if0rcdig4")
       expect(new_employee.profiles.last.worker_type.code).to eq("OLFR")
-      expect(new_employee.profiles.last.profile_status).to eq("Pending")
+      expect(new_employee.profiles.last.profile_status).to eq("pending")
       expect(new_employee.profiles.last.start_date).to eq(Date.new(2017, 1, 23))
       expect(new_employee.profiles.last.end_date).to eq(nil)
     end
@@ -231,7 +248,7 @@ RSpec.describe EmployeeProfile do
       expect(Employee.count).to eq(1)
       expect(employee.first_name).to eq("Hire")
       expect(employee.last_name).to eq("Testone")
-      expect(employee.status).to eq("Active")
+      expect(employee.status).to eq("active")
       expect(employee.hire_date).to eq(Date.new(2017, 1, 23))
       expect(employee.worker_type.code).to eq("OLFR")
     end

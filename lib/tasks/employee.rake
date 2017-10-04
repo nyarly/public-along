@@ -1,33 +1,28 @@
 namespace :employee do
   desc "change status of employees (activate/deactivate)"
   task :change_status => :environment do
-    activations = []
-    deactivations = []
-    offboards = []
     full_terminations = []
 
     Employee.leave_return_group.each do |e|
       # Collect employees to activate on leave return date in their respective nearest time zone
-      if e.leave_return_date
-        activations << e if in_time_window?(e.leave_return_date, 3, e.nearest_time_zone)
-      end
+      e.activate! if in_time_window?(e.leave_return_date, 3, e.nearest_time_zone)
     end
 
     Profile.onboarding_group.each do |p|
       # Collect employees to activate on position start date in their respective nearest time zone
       e = p.employee
-      activations << e if in_time_window?(p.start_date, 3, e.nearest_time_zone)
+      e.activate! if in_time_window?(p.start_date, 3, e.nearest_time_zone)
     end
 
     Employee.deactivation_group.each do |e|
       # Collect employees to deactivate if it is 9-10pm on their end date or day before leave start date in their respective nearest time zone
       if e.leave_start_date && in_time_window?(e.leave_start_date - 1.day, 21, e.nearest_time_zone)
-        deactivations << e
+        e.start_leave!
       elsif e.contract_end_date && in_time_window?(e.contract_end_date, 21, e.nearest_time_zone)
-        deactivations << e
+        # TODO handle contract end dates
+        e.deactivate_active_directory_account
       elsif e.termination_date && in_time_window?(e.termination_date, 21, e.nearest_time_zone)
-        deactivations << e
-        offboards << e
+        e.terminate!
       # send techtable info around noon
       elsif e.termination_date && in_time_window?(e.termination_date, 12, e.nearest_time_zone)
         TechTableMailer.offboard_instructions(e).deliver_now
@@ -41,12 +36,7 @@ namespace :employee do
     end
 
     ads = ActiveDirectoryService.new
-    ads.activate(activations)
-    ads.deactivate(deactivations)
     ads.terminate(full_terminations)
-
-    off = OffboardingService.new
-    off.offboard(offboards)
   end
 
   desc "send onboarding reminders"

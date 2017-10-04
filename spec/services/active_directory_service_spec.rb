@@ -6,8 +6,8 @@ describe ActiveDirectoryService, type: :service do
 
   let(:department) { Department.find_or_create_by(:name => "People & Culture-HR & Total Rewards") }
   let(:location) { Location.find_or_create_by(:name => "San Francisco Headquarters") }
-      let!(:job_title) { FactoryGirl.create(:job_title) }
-    let!(:new_job_title) { FactoryGirl.create(:job_title) }
+  let!(:job_title) { FactoryGirl.create(:job_title) }
+  let!(:new_job_title) { FactoryGirl.create(:job_title) }
   let(:manager) { FactoryGirl.create(:employee) }
   let!(:manager_profile) { FactoryGirl.create(:profile,
     :with_valid_ou,
@@ -86,6 +86,7 @@ describe ActiveDirectoryService, type: :service do
 
     it "should fail and send alert email if it is a contract worker and there is no contract end date set" do
       invalid_contract_worker = FactoryGirl.create(:contract_worker,
+        status: "pending",
         contract_end_date: nil)
       emp_trans = FactoryGirl.create(:onboarding_emp_transaction,
        employee_id: invalid_contract_worker.id)
@@ -101,7 +102,10 @@ describe ActiveDirectoryService, type: :service do
     end
 
     it "should activate for properly set contract worker" do
-      valid_contract_worker = FactoryGirl.create(:contract_worker)
+      valid_contract_worker = FactoryGirl.create(:contract_worker,
+        status: "pending",
+        request_status: "completed",
+        contract_end_date: 1.year.from_now)
       emp_trans = FactoryGirl.create(:onboarding_emp_transaction,
         employee_id: valid_contract_worker.id)
       onboarding_info = FactoryGirl.create(:onboarding_info,
@@ -118,7 +122,10 @@ describe ActiveDirectoryService, type: :service do
     end
 
     it "should activate for properly set contract worker with no security profiles" do
-      valid_contract_worker = FactoryGirl.create(:contract_worker)
+      valid_contract_worker = FactoryGirl.create(:contract_worker,
+        status: "pending",
+        request_status: "completed",
+        contract_end_date: 1.year.from_now)
       emp_trans = FactoryGirl.create(:onboarding_emp_transaction,
         employee_id: valid_contract_worker.id)
       onboarding_info = FactoryGirl.create(:onboarding_info,
@@ -131,7 +138,8 @@ describe ActiveDirectoryService, type: :service do
     end
 
     it "should fail if the manager has not completed the onboarding forms" do
-      invalid_worker = FactoryGirl.create(:regular_employee)
+      invalid_worker = FactoryGirl.create(:regular_employee,
+        request_status: "waiting")
 
       expect(TechTableMailer).to receive(:alert_email).once.and_return(mailer)
       expect(mailer).to receive(:deliver_now).once
@@ -174,15 +182,13 @@ describe ActiveDirectoryService, type: :service do
 
   context "update attributes" do
     let!(:worker_type) { FactoryGirl.create(:worker_type) }
-    let!(:employee) { FactoryGirl.create(:employee,
-      :status => "Active",
+    let!(:employee) { FactoryGirl.create(:active_employee,
       :first_name => "Jeffrey",
       :last_name => "Lebowski",
       :office_phone => "123-456-7890",
       :sam_account_name => "jlebowski")}
-    let!(:profile) { FactoryGirl.create(:profile,
+    let!(:profile) { FactoryGirl.create(:active_profile,
       employee: employee,
-      profile_status: "Active",
       manager_id: manager.employee_id,
       department: department,
       location: location,
@@ -215,14 +221,13 @@ describe ActiveDirectoryService, type: :service do
     end
 
     it "should update changed attributes" do
-      employee = FactoryGirl.create(:employee,
+      employee = FactoryGirl.create(:active_employee,
         :first_name => "The Dude",
         :last_name => "Lebowski",
         :office_phone => "555-555-5555",
         :sam_account_name => "jlebowski")
-      profile = FactoryGirl.create(:profile,
+      profile = FactoryGirl.create(:active_profile,
         employee: employee,
-        profile_status: "Active",
         manager_id: manager.employee_id,
         department: department,
         location: location,
@@ -269,14 +274,13 @@ describe ActiveDirectoryService, type: :service do
       new_location = FactoryGirl.create(:location,
         name: location.name,
         country: "GB")
-      employee = FactoryGirl.create(:employee,
+      employee = FactoryGirl.create(:active_employee,
         :first_name => "Jeffrey",
         :last_name => "Lebowski",
         :office_phone => "123-456-7890",
         :sam_account_name => "jlebowski")
-      profile = FactoryGirl.create(:profile,
+      profile = FactoryGirl.create(:active_profile,
         employee: employee,
-        profile_status: "Active",
         manager_id: manager.employee_id,
         department: department,
         location: new_location,
@@ -298,14 +302,13 @@ describe ActiveDirectoryService, type: :service do
 
     it "should update dn if department changes" do
       new_department = Department.find_by(:name => "Customer Support")
-      employee = FactoryGirl.create(:employee,
+      employee = FactoryGirl.create(:active_employee,
         :first_name => "Jeffrey",
         :last_name => "Lebowski",
         :office_phone => "123-456-7890",
         :sam_account_name => "jlebowski")
-      profile = FactoryGirl.create(:profile,
+      profile = FactoryGirl.create(:active_profile,
         employee: employee,
-        profile_status: "Active",
         manager_id: manager.employee_id,
         department: new_department,
         job_title: job_title,

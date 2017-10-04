@@ -46,7 +46,7 @@ module AdpService
           if e.present?
             profiler = EmployeeProfile.new
             profiler.update_employee(e, w)
-            Employee.check_manager(e.manager_id)
+            e.check_manager
 
             workers_to_update << e
           else
@@ -64,13 +64,13 @@ module AdpService
     end
 
     def check_future_changes
-      Employee.where("status LIKE ? OR status LIKE ?", "Pending", "Inactive").find_each do |e|
+      Employee.where("status LIKE ? OR status LIKE ?", "pending", "inactive").find_each do |e|
         EmployeeChangeWorker.perform_async(e.id)
       end
     end
 
     def look_ahead(e)
-      if e.status == "Pending"
+      if e.status == "pending"
         check_new_hire_change(e)
       else
         # inactive worker status
@@ -94,7 +94,7 @@ module AdpService
         w_hash = workers[0]
         profiler = EmployeeProfile.new
         profiler.update_employee(e, w_hash.except(:status, :profile_status))
-        Employee.check_manager(e.manager_id)
+        e.check_manager
 
         if e.updated_at >= 1.minute.ago
           ad = ActiveDirectoryService.new
