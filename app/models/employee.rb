@@ -206,8 +206,8 @@ class Employee < ActiveRecord::Base
   def generated_account_expires
     # The expiration date needs to be set a day after term date
     # AD expires the account at midnight of the day before the expiry date
-    end_date = termination_date if termination_date.present?
     end_date = contract_end_date if contract_end_date.present?
+    end_date = termination_date if termination_date.present?
 
     if end_date
       expiration_date = end_date + 1.day
@@ -421,14 +421,11 @@ class Employee < ActiveRecord::Base
     worker_type.kind == "Temporary" || worker_type.kind == "Contractor"
   end
 
+  # Before activating, make sure contract workers have contract end date
   def record_complete?
     return true if worker_type.kind == "Regular"
     contract_end_date.present?
   end
-
-  # def onboarding_complete?
-  #   self.onboarding_infos.count > 0
-  # end
 
   def offboarding_complete?
     self.offboarding_infos.count > 0
@@ -451,8 +448,9 @@ class Employee < ActiveRecord::Base
     # if employee data is not persisted, like when previewing employee data from an event
     # scope on profiles is not available, so must access by method last
     if self.profiles.pending.present?
-      start_date = self.profiles.pending.last.start_date
+      start_date = self.profiles.pending.reorder(:created_at).last.start_date
     else
+      # usually only used when building employee from event and not persisted
       start_date = self.profiles.last.start_date
     end
     # plus 9.hours to account for the beginning of the business day

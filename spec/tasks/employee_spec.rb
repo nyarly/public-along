@@ -128,7 +128,7 @@ describe "employee rake tasks", type: :tasks do
 
     it "should call ldap and update only US new hires and returning leave workers at 3am PST" do
 
-  #     # 7/29/2016 at 3am PST/10am UTC
+      # 7/29/2016 at 3am PST/10am UTC
       Timecop.freeze(Time.new(2016, 7, 29, 10, 0, 0, "+00:00"))
 
       expect(@ldap).to receive(:replace_attribute).once.with(
@@ -180,7 +180,7 @@ describe "employee rake tasks", type: :tasks do
         employee: leave_us,
         location: sf)
 
-  #     # 7/29/2016 at 9pm PST/3am UTC
+      # 7/29/2016 at 9pm PST/3am UTC
       Timecop.freeze(Time.new(2016, 7, 30, 4, 03, 0, "+00:00"))
 
       allow(@ldap).to receive(:search).and_return([@ldap_entry])
@@ -253,7 +253,7 @@ describe "employee rake tasks", type: :tasks do
         employee: new_hire_us,
         location_id: sf.id)
 
-  #     # 7/29/2016 at 9pm IST/3:30pm UTC
+      # 7/29/2016 at 9pm IST/3:30pm UTC
       Timecop.freeze(Time.new(2016, 7, 29, 15, 30, 0, "+00:00"))
 
       allow(@ldap).to receive(:search).and_return([@ldap_entry])
@@ -307,7 +307,7 @@ describe "employee rake tasks", type: :tasks do
         location: mumbai,
         department: Department.find_by(:name => "Technology/CTO Admin"))
 
-  #     # 7/29/ 2017 at 9pm IST/3:30pm UTC
+      # 7/29/ 2017 at 9pm IST/3:30pm UTC
       Timecop.freeze(Time.new(2016, 7, 29, 15, 30, 0, "+00:00"))
 
       expect(OffboardingService).to receive(:new).and_return(@offboarding_service).once
@@ -392,7 +392,7 @@ describe "employee rake tasks", type: :tasks do
         emp_transaction_id: emp_trans_2.id,
         security_profile_id: sec_prof.id)
 
-  #     # 8/28/2016 at 3am PST/10am UTC
+      # 8/28/2016 at 3am PST/10am UTC
       Timecop.freeze(Time.new(2016, 8, 28, 10, 0, 0, "+00:00"))
       allow(@ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
 

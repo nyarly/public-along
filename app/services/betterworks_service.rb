@@ -52,7 +52,7 @@ class BetterworksService
       betterworks_users.each do |u|
 
         if u.is_rehire?
-          terminated_profile = u.profiles.terminated.last
+          terminated_profile = u.profiles.terminated.reorder(:created_at).last
           employee_id = terminated_profile.adp_employee_id
           department = terminated_profile.department.name
           location = terminated_profile.location.name
@@ -98,7 +98,7 @@ class BetterworksService
     if emp.termination_date.present? && emp.termination_date <= Date.today
       emp.termination_date.strftime("%m/%d/%Y")
     elsif emp.is_rehire?
-      emp.profiles.terminated.last.end_date.strftime("%m/%d/%Y")
+      emp.profiles.terminated.reorder(:created_at).last.end_date.strftime("%m/%d/%Y")
     else
       nil
     end

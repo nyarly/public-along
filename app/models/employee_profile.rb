@@ -116,7 +116,7 @@ class EmployeeProfile
   private
 
   def build_new_profile(employee, employee_hash)
-    new_profile = employee.profiles.build(parse_attributes(Profile, employee_hash))
+    employee.profiles.build(parse_attributes(Profile, employee_hash))
   end
 
   def parse_attributes(klass, worker_hash)

@@ -88,7 +88,7 @@ RSpec.describe EmployeeProfile do
       expect(Employee.count).to eq(1)
       expect(employee.worker_type).to eq(worker_type)
       expect(employee.profiles.count).to eq(1)
-      expect(employee.profiles.active.last).to eq(profile)
+      expect(employee.profiles.active.reorder(:created_at).last).to eq(profile)
     end
   end
 
@@ -122,9 +122,9 @@ RSpec.describe EmployeeProfile do
       expect(employee.status).to eq("active")
       expect(employee.current_profile.profile_status).to eq("active")
       expect(employee.worker_type).to eq(worker_type)
-      expect(employee.profiles.terminated.last).to eq(profile)
-      expect(employee.profiles.terminated.last.profile_status).to eq("terminated")
-      expect(employee.profiles.terminated.last.worker_type).to eq(old_worker_type)
+      expect(employee.profiles.terminated.reorder(:created_at).last).to eq(profile)
+      expect(employee.profiles.terminated.reorder(:created_at).last.profile_status).to eq("terminated")
+      expect(employee.profiles.terminated.reorder(:created_at).last.worker_type).to eq(old_worker_type)
       expect(employee.emp_deltas.last.before).to eq({"start_date"=>"2016-06-01 00:00:00 UTC", "worker_type_id"=>"#{old_worker_type.id}"})
       expect(employee.emp_deltas.last.after).to eq({"start_date"=>"2017-01-01 00:00:00 UTC", "worker_type_id"=>"#{worker_type.id}"})
     end
@@ -165,9 +165,9 @@ RSpec.describe EmployeeProfile do
       expect(employee.emp_deltas.last.after).to eq({"last_name"=>"Goodall", "start_date"=>"2017-01-01 00:00:00 UTC", "worker_type_id"=>"#{worker_type.id}"})
       expect(employee.profiles.active.last.profile_status).to eq("active")
       expect(employee.worker_type).to eq(worker_type)
-      expect(employee.profiles.terminated.last).to eq(profile)
-      expect(employee.profiles.terminated.last.profile_status).to eq("terminated")
-      expect(employee.profiles.terminated.last.worker_type).to eq(old_worker_type)
+      expect(employee.profiles.terminated.reorder(:created_at).last).to eq(profile)
+      expect(employee.profiles.terminated.reorder(:created_at).last.profile_status).to eq("terminated")
+      expect(employee.profiles.terminated.reorder(:created_at).last.worker_type).to eq(old_worker_type)
     end
   end
 
@@ -198,7 +198,7 @@ RSpec.describe EmployeeProfile do
       expect(employee.emp_deltas.count).to eq(1)
       expect(employee.emp_deltas.last.before).to eq({"department_id"=>"#{old_department.id}"})
       expect(employee.emp_deltas.last.after).to eq({"department_id"=>"#{department.id}"})
-      expect(employee.profiles.active.last.profile_status).to eq("active")
+      expect(employee.profiles.active.reorder(:created_at).last.profile_status).to eq("active")
       expect(employee.department).to eq(department)
     end
   end

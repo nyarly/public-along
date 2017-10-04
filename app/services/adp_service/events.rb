@@ -57,6 +57,11 @@ module AdpService
 
       if is_rehire?(json)
         worker_hash = event_json_to_hash(json)
+
+        # If this event comes over as a rehire,
+        # don't immediately create a new employee record.
+        # Send the onboarding form to the manager with the event,
+        # so they have an opportunity to link accounts.
         send_onboard_form_with_event(event) unless worker_hash[:manager_id].blank?
         return false
       else
@@ -71,6 +76,9 @@ module AdpService
       term_date = term_date(json)
       employee = Employee.find_by_employee_id(worker_id(json))
 
+      # Don't process this event if you can't find the employee
+      # This basically only happens if P&C terminates a test account
+      # + Don't process the termination if it's a job change
       return false if employee.blank? || job_change?(employee, term_date)
 
       employee.assign_attributes(termination_date: term_date)
@@ -93,6 +101,8 @@ module AdpService
       json = JSON.parse(event.json)
       employee = Employee.find_by_employee_id(worker_id(json))
 
+      # Don't process this event if you can't find the employee
+      # This basically only happens if P&C operates on a test account
       return false if employee.blank?
 
       leave_date = leave_date(json)
@@ -113,6 +123,10 @@ module AdpService
       json = JSON.parse(event.json)
       employee = Employee.find_by_employee_id(worker_id(json))
 
+      # If this event comes over as a rehire,
+      # don't immediately create a new employee record.
+      # Send the onboarding form to the manager with the event,
+      # so they have an opportunity to link accounts.
       return send_onboard_form_with_event(event) if employee.blank?
 
       profiler = EmployeeProfile.new
