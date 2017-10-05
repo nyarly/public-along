@@ -31,7 +31,18 @@
       <div class="large-8 medium-6 small-2 columns float-left">
         <h3><%= @employee.first_name %> <%= @employee.last_name %></h3>
         <h5>Status: <%= @employee.status.titleize %></h5>
-        <h5>Manager Action Needed: <%= @employee.request_status.titleize %></h5>
+        <h5>
+        <% if @employee.request_status == "none" %>
+          <%= @employee.request_status.titleize %>
+        <% elsif @employee.request_status == "waiting" && @employee.manager.present? %>
+          <%= link_to "#{@employee.manager_form_type} Form Due #{@employee.manager_form_due}", new_emp_transaction_url({
+            :user_emp_id => @employee.manager.employee_id,
+            :employee_id => @employee.id,
+            :kind => @employee.manager_form_type}), class: "needs-manager-action" %>
+        <% elsif @employee.request_status == "completed" %>
+          <%= "#{@employee.manager_form_type}" + " " + @employee.request_status.titleize %>
+        <% end %>
+        </h5>
 
         <% @employee.profiles.order(created_at: :desc).each do |p| %>
           <div class="callout">
@@ -73,7 +84,7 @@
             </p>
             <p>
               <strong>Employee ID:</strong>
-              <%= p.try(:employee_id) %>
+              <%= p.try(:adp_employee_id) %>
             </p>
             <% if can? :manage, Employee %>
               <div class="callout secondary">

@@ -402,8 +402,19 @@ class Employee < ActiveRecord::Base
     EmployeeWorker.perform_async("Onboarding", employee_id: self.id)
   end
 
+  def manager_form_type
+    return "Onboarding" if status == "pending"
+    return "Offboarding" if status == "active" && termination_date.present?
+  end
+
+  def manager_form_due
+    return nil if request_status != "waiting"
+    return onboarding_due_date if status == "pending"
+    return offboarding_cutoff.strftime("%b %e, %Y") if status == "active"
+  end
+
   def send_offboarding_forms
-    TechTableMailer.offboard_notice(self.id).deliver_now
+    TechTableMailer.offboard_notice(self).deliver_now
     EmployeeWorker.perform_async("Offboarding", employee_id: self.id)
   end
 
