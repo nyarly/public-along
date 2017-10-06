@@ -28,4 +28,8 @@ class User < ActiveRecord::Base
     self.last_name = Devise::LDAP::Adapter.get_ldap_param(self.ldap_user,"sn").first
     self.employee_id = Devise::LDAP::Adapter.get_ldap_param(self.ldap_user,"employeeID").first
   end
+
+  def full_name
+    self.first_name + " " + self.last_name
+  end
 end

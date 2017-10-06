@@ -113,8 +113,48 @@
             </p>
           </div>
         <% end %>
-      </div>
       <!-- End admin info section -->
+      </div>
+      <div class="large-4 medium-6 small-2 columns float-right section">
+        <h4 class="text-center">Activity Feed</h4>
+        <% @activities.each do |activity| %>
+          <div class="callout">
+            <% if activity.class == EmpDelta %>
+              <p>
+                <strong>Employee Change</strong><br>
+                <%= activity.created_at.strftime("%b %e, %Y") %>
+              </p>
+              <p>
+                <% activity.format_by_key.each do |t| %>
+                  <%= t['name'] %> changed from <%= t['before'] %> to <%= t['after'] %>
+                <% end %>
+              </p>
+            <% else %>
+              <p>
+                <strong><%= activity.kind %></strong><br>
+                Submitted on <%= activity.created_at.strftime("%b %e, %Y") %> by <%= activity.user.try(:full_name) %>
+              </p>
+              <% if activity.security_profiles.present? %>
+                <p>
+                  <span style="color:green">Security Profiles Added</span><br>
+                  <% activity.security_profiles.each do |sp| %>
+                    <%= sp.name %><br>
+                  <% end %>
+                </p>
+              <% end %>
+              <% if activity.revoked_security_profiles.present? %>
+                <p>
+                  <span style="color:red">Security Profiles Removed</span><br>
+                  <% activity.revoked_security_profiles.each do |sp| %>
+                    <%= sp.name %><br>
+                  <% end %>
+                </p>
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+
+      </div>
     </div>
 
     <div class="tabs-panel" id="contact-info">
@@ -190,16 +230,18 @@
           </div>
         <% end %>
       </div>
-      <% if @employee.status == "active" %>
-        <%= link_to "Update Security Profile",
-              { controller: "emp_transactions",
-              action: "new",
-              kind: "Security Access",
-              employee_id: @employee.id,
-              user_id: current_user.id,
-              reason: "manager" },
-              class: "button expanded" %>
-      <% end %>
+      <% if can? :create, EmpTransaction %>
+        <% if @employee.status == "active" %>
+          <%= link_to "Update Security Profile",
+                { controller: "emp_transactions",
+                action: "new",
+                kind: "Security Access",
+                employee_id: @employee.id,
+                user_id: current_user.id,
+                reason: "manager" },
+                class: "button expanded" %>
+          <% end %>
+        <% end %>
     </div>
   </div>
 </div>
