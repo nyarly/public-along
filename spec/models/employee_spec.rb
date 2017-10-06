@@ -910,4 +910,28 @@ describe Employee, type: :model do
       expect(employee.ou).to eq("ou=Provisional,ou=Users,")
     end
   end
+
+  context "does the worker need a security profile update" do
+    let!(:no_update_emp)   { FactoryGirl.create(:active_employee) }
+    let!(:emp_delta)       { FactoryGirl.create(:emp_delta,
+                             employee: no_update_emp,
+                             before: {"department_id"=>"1"},
+                             after: {"department_id"=>"1"}) }
+    let!(:emp_transaction) { FactoryGirl.create(:emp_transaction,
+                             employee: no_update_emp,
+                             kind: "Security Access") }
+    let!(:update_emp)      { FactoryGirl.create(:active_employee) }
+    let!(:emp_delta_2)     { FactoryGirl.create(:emp_delta,
+                             employee: update_emp,
+                             before: {"department_id"=>"1"},
+                             after: {"department_id"=>"1"}) }
+
+    it "should need a security access update" do
+      expect(update_emp.needs_security_profile_update?).to eq(true)
+    end
+
+    it "should not need a security access update" do
+      expect(no_update_emp.needs_security_profile_update?).to eq(false)
+    end
+  end
 end

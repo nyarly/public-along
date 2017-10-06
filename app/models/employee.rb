@@ -450,6 +450,12 @@ class Employee < ActiveRecord::Base
     first_name + " " + last_name
   end
 
+  def needs_security_profile_update?
+    changed_at = self.emp_deltas.important_changes.present? ? self.emp_deltas.important_changes.reorder(:created_at).last.created_at : self.created_at
+    updated_at = self.emp_transactions.present? ? self.emp_transactions.reorder(:created_at).last.created_at : self.created_at
+    return changed_at > updated_at
+  end
+
   def nearest_time_zone
     # US has the broadest time zone spectrum, Pacific time is a sufficient middle ground to capture business hours between NYC and Hawaii
     location.country == 'US' ? "America/Los_Angeles" : TZInfo::Country.get(location.country).zone_identifiers.first
