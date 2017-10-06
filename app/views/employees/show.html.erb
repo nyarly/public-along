@@ -7,14 +7,36 @@
         <h4>Employee Status: <%= @employee.status.titleize %></h4>
       </div>
       <div class="columns large-4 float-right">
-        <% if @employee.request_status == "completed" %>
-          <h4 class="text-center"><%= "#{@employee.manager_form_type}" + " " + @employee.request_status.titleize %></h4>
-        <% elsif @employee.request_status == "waiting" && @employee.manager.present? %>
-          <h5><%= "#{@employee.manager_form_type} Form Due #{@employee.manager_form_due}" %></h5>
-          <%= link_to "Complete #{@employee.manager_form_type} Form Now", new_emp_transaction_url({
-            :user_emp_id => @employee.manager.employee_id,
-            :employee_id => @employee.id,
-            :kind => @employee.manager_form_type}), class: "button" %>
+        <!-- Status with links to forms -->
+        <% if can? :create, EmpTransaction %>
+          <% if @employee.request_status == "waiting" && @employee.manager.present? %>
+            <h5><%= "#{@employee.manager_form_type} Form Due #{@employee.manager_form_due}" %></h5>
+            <%= link_to "Complete #{@employee.manager_form_type} Form Now", new_emp_transaction_url({
+              :user_emp_id => @employee.manager.employee_id,
+              :employee_id => @employee.id,
+              :kind => @employee.manager_form_type}), class: "button" %>
+          <% elsif @employee.request_status == "completed" %>
+            <h4 class="text-center"><%= "#{@employee.manager_form_type}" + " " + @employee.request_status.titleize %></h4>
+          <% elsif @employee.needs_security_profile_update? && @employee.status == "active" && @employee.manager.present? %>
+            <h4>Security Access Update Needed</h4>
+            <%= link_to "Update Security Access", new_emp_transaction_url({
+              :user_emp_id => @employee.manager.employee_id,
+              :employee_id => @employee.id,
+              :kind => "Security Access"}), class: "button" %>
+          <% else %>
+            <%= @employee.request_status.titleize %>
+          <% end %>
+        <!-- View status only -->
+        <% else %>
+          <% if @employee.request_status == "waiting" && @employee.manager.present? %>
+            <h5><%= "#{@employee.manager_form_type} Form Due #{@employee.manager_form_due}" %></h5>
+          <% elsif @employee.request_status == "completed" %>
+            <h4 class="text-center"><%= "#{@employee.manager_form_type}" + " " + @employee.request_status.titleize %></h4>
+          <% elsif @employee.needs_security_profile_update? && @employee.status == "active" && @employee.manager.present? %>
+            <h4>Security Access Update Needed</h4>
+          <% else %>
+            <%= @employee.request_status.titleize %>
+          <% end %>
         <% end %>
       </div>
     </div>

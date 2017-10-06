@@ -33,15 +33,32 @@
           <td><%= link_to e.cn, employee_path(e) %></td>
           <td><%= e.status.titleize %></td>
           <td>
-            <% if e.request_status == "none" %>
-              <%= e.request_status.titleize %>
-            <% elsif e.request_status == "waiting" && e.manager.present? %>
-              <%= link_to "#{e.manager_form_type} Form Due #{e.manager_form_due}", new_emp_transaction_url({
-                :user_emp_id => e.manager.employee_id,
-                :employee_id => e.id,
-                :kind => e.manager_form_type}), class: "needs-manager-action" %>
-            <% elsif e.request_status == "completed" %>
-              <%= "#{e.manager_form_type}" + " " + e.request_status.titleize %>
+            <% if can? :create, EmpTransaction %>
+              <% if e.request_status == "waiting" && e.manager.present? %>
+                <%= link_to "#{e.manager_form_type} Form Due #{e.manager_form_due}", new_emp_transaction_url({
+                  :user_emp_id => e.manager.employee_id,
+                  :employee_id => e.id,
+                  :kind => e.manager_form_type}), class: "needs-manager-action" %>
+              <% elsif e.request_status == "completed" %>
+                <%= "#{e.manager_form_type}" + " " + e.request_status.titleize %>
+              <% elsif e.needs_security_profile_update? && e.status == "active" && e.manager.present? %>
+                <%= link_to "Update Security Access", new_emp_transaction_url({
+                  :user_emp_id => e.manager.employee_id,
+                  :employee_id => e.id,
+                  :kind => "Security Access"}), class: "needs-manager-action" %>
+              <% else %>
+                <%= e.request_status.titleize %>
+              <% end %>
+            <% else %>
+              <% if e.request_status == "waiting" && e.manager.present? %>
+                <%= "#{e.manager_form_type} Form Due #{e.manager_form_due}" %>
+              <% elsif e.request_status == "completed" %>
+                <%= "#{e.manager_form_type}" + " " + e.request_status.titleize %>
+              <% elsif e.needs_security_profile_update? && e.status == "active" && e.manager.present? %>
+                <%= "Update Security Access" %>
+              <% else %>
+                <%= e.request_status.titleize %>
+              <% end %>
             <% end %>
           </td>
           <td><%= e.job_title.try(:name) %></td>
