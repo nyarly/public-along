@@ -403,7 +403,7 @@ class Employee < ActiveRecord::Base
   end
 
   def send_offboarding_forms
-    TechTableMailer.offboard_notice(self.id).deliver_now
+    TechTableMailer.offboard_notice(self).deliver_now
     EmployeeWorker.perform_async("Offboarding", employee_id: self.id)
   end
 
