@@ -23,8 +23,6 @@
               :user_emp_id => @employee.manager.employee_id,
               :employee_id => @employee.id,
               :kind => "Security Access"}), class: "button" %>
-          <% else %>
-            <%= @employee.request_status.titleize %>
           <% end %>
         <!-- View status only -->
         <% else %>
@@ -258,6 +256,7 @@
     <h4 class="text-center">Activity Feed</h4>
     <% @activities.each do |activity| %>
       <div class="callout">
+        <!-- Employee Change Box -->
         <% if activity.class == EmpDelta %>
           <p>
             <strong>Employee Change</strong><br>
@@ -268,7 +267,8 @@
               • <%= t['name'] %> changed from <%= t['before'] %> to <%= t['after'] %><br>
             <% end %>
           </p>
-        <% else %>
+        <!-- Employee Transaction Box -->
+        <% elsif activity.class == EmpTransaction %>
           <p>
             <strong><%= activity.kind %></strong><br>
             Submitted on <%= activity.created_at.strftime("%b %e, %Y") %> by <%= activity.user.try(:full_name) %>
@@ -289,6 +289,8 @@
               <% end %>
             </p>
           <% end %>
+        <% else %>
+          <p><%= activity.class %></p>
         <% end %>
       </div>
     <% end %>

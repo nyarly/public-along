@@ -76,7 +76,6 @@ class EmployeeProfile
       end
 
       new_profile.save!
-      profile.save!
     else
       send_email = send_email?(profile)
 
