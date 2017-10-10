@@ -74,21 +74,17 @@ class EmployeeProfile
 
       if new_profile.start_date > Date.today
         new_profile.profile_status = "pending"
-        new_profile.save!
       else
         profile.profile_status = "terminated"
         new_profile.profile_status = "active"
-        profile.save!
-        new_profile.save!
       end
 
-    # update current profile
+      new_profile.save!
     else
       send_email = send_email?(profile)
-      if profile.save!
-        if send_email
-          EmployeeWorker.perform_async("Security Access", employee_id: employee.id)
-        end
+
+      if send_email
+        EmployeeWorker.perform_async("Security Access", employee_id: employee.id)
       end
     end
 

@@ -17,6 +17,10 @@ class EmployeesController < ApplicationController
 
   def show
     @email = Email.new
+    activity = []
+    @employee.emp_transactions.map { |e| activity << e }
+    @employee.emp_deltas.map { |e| activity << e }
+    @activities = activity.sort_by!(&:created_at).reverse!
   end
 
   def autocomplete_name

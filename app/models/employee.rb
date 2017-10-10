@@ -431,6 +431,13 @@ class Employee < ActiveRecord::Base
     self.offboarding_infos.count > 0
   end
 
+  def offboarding_cutoff
+    if self.termination_date.present?
+      # noon on termination date, when we send offboarding instructions to techtable
+      ActiveSupport::TimeZone.new(self.nearest_time_zone).local_to_utc(DateTime.new(self.termination_date.year, self.termination_date.month, self.termination_date.day, 12))
+    end
+  end
+
   def fn
     last_name + ", " + first_name
   end
@@ -458,13 +465,6 @@ class Employee < ActiveRecord::Base
       5.business_days.before(start_date + 9.hours).strftime("%b %e, %Y")
     else
       10.business_days.before(start_date + 9.hours).strftime("%b %e, %Y")
-    end
-  end
-
-  def offboarding_cutoff
-    if self.termination_date.present?
-      # noon on termination date, when we send offboarding instructions to techtable
-      ActiveSupport::TimeZone.new(self.nearest_time_zone).local_to_utc(DateTime.new(self.termination_date.year, self.termination_date.month, self.termination_date.day, 12))
     end
   end
 
