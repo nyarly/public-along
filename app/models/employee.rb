@@ -402,17 +402,6 @@ class Employee < ActiveRecord::Base
     EmployeeWorker.perform_async("Onboarding", employee_id: self.id)
   end
 
-  def manager_form_type
-    return "Onboarding" if status == "pending"
-    return "Offboarding" if status == "active" && termination_date.present?
-  end
-
-  def manager_form_due
-    return nil if request_status != "waiting"
-    return onboarding_due_date if status == "pending"
-    return offboarding_cutoff.strftime("%b %e, %Y") if status == "active"
-  end
-
   def send_offboarding_forms
     TechTableMailer.offboard_notice(self).deliver_now
     EmployeeWorker.perform_async("Offboarding", employee_id: self.id)
@@ -442,18 +431,19 @@ class Employee < ActiveRecord::Base
     self.offboarding_infos.count > 0
   end
 
+  def offboarding_cutoff
+    if self.termination_date.present?
+      # noon on termination date, when we send offboarding instructions to techtable
+      ActiveSupport::TimeZone.new(self.nearest_time_zone).local_to_utc(DateTime.new(self.termination_date.year, self.termination_date.month, self.termination_date.day, 12))
+    end
+  end
+
   def fn
     last_name + ", " + first_name
   end
 
   def cn
     first_name + " " + last_name
-  end
-
-  def needs_security_profile_update?
-    changed_at = self.emp_deltas.important_changes.present? ? self.emp_deltas.important_changes.reorder(:created_at).last.created_at : self.created_at
-    updated_at = self.emp_transactions.present? ? self.emp_transactions.reorder(:created_at).last.created_at : self.created_at
-    return changed_at > updated_at
   end
 
   def nearest_time_zone
@@ -475,13 +465,6 @@ class Employee < ActiveRecord::Base
       5.business_days.before(start_date + 9.hours).strftime("%b %e, %Y")
     else
       10.business_days.before(start_date + 9.hours).strftime("%b %e, %Y")
-    end
-  end
-
-  def offboarding_cutoff
-    if self.termination_date.present?
-      # noon on termination date, when we send offboarding instructions to techtable
-      ActiveSupport::TimeZone.new(self.nearest_time_zone).local_to_utc(DateTime.new(self.termination_date.year, self.termination_date.month, self.termination_date.day, 12))
     end
   end
 
