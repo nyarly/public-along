@@ -1,3 +1,4 @@
+
 Onboarding Worker Request
 ====================================
 
@@ -8,7 +9,7 @@ Title: <%= @employee.job_title.try(:name) %>
 Department: <%= @employee.department.name %>
 Location: <%= @employee.location.name %>
 Manager: <%= @employee.manager.try(:cn) %>
-Manager Email: <%= @employee.manager.email %>
+Manager Email: <%= @employee.manager.try(:email) %>
 Submission Date: <%= @info.onboarding_info.emp_transaction.created_at.strftime("%b %e, %Y") %>
 <% if @employee.contract_end_date.present? %>
 Contract End Date: <%= @employee.contract_end_date.strftime("%b %e, %Y") %>
