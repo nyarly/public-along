@@ -290,9 +290,9 @@ class Employee < ActiveRecord::Base
   #   Employee.find_by_employee_id(manager_id) if manager_id
   # end
 
-  def self.direct_reports_of(manager_emp_id)
-    joins(:profiles).where("profiles.manager_id LIKE ?", manager_emp_id)
-  end
+  # def self.direct_reports_of(manager_emp_id)
+  #   joins(:profiles).where("profiles.manager_id LIKE ?", manager_emp_id)
+  # end
 
   def check_manager
     manager = self.manager
@@ -316,22 +316,6 @@ class Employee < ActiveRecord::Base
       sas = SecAccessService.new(emp_trans)
       sas.apply_ad_permissions
     end
-  end
-
-  def self.leave_return_group
-    where('leave_return_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow)
-  end
-
-  def self.deactivation_group
-    where('contract_end_date BETWEEN ? AND ? OR leave_start_date BETWEEN ? AND ? OR termination_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow)
-  end
-
-  def self.full_termination_group
-    where('termination_date BETWEEN ? AND ?', 8.days.ago, 7.days.ago)
-  end
-
-  def self.offboarding_report_group
-    where('employees.termination_date BETWEEN ? AND ?', Date.today - 2.weeks, Date.today)
   end
 
   def self.onboarding_reminder_group
