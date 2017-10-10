@@ -181,8 +181,12 @@ class ManagerEntry
 
   def send_email
     return false if emp_transaction.kind == "Offboarding"
-    if emp_transaction.kind == "Onboarding" && link_email == "on"
-      TechTableMailer.onboard_instructions(emp_transaction, link_email: true).deliver_now
+    if emp_transaction.kind == "Onboarding"
+      if link_email == "on"
+        TechTableMailer.onboard_instructions(emp_transaction, link_email: true).deliver_now
+      else
+        TechTableMailer.onboard_instructions(emp_transaction).deliver_now
+      end
     else
       TechTableMailer.permissions(emp_transaction).deliver_now
     end
