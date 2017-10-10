@@ -19,6 +19,8 @@ class Employee < ActiveRecord::Base
   has_many :security_profiles, through: :emp_sec_profiles
   has_many :emp_deltas # on delete, cascade in db
   has_many :profiles # on delete, cascade in db
+  has_many :direct_reports, class_name: "Employee", foreign_key: "manager_id"
+  belongs_to :manager, class_name: "Employee"
 
   validates :first_name,
             presence: true
@@ -284,9 +286,9 @@ class Employee < ActiveRecord::Base
     where("lower(email) LIKE ?", "%#{term.downcase}%")
   end
 
-  def manager
-    Employee.find_by_employee_id(manager_id) if manager_id
-  end
+  # def manager
+  #   Employee.find_by_employee_id(manager_id) if manager_id
+  # end
 
   def self.direct_reports_of(manager_emp_id)
     joins(:profiles).where("profiles.manager_id LIKE ?", manager_emp_id)
