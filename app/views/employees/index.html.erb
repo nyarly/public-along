@@ -35,13 +35,13 @@
           <td>
             <% if can? :create, EmpTransaction %>
               <% if e.request_status == "waiting" && e.manager.present? %>
-                <%= link_to "#{e.manager_form_type} Form Due #{e.manager_form_due}", new_emp_transaction_url({
+                <%= link_to "#{manager_form_type(e)} Form Due #{manager_form_due(e)}", new_emp_transaction_url({
                   :user_emp_id => e.manager.employee_id,
                   :employee_id => e.id,
-                  :kind => e.manager_form_type}), class: "needs-manager-action" %>
+                  :kind => manager_form_type(e)}), class: "needs-manager-action" %>
               <% elsif e.request_status == "completed" %>
-                <%= "#{e.manager_form_type}" + " " + e.request_status.titleize %>
-              <% elsif e.needs_security_profile_update? && e.status == "active" && e.manager.present? %>
+                <%= "#{manager_form_type(e)}" + " " + e.request_status.titleize %>
+              <% elsif needs_security_profile_update?(e) && e.status == "active" && e.manager.present? %>
                 <%= link_to "Update Security Access", new_emp_transaction_url({
                   :user_emp_id => e.manager.employee_id,
                   :employee_id => e.id,
@@ -51,10 +51,10 @@
               <% end %>
             <% else %>
               <% if e.request_status == "waiting" && e.manager.present? %>
-                <%= "#{e.manager_form_type} Form Due #{e.manager_form_due}" %>
+                <%= "#{manager_form_type(e)} Form Due #{manager_form_due(e)}" %>
               <% elsif e.request_status == "completed" %>
-                <%= "#{e.manager_form_type}" + " " + e.request_status.titleize %>
-              <% elsif e.needs_security_profile_update? && e.status == "active" && e.manager.present? %>
+                <%= "#{manager_form_type(e)}" + " " + e.request_status.titleize %>
+              <% elsif needs_security_profile_update?(e) && e.status == "active" && e.manager.present? %>
                 <%= "Update Security Access" %>
               <% else %>
                 <%= e.request_status.titleize %>
