@@ -1,5 +1,6 @@
 class EmployeesController < ApplicationController
   load_and_authorize_resource
+  helper EmployeeHelper
 
   before_action :set_employee, only: :show
 
