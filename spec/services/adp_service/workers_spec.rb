@@ -10,6 +10,7 @@ describe AdpService::Workers, type: :service do
   let(:response)    { double(Net::HTTPResponse) }
   let(:ads)         { double(ActiveDirectoryService) }
   let(:pending_hire_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_pending_hire.json") }
+  let(:pend_rehire_json)  { File.read(Rails.root.to_s+"/spec/fixtures/adp_pending_rehire.json") }
   let(:contractor_json)   { File.read(Rails.root.to_s+"/spec/fixtures/adp_contractor.json") }
   let(:not_found_json)    { File.read(Rails.root.to_s+"/spec/fixtures/adp_worker_not_found.json") }
 
@@ -596,6 +597,55 @@ describe AdpService::Workers, type: :service do
 
         expect(new_hire.manager_id).to eq(new_manager.employee_id)
         expect(new_manager.active_security_profiles).to include(basic_manager_sec_prof)
+      end
+    end
+
+    context "rehire changes" do
+      let!(:ptt_wt)      { FactoryGirl.create(:worker_type, code: "PTT") }
+      let!(:jt)          { FactoryGirl.create(:job_title, code: "BRDSRNE") }
+      let!(:dept)        { FactoryGirl.create(:department, code: "063050") }
+      let!(:rehire)      { FactoryGirl.create(:pending_employee,
+                           hire_date: Date.new(2016, 10, 26)) }
+      let!(:old_profile) { FactoryGirl.create(:terminated_profile,
+                           employee: rehire,
+                           start_date: Date.new(2016, 10, 26),
+                           end_date: Date.new(2016, 12, 9),
+                           adp_assoc_oid: "G3NGJ6TFKN7ZWHBP",
+                           adp_employee_id: "102058",
+                           worker_type: ptt_wt) }
+      let!(:new_profile) { FactoryGirl.create(:profile,
+                           employee: rehire,
+                           start_date: Date.new(2017, 11, 1),
+                           adp_assoc_oid: "G3NGJ6TFKN7ZWHBP",
+                           adp_employee_id: "102058",
+                           worker_type: ptt_wt) }
+
+      before :each do
+        check_date = 1.year.from_now.change(:usec => 0)
+        expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers/G3NGJ6TFKN7ZWHBP?asOfDate=#{check_date.strftime('%m')}%2F#{check_date.strftime('%d')}%2F#{check_date.strftime('%Y')}").and_return(uri)
+        expect(response).to receive(:body).and_return(pend_rehire_json)
+        allow(http).to receive(:get).with(
+          request_uri,
+          { "Accept"=>"application/json",
+            "Authorization"=>"Bearer a-token-value",
+          }).and_return(response)
+        expect(response).to receive(:code)
+        expect(response).to receive(:message)
+      end
+
+      it "should get the correct profile" do
+        adp = AdpService::Workers.new
+        adp.token = "a-token-value"
+        adp.check_new_hire_change(rehire)
+
+        expect(rehire.profiles.count).to eq(2)
+        expect(rehire.hire_date).to eq(Date.new(2016, 10, 26))
+        expect(rehire.termination_date).to eq(nil)
+        expect(rehire.contract_end_date).to eq(nil)
+        expect(rehire.profiles.terminated.reorder(:created_at).last.start_date).to eq(Date.new(2016, 10, 26))
+        expect(rehire.profiles.terminated.reorder(:created_at).last.end_date).to eq(Date.new(2016, 12, 9))
+        expect(rehire.profiles.pending.reorder(:created_at).last.start_date).to eq(Date.new(2017, 10, 16))
+        expect(rehire.profiles.pending.reorder(:created_at).last.end_date).to eq(nil)
       end
     end
   end

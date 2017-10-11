@@ -40,6 +40,8 @@ class EmployeeProfile
     w_hash = parse_event(AdpEvent.find(event_id))
 
     employee = Employee.find(employee_id).tap do |employee|
+      w_hash.except!(:contract_end_date) if discard_contract_end_date?(w_hash)
+
       employee.assign_attributes(parse_attributes(Employee, w_hash.except(:status)))
       employee.assign_attributes(termination_date: nil)
       new_profile = build_new_profile(employee, w_hash.except(:profile_status))
@@ -54,6 +56,8 @@ class EmployeeProfile
   # takes employee object and employee hash from the parser
   def update_employee(employee, employee_hash)
     profile = employee.current_profile
+
+    employee_hash.except!(:contract_end_date) if discard_contract_end_date?(employee_hash)
 
     employee.assign_attributes(parse_attributes(Employee, employee_hash))
     profile.assign_attributes(parse_attributes(Profile, employee_hash))
@@ -89,7 +93,6 @@ class EmployeeProfile
     employee.save!
     employee
   end
-
 
   # new employee takes an event object and returns saved employee
   def new_employee(event)
@@ -128,6 +131,12 @@ class EmployeeProfile
     worker_json = json.dig("events", 0, "data", "output", "worker")
     parser = AdpService::WorkerJsonParser.new
     parser.gen_worker_hash(worker_json)
+  end
+
+  def discard_contract_end_date?(emp_hash)
+    return false if emp_hash[:contract_end_date].blank?
+    return false if emp_hash[:rehire_date].blank?
+    emp_hash[:contract_end_date] < emp_hash[:rehire_date]
   end
 
   def needs_new_profile?(profile)
