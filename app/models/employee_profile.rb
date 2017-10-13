@@ -34,6 +34,7 @@ class EmployeeProfile
   attribute :profile_status, String
   attribute :start_date, DateTime
   attribute :end_date, DateTime
+  attribute :management_position, Boolean
 
   # link accounts takes an employee pk and event pk
   def link_accounts(employee_id, event_id)

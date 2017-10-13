@@ -227,6 +227,7 @@
           ],
           "payrollGroupCode": "",
           "payrollFileNumber": "",
+          "managementPositionIndicator": false,
           "payGradeCode": {
             "codeValue": "",
             "shortName": ""

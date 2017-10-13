@@ -30,6 +30,7 @@ class Employee < ActiveRecord::Base
             presence: true
 
   scope :active_or_inactive, -> { where('status IN (?)', ["active", "inactive"]) }
+  scope :managers, -> { where(management_position: true) }
 
   aasm :column => "status" do
     error_on_all_events { |e| Rails.logger.info e.message }
@@ -297,25 +298,6 @@ class Employee < ActiveRecord::Base
   def check_manager
     manager = self.manager
     return false if manager.blank? || Employee.managers.include?(manager)
-
-    sp = SecurityProfile.find_by(name: "Basic Manager")
-
-    emp_trans = EmpTransaction.new(
-      kind: "Service",
-      notes: "Manager permissions added by Mezzo",
-      employee_id: manager.id
-    )
-
-    emp_trans.emp_sec_profiles.build(
-      security_profile_id: sp.id
-    )
-
-    emp_trans.save!
-
-    if emp_trans.emp_sec_profiles.count > 0
-      sas = SecAccessService.new(emp_trans)
-      sas.apply_ad_permissions
-    end
   end
 
   def self.leave_return_group

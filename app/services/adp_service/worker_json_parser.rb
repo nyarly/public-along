@@ -44,6 +44,8 @@ module AdpService
       dept_str = work_assignment["homeOrganizationalUnits"].find { |ou| ou["typeCode"]["codeValue"] == "Department"}
       dept = find_dept(dept_str)
 
+      management_position = work_assignment["managementPositionIndicator"]
+
       home_address_1 = w.dig("person","legalAddress","lineOne")
       home_address_2 = w.dig("person","legalAddress","lineTwo")
       home_city = w.dig("person","legalAddress","cityName")
@@ -70,7 +72,8 @@ module AdpService
         manager_id: manager_id,
         profile_status: work_assignment_status.downcase!,
         worker_type_id: worker_type.id,
-        business_card_title: business_card_title
+        business_card_title: business_card_title,
+        management_position: management_position
       }
 
       if location.kind == "Remote Location"

@@ -59,7 +59,8 @@ describe AdpService::WorkerJsonParser, type: :service do
         location_id: location.id,
         department_id: department.id,
         profile_status: "active",
-        business_card_title: "Senior Backend Engineer, Restaurant Products"
+        business_card_title: "Senior Backend Engineer, Restaurant Products",
+        management_position: true
       })
     end
 
