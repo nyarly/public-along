@@ -101,7 +101,7 @@ class Employee < ActiveRecord::Base
     end
   end
 
-  [:manager_id, :department, :worker_type, :location, :job_title, :company, :adp_assoc_oid].each do |attribute|
+  [:department, :worker_type, :location, :job_title, :company, :adp_assoc_oid].each do |attribute|
     define_method :"#{attribute}" do
       current_profile.try(:send, "#{attribute}")
     end
@@ -317,6 +317,23 @@ class Employee < ActiveRecord::Base
       sas.apply_ad_permissions
     end
   end
+
+  def self.leave_return_group
+    where('leave_return_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow)
+  end
+
+  def self.deactivation_group
+    where('contract_end_date BETWEEN ? AND ? OR leave_start_date BETWEEN ? AND ? OR termination_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow, Date.yesterday, Date.tomorrow)
+  end
+
+  def self.full_termination_group
+    where('termination_date BETWEEN ? AND ?', 8.days.ago, 7.days.ago)
+  end
+
+  def self.offboarding_report_group
+    where('employees.termination_date BETWEEN ? AND ?', Date.today - 2.weeks, Date.today)
+  end
+
 
   def self.onboarding_reminder_group
     missing_onboards = Employee.where(status: "pending", request_status: "waiting")

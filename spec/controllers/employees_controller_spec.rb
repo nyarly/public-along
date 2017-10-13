@@ -7,16 +7,18 @@ RSpec.describe EmployeesController, type: :controller do
     last_name: "Sajak") }
   let!(:employee) { FactoryGirl.create(:employee,
     first_name: "Alex",
-    last_name: "Trebek") }
+    last_name: "Trebek",
+    manager: manager) }
   let!(:profile) { FactoryGirl.create(:profile,
     employee: employee,
     manager_id: manager.employee_id) }
   let!(:user) { FactoryGirl.create(:user,
     :role_names => ["Admin"],
-    employee_id: employee.employee_id) }
+    adp_employee_id: employee.employee_id) }
   let!(:mgr_user) { FactoryGirl.create(:user,
+    employee: manager,
     :role_names => ["Manager"],
-    employee_id: manager.employee_id) }
+    adp_employee_id: manager.employee_id) }
 
   before :each do
     login_as user

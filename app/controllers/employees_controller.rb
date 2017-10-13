@@ -5,7 +5,7 @@ class EmployeesController < ApplicationController
 
   def index
     if current_user.role_names.count == 1 && current_user.role_names.include?("Manager")
-      @employees = current_user.direct_reports
+      @employees = current_user.employee.direct_reports
     else
       @employees = Employee.all.includes(:profiles => [:job_title, :department, :location, :worker_type])
     end
