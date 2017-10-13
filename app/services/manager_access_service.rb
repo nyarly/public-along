@@ -1,21 +1,27 @@
 class ManagerAccessService
   def initialize(employee)
     @employee = employee
+    @manager_sec_profile = SecurityProfile.find_by(name: "Basic Manager")
   end
 
   def process!
-    begin
-    ensure
-      create_emp_transaction
-      create_emp_sec_profile
-      add_manager_sec_group
+    if needs_manager_permissions?
+      begin
+      ensure
+        create_emp_transaction
+        create_emp_sec_profile
+        add_manager_sec_group
+      end
     end
+    @employee.security_profiles
   end
 
   private
 
   def needs_manager_permissions?
-    return false if @employee.management_position == false || @employee
+    return false if @employee.current_profile.management_position != true
+    return false if @employee.security_profiles.include? @manager_sec_profile
+    true
   end
 
   def create_emp_transaction
@@ -29,12 +35,9 @@ class ManagerAccessService
   end
 
   def create_emp_sec_profile
-    manager_sec_profile = SecurityProfile.find_by(name: "Basic Manager")
-    return false if manager_sec_profile.blank?
-
     @emp_sec_profile = EmpSecProfile.new(
       emp_transaction_id: @emp_transaction.id,
-      security_profile_id: manager_sec_profile.id
+      security_profile_id: @manager_sec_profile.id
     ).tap do |emp_sec_profile|
       emp_sec_profile.save!
     end

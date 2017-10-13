@@ -295,10 +295,10 @@ class Employee < ActiveRecord::Base
   #   joins(:profiles).where("profiles.manager_id LIKE ?", manager_emp_id)
   # end
 
-  def check_manager
-    manager = self.manager
-    return false if manager.blank? || Employee.managers.include?(manager)
-  end
+  # def check_manager
+  #   manager = self.manager
+  #   return false if manager.blank? || Employee.managers.include?(manager)
+  # end
 
   def self.leave_return_group
     where('leave_return_date BETWEEN ? AND ?', Date.yesterday, Date.tomorrow)
