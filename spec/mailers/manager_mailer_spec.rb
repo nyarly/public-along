@@ -1,21 +1,19 @@
 require "rails_helper"
 
 RSpec.describe ManagerMailer, type: :mailer do
-  let!(:manager) { FactoryGirl.create(:employee,
-    email: "manager@opentable.com") }
+  let!(:manager)     { FactoryGirl.create(:active_employee, email: "manager@opentable.com") }
   let!(:man_profile) { FactoryGirl.create(:active_profile,
-    employee: manager,
-    adp_employee_id: "654321")}
-  let!(:employee) { FactoryGirl.create(:active_employee) }
+                       employee: manager,
+                       adp_employee_id: "654321") }
+  let!(:employee)    { FactoryGirl.create(:active_employee, manager: manager) }
   let!(:emp_profile) { FactoryGirl.create(:active_profile,
-    employee: employee,
-    adp_employee_id: "123456",
-    manager_id: "654321") }
+                       employee: employee,
+                       adp_employee_id: "123456",
+                       manager_adp_employee_id: "654321") }
   let!(:worker_type) { FactoryGirl.create(:worker_type, code: "FTR") }
-  let(:rehire_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_rehire_event.json") }
-  let!(:event) { AdpEvent.new(status: "New",
-      json: rehire_json)}
-  let!(:profiler) { EmployeeProfile.new }
+  let(:rehire_json)  { File.read(Rails.root.to_s+"/spec/fixtures/adp_rehire_event.json") }
+  let!(:event)       { AdpEvent.new(status: "New", json: rehire_json) }
+  let!(:profiler)    { EmployeeProfile.new }
 
   context "Onboarding reminder" do
     let!(:email) { ManagerMailer.reminder(manager, employee).deliver_now }

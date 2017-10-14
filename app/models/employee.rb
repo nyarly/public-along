@@ -118,10 +118,11 @@ class Employee < ActiveRecord::Base
   end
 
   def onboard_new_position
-    check_manager
+    OnboardNewWorkerService.new(self).process!
     # TODO: add basic sec profile should remove old if worker type changed
-    add_basic_security_profile
-    send_manager_onboarding_form
+    # check_manager
+    # add_basic_security_profile
+    # send_manager_onboarding_form
   end
 
   def activate_profile
@@ -252,32 +253,32 @@ class Employee < ActiveRecord::Base
     "ou=Provisional,ou=Users,"
   end
 
-  def add_basic_security_profile
-    default_sec_group = ""
+  # def add_basic_security_profile
+  #   default_sec_group = ""
 
-    if self.worker_type.kind == "Regular"
-      default_sec_group = SecurityProfile.find_by(name: "Basic Regular Worker Profile").id
-    elsif self.worker_type.kind == "Temporary"
-      default_sec_group = SecurityProfile.find_by(name: "Basic Temp Worker Profile").id
-    elsif self.worker_type.kind == "Contractor"
-      default_sec_group = SecurityProfile.find_by(name: "Basic Contract Worker Profile").id
-    end
+  #   if self.worker_type.kind == "Regular"
+  #     default_sec_group = SecurityProfile.find_by(name: "Basic Regular Worker Profile").id
+  #   elsif self.worker_type.kind == "Temporary"
+  #     default_sec_group = SecurityProfile.find_by(name: "Basic Temp Worker Profile").id
+  #   elsif self.worker_type.kind == "Contractor"
+  #     default_sec_group = SecurityProfile.find_by(name: "Basic Contract Worker Profile").id
+  #   end
 
-    emp_trans = EmpTransaction.new(
-      kind: "Service",
-      notes: "Initial provisioning by Mezzo",
-      employee_id: self.id
-    )
+  #   emp_trans = EmpTransaction.new(
+  #     kind: "Service",
+  #     notes: "Initial provisioning by Mezzo",
+  #     employee_id: self.id
+  #   )
 
-    emp_trans.emp_sec_profiles.build(security_profile_id: default_sec_group)
+  #   emp_trans.emp_sec_profiles.build(security_profile_id: default_sec_group)
 
-    emp_trans.save!
+  #   emp_trans.save!
 
-    if emp_trans.emp_sec_profiles.count > 0
-      sas = SecAccessService.new(emp_trans)
-      sas.apply_ad_permissions
-    end
-  end
+  #   if emp_trans.emp_sec_profiles.count > 0
+  #     sas = SecAccessService.new(emp_trans)
+  #     sas.apply_ad_permissions
+  #   end
+  # end
 
   def self.search(term)
     where("lower(last_name) LIKE ? OR lower(first_name) LIKE ? ", "%#{term.downcase}%", "%#{term.downcase}%").reorder("last_name ASC")
@@ -316,16 +317,15 @@ class Employee < ActiveRecord::Base
     where('employees.termination_date BETWEEN ? AND ?', Date.today - 2.weeks, Date.today)
   end
 
-
   def self.onboarding_reminder_group
     missing_onboards = Employee.where(status: "pending", request_status: "waiting")
     missing_onboards.select { |e| e if (e.onboarding_due_date.to_date - 1.day).between?(Date.yesterday, Date.tomorrow) }
   end
 
-  def self.managers
-    joins(:emp_sec_profiles)
-    .where('emp_sec_profiles.security_profile_id = ?', SecurityProfile.find_by(name: 'Basic Manager').id)
-  end
+  # def self.managers
+  #   joins(:emp_sec_profiles)
+  #   .where('emp_sec_profiles.security_profile_id = ?', SecurityProfile.find_by(name: 'Basic Manager').id)
+  # end
 
   def current_profile
     # if employee data is not persisted, like when previewing employee data from an event
@@ -383,9 +383,9 @@ class Employee < ActiveRecord::Base
     service.offboard([self])
   end
 
-  def send_manager_onboarding_form
-    EmployeeWorker.perform_async("Onboarding", employee_id: self.id)
-  end
+  # def send_manager_onboarding_form
+  #   EmployeeWorker.perform_async("Onboarding", employee_id: self.id)
+  # end
 
   def send_offboarding_forms
     TechTableMailer.offboard_notice(self).deliver_now

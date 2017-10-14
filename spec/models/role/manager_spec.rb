@@ -2,15 +2,10 @@ require 'rails_helper'
 require 'cancan/matchers'
 
 describe Role::Manager, :type => :model do
-  let(:user) { FactoryGirl.create(:user, :manager) }
-  let(:direct_report) { FactoryGirl.create(:employee) }
-  let!(:dr_profile) { FactoryGirl.create(:profile,
-    employee: direct_report,
-    manager_id: user.employee_id)}
-  let(:employee) { FactoryGirl.create(:employee) }
-  let!(:emp_profile) { FactoryGirl.create(:profile,
-    employee: employee,
-    manager_id: "nonsense")}
+  let(:manager)       { FactoryGirl.create(:employee) }
+  let(:user)          { FactoryGirl.create(:user, :manager, employee: manager) }
+  let(:direct_report) { FactoryGirl.create(:employee, manager: manager) }
+  let(:employee)      { FactoryGirl.create(:employee) }
   let(:ability) { Ability.new(user) }
 
   describe 'abilities' do

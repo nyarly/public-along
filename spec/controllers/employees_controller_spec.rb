@@ -2,22 +2,20 @@ require 'rails_helper'
 
 RSpec.describe EmployeesController, type: :controller do
 
-  let!(:manager) { FactoryGirl.create(:regular_employee,
+  let(:manager) { FactoryGirl.create(:active_employee,
     first_name: "Pat",
     last_name: "Sajak") }
-  let!(:employee) { FactoryGirl.create(:employee,
+  let(:employee) { FactoryGirl.create(:active_employee,
     first_name: "Alex",
     last_name: "Trebek",
     manager: manager) }
-  let!(:profile) { FactoryGirl.create(:profile,
+  let(:user) { FactoryGirl.create(:user,
     employee: employee,
-    manager_id: manager.employee_id) }
-  let!(:user) { FactoryGirl.create(:user,
-    :role_names => ["Admin"],
+    role_names: ["Admin"],
     adp_employee_id: employee.employee_id) }
-  let!(:mgr_user) { FactoryGirl.create(:user,
+  let(:mgr_user) { FactoryGirl.create(:user,
     employee: manager,
-    :role_names => ["Manager"],
+    role_names: ["Manager"],
     adp_employee_id: manager.employee_id) }
 
   before :each do

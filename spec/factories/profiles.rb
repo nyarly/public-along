@@ -10,6 +10,7 @@ FactoryGirl.define do
     company         { "OpenTable, Inc." }
     adp_assoc_oid   { Faker::Number.number(10) }
     adp_employee_id { Faker::Number.number(6) }
+    management_position nil
 
     factory :active_profile do
       profile_status { "active" }

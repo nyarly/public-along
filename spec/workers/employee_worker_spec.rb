@@ -1,19 +1,16 @@
 require 'rails_helper'
 
 RSpec.describe EmployeeWorker, type: :worker do
-  let!(:manager) { FactoryGirl.create(:employee,
+  let(:manager) { FactoryGirl.create(:employee,
     email: "manager@opentable.com") }
   let!(:man_profile) { FactoryGirl.create(:active_profile,
     employee: manager,
     adp_employee_id: "654321")}
-  let!(:employee) { FactoryGirl.create(:employee) }
-  let!(:profile) { FactoryGirl.create(:profile,
-    employee: employee,
-    manager_id: manager.employee_id)}
+  let!(:employee) { FactoryGirl.create(:employee, manager: manager) }
   let(:worker) { EmployeeWorker.new }
   let(:mailer) { double(ManagerMailer) }
-  let!(:rehire_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_rehire_event.json") }
-  let!(:event) { FactoryGirl.create(:adp_event, status: "New", json: rehire_json) }
+  let(:rehire_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_rehire_event.json") }
+  let(:event) { FactoryGirl.create(:adp_event, status: "New", json: rehire_json) }
   let!(:worker_type) { FactoryGirl.create(:worker_type, code: "FTR") }
   let(:profiler) { EmployeeProfile.new }
   let(:potential_employee) { profiler.build_employee(event) }

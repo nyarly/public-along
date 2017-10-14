@@ -6,6 +6,8 @@ FactoryGirl.define do
     personal_mobile_phone { Faker::PhoneNumber.phone_number }
     office_phone          { Faker::PhoneNumber.phone_number }
     image_code            { IMAGE }
+    sam_account_name      { Faker::Name.first_name.downcase! }
+    email                 { Faker::Internet.email }
 
     trait :existing do
       created_at    { 2.months.ago }
@@ -15,14 +17,38 @@ FactoryGirl.define do
 
     factory :pending_employee do
       status { "pending" }
+      association :manager, factory: :employee
+      transient do
+        profiles_count 1
+      end
+
+      after(:create) do |employee, evaluator|
+        create_list(:profile, evaluator.profiles_count, employee: employee)
+      end
     end
 
     factory :active_employee do
       status { "active" }
+      association :manager, factory: :employee
+      transient do
+        profiles_count 1
+      end
+
+      after(:create) do |employee, evaluator|
+        create_list(:active_profile, evaluator.profiles_count, employee: employee)
+      end
     end
 
     factory :terminated_employee do
       status { "terminated" }
+      association :manager, factory: :employee
+      transient do
+        profiles_count 1
+      end
+
+      after(:create) do |employee, evaluator|
+        create_list(:terminated_profile, evaluator.profiles_count, employee: employee)
+      end
     end
 
     factory :leave_employee do

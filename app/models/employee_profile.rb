@@ -20,6 +20,7 @@ class EmployeeProfile
   attribute :home_state, String
   attribute :home_zip, String
   attribute :business_card_title, String
+  attribute :manager_id, Integer
 
   # attributes for profile model
   attribute :adp_assoc_oid, String
@@ -28,13 +29,13 @@ class EmployeeProfile
   attribute :department_id, Integer
   attribute :job_title_id, Integer
   attribute :location_id, Integer
-  attribute :manager_id, String
   attribute :profile_status, String
   attribute :worker_type_id, Integer
   attribute :profile_status, String
   attribute :start_date, DateTime
   attribute :end_date, DateTime
   attribute :management_position, Boolean
+  attribute :manager_adp_employee_id, String
 
   # link accounts takes an employee pk and event pk
   def link_accounts(employee_id, event_id)

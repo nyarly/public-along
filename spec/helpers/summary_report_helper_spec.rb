@@ -1,35 +1,26 @@
 require 'rails_helper'
 
 describe SummaryReportHelper, type: :helper do
-  let!(:manager) { FactoryGirl.create(:regular_employee,
-    first_name: 'Bob',
-    last_name: 'Barker') }
-  let!(:employee) { FactoryGirl.create(:employee,
-    hire_date: Date.today,
-    termination_date: Date.today + 1.week) }
-  let!(:profile) { FactoryGirl.create(:profile,
-    employee: employee,
-    manager_id: manager.employee_id) }
-  let!(:rehire) { FactoryGirl.create(:pending_employee,
-    last_name: "Cork",
-    hire_date: 3.years.ago,
-    request_status: "waiting") }
-  let!(:re_new_p) { FactoryGirl.create(:profile,
-    employee: rehire,
-    start_date: 1.week.from_now) }
-  let!(:re_old_p) { FactoryGirl.create(:terminated_profile,
-    employee: rehire,
-    start_date: 3.years.ago)}
-  let(:emp_delta_group) { FactoryGirl.create_list(:emp_delta, 5,
-    employee_id: manager.id,
-    before: { some: "stuff"},
-    after: { some: "new stuff"}) }
-  let(:sec_prof) { FactoryGirl.create(:security_profile) }
-  let(:helper) { SummaryReportHelper::Csv.new }
+  let!(:employee) { FactoryGirl.create(:active_employee,
+                    hire_date: Date.today,
+                    termination_date: Date.today + 1.week) }
+  let(:sec_prof)  { FactoryGirl.create(:security_profile) }
+  let(:helper)    { SummaryReportHelper::Csv.new }
 
   context "onboarding" do
+    let!(:rehire) { FactoryGirl.create(:pending_employee,
+      last_name: "Cork",
+      hire_date: 3.years.ago,
+      request_status: "waiting") }
+    let!(:re_new_p) { FactoryGirl.create(:profile,
+      employee: rehire,
+      start_date: 1.week.from_now) }
+    let!(:re_old_p) { FactoryGirl.create(:terminated_profile,
+      employee: rehire,
+      start_date: 3.years.ago)}
+
     it "should call the correct Employee scope" do
-      expect(Profile).to receive(:onboarding_report_group).and_return([profile, re_new_p])
+      expect(Profile).to receive(:onboarding_report_group).and_return([employee.current_profile, re_new_p])
       helper.onboarding_data
     end
 
@@ -114,6 +105,11 @@ describe SummaryReportHelper, type: :helper do
   end
 
   context "job change" do
+    let(:emp_delta_group) { FactoryGirl.create_list(:emp_delta, 5,
+      employee_id: employee.id,
+      before: { some: "stuff"},
+      after: { some: "new stuff"}) }
+
     it "should have the correct content and queue to send" do
       expect(EmpDelta).to receive(:report_group).and_return(emp_delta_group)
 
