@@ -82,13 +82,13 @@ class EmpDelta < ActiveRecord::Base
       elsif k.include? "manager"
         value = Employee.find_by_employee_id(v).try(:cn)
       elsif k.include? "location"
-        value = Location.find(v).try(:name)
+        value = Location.find_by(id: v).try(:name)
       elsif k.include? "department"
-        value = Department.find(v).try(:name)
+        value = Department.find_by(id: v).try(:name)
       elsif k.include? "worker_type"
-        value = WorkerType.find(v).try(:name)
+        value = WorkerType.find_by(id: v).try(:name)
       elsif k.include? "job_title"
-        value = JobTitle.find(v).try(:name)
+        value = JobTitle.find_by(id: v).try(:name)
       else
         value = v
       end
