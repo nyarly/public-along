@@ -135,6 +135,16 @@ RSpec.describe EmpDelta, type: :model do
     end
 
     it "should format dates" do
+      new_term_date = Date.new(2017, 12, 12)
+      delta = FactoryGirl.create(:emp_delta,
+        before: {
+          "hire_date" => nil},
+        after: {
+          "hire_date" => new_term_date}
+      )
+
+      expect(delta.format(delta.before)).to include("hire date: nil")
+      expect(delta.format(delta.after)).to include("hire date: Dec 12, 2017")
     end
 
     it "should sub nil if it can't find the activerecord object" do
