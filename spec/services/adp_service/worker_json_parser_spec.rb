@@ -23,17 +23,18 @@ describe AdpService::WorkerJsonParser, type: :service do
   end
 
   describe "gen_worker_hash" do
-    let(:json) { JSON.parse(File.read(Rails.root.to_s+"/spec/fixtures/adp_workers.json")) }
-    let!(:worker_type) { FactoryGirl.create(:worker_type, name: "Regular Full-Time", code: "FTR") }
+    let(:json)           { JSON.parse(File.read(Rails.root.to_s+"/spec/fixtures/adp_workers.json")) }
+    let!(:manager)       { FactoryGirl.create(:active_profile, adp_employee_id: "101734") }
+    let!(:worker_type)   { FactoryGirl.create(:worker_type, name: "Regular Full-Time", code: "FTR") }
     let!(:worker_type_2) { FactoryGirl.create(:worker_type, name: "Voluntary", code: "TVOL") }
-    let!(:department) { FactoryGirl.create(:department, name: "People & Culture-HR & Total Rewards", code: "111000") }
-    let!(:department_2) { FactoryGirl.create(:department, name: "Sales - General - Germany", code: "120710") }
-    let!(:department_3) { FactoryGirl.create(:department, name: "Inside Sales", code: "125000") }
-    let!(:location) { FactoryGirl.create(:location, name: "Las Vegas", code: "LAS") }
-    let!(:location_2) { FactoryGirl.create(:location, name: "Germany", code: "GERMA", kind: "Remote Location") }
-    let!(:job_title) { FactoryGirl.create(:job_title, name: "Sr. People Business Partner", code: "SRBP") }
-    let!(:job_title_2) { FactoryGirl.create(:job_title, name: "Sales Representative, OTC", code: "SROTC") }
-    let!(:job_title_3) { FactoryGirl.create(:job_title, name: "Sales Associate", code: "SADEN") }
+    let!(:department)    { FactoryGirl.create(:department, name: "People & Culture-HR & Total Rewards", code: "111000") }
+    let!(:department_2)  { FactoryGirl.create(:department, name: "Sales - General - Germany", code: "120710") }
+    let!(:department_3)  { FactoryGirl.create(:department, name: "Inside Sales", code: "125000") }
+    let!(:location)      { FactoryGirl.create(:location, name: "Las Vegas", code: "LAS") }
+    let!(:location_2)    { FactoryGirl.create(:location, name: "Germany", code: "GERMA", kind: "Remote Location") }
+    let!(:job_title)     { FactoryGirl.create(:job_title, name: "Sr. People Business Partner", code: "SRBP") }
+    let!(:job_title_2)   { FactoryGirl.create(:job_title, name: "Sales Representative, OTC", code: "SROTC") }
+    let!(:job_title_3)   { FactoryGirl.create(:job_title, name: "Sales Associate", code: "SADEN") }
 
     it "should create the hash from json" do
       w_json = json["workers"][2]
@@ -55,12 +56,13 @@ describe AdpService::WorkerJsonParser, type: :service do
         company: "OpenTable Inc.",
         job_title_id: job_title.id,
         worker_type_id: worker_type.id,
-        manager_id: "101734",
+        manager_adp_employee_id: "101734",
         location_id: location.id,
         department_id: department.id,
         profile_status: "active",
         business_card_title: "Senior Backend Engineer, Restaurant Products",
-        management_position: true
+        management_position: true,
+        manager_id: manager.employee.id
       })
     end
 

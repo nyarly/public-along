@@ -214,7 +214,9 @@ module AdpService
 
     def find_manager(manager_adp_employee_id)
       return nil if manager_adp_employee_id.blank?
-      Employee.find_by_employee_id(manager_adp_employee_id).id
+      manager = Employee.find_by_employee_id(manager_adp_employee_id)
+      return nil if manager.blank?
+      manager.id
     end
   end
 end

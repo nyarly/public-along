@@ -16,7 +16,7 @@ class BasicSecurityProfileService
   private
 
   def security_group_for_worker_type
-    case @employee.worker_type.name
+    case @employee.worker_type.kind
     when "Regular"
       SecurityProfile.find_by(name: "Basic Regular Worker Profile")
     when "Temporary"

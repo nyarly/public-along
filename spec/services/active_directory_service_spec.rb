@@ -9,9 +9,7 @@ describe ActiveDirectoryService, type: :service do
   let!(:job_title) { FactoryGirl.create(:job_title) }
   let!(:new_job_title) { FactoryGirl.create(:job_title) }
   let(:manager) { FactoryGirl.create(:employee) }
-  let!(:manager_profile) { FactoryGirl.create(:profile,
-    :with_valid_ou,
-    employee: manager)}
+  let!(:manager_profile) { FactoryGirl.create(:profile, :with_valid_ou, employee: manager) }
 
   before :each do
     allow(Net::LDAP).to receive(:new).and_return(ldap)
@@ -29,13 +27,11 @@ describe ActiveDirectoryService, type: :service do
   end
 
   context "create disabled employees" do
-    let!(:employee) { FactoryGirl.create(:employee,
-      first_name: "Donny",
-      last_name: "Kerabatsos") }
-    let!(:profile) { FactoryGirl.create(:profile,
-      :with_valid_ou,
-      employee: employee,
-      manager_id: manager.employee_id)}
+    let(:employee) { FactoryGirl.create(:employee,
+                     first_name: "Donny",
+                     last_name: "Kerabatsos",
+                     manager: manager) }
+    let!(:profile) { FactoryGirl.create(:profile, :with_valid_ou, employee: employee) }
 
     it "should call ldap.add with correct info for regular employee" do
       allow(ldap).to receive(:search).and_return([]) # Mock search not finding conflicting existing sAMAccountName
@@ -182,14 +178,14 @@ describe ActiveDirectoryService, type: :service do
 
   context "update attributes" do
     let!(:worker_type) { FactoryGirl.create(:worker_type) }
-    let!(:employee) { FactoryGirl.create(:active_employee,
-      :first_name => "Jeffrey",
-      :last_name => "Lebowski",
-      :office_phone => "123-456-7890",
-      :sam_account_name => "jlebowski")}
+    let(:employee) { FactoryGirl.create(:active_employee,
+      first_name: "Jeffrey",
+      last_name: "Lebowski",
+      office_phone: "123-456-7890",
+      sam_account_name: "jlebowski",
+      manager: manager) }
     let!(:profile) { FactoryGirl.create(:active_profile,
       employee: employee,
-      manager_id: manager.employee_id,
       department: department,
       location: location,
       job_title: job_title,
@@ -222,13 +218,13 @@ describe ActiveDirectoryService, type: :service do
 
     it "should update changed attributes" do
       employee = FactoryGirl.create(:active_employee,
-        :first_name => "The Dude",
-        :last_name => "Lebowski",
-        :office_phone => "555-555-5555",
-        :sam_account_name => "jlebowski")
+        first_name: "The Dude",
+        last_name: "Lebowski",
+        office_phone: "555-555-5555",
+        sam_account_name: "jlebowski",
+        manager: manager)
       profile = FactoryGirl.create(:active_profile,
         employee: employee,
-        manager_id: manager.employee_id,
         department: department,
         location: location,
         job_title: new_job_title,
@@ -275,13 +271,13 @@ describe ActiveDirectoryService, type: :service do
         name: location.name,
         country: "GB")
       employee = FactoryGirl.create(:active_employee,
-        :first_name => "Jeffrey",
-        :last_name => "Lebowski",
-        :office_phone => "123-456-7890",
-        :sam_account_name => "jlebowski")
+        first_name: "Jeffrey",
+        last_name: "Lebowski",
+        office_phone: "123-456-7890",
+        sam_account_name: "jlebowski",
+        manager: manager)
       profile = FactoryGirl.create(:active_profile,
         employee: employee,
-        manager_id: manager.employee_id,
         department: department,
         location: new_location,
         job_title: job_title,
@@ -303,13 +299,13 @@ describe ActiveDirectoryService, type: :service do
     it "should update dn if department changes" do
       new_department = Department.find_by(:name => "Customer Support")
       employee = FactoryGirl.create(:active_employee,
-        :first_name => "Jeffrey",
-        :last_name => "Lebowski",
-        :office_phone => "123-456-7890",
-        :sam_account_name => "jlebowski")
+        first_name: "Jeffrey",
+        last_name: "Lebowski",
+        office_phone: "123-456-7890",
+        sam_account_name: "jlebowski",
+        manager: manager)
       profile = FactoryGirl.create(:active_profile,
         employee: employee,
-        manager_id: manager.employee_id,
         department: new_department,
         job_title: job_title,
         adp_employee_id: "12345678",
@@ -402,8 +398,7 @@ describe ActiveDirectoryService, type: :service do
   context "terminate employees" do
     let(:ldap_entry) { Net::LDAP::Entry.new(employee.dn) }
     let(:employee) { FactoryGirl.create(:regular_employee,
-      termination_date: Date.today - 30.days
-    )}
+      termination_date: Date.today - 30.days) }
     let!(:emp_transaction) { FactoryGirl.create(:onboarding_emp_transaction,
       employee_id: employee.id) }
     let!(:security_profile) { FactoryGirl.create(:security_profile)}
