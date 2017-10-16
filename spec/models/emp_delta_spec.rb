@@ -136,6 +136,30 @@ RSpec.describe EmpDelta, type: :model do
 
     it "should format dates" do
     end
+
+    it "should sub nil if it can't find the activerecord object" do
+      new_mgr = FactoryGirl.create(:active_employee)
+      mgr_prof = FactoryGirl.create(:active_profile, employee: new_mgr, adp_employee_id: "111111")
+      new_loc = FactoryGirl.create(:location)
+      new_term_date = Date.new(2017, 12, 12)
+      delta = FactoryGirl.create(:emp_delta,
+        before: {
+          "manager_id" => nil,
+          "location_id" => nil,
+          "hire_date" => nil},
+        after: {
+          "manager_id" => new_mgr.employee_id,
+          "location_id" => new_loc.id,
+          "hire_date" => new_term_date}
+      )
+
+      expect(delta.format(delta.before)).to include("location: nil")
+      expect(delta.format(delta.before)).to include("manager: nil")
+      expect(delta.format(delta.before)).to include("hire date: nil")
+      expect(delta.format(delta.after)).to include("manager: #{new_mgr.cn}")
+      expect(delta.format(delta.after)).to include("location: #{new_loc.name}")
+      expect(delta.format(delta.after)).to include("hire date: Dec 12, 2017")
+    end
   end
 
   context "format by value" do
