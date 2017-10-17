@@ -11,9 +11,13 @@ class BetterworksService
     # beginning from launch of service
     launch_date = Date.new(2017, 7, 24)
 
-    user_group = Employee.where("termination_date >= ? OR termination_date IS NULL", launch_date)
-    current_users = user_group.where("hire_date <= ?", Date.today)
-    current_users.joins(:profiles).merge(Profile.regular_worker_type).to_a.uniq
+    user_group = Employee.where("termination_date >= ?
+                                OR termination_date IS NULL
+                                AND hire_date <= ?",
+                                launch_date,
+                                Date.today)
+    # current_users = user_group.where("hire_date <= ?", Date.today)
+    user_group.joins(:profiles).merge(Profile.regular_worker_type).to_a.uniq
   end
 
   # betterworks recommends the following columns:
@@ -57,8 +61,8 @@ class BetterworksService
           department = terminated_profile.department.name
           location = terminated_profile.location.name
           job_title = terminated_profile.job_title.name
-          manager_email = terminated_profile.manager_id.present? ? terminated_profile.manager.email : ""
-          manager_id = terminated_profile.manager_id.present? ? terminated_profile.manager_id : ""
+          manager_email = terminated_profile.manager_adp_employee_id.present? ? Employee.find_by_employee_id(terminated_profile.manager_adp_employee_id).try(:email) : ""
+          manager_id = terminated_profile.manager_adp_employee_id.present? ? terminated_profile.manager_adp_employee_id : ""
         else
           employee_id = u.employee_id
           department = u.department.try(:name)

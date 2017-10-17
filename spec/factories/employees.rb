@@ -6,8 +6,6 @@ FactoryGirl.define do
     personal_mobile_phone { Faker::PhoneNumber.phone_number }
     office_phone          { Faker::PhoneNumber.phone_number }
     image_code            { IMAGE }
-    # sam_account_name      { Faker::Name.first_name.downcase! }
-    # email                 { Faker::Internet.email }
 
     trait :existing do
       created_at    { 2.months.ago }
@@ -15,27 +13,29 @@ FactoryGirl.define do
       ad_updated_at { 1.month.ago }
     end
 
-    factory :pending_employee do
-      status { "pending" }
-      association :manager, factory: :employee
-      transient do
-        profiles_count 1
-      end
+    # factory :pending_employee do
+    #   status { "pending" }
+    #   # association :manager, factory: :employee
+    #   transient do
+    #     profiles_count 1
+    #   end
+    #   profile { build(:profile, profile_args) }
 
-      after(:create) do |employee, evaluator|
-        create_list(:profile, evaluator.profiles_count, employee: employee)
-      end
-    end
+    #   after(:create) do |employee, evaluator|
+    #     create_list(:profile, evaluator.profiles_count, employee: employee)
+    #   end
+    # end
 
     factory :active_employee do
       status { "active" }
-      association :manager, factory: :employee
+      # association :manager, factory: :employee
       transient do
-        profiles_count 1
+        profile_args nil
       end
+      profiles { [build(:profile, profile_args)] }
 
-      after(:create) do |employee, evaluator|
-        create_list(:active_profile, evaluator.profiles_count, employee: employee)
+      after(:create) do |employee|
+        employee.profiles.last.save!
       end
     end
 

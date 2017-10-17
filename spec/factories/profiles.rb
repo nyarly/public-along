@@ -1,10 +1,10 @@
 FactoryGirl.define do
   factory :profile do
-    association :employee, factory: :employee
-    association :department, factory: :department
-    association :location, factory: :location
-    association :worker_type, factory: :worker_type
-    association :job_title, factory: :job_title
+    employee
+    location
+    department
+    worker_type
+    job_title
     start_date      { 1.year.ago }
     end_date        { nil }
     company         { "OpenTable, Inc." }
@@ -42,3 +42,4 @@ FactoryGirl.define do
     end
   end
 end
+
