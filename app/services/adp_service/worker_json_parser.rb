@@ -104,9 +104,9 @@ module AdpService
         pref_name = pref_blob.try(:dig, "stringValue")
       end
       if pref_name.present?
-        pref_name
+        pref_name.strip
       else
-        json.dig("person","legalName","familyName1")
+        json.dig("person","legalName","familyName1").strip
       end
     end
 
