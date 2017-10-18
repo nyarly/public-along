@@ -1,6 +1,9 @@
 FactoryGirl.define do
   factory :profile do
-    employee
+    transient do
+      employee_args nil
+    end
+    employee { create(:employee, employee_args) }
     location
     department
     worker_type

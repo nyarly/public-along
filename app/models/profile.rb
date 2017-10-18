@@ -56,4 +56,8 @@ class Profile < ActiveRecord::Base
   def self.onboarding_report_group
     where('start_date >= ?', Date.today)
   end
+
+  def manager
+    self.employee.manager
+  end
 end

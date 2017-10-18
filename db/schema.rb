@@ -222,8 +222,8 @@ ActiveRecord::Schema.define(version: 20171013235241) do
   end
 
   create_table "sec_prof_access_levels", force: :cascade do |t|
-    t.integer  "security_profile_id", null: false
     t.integer  "access_level_id",     null: false
+    t.integer  "security_profile_id", null: false
     t.datetime "created_at",          null: false
     t.datetime "updated_at",          null: false
   end
@@ -305,5 +305,6 @@ ActiveRecord::Schema.define(version: 20171013235241) do
   add_foreign_key "profiles", "job_titles", on_delete: :restrict
   add_foreign_key "profiles", "locations", on_delete: :restrict
   add_foreign_key "profiles", "worker_types", on_delete: :restrict
+  add_foreign_key "sec_prof_access_levels", "access_levels", on_delete: :cascade
   add_foreign_key "sec_prof_access_levels", "security_profiles", on_delete: :cascade
 end
