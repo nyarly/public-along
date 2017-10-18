@@ -8,78 +8,9 @@
     </div>
   <% end %>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Status</th>
-        <th>Manager Action Status</th>
-        <th>Business Title</th>
-        <th>Department</th>
-        <th>Location</th>
-        <th>Worker Type</th>
-        <th>Manager</th>
-        <th>Original Hire Date</th>
-        <th>Contract End Date</th>
-        <th>Termination Date</th>
-        <th>Leave Start Date</th>
-        <th>Leave Return Date</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      <% @employees.each do |e| %>
-        <tr>
-          <td><%= link_to e.cn, employee_path(e) %></td>
-          <td><%= e.status.titleize %></td>
-          <td>
-            <% if can? :create, EmpTransaction %>
-              <% if e.request_status == "waiting" && e.manager.present? %>
-                <%= link_to "#{manager_form_type(e)} Form Due #{manager_form_due(e)}", new_emp_transaction_url({
-                  :user_emp_id => e.manager.employee_id,
-                  :employee_id => e.id,
-                  :kind => manager_form_type(e)}), class: "needs-manager-action" %>
-              <% elsif e.request_status == "completed" %>
-                <%= "#{manager_form_type(e)}" + " " + e.request_status.titleize %>
-              <% elsif needs_security_profile_update?(e) && e.status == "active" && e.manager.present? %>
-                <%= link_to "Update Security Access", new_emp_transaction_url({
-                  :user_emp_id => e.manager.employee_id,
-                  :employee_id => e.id,
-                  :kind => "Security Access"}), class: "needs-manager-action" %>
-              <% else %>
-                <%= e.request_status.titleize %>
-              <% end %>
-            <% else %>
-              <% if e.request_status == "waiting" && e.manager.present? %>
-                <%= "#{manager_form_type(e)} Form Due #{manager_form_due(e)}" %>
-              <% elsif e.request_status == "completed" %>
-                <%= "#{manager_form_type(e)}" + " " + e.request_status.titleize %>
-              <% elsif needs_security_profile_update?(e) && e.status == "active" && e.manager.present? %>
-                <%= "Update Security Access" %>
-              <% else %>
-                <%= e.request_status.titleize %>
-              <% end %>
-            <% end %>
-          </td>
-          <td><%= e.job_title.try(:name) %></td>
-          <td><%= e.department.try(:name) %></td>
-          <td><%= e.location.try(:name) %></td>
-          <td><%= e.worker_type.try(:name) %></td>
-          <td><%= e.manager.try(:cn) %></td>
-          <td><%= e.hire_date.strftime("%m/%d/%Y") if e.hire_date.present? %></td>
-          <td><%= e.contract_end_date.strftime("%m/%d/%Y") if e.contract_end_date.present? %></td>
-          <td><%= e.termination_date.strftime("%m/%d/%Y") if e.termination_date.present? %></td>
-          <td><%= e.leave_start_date.strftime("%m/%d/%Y") if e.leave_start_date.present? %></td>
-          <td><%= e.leave_return_date.strftime("%m/%d/%Y") if e.leave_return_date.present? %></td>
-        </tr>
-      <% end %>
-    </tbody>
-    <% if @employees.blank? %>
-      <tbody>
-        <tr>
-          <td colspan="14">No results found.</td>
-        </tr>
-      </tbody>
-    <% end %>
-  </table>
+  <% if can? :create, ManagerEntry %>
+    <%= render partial: "manager_employees_table", locals: {employees: @employees} %>
+  <% else %>
+    <%= render partial: "employees_table", locals: { employees: @employees } %>
+  <% end %>
 </div>
