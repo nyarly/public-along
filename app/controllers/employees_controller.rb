@@ -1,5 +1,6 @@
 class EmployeesController < ApplicationController
   load_and_authorize_resource
+  helper EmployeeHelper
 
   before_action :set_employee, only: :show
 
@@ -7,8 +8,9 @@ class EmployeesController < ApplicationController
     if current_user.role_names.count == 1 && current_user.role_names.include?("Manager")
       @employees = current_user.employee.direct_reports
     else
-      @employees = Employee.all.includes(:profiles => [:job_title, :department, :location, :worker_type])
+      @employees = Employee.all.includes([:emp_transactions, :profiles => [:job_title, :department, :location, :worker_type]])
     end
+    @employees = @employees.page(params[:page])
 
     if search_params[:search]
       @employees = @employees.search(search_params[:search]).order("last_name ASC")
@@ -17,6 +19,10 @@ class EmployeesController < ApplicationController
 
   def show
     @email = Email.new
+    activity = []
+    @employee.emp_transactions.map { |e| activity << e }
+    @employee.emp_deltas.map { |e| activity << e }
+    @activities = activity.sort_by!(&:created_at).reverse!
   end
 
   def autocomplete_name

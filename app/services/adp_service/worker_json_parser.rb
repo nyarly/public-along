@@ -24,6 +24,7 @@ module AdpService
       office_phone = find_office_phone(w["businessCommunication"])
 
       hire_date = w["workerDates"]["originalHireDate"]
+      rehire_date = w["workerDates"]["rehireDate"].present? ? w["workerDates"]["rehireDate"] : nil
       worker_end_date = find_worker_end_date(w)
 
       work_assignment = find_work_assignment(w)
@@ -58,6 +59,7 @@ module AdpService
         first_name: first_name,
         last_name: last_name,
         hire_date: hire_date,
+        rehire_date: rehire_date,
         contract_end_date: worker_end_date,
         office_phone: office_phone,
         personal_mobile_phone: personal_mobile_phone,
@@ -107,9 +109,9 @@ module AdpService
         pref_name = pref_blob.try(:dig, "stringValue")
       end
       if pref_name.present?
-        pref_name
+        pref_name.strip
       else
-        json.dig("person","legalName","familyName1")
+        json.dig("person","legalName","familyName1").strip
       end
     end
 

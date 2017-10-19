@@ -1,195 +1,299 @@
+<!-- Employee Header -->
 <div class="row">
-  <div class="row">
-    <ul class="tabs" role="tablist" data-active-collapse="true" data-tabs id="employee-info">
-      <li class="tabs-title is-active" role="presentation">
-        <a href="#basic-info" role="tab" aria-controls="basic-info" id="basic-info-label">Basic Info</a>
-      </li>
-      <li class="tabs-title" role="presentation">
-        <a href="#contact-info" role="tab" aria-controls="contact-info" id="contact-info-label">Contact and Username Info</a>
-      </li>
-      <li class="tabs-title" role="presentation">
-        <a href="#important-dates" role="tab" aria-controls="important-dates" id="important-dates-label">Important Dates</a>
-      </li>
-      <li class="tabs-title" role="presentation">
-        <a href="#security-profiles" role="tab" aria-controls="security-profiles" id="security-profiles-label">Security Profiles</a>
-      </li>
-    </ul>
-  </div>
-  <div class="tabs-content row" data-tabs-content="employee-info">
-    <div class="tabs-panel is-active" id="basic-info">
-
-      <!-- Begin trigger email section -->
-      <% if (can? :create, Email) && (@employee.status != "Terminated") %>
-        <div class="callout secondary large-4 medium-6 small-10 columns float-right">
-          <div id="email-info"><p>Send Manager Email<span data-tooltip aria-haspopup="true" class="has-tip float-right" data-disable-hover="false" tabindex="1" title="Use this form to immediately resend a form prompt for this employee to their manager.">?</span></p>
-          </div>
-          <%= render'emails/form', employee: @employee %>
-        </div>
-      <% end %>
-      <!-- End trigger email section -->
-
-      <div class="large-8 medium-6 small-2 columns float-left">
+  <div class="columns callout primary">
+    <div class="row">
+      <div class="columns large-8">
         <h3><%= @employee.first_name %> <%= @employee.last_name %></h3>
-        <h5>Status: <%= @employee.status.titleize %></h5>
-        <h5>Manager Action Needed: <%= @employee.request_status.titleize %></h5>
-
-        <% @employee.profiles.order(created_at: :desc).each do |p| %>
-          <div class="callout">
-            <p>
-              <strong>Profile Status:</strong>
-              <%= p.profile_status.titleize %>
-            </p>
-            <p>
-              <strong>Position Start Date:</strong>
-              <%= p.start_date.try(:strftime, "%B %e, %Y") %>
-            </p>
-           <p>
-              <strong>Position End Date:</strong>
-              <%= p.end_date.try(:strftime, "%B %e, %Y") %>
-            </p>
-            <p>
-              <strong>Business Title:</strong>
-              <%= p.job_title.try(:name) %>
-            </p>
-
-            <p>
-              <strong>Department:</strong>
-              <%= p.department.try(:name) %>
-            </p>
-
-            <p>
-              <strong>Location:</strong>
-              <%= p.location.try(:name) %>
-            </p>
-
-            <p>
-              <strong>Manager:</strong>
-              <%= @employee.manager.try(:cn) %>
-            </p>
-
-            <p>
-              <strong>Worker Type:</strong>
-              <%= p.worker_type.try(:name) %>
-            </p>
-            <p>
-              <strong>Employee ID:</strong>
-              <%= p.try(:employee_id) %>
-            </p>
-            <% if can? :manage, Employee %>
-              <div class="callout secondary">
-                <p><strong>Admin Only</strong></p>
-                <p>ADP Assoc. OID: <%= p.try(:adp_assoc_oid) %></p>
-              </div>
-            <% end %>
-          </div>
+        <h4>Employee Status: <%= @employee.status.titleize %></h4>
+      </div>
+      <div class="columns large-4 float-right">
+        <!-- Status with links to forms -->
+        <% if can? :create, EmpTransaction %>
+          <% if @employee.request_status == "waiting" && @employee.manager.present? %>
+            <h5><%= "#{manager_form_type(@employee)} Form Due #{manager_form_due(@employee)}" %></h5>
+            <%= link_to "Complete #{manager_form_type(@employee)} Form Now", new_emp_transaction_url({
+              :user_emp_id => @employee.manager.employee_id,
+              :employee_id => @employee.id,
+              :kind => manager_form_type(@employee)}), class: "button" %>
+          <% elsif @employee.request_status == "completed" %>
+            <h4 class="text-center"><%= "#{manager_form_type(@employee)}" + " " + @employee.request_status.titleize %></h4>
+          <% elsif needs_security_profile_update?(@employee) && @employee.status == "active" && @employee.manager.present? %>
+            <h4>Security Access Update Needed</h4>
+            <%= link_to "Update Security Access", new_emp_transaction_url({
+              :user_emp_id => @employee.manager.employee_id,
+              :employee_id => @employee.id,
+              :kind => "Security Access"}), class: "button" %>
+          <% end %>
+        <!-- View status only -->
+        <% else %>
+          <% if @employee.request_status == "waiting" && @employee.manager.present? %>
+            <h5><%= "#{manager_form_type(@employee)} Form Due #{manager_form_due(@employee)}" %></h5>
+          <% elsif @employee.request_status == "completed" %>
+            <h4 class="text-center"><%= "#{manager_form_type(@employee)}" + " " + @employee.request_status.titleize %></h4>
+          <% elsif needs_security_profile_update?(@employee) && @employee.status == "active" && @employee.manager.present? %>
+            <h4>Security Access Update Needed</h4>
+          <% else %>
+            <%= @employee.request_status.titleize %>
+          <% end %>
         <% end %>
+      </div>
+    </div>
+  </div>
+</div>
 
-        <!-- Start admin info section -->
+<!-- Main Section -->
+<div class="row">
+  <!-- Employee Info Section -->
+  <div class="columns large-8">
+    <!-- Employee Tabs -->
+    <div class="row">
+      <ul class="tabs" role="tablist" data-active-collapse="true" data-tabs id="employee-info">
+        <li class="tabs-title is-active" role="presentation">
+          <a href="#basic-info" role="tab" aria-controls="basic-info" id="basic-info-label">Basic Info</a>
+        </li>
+        <li class="tabs-title" role="presentation">
+          <a href="#contact-info" role="tab" aria-controls="contact-info" id="contact-info-label">Contact and Username Info</a>
+        </li>
+        <li class="tabs-title" role="presentation">
+          <a href="#important-dates" role="tab" aria-controls="important-dates" id="important-dates-label">Important Dates</a>
+        </li>
+        <li class="tabs-title" role="presentation">
+          <a href="#security-profiles" role="tab" aria-controls="security-profiles" id="security-profiles-label">Security Profiles</a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tabs-content row" data-tabs-content="employee-info">
+      <!-- Basic Info Tab Content -->
+      <div class="tabs-panel is-active" id="basic-info">
+        <div class="large-8 medium-6 small-2 columns float-left">
+          <% @employee.profiles.order(created_at: :desc).each_with_index do |p, i| %>
+            <% if i == 0 %>
+              <h4>Current Position</h4>
+            <% else %>
+              <h4>Previous Position</h4>
+            <% end %>
+              <div class="section">
+                <p>
+                  <strong>Profile Status:</strong>
+                  <%= p.profile_status.titleize %>
+                </p>
+                <p>
+                  <strong>Position Start Date:</strong>
+                  <%= p.start_date.try(:strftime, "%B %e, %Y") %>
+                </p>
+               <p>
+                  <strong>Position End Date:</strong>
+                  <%= p.end_date.try(:strftime, "%B %e, %Y") %>
+                </p>
+                <p>
+                  <strong>Business Title:</strong>
+                  <%= p.job_title.try(:name) %>
+                </p>
+
+                <p>
+                  <strong>Department:</strong>
+                  <%= p.department.try(:name) %>
+                </p>
+
+                <p>
+                  <strong>Location:</strong>
+                  <%= p.location.try(:name) %>
+                </p>
+
+                <p>
+                  <strong>Manager:</strong>
+                  <%= @employee.manager.try(:cn) %>
+                </p>
+
+                <p>
+                  <strong>Worker Type:</strong>
+                  <%= p.worker_type.try(:name) %>
+                </p>
+                <p>
+                  <strong>Employee ID:</strong>
+                  <%= p.try(:adp_employee_id) %>
+                </p>
+                <% if can? :manage, Employee %>
+                  <div class="callout secondary">
+                    <p><strong>Admin Only</strong></p>
+                    <p>ADP Assoc. OID: <%= p.try(:adp_assoc_oid) %></p>
+                  </div>
+                <% end %>
+              </div>
+            <hr>
+          <% end %>
+
+          <!-- Start admin info section -->
+          <% if can? :manage, Employee %>
+            <div class="callout secondary float-left">
+              <p><strong>Admin Only</strong></p>
+              <p>
+                <strong>Record Created at:</strong>
+                <%= @employee.created_at %>
+              </p>
+              <p>
+                <strong>Record Updated at:</strong>
+                <%= @employee.updated_at %>
+              </p>
+              <p>
+                <strong>Active Directory Updated at:</strong>
+                <%= @employee.ad_updated_at %>
+              </p>
+            </div>
+          <% end %>
+        <!-- End admin info section -->
+        </div>
+      </div>
+
+      <!-- Contact Info Tab Content -->
+      <div class="tabs-panel" id="contact-info">
+        <p>
+          <strong>Email:</strong>
+          <%= @employee.email %>
+        </p>
+
+        <p>
+          <strong>sAMAccountName:</strong>
+          <%= @employee.sam_account_name %>
+        </p>
+
+        <p>
+          <strong>Office Phone:</strong>
+          <%= @employee.office_phone %>
+        </p>
+
         <% if can? :manage, Employee %>
-          <div class="callout secondary float-left">
+          <div class="callout secondary">
             <p><strong>Admin Only</strong></p>
             <p>
-              <strong>Record Created at:</strong>
-              <%= @employee.created_at %>
+              Home Address 1: <%= @employee.home_address_1 %>
             </p>
             <p>
-              <strong>Record Updated at:</strong>
-              <%= @employee.updated_at %>
+              Home Address 2: <%= @employee.home_address_2 %>
             </p>
             <p>
-              <strong>Active Directory Updated at:</strong>
-              <%= @employee.ad_updated_at %>
+              Home City: <%= @employee.home_city %>
+            </p>
+            <p>
+              Home State: <%= @employee.home_state %>
+            </p>
+            <p>
+              Home Zip: <%= @employee.home_zip %>
             </p>
           </div>
         <% end %>
       </div>
-      <!-- End admin info section -->
-    </div>
 
-    <div class="tabs-panel" id="contact-info">
-      <p>
-        <strong>Email:</strong>
-        <%= @employee.email %>
-      </p>
+      <!-- Important Dates Tab Content -->
+      <div class="tabs-panel" id="important-dates">
+        <p>
+          <strong>Date of Original Hire:</strong>
+          <%= @employee.hire_date.try(:strftime, "%B %e, %Y") %>
+        </p>
+        <p>
+          <strong>Termination Date:</strong>
+          <%= @employee.termination_date.try(:strftime, "%B %e, %Y") %>
+        </p>
+        <p>
+          <strong>Contract End Date:</strong>
+          <%= @employee.contract_end_date.try(:strftime, "%B %e, %Y") %>
+        </p>
+        <p>
+          <strong>Leave Start Date:</strong>
+          <%= @employee.leave_start_date.try(:strftime, "%B %e, %Y") %>
+        </p>
+        <p>
+          <strong>Leave Return Date:</strong>
+          <%= @employee.leave_return_date.try(:strftime, "%B %e, %Y") %>
+        </p>
+      </div>
 
-      <p>
-        <strong>sAMAccountName:</strong>
-        <%= @employee.sam_account_name %>
-      </p>
-
-      <p>
-        <strong>Office Phone:</strong>
-        <%= @employee.office_phone %>
-      </p>
-
-      <% if can? :manage, Employee %>
-        <div class="callout secondary">
-          <p><strong>Admin Only</strong></p>
-          <p>
-            Home Address 1: <%= @employee.home_address_1 %>
-          </p>
-          <p>
-            Home Address 2: <%= @employee.home_address_2 %>
-          </p>
-          <p>
-            Home City: <%= @employee.home_city %>
-          </p>
-          <p>
-            Home State: <%= @employee.home_state %>
-          </p>
-          <p>
-            Home Zip: <%= @employee.home_zip %>
-          </p>
+      <!-- Security Profiles Tab Content -->
+      <div class="tabs-panel" id="security-profiles">
+        <h3 class="subheader text-left">Active Security Profiles</h3>
+        <div class="indent-1">
+          <% @employee.active_security_profiles.each do |sp| %>
+            <div>
+              <%= sp.name %><br>
+              <ul>
+                <% sp.access_levels.includes(:application).find_each do |al| %>
+                  <li class="indent-1"><small><%= al.name %> <%= al.application.name %></small></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
         </div>
-      <% end %>
-    </div>
-    <div class="tabs-panel" id="important-dates">
-      <p>
-        <strong>Date of Original Hire:</strong>
-        <%= @employee.hire_date.try(:strftime, "%B %e, %Y") %>
-      </p>
-      <p>
-        <strong>Termination Date:</strong>
-        <%= @employee.termination_date.try(:strftime, "%B %e, %Y") %>
-      </p>
-      <p>
-        <strong>Contract End Date:</strong>
-        <%= @employee.contract_end_date.try(:strftime, "%B %e, %Y") %>
-      </p>
-      <p>
-        <strong>Leave Start Date:</strong>
-        <%= @employee.leave_start_date.try(:strftime, "%B %e, %Y") %>
-      </p>
-      <p>
-        <strong>Leave Return Date:</strong>
-        <%= @employee.leave_return_date.try(:strftime, "%B %e, %Y") %>
-      </p>
-    </div>
-    <div class="tabs-panel" id="security-profiles">
-      <h3 class="subheader text-left">Active Security Profiles</h3>
-      <div class="indent-1">
-        <% @employee.active_security_profiles.each do |sp| %>
-          <div>
-            <%= sp.name %><br>
-            <ul>
-              <% sp.access_levels.includes(:application).find_each do |al| %>
-                <li class="indent-1"><small><%= al.name %> <%= al.application.name %></small></li>
-              <% end %>
-            </ul>
-          </div>
+        <% if can? :create, EmpTransaction %>
+          <% if @employee.status == "active" %>
+            <%= link_to "Update Security Profile",
+                  { controller: "emp_transactions",
+                  action: "new",
+                  kind: "Security Access",
+                  employee_id: @employee.id,
+                  user_id: current_user.id,
+                  reason: "manager" },
+                  class: "button expanded" %>
+          <% end %>
         <% end %>
       </div>
-      <% if @employee.status == "active" %>
-        <%= link_to "Update Security Profile",
-              { controller: "emp_transactions",
-              action: "new",
-              kind: "Security Access",
-              employee_id: @employee.id,
-              user_id: current_user.id,
-              reason: "manager" },
-              class: "button expanded" %>
-      <% end %>
     </div>
+  </div>
+
+  <!-- Activity Feed -->
+  <div class="large-4 medium-6 small-2 columns float-right section">
+
+    <!-- Begin trigger email section -->
+    <% if (can? :create, Email) && (@employee.status != "Terminated") %>
+      <div class="callout secondary">
+        <div id="email-info"><p>Send Manager Email<span data-tooltip aria-haspopup="true" class="has-tip float-right" data-disable-hover="false" tabindex="1" title="Use this form to immediately resend a form prompt for this employee to their manager.">?</span></p>
+        </div>
+        <%= render'emails/form', employee: @employee %>
+      </div>
+    <% end %>
+
+    <h4 class="text-center">Activity Feed</h4>
+    <% @activities.each do |activity| %>
+      <div class="callout">
+        <!-- Employee Change Box -->
+        <% if activity.class == EmpDelta %>
+          <p>
+            <strong>Employee Change</strong><br>
+            <%= activity.created_at.strftime("%b %e, %Y") %>
+          </p>
+          <p>
+            <% activity.format_by_key.each do |t| %>
+              • <%= t['name'] %> changed from <%= t['before'] %> to <%= t['after'] %><br>
+            <% end %>
+          </p>
+        <!-- Employee Transaction Box -->
+        <% elsif activity.class == EmpTransaction %>
+          <p>
+            <strong><%= activity.kind %></strong><br>
+            Submitted on <%= activity.created_at.strftime("%b %e, %Y") %> by <%= activity.user.try(:full_name) %>
+          </p>
+          <% if activity.security_profiles.present? %>
+            <p>
+              <span style="color:green">Security Profiles Added</span><br>
+              <% activity.security_profiles.each do |sp| %>
+                • <%= sp.name %><br>
+              <% end %>
+            </p>
+          <% end %>
+          <% if activity.revoked_security_profiles.present? %>
+            <p>
+              <span style="color:red">Security Profiles Removed</span><br>
+              <% activity.revoked_security_profiles.each do |sp| %>
+                • <%= sp.name %><br>
+              <% end %>
+            </p>
+          <% end %>
+        <% else %>
+          <p><%= activity.class %></p>
+        <% end %>
+      </div>
+    <% end %>
   </div>
 </div>
 
