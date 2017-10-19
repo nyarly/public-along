@@ -17,54 +17,55 @@
     </tr>
   </thead>
 
-  <tbody>
-    <% @employees.each do |e| %>
-      <tr>
-        <td><%= link_to e.cn, employee_path(e) %></td>
-        <td><%= e.status.titleize %></td>
-        <td>
-          <% if can? :create, EmpTransaction %>
-            <% if e.request_status == "waiting" && e.manager.present? %>
-              <%= link_to "#{manager_form_type(e)} Form Due #{manager_form_due(e)}", new_emp_transaction_url({
-                :user_emp_id => e.manager.employee_id,
-                :employee_id => e.id,
-                :kind => manager_form_type(e)}), class: "needs-manager-action" %>
-            <% elsif e.request_status == "completed" %>
-              <%= "#{manager_form_type(e)}" + " " + e.request_status.titleize %>
-            <% elsif needs_security_profile_update?(e) && e.status == "active" && e.manager.present? %>
-              <%= link_to "Update Security Access", new_emp_transaction_url({
-                :user_emp_id => e.manager.employee_id,
-                :employee_id => e.id,
-                :kind => "Security Access"}), class: "needs-manager-action" %>
+  <% if @employees.count > 0 %>
+    <tbody>
+      <% @employees.each do |e| %>
+        <tr>
+          <td><%= link_to e.cn, employee_path(e) %></td>
+          <td><%= e.status.titleize %></td>
+          <td>
+            <% if can? :create, EmpTransaction %>
+              <% if e.request_status == "waiting" && e.manager.present? %>
+                <%= link_to "#{manager_form_type(e)} Form Due #{manager_form_due(e)}", new_emp_transaction_url({
+                  :user_emp_id => e.manager.employee_id,
+                  :employee_id => e.id,
+                  :kind => manager_form_type(e)}), class: "needs-manager-action" %>
+              <% elsif e.request_status == "completed" %>
+                <%= "#{manager_form_type(e)}" + " " + e.request_status.titleize %>
+              <% elsif needs_security_profile_update?(e) && e.status == "active" && e.manager.present? %>
+                <%= link_to "Update Security Access", new_emp_transaction_url({
+                  :user_emp_id => e.manager.employee_id,
+                  :employee_id => e.id,
+                  :kind => "Security Access"}), class: "needs-manager-action" %>
+              <% else %>
+                <%= e.request_status.titleize %>
+              <% end %>
             <% else %>
-              <%= e.request_status.titleize %>
+              <% if e.request_status == "waiting" && e.manager.present? %>
+                <%= "#{manager_form_type(e)} Form Due #{manager_form_due(e)}" %>
+              <% elsif e.request_status == "completed" %>
+                <%= "#{manager_form_type(e)}" + " " + e.request_status.titleize %>
+              <% elsif needs_security_profile_update?(e) && e.status == "active" && e.manager.present? %>
+                <%= "Update Security Access" %>
+              <% else %>
+                <%= e.request_status.titleize %>
+              <% end %>
             <% end %>
-          <% else %>
-            <% if e.request_status == "waiting" && e.manager.present? %>
-              <%= "#{manager_form_type(e)} Form Due #{manager_form_due(e)}" %>
-            <% elsif e.request_status == "completed" %>
-              <%= "#{manager_form_type(e)}" + " " + e.request_status.titleize %>
-            <% elsif needs_security_profile_update?(e) && e.status == "active" && e.manager.present? %>
-              <%= "Update Security Access" %>
-            <% else %>
-              <%= e.request_status.titleize %>
-            <% end %>
-          <% end %>
-        </td>
-        <td><%= e.job_title.try(:name) %></td>
-        <td><%= e.department.try(:name) %></td>
-        <td><%= e.location.try(:name) %></td>
-        <td><%= e.worker_type.try(:name) %></td>
-        <td><%= e.manager.try(:cn) %></td>
-        <td><%= e.hire_date.strftime("%m/%d/%Y") if e.hire_date.present? %></td>
-        <td><%= e.contract_end_date.strftime("%m/%d/%Y") if e.contract_end_date.present? %></td>
-        <td><%= e.termination_date.strftime("%m/%d/%Y") if e.termination_date.present? %></td>
-        <td><%= e.leave_start_date.strftime("%m/%d/%Y") if e.leave_start_date.present? %></td>
-        <td><%= e.leave_return_date.strftime("%m/%d/%Y") if e.leave_return_date.present? %></td>
-      </tr>
-    <% end %>
-  </tbody>
-  <% if @employees.blank? %>
+          </td>
+          <td><%= e.job_title.try(:name) %></td>
+          <td><%= e.department.try(:name) %></td>
+          <td><%= e.location.try(:name) %></td>
+          <td><%= e.worker_type.try(:name) %></td>
+          <td><%= e.manager.try(:cn) %></td>
+          <td><%= e.hire_date.strftime("%m/%d/%Y") if e.hire_date.present? %></td>
+          <td><%= e.contract_end_date.strftime("%m/%d/%Y") if e.contract_end_date.present? %></td>
+          <td><%= e.termination_date.strftime("%m/%d/%Y") if e.termination_date.present? %></td>
+          <td><%= e.leave_start_date.strftime("%m/%d/%Y") if e.leave_start_date.present? %></td>
+          <td><%= e.leave_return_date.strftime("%m/%d/%Y") if e.leave_return_date.present? %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  <% else %>
     <tbody>
       <tr>
         <td colspan="14">No results found.</td>
