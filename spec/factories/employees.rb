@@ -13,18 +13,32 @@ FactoryGirl.define do
       ad_updated_at { 1.month.ago }
     end
 
-    # factory :pending_employee do
-    #   status { "pending" }
-    #   # association :manager, factory: :employee
-    #   transient do
-    #     profiles_count 1
-    #   end
-    #   profile { build(:profile, profile_args) }
+    trait :with_profile do
+      # association :manager, factory: :employee
+      transient do
+        profiles_count 1
+      end
 
-    #   after(:create) do |employee, evaluator|
-    #     create_list(:profile, evaluator.profiles_count, employee: employee)
-    #   end
-    # end
+      after(:create) do |employee, evaluator|
+        create_list(:profile, evaluator.profiles_count, employee: employee)
+      end
+    end
+
+    trait :with_manager do
+      association :manager, factory: :employee
+    end
+
+    factory :pending_employee do
+      status { "pending" }
+      # association :manager, factory: :employee
+      transient do
+        profiles_count 1
+      end
+
+      after(:create) do |employee, evaluator|
+        create_list(:profile, evaluator.profiles_count, employee: employee)
+      end
+    end
 
     factory :active_employee do
       status { "active" }

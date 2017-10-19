@@ -145,20 +145,19 @@ describe SabaService, type: :service do
     let(:dept)             { FactoryGirl.create(:department) }
     let(:loc)              { FactoryGirl.create(:location) }
     let(:job_title)        { FactoryGirl.create(:job_title) }
-    let!(:reg_type)        { FactoryGirl.create(:worker_type, kind: "Regular") }
-    let!(:contractor_type) { FactoryGirl.create(:worker_type, kind: "Contractor") }
-    let!(:manager)         { FactoryGirl.create(:active_profile, employee_args: {} ) }
-    let!(:emp1)            { FactoryGirl.create(:active_profile,
+    let(:reg_type)        { FactoryGirl.create(:worker_type, kind: "Regular") }
+    let(:contractor_type) { FactoryGirl.create(:worker_type, kind: "Contractor") }
+    let(:emp1)            { FactoryGirl.create(:active_profile,
                              worker_type: contractor_type,
                              department: dept,
                              location: loc,
                              job_title: job_title,
                              company: "OpenTable, Inc.",
+                             adp_employee_id: "112233",
                              employee_args: {
                                last_name: "Aaa",
                                email: "test1@opentable.com",
-                               status: "active",
-                               manager: manager.employee }) }
+                               status: "active" }) }
     let!(:emp2)           { FactoryGirl.create(:leave_profile,
                             worker_type: reg_type,
                             department: dept,
@@ -169,7 +168,7 @@ describe SabaService, type: :service do
                               last_name: "Bbb",
                               email: "test2@opentable.com",
                               status: "inactive",
-                              manager: manager.employee }) }
+                              manager: emp1.employee }) }
     let!(:emp3)           { FactoryGirl.create(:terminated_profile,
                             worker_type: reg_type,
                             department: dept,
@@ -180,7 +179,7 @@ describe SabaService, type: :service do
                               last_name: "Ccc",
                               email: "test3@opentable.com",
                               status: "terminated",
-                              manager: manager.employee }) }
+                              manager: emp1.employee }) }
     let!(:emp4)           { FactoryGirl.create(:profile,
                             worker_type: reg_type,
                             department: dept,
@@ -191,24 +190,24 @@ describe SabaService, type: :service do
                               last_name: "Ddd",
                               email: "test4@opentable.com",
                               status: "pending",
-                              manager: manager.employee }) }
+                              manager: emp1.employee }) }
 
     let(:person_csv) {
       <<-EOS.strip_heredoc
       PERSON_NO|STATUS|MANAGER|PERSON_TYPE|HIRED_ON|TERMINATED_ON|JOB_TYPE|SECURITY_DOMAIN|RATE|LOCATION|GENDER|HOME_DOMAIN|LOCALE|TIMEZONE|COMPANY|FNAME|LNAME|EMAIL|USERNAME|JOB_TITLE|HOME_COMPANY|CUSTOM0
-      #{emp1.employee.employee_id}|active|#{emp1.manager.employee_id}|#{contractor_type.name}|#{emp1.employee.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable_Contractor|0|#{loc.code}|3|OpenTable_Contractor|English||#{dept.code}|#{emp1.employee.first_name}|#{emp1.employee.last_name}|#{emp1.employee.email}|#{emp1.employee.email}|#{job_title.name}|#{dept.code}|#{emp1.employee.company}
-      #{emp2.employee.employee_id}|leave|#{emp2.manager.employee_id}|#{contractor_type.name}|#{emp2.employee.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp2.employee.first_name}|#{emp2.employee.last_name}|#{emp2.employee.email}|#{emp2.employee.email}|#{job_title.name}|#{dept.code}|#{emp2.employee.company}
-      #{emp3.employee.employee_id}|terminated|#{emp3.manager.employee_id}|#{contractor_type.name}|#{emp3.employee.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp3.employee.first_name}|#{emp3.employee.last_name}|#{emp3.employee.email}|#{emp3.employee.email}|#{job_title.name}|#{dept.code}|#{emp3.employee.company}
-      #{emp4.employee.employee_id}|active|#{emp4.manager.employee_id}|#{contractor_type.name}|#{emp4.employee.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp4.employee.first_name}|#{emp4.employee.last_name}|#{emp4.employee.email}|#{emp4.employee.email}|#{job_title.name}|#{dept.code}|#{emp4.employee.company}
+      #{emp1.employee.employee_id}|active||#{contractor_type.name}|#{emp1.employee.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable_Contractor|0|#{loc.code}|3|OpenTable_Contractor|English||#{dept.code}|#{emp1.employee.first_name}|#{emp1.employee.last_name}|#{emp1.employee.email}|#{emp1.employee.email}|#{job_title.name}|#{dept.code}|#{emp1.employee.company}
+      #{emp2.employee.employee_id}|leave|#{emp2.employee.manager.employee_id}|#{contractor_type.name}|#{emp2.employee.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp2.employee.first_name}|#{emp2.employee.last_name}|#{emp2.employee.email}|#{emp2.employee.email}|#{job_title.name}|#{dept.code}|#{emp2.employee.company}
+      #{emp3.employee.employee_id}|terminated|#{emp3.employee.manager.employee_id}|#{contractor_type.name}|#{emp3.employee.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp3.employee.first_name}|#{emp3.employee.last_name}|#{emp3.employee.email}|#{emp3.employee.email}|#{job_title.name}|#{dept.code}|#{emp3.employee.company}
+      #{emp4.employee.employee_id}|active|#{emp4.employee.manager.employee_id}|#{contractor_type.name}|#{emp4.employee.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp4.employee.first_name}|#{emp4.employee.last_name}|#{emp4.employee.email}|#{emp4.employee.email}|#{job_title.name}|#{dept.code}|#{emp4.employee.company}
       EOS
     }
     let(:person_uat_csv) {
       <<-EOS.strip_heredoc
       PERSON_NO|STATUS|MANAGER|PERSON_TYPE|HIRED_ON|TERMINATED_ON|JOB_TYPE|SECURITY_DOMAIN|RATE|LOCATION|GENDER|HOME_DOMAIN|LOCALE|TIMEZONE|COMPANY|FNAME|LNAME|EMAIL|USERNAME|JOB_TITLE|HOME_COMPANY|CUSTOM0
-      #{emp1.employee.employee_id}|active|#{emp1.manager.employee_id}|#{contractor_type.name}|#{emp1.employee.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable_Contractor|0|#{loc.code}|3|OpenTable_Contractor|English||#{dept.code}|#{emp1.employee.first_name}|#{emp1.employee.last_name}||#{emp1.employee.email}|#{job_title.name}|#{dept.code}|#{emp1.employee.company}
-      #{emp2.employee.employee_id}|leave|#{emp2.manager.employee_id}|#{contractor_type.name}|#{emp2.employee.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp2.employee.first_name}|#{emp2.employee.last_name}||#{emp2.employee.email}|#{job_title.name}|#{dept.code}|#{emp2.employee.company}
-      #{emp3.employee.employee_id}|terminated|#{emp3.manager.employee_id}|#{contractor_type.name}|#{emp3.employee.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp3.employee.first_name}|#{emp3.employee.last_name}||#{emp3.employee.email}|#{job_title.name}|#{dept.code}|#{emp3.employee.company}
-      #{emp4.employee.employee_id}|active|#{emp4.manager.employee_id}|#{contractor_type.name}|#{emp4.employee.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp4.employee.first_name}|#{emp4.employee.last_name}||#{emp4.employee.email}|#{job_title.name}|#{dept.code}|#{emp4.employee.company}
+      #{emp1.employee.employee_id}|active||#{contractor_type.name}|#{emp1.employee.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable_Contractor|0|#{loc.code}|3|OpenTable_Contractor|English||#{dept.code}|#{emp1.employee.first_name}|#{emp1.employee.last_name}||#{emp1.employee.email}|#{job_title.name}|#{dept.code}|#{emp1.employee.company}
+      #{emp2.employee.employee_id}|leave|#{emp2.employee.manager.employee_id}|#{contractor_type.name}|#{emp2.employee.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp2.employee.first_name}|#{emp2.employee.last_name}||#{emp2.employee.email}|#{job_title.name}|#{dept.code}|#{emp2.employee.company}
+      #{emp3.employee.employee_id}|terminated|#{emp3.employee.manager.employee_id}|#{contractor_type.name}|#{emp3.employee.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp3.employee.first_name}|#{emp3.employee.last_name}||#{emp3.employee.email}|#{job_title.name}|#{dept.code}|#{emp3.employee.company}
+      #{emp4.employee.employee_id}|active|#{emp4.employee.manager.employee_id}|#{contractor_type.name}|#{emp4.employee.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp4.employee.first_name}|#{emp4.employee.last_name}||#{emp4.employee.email}|#{job_title.name}|#{dept.code}|#{emp4.employee.company}
       EOS
     }
     let(:filepath) { Rails.root.to_s+"/tmp/saba/person_#{DateTime.now.strftime('%Y%m%d')}.csv" }
@@ -225,22 +224,19 @@ describe SabaService, type: :service do
       end
 
       it "should assign the correct status value" do
-        puts experiment.inspect
-        puts experiment.employee.inspect
-        Employee.all.each { |e| puts "****", e.email }
         service.create_person_csv
 
         expect(File.read(filepath)).to include(
-          "#{emp2.employee_id}|leave|#{emp2.manager_id}|#{contractor_type.name}|#{emp2.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp2.first_name}|#{emp2.last_name}|#{emp2.email}|#{emp2.email}|#{job_title.name}|#{dept.code}|#{emp2.company}"
+          "#{emp2.employee.employee_id}|leave|#{emp2.employee.manager.employee_id}|#{contractor_type.name}|#{emp2.employee.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp2.employee.first_name}|#{emp2.employee.last_name}|#{emp2.employee.email}|#{emp2.employee.email}|#{job_title.name}|#{dept.code}|#{emp2.employee.company}"
         )
         expect(File.read(filepath)).to include(
-          "#{emp1.employee_id}|active|#{emp1.manager_id}|#{contractor_type.name}|#{emp1.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable_Contractor|0|#{loc.code}|3|OpenTable_Contractor|English||#{dept.code}|#{emp1.first_name}|#{emp1.last_name}|#{emp1.email}|#{emp1.email}|#{job_title.name}|#{dept.code}|#{emp1.company}"
+          "#{emp1.employee.employee_id}|active||#{contractor_type.name}|#{emp1.employee.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable_Contractor|0|#{loc.code}|3|OpenTable_Contractor|English||#{dept.code}|#{emp1.employee.first_name}|#{emp1.employee.last_name}|#{emp1.employee.email}|#{emp1.employee.email}|#{job_title.name}|#{dept.code}|#{emp1.employee.company}"
         )
         expect(File.read(filepath)).to include(
-          "#{emp3.employee_id}|terminated|#{emp3.manager_id}|#{contractor_type.name}|#{emp3.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp3.first_name}|#{emp3.last_name}|#{emp3.email}|#{emp3.email}|#{job_title.name}|#{dept.code}|#{emp3.company}"
+          "#{emp3.employee.employee_id}|terminated|#{emp3.employee.manager.employee_id}|#{contractor_type.name}|#{emp3.employee.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp3.employee.first_name}|#{emp3.employee.last_name}|#{emp3.employee.email}|#{emp3.employee.email}|#{job_title.name}|#{dept.code}|#{emp3.employee.company}"
         )
         expect(File.read(filepath)).to include(
-          "#{emp4.employee_id}|active|#{emp4.manager_id}|#{contractor_type.name}|#{emp4.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp4.first_name}|#{emp4.last_name}|#{emp4.email}|#{emp4.email}|#{job_title.name}|#{dept.code}|#{emp4.company}"
+          "#{emp4.employee.employee_id}|active|#{emp4.employee.manager.employee_id}|#{contractor_type.name}|#{emp4.employee.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp4.employee.first_name}|#{emp4.employee.last_name}|#{emp4.employee.email}|#{emp4.employee.email}|#{job_title.name}|#{dept.code}|#{emp4.employee.company}"
         )
       end
 
@@ -248,7 +244,7 @@ describe SabaService, type: :service do
         service.create_person_csv
 
         expect(File.read(filepath)).to include(
-          "#{emp1.employee_id}|active|#{emp1.manager_id}|#{contractor_type.name}|#{emp1.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable_Contractor|0|#{loc.code}|3|OpenTable_Contractor|English||#{dept.code}|#{emp1.first_name}|#{emp1.last_name}|#{emp1.email}|#{emp1.email}|#{job_title.name}|#{dept.code}|#{emp1.company}"
+          "#{emp1.employee.employee_id}|active||#{contractor_type.name}|#{emp1.employee.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable_Contractor|0|#{loc.code}|3|OpenTable_Contractor|English||#{dept.code}|#{emp1.employee.first_name}|#{emp1.employee.last_name}|#{emp1.employee.email}|#{emp1.employee.email}|#{job_title.name}|#{dept.code}|#{emp1.employee.company}"
         )
       end
 
@@ -256,7 +252,7 @@ describe SabaService, type: :service do
         service.create_person_csv
 
         expect(File.read(filepath)).to include(
-          "#{emp2.employee_id}|leave|#{emp2.manager_id}|#{contractor_type.name}|#{emp2.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp2.first_name}|#{emp2.last_name}|#{emp2.email}|#{emp2.email}|#{job_title.name}|#{dept.code}|#{emp2.company}"
+          "#{emp2.employee.employee_id}|leave|#{emp2.employee.manager.employee_id}|#{contractor_type.name}|#{emp2.employee.hire_date.strftime("%Y-%m-%d")}||#{job_title.code}|OpenTable|0|#{loc.code}|3|OpenTable|English||#{dept.code}|#{emp2.employee.first_name}|#{emp2.employee.last_name}|#{emp2.employee.email}|#{emp2.employee.email}|#{job_title.name}|#{dept.code}|#{emp2.employee.company}"
         )
       end
     end
