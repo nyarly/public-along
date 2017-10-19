@@ -5,10 +5,12 @@ namespace :managers do
 
     ActiveRecord::Base.transaction do
       employees.find_each do |employee|
-        if employee.profiles.count >= 1 && employee.current_profile.manager_id.present?
-          manager_id = Employee.find_by_employee_id(employee.current_profile.manager_id).id
-          employee.assign_attributes(manager_id: manager_id)
-          employee.save!
+        if employee.profiles.count >= 1 && employee.current_profile.manager_adp_employee_id.present?
+          manager = Employee.find_by_employee_id(employee.current_profile.manager_adp_employee_id)
+          if manager.present?
+            employee.assign_attributes(manager_id: manager.id)
+            employee.save!
+          end
         end
       end
     end

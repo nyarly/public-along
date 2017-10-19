@@ -22,7 +22,7 @@
             <% if e.request_status == "waiting" %>
               <%= "Pending manager approval: " %>
               <%= link_to "Complete #{manager_form_type(e)} Form by #{manager_form_due(e)}", new_emp_transaction_url({
-                :user_emp_id => e.manager.employee_id,
+                :user_emp_id => current_user.employee.employee_id,
                 :employee_id => e.id,
                 :kind => manager_form_type(e)}), class: "needs-manager-action" %>
             <% elsif e.request_status == "completed" %>
@@ -35,7 +35,7 @@
             <% elsif needs_security_profile_update?(e) && e.status == "active" %>
               <%= "Confirm job change: " %>
               <%= link_to "Update Security Access", new_emp_transaction_url({
-                :user_emp_id => e.manager.employee_id,
+                :user_emp_id => current_user.employee.employee_id,
                 :employee_id => e.id,
                 :kind => "Security Access"}), class: "needs-manager-action" %>
             <% else %>

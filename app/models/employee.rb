@@ -21,6 +21,7 @@ class Employee < ActiveRecord::Base
   has_many :profiles # on delete, cascade in db
   has_many :direct_reports, class_name: "Employee", foreign_key: "manager_id"
   belongs_to :manager, class_name: "Employee"
+  belongs_to :current_profile, class_name: "Profile"
 
   validates :first_name,
             presence: true
@@ -322,29 +323,6 @@ class Employee < ActiveRecord::Base
     missing_onboards.select { |e| e if (e.onboarding_due_date.to_date - 1.day).between?(Date.yesterday, Date.tomorrow) }
   end
 
-  # def self.managers
-  #   joins(:emp_sec_profiles)
-  #   .where('emp_sec_profiles.security_profile_id = ?', SecurityProfile.find_by(name: 'Basic Manager').id)
-  # end
-
-  def current_profile
-    # if employee data is not persisted, like when previewing employee data from an event
-    # scope on profiles is not available, so must access by method last
-    @current_profile ||= self.profiles.last if !self.persisted?
-
-    case self.status
-    when "active"
-      @current_profile ||= self.profiles.active.last
-    when "inactive"
-      @current_profile ||= self.profiles.leave.last
-    when "pending"
-      @current_profile ||= self.profiles.pending.last
-    when "terminated"
-      @current_profile ||= self.profiles.terminated.last
-    else
-      self.profiles.last
-    end
-  end
 
   def start_date
     current_profile.start_date.strftime("%b %e, %Y")

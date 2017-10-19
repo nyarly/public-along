@@ -8,11 +8,11 @@
     </div>
   <% end %>
 
-  <% if can? :create, ManagerEntry %>
+  <%# if can? :create, ManagerEntry %>
     <%= render partial: "manager_employees_table", locals: {employees: @employees} %>
-  <% else %>
-    <%= render partial: "employees_table", locals: { employees: @employees } %>
-  <% end %>
+  <%# else %>
+    <%#= render partial: "employees_table", locals: { employees: @employees } %>
+  <%# end %>
 </div>
 <div id="employee-pagination">
   <%= paginate @employees %>
