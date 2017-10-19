@@ -114,11 +114,12 @@ describe AdpService::Workers, type: :service do
   describe "sync_workers" do
     let(:worker_type) { FactoryGirl.create(:worker_type) }
     let(:manager) { FactoryGirl.create(:active_employee)}
-    let(:manager_profile)    { FactoryGirl.create(:active_profile,
+    let!(:manager_profile)    { FactoryGirl.create(:active_profile,
                         employee: manager,
                         adp_employee_id: "101734",
                         management_position: true) }
-    let!(:employee)   { FactoryGirl.create(:active_employee) }
+    let!(:employee)   { FactoryGirl.create(:active_employee,
+                        manager: manager) }
     let!(:profile)    { FactoryGirl.create(:active_profile,
                         employee: employee,
                         adp_employee_id: "101455",
@@ -521,10 +522,11 @@ describe AdpService::Workers, type: :service do
     context "worker has contract end date less than one year" do
       contract_end_date = Date.today + 3.months
       check_contract_end_date = contract_end_date - 1.day
-      let!(:worker_type) {FactoryGirl.create(:worker_type,
+      let!(:worker_type) { FactoryGirl.create(:worker_type,
         code: "ACW",
         kind: "Contractor")}
-      let!(:new_hire) {FactoryGirl.create(:pending_employee,
+      let!(:new_hire) { FactoryGirl.create(:employee,
+        status: "pending",
         first_name: "Robert",
         contract_end_date: contract_end_date,
         hire_date: Date.today + 2.weeks)}
@@ -565,16 +567,17 @@ describe AdpService::Workers, type: :service do
     end
 
     context "new hire's manager is new manager" do
-
       check_date = 1.year.from_now.change(:usec => 0)
 
       let!(:new_manager) { FactoryGirl.create(:active_employee) }
       let!(:manager_prof) { FactoryGirl.create(:active_profile,
         employee: new_manager,
-        adp_employee_id: "100345") }
+        adp_employee_id: "100345",
+        management_position: true) }
       let!(:basic_manager_sec_prof) { FactoryGirl.create(:security_profile,
         name: "Basic Manager") }
-      let!(:new_hire) { FactoryGirl.create(:pending_employee,
+      let!(:new_hire) { FactoryGirl.create(:employee,
+        status: "pending",
         manager: new_manager,
         hire_date: Date.today + 4.days)}
       let!(:profile) { FactoryGirl.create(:profile,

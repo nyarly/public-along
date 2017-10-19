@@ -16,7 +16,7 @@ describe "employee rake tasks", type: :tasks do
 
   context "employee:change_status" do
 
-    let!(:new_hire_uk) { FactoryGirl.create(:pending_employee,
+    let(:new_hire_uk) { FactoryGirl.create(:pending_employee,
                          hire_date: Date.new(2016, 7, 29),
                          request_status: "completed") }
     let!(:nh_uk_prof)  { FactoryGirl.create(:profile,
@@ -24,14 +24,14 @@ describe "employee rake tasks", type: :tasks do
                          start_date: Date.new(2016, 7, 29),
                          worker_type: worker_type,
                          location: london) }
-    let!(:returning_uk) { FactoryGirl.create(:leave_employee,
+    let(:returning_uk) { FactoryGirl.create(:leave_employee,
                          hire_date: Date.new(2016, 1, 1),
                          leave_return_date: Date.new(2016, 7, 29)) }
     let!(:r_uk_prof)    { FactoryGirl.create(:leave_profile,
                          start_date: Date.new(2017, 1, 1),
                          employee: returning_uk,
                          location: london) }
-    let!(:contract_uk)  { FactoryGirl.create(:pending_employee,
+    let(:contract_uk)  { FactoryGirl.create(:pending_employee,
                           hire_date: Date.new(2016, 7, 29),
                           contract_end_date: Date.new(2019, 7, 29),
                           request_status: "completed") }
@@ -40,26 +40,26 @@ describe "employee rake tasks", type: :tasks do
                           worker_type: contract_wt,
                           employee: contract_uk,
                           location: london) }
-    let!(:uk_term)      { FactoryGirl.create(:active_employee,
+    let(:uk_term)      { FactoryGirl.create(:active_employee,
                           termination_date: Date.new(2016, 7, 29)) }
     let!(:uk_term_prof) { FactoryGirl.create(:active_profile,
                           employee: uk_term,
                           location: london) }
 
-    let!(:new_hire_us)  { FactoryGirl.create(:pending_employee,
+    let(:new_hire_us)  { FactoryGirl.create(:pending_employee,
                           hire_date: Date.new(2016, 7, 29),
                           request_status: "completed") }
     let!(:nh_us_prof)   { FactoryGirl.create(:profile,
                           start_date: Date.new(2016, 7, 29),
                           employee: new_hire_us,
                           location: sf) }
-    let!(:returning_us) { FactoryGirl.create(:leave_employee,
+    let(:returning_us) { FactoryGirl.create(:leave_employee,
                           hire_date: 1.year.ago,
                           leave_return_date: Date.new(2016, 7, 29)) }
     let!(:r_us_prof)    { FactoryGirl.create(:leave_profile,
                           employee: returning_us,
                           location: sf) }
-    let!(:rehire)       { FactoryGirl.create(:pending_employee,
+    let(:rehire)       { FactoryGirl.create(:pending_employee,
                           request_status: "completed",
                           hire_date: Date.new(2016, 1, 1)) }
     let!(:rh_old_prof)  { FactoryGirl.create(:terminated_profile,
@@ -69,7 +69,7 @@ describe "employee rake tasks", type: :tasks do
     let!(:rh_new_prof)  { FactoryGirl.create(:profile,
                           employee: rehire,
                           start_date: Date.new(2016, 7, 29)) }
-    let!(:us_term)      { FactoryGirl.create(:active_employee,
+    let(:us_term)      { FactoryGirl.create(:active_employee,
                           hire_date: 5.years.ago,
                           termination_date: Date.new(2016, 7, 29)) }
     let!(:t_us_prof)    { FactoryGirl.create(:active_profile,
@@ -328,10 +328,10 @@ describe "employee rake tasks", type: :tasks do
       manager = FactoryGirl.create(:regular_employee)
 
       termination = FactoryGirl.create(:active_employee,
+        manager: manager,
         termination_date: Date.new(2016, 7, 29))
       profile = FactoryGirl.create(:active_profile,
         employee: termination,
-        manager_id: manager.employee_id,
         location: mumbai,
         department: Department.find_by(:name => "Technology/CTO Admin"))
 
@@ -344,19 +344,19 @@ describe "employee rake tasks", type: :tasks do
     it "should remove worker from all security groups at 3am, 7 days after termination" do
       manager = FactoryGirl.create(:regular_employee)
       termination = FactoryGirl.create(:active_employee,
+        manager_id: manager,
         hire_date: Date.new(2014, 5, 3),
         termination_date: Date.new(2016, 8, 21))
       profile = FactoryGirl.create(:active_profile,
         employee: termination,
-        manager_id: manager.employee_id,
         department: Department.find_by(:name => "Technology/CTO Admin"),
         location: sf)
       recent_termination = FactoryGirl.create(:terminated_employee,
+        manager: manager,
         hire_date: Date.new(2014, 5, 3),
         termination_date: Date.new(2016, 8, 20))
       profile = FactoryGirl.create(:terminated_profile,
         employee: recent_termination,
-        manager_id: manager.employee_id,
         department: Department.find_by(:name => "Technology/CTO Admin"),
         location: sf)
 

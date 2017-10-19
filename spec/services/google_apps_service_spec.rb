@@ -30,11 +30,9 @@ describe GoogleAppsService, type: :service do
 
   context "successfully transfers data" do
     let(:manager) { FactoryGirl.create(:regular_employee) }
-    let(:employee) { FactoryGirl.create(:employee,
+    let(:employee) { FactoryGirl.create(:terminated_employee,
+      manager: manager,
       email: "something@example.com") }
-    let!(:profile) { FactoryGirl.create(:profile,
-      employee: employee,
-      manager_id: manager.employee_id) }
 
     application = OpenStruct.new(id: "12345", name: "Drive and Docs", transfer_params: ["stuff"])
     applications = OpenStruct.new(applications: [application])

@@ -14,7 +14,6 @@ FactoryGirl.define do
     end
 
     trait :with_profile do
-      # association :manager, factory: :employee
       transient do
         profiles_count 1
       end
@@ -25,12 +24,21 @@ FactoryGirl.define do
     end
 
     trait :with_manager do
-      association :manager, factory: :employee
+      association :manager, factory: :manager
+    end
+
+    factory :manager do
+      email { "manager@example.com" }
+      transient do
+        profiles_count 1
+      end
+      after(:create) do |employee, evaluator|
+        create_list(:profile, evaluator.profiles_count, employee: employee)
+      end
     end
 
     factory :pending_employee do
       status { "pending" }
-      # association :manager, factory: :employee
       transient do
         profiles_count 1
       end
@@ -42,20 +50,17 @@ FactoryGirl.define do
 
     factory :active_employee do
       status { "active" }
-      # association :manager, factory: :employee
       transient do
-        profile_args nil
+        profiles_count 1
       end
-      profiles { [build(:profile, profile_args)] }
 
-      after(:create) do |employee|
-        employee.profiles.last.save!
+      after(:create) do |employee, evaluator|
+        create_list(:active_profile, evaluator.profiles_count, employee: employee)
       end
     end
 
     factory :terminated_employee do
       status { "terminated" }
-      association :manager, factory: :employee
       transient do
         profiles_count 1
       end
@@ -67,6 +72,13 @@ FactoryGirl.define do
 
     factory :leave_employee do
       status { "inactive" }
+      transient do
+        profiles_count 1
+      end
+
+      after(:create) do |employee, evaluator|
+        create_list(:leave_profile, evaluator.profiles_count, employee: employee)
+      end
     end
 
     factory :regular_employee do

@@ -2,10 +2,10 @@ require 'rails_helper'
 
 RSpec.describe EmployeesController, type: :controller do
 
-  let(:manager) { FactoryGirl.create(:active_employee,
+  let(:manager) { FactoryGirl.create(:employee, :with_profile,
     first_name: "Pat",
     last_name: "Sajak") }
-  let(:employee) { FactoryGirl.create(:active_employee,
+  let(:employee) { FactoryGirl.create(:employee, :with_profile,
     first_name: "Alex",
     last_name: "Trebek",
     manager: manager) }

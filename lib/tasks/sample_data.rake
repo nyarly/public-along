@@ -55,7 +55,6 @@ def create_basic_new_hire(hire_date)
     end_date: nil,
     adp_employee_id: Faker::Number.number(6),
     business_title: Faker::Name.title,
-    manager_id: nil,
     department_id: Department.all.map(&:id).sample,
     location_id: Location.all.map(&:id).sample,
     job_title: JobTitle.find_or_create_by!(id: 1, name: "Test", code: "TEST", status: "Active"),

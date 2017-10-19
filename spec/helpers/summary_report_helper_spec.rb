@@ -1,15 +1,14 @@
 require 'rails_helper'
 
 describe SummaryReportHelper, type: :helper do
-  let!(:employee) { FactoryGirl.create(:active_employee,
+  let!(:employee) { FactoryGirl.create(:employee, :with_profile, :with_manager,
                     hire_date: Date.today,
                     termination_date: Date.today + 1.week) }
   let(:sec_prof)  { FactoryGirl.create(:security_profile) }
   let(:helper)    { SummaryReportHelper::Csv.new }
 
   context "onboarding" do
-    let!(:rehire) { FactoryGirl.create(:pending_employee,
-      last_name: "Cork",
+    let!(:rehire) { FactoryGirl.create(:employee,
       hire_date: 3.years.ago,
       request_status: "waiting") }
     let!(:re_new_p) { FactoryGirl.create(:profile,
@@ -25,7 +24,7 @@ describe SummaryReportHelper, type: :helper do
     end
 
     it "should find buddy" do
-      buddy = FactoryGirl.create(:regular_employee)
+      buddy = FactoryGirl.create(:employee)
       emp_trans = FactoryGirl.create(:onboarding_emp_transaction,
         employee_id: employee.id)
       emp_sec_prof = FactoryGirl.create(:emp_sec_profile,

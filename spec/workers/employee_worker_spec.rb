@@ -21,15 +21,6 @@ RSpec.describe EmployeeWorker, type: :worker do
     expect(EmployeeWorker.jobs.size).to eq(1)
   end
 
-  it "should find Manager" do
-    allow(ManagerMailer).to receive(:permissions).and_return(mailer)
-    allow(mailer).to receive(:deliver_now)
-
-    expect(Employee).to receive(:find_by_employee_id).with(employee.manager_id).and_call_original
-
-    worker.perform("Onboarding", {"employee_id"=>employee.id})
-  end
-
   it "should send the right Mailer for Onboarding action" do
     expect(ManagerMailer).to receive(:permissions).with("Onboarding", manager, employee).and_return(mailer)
     expect(mailer).to receive(:deliver_now)

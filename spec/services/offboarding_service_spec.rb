@@ -2,11 +2,9 @@ require 'rails_helper'
 
 describe OffboardingService, type: :service do
   let(:manager) { FactoryGirl.create(:regular_employee) }
-  let(:employee) { FactoryGirl.create(:employee,
+  let(:employee) { FactoryGirl.create(:terminated_employee,
+    manager: manager,
     termination_date: Date.new(2017, 6, 1)) }
-  let!(:profile) { FactoryGirl.create(:profile,
-    employee: employee,
-    manager_id: manager.employee_id)}
   let(:sql_service) { double(SqlService) }
   let(:google_apps) { double(GoogleAppsService) }
   let(:offboard_service) { OffboardingService.new }

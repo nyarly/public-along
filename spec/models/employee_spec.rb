@@ -3,7 +3,7 @@ require 'aasm/rspec'
 
 describe Employee, type: :model do
 
-  let(:manager) { FactoryGirl.create(:regular_employee,
+  let(:manager) { FactoryGirl.create(:employee,
     first_name: "Alex",
     last_name: "Trebek",
     sam_account_name: "atrebek",
@@ -12,12 +12,11 @@ describe Employee, type: :model do
 
   describe "state machine" do
     let!(:regular_sp)      { FactoryGirl.create(:security_profile, name: "Basic Regular Worker Profile") }
-    let(:employee)         { FactoryGirl.create(:employee) }
-    let!(:profile)         { FactoryGirl.create(:profile, employee: employee) }
-    let!(:active_employee) { FactoryGirl.create(:active_employee) }
-    let!(:pending_employee){ FactoryGirl.create(:pending_employee) }
-    let!(:leave_employee)  { FactoryGirl.create(:leave_employee) }
-    let!(:termed_employee) { FactoryGirl.create(:terminated_employee) }
+    let(:employee)         { FactoryGirl.create(:employee, :with_profile, first_name: "aa") }
+    let(:active_employee) { FactoryGirl.create(:active_employee, first_name: "bb") }
+    let(:pending_employee){ FactoryGirl.create(:pending_employee, first_name: "cc") }
+    let(:leave_employee)  { FactoryGirl.create(:leave_employee, first_name: "dd") }
+    let(:termed_employee) { FactoryGirl.create(:terminated_employee, first_name: "ee") }
     let!(:new_profile)     { FactoryGirl.create(:profile, employee: termed_employee) }
     let(:ad)               { double(ActiveDirectoryService) }
     let(:mailer)           { double(ManagerMailer) }
@@ -431,10 +430,17 @@ describe Employee, type: :model do
   end
 
   describe "#onboarding_reminder_group" do
-    let!(:due_tomorrow_no_onboard) {FactoryGirl.create(:pending_employee,
+    let!(:due_tomorrow_no_onboard) { FactoryGirl.create(:pending_employee,
       last_name: "Aaaa",
       hire_date: Date.new(2017, 5, 8),
       request_status: "waiting") }
+    # let!(:due_tomorrow_no_onboard) { FactoryGirl.create(:profile,
+    #                         start_date: Date.new(2017, 5, 8),
+    #                          employee_args: {
+    #                            last_name: "Aaa",
+    #                            hire_date: Date.new(2017, 5, 8),
+    #                            request_status: "waiting",
+    #                            status: "pending" }) }
     let!(:due_tomorrow_no_onboard_profile) { FactoryGirl.create(:profile,
       start_date: Date.new(2017, 5, 8),
       employee: due_tomorrow_no_onboard) }
@@ -448,7 +454,8 @@ describe Employee, type: :model do
       start_date: Date.new(2017, 5, 15),
       location: Location.find_by_name("Melbourne Office")) }
 
-    let!(:due_tomorrow_w_onboard) { FactoryGirl.create(:pending_employee,
+    let!(:due_tomorrow_w_onboard) { FactoryGirl.create(:employee,
+      last_name: "CCC",
       request_status: "completed",
       hire_date: Date.new(2017, 5, 8)) }
     let!(:due_tomorrow_w_onboard_profile) { FactoryGirl.create(:profile,
@@ -460,7 +467,8 @@ describe Employee, type: :model do
     let!(:onboard) { FactoryGirl.create(:onboarding_info,
       emp_transaction: emp_transaction) }
 
-    let!(:due_later_no_onboard) { FactoryGirl.create(:pending_employee,
+    let!(:due_later_no_onboard) { FactoryGirl.create(:employee,
+      last_name: "DDD",
       request_status: "waiting",
       hire_date: Date.new(2017, 9, 1)) }
     let!(:due_later_profile) { FactoryGirl.create(:profile,
@@ -474,12 +482,10 @@ describe Employee, type: :model do
   end
 
   context "regular worker" do
-    let(:manager)  { FactoryGirl.create(:regular_employee) }
-    let(:employee) { FactoryGirl.create(:employee,
+    let(:employee) { FactoryGirl.create(:active_employee, :with_manager,
                      first_name: "Bob",
-                     last_name: "Barker",
-                     manager: manager) }
-    let!(:profile) { FactoryGirl.create(:profile, :with_valid_ou,
+                     last_name: "Barker") }
+    let!(:profile) { FactoryGirl.create(:active_profile, :with_valid_ou,
                      employee: employee) }
 
     it "should create a cn" do
@@ -517,7 +523,7 @@ describe Employee, type: :model do
           sAMAccountName: employee.sam_account_name,
           displayName: employee.cn,
           userPrincipalName: employee.generated_upn,
-          manager: manager.dn,
+          manager: employee.manager.dn,
           mail: employee.email,
           unicodePwd: "\"JoeSevenPack#007#\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           co: employee.location.country,
@@ -541,12 +547,11 @@ describe Employee, type: :model do
   end
 
   context "regular worker that has been assigned a sAMAccountName" do
-    let(:employee) { FactoryGirl.create(:employee,
+    let(:employee) { FactoryGirl.create(:employee, :with_manager,
                      first_name: "Mary",
                      last_name: "Sue",
                      sam_account_name: "msue",
-                     email: nil,
-                     manager: manager) }
+                     email: nil) }
     let!(:profile) { FactoryGirl.create(:profile, :with_valid_ou,
                      employee: employee) }
 
@@ -565,7 +570,7 @@ describe Employee, type: :model do
           sAMAccountName: "msue",
           displayName: employee.cn,
           userPrincipalName: employee.generated_upn,
-          manager: manager.dn,
+          manager: employee.manager.dn,
           mail: "msue@opentable.com",
           unicodePwd: "\"JoeSevenPack#007#\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           co: employee.location.country,
@@ -589,12 +594,11 @@ describe Employee, type: :model do
   end
 
   context "with a contingent worker" do
-    let(:employee) { FactoryGirl.create(:employee,
+    let(:employee) { FactoryGirl.create(:employee, :with_manager,
                      first_name: "Sally",
                      last_name: "Field",
                      sam_account_name: "sfield",
-                     contract_end_date: 1.month.from_now,
-                     manager: manager) }
+                     contract_end_date: 1.month.from_now) }
 
     let!(:profile) { FactoryGirl.create(:profile, :with_valid_ou,
                      employee: employee) }
@@ -620,7 +624,7 @@ describe Employee, type: :model do
           sAMAccountName: employee.sam_account_name,
           displayName: employee.cn,
           userPrincipalName: employee.generated_upn,
-          manager: manager.dn,
+          manager: employee.manager.dn,
           mail: employee.email,
           unicodePwd: "\"JoeSevenPack#007#\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           co: employee.location.country,
@@ -645,12 +649,11 @@ describe Employee, type: :model do
 
   context "with a contingent worker that has been terminated" do
     let(:cont_wt)  { FactoryGirl.create(:worker_type, :contractor) }
-    let(:employee) { FactoryGirl.create(:terminated_employee,
+    let(:employee) { FactoryGirl.create(:terminated_employee, :with_manager,
                      first_name: "Bob",
                      last_name: "Barker",
                      contract_end_date: 1.month.from_now,
-                     termination_date: 1.day.from_now,
-                     manager: manager) }
+                     termination_date: 1.day.from_now) }
 
     let!(:profile) { FactoryGirl.create(:terminated_profile, :with_valid_ou,
                      worker_type: cont_wt,
@@ -673,7 +676,7 @@ describe Employee, type: :model do
           sAMAccountName: employee.sam_account_name,
           displayName: employee.cn,
           userPrincipalName: employee.generated_upn,
-          manager: manager.dn,
+          manager: employee.manager.dn,
           mail: employee.email,
           unicodePwd: "\"JoeSevenPack#007#\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           co: employee.location.country,
@@ -698,14 +701,13 @@ describe Employee, type: :model do
 
 
   context "with a remote worker and one address line" do
-    let(:employee) { FactoryGirl.create(:employee,
+    let(:employee) { FactoryGirl.create(:employee, :with_manager,
                      first_name: "Bob",
                      last_name: "Barker",
                      home_address_1: "123 Fake St.",
                      home_city: "Beverly Hills",
                      home_state: "CA",
-                     home_zip: "90210",
-                     manager: manager) }
+                     home_zip: "90210") }
     let!(:profile) { FactoryGirl.create(:profile, :with_valid_ou, :remote,
                      employee: employee) }
 
@@ -724,7 +726,7 @@ describe Employee, type: :model do
           sAMAccountName: employee.sam_account_name,
           displayName: employee.cn,
           userPrincipalName: employee.generated_upn,
-          manager: manager.dn,
+          manager: employee.manager.dn,
           mail: employee.email,
           unicodePwd: "\"JoeSevenPack#007#\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           co: employee.location.country,
@@ -750,15 +752,14 @@ describe Employee, type: :model do
 
   context "with a remote worker and two address lines" do
     let(:remote_loc) { FactoryGirl.create(:location, :remote) }
-    let(:employee)   { FactoryGirl.create(:employee,
+    let(:employee)   { FactoryGirl.create(:employee, :with_manager,
                        first_name: "Bob",
                        last_name: "Barker",
                        home_address_1: "123 Fake St.",
                        home_address_2: "Apt 3G",
                        home_city: "Beverly Hills",
                        home_state: "CA",
-                       home_zip: "90210",
-                       manager: manager) }
+                       home_zip: "90210") }
     let!(:profile)   { FactoryGirl.create(:profile,
                        employee: employee,
                        location: remote_loc,
@@ -779,7 +780,7 @@ describe Employee, type: :model do
           sAMAccountName: employee.sam_account_name,
           displayName: employee.cn,
           userPrincipalName: employee.generated_upn,
-          manager: manager.dn,
+          manager: employee.manager.dn,
           mail: employee.email,
           unicodePwd: "\"JoeSevenPack#007#\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT),
           co: employee.location.country,

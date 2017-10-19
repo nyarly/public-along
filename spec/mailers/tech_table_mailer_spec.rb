@@ -18,7 +18,7 @@ RSpec.describe TechTableMailer, type: :mailer do
 
   context "permission" do
     let(:user) { FactoryGirl.create(:user) }
-    let(:emp)  { FactoryGirl.create(:active_employee) }
+    let(:emp)  { FactoryGirl.create(:employee, :with_profile) }
     let(:et)   { FactoryGirl.create(:emp_transaction,
                  employee: emp,
                  user_id: user.id,
@@ -38,9 +38,7 @@ RSpec.describe TechTableMailer, type: :mailer do
   end
 
   context "offboard notice" do
-    let(:manager)  { FactoryGirl.create(:active_employee, email: "manager@opentable.com") }
-    let(:employee) { FactoryGirl.create(:active_employee,
-                     manager: manager,
+    let(:employee) { FactoryGirl.create(:employee, :with_profile, :with_manager,
                      termination_date: 1.week.from_now) }
     let!(:email) { TechTableMailer.offboard_notice(employee).deliver_now }
 
@@ -58,9 +56,7 @@ RSpec.describe TechTableMailer, type: :mailer do
 
   context "offboard status" do
     results = {}
-    let(:manager)  { FactoryGirl.create(:active_employee, email: "manager@opentable.com") }
-    let(:employee) { FactoryGirl.create(:active_employee,
-                     manager: manager,
+    let(:employee) { FactoryGirl.create(:employee, :with_profile, :with_manager,
                      termination_date: 2.days.from_now) }
     let!(:email)   { TechTableMailer.offboard_status(employee, results).deliver_now }
 
@@ -78,10 +74,8 @@ RSpec.describe TechTableMailer, type: :mailer do
 
   context "offboard instructions" do
     let(:user)      { FactoryGirl.create(:user) }
-    let(:manager)   { FactoryGirl.create(:regular_employee, email: "manager@opentable.com") }
-    let(:employee)  { FactoryGirl.create(:regular_employee,
-                      manager: manager,
-                      termination_date: 2.days.from_now) }
+    let(:employee) { FactoryGirl.create(:employee, :with_profile, :with_manager,
+                     termination_date: 2.days.from_now) }
     let(:forward)   { FactoryGirl.create(:employee) }
     let(:emp_trans) { FactoryGirl.create(:offboarding_emp_transaction,
                       user_id: user.id,
@@ -107,10 +101,8 @@ RSpec.describe TechTableMailer, type: :mailer do
 
   context "onboard instructions" do
     let(:user)       { FactoryGirl.create(:user) }
-    let(:manager)    { FactoryGirl.create(:active_employee, email: "manager@opentable.com") }
-    let(:employee)   { FactoryGirl.create(:pending_employee,
-                       manager: manager,
-                       hire_date: 2.days.from_now) }
+    let(:employee) { FactoryGirl.create(:employee, :with_profile, :with_manager,
+                     termination_date: 2.days.from_now) }
     let!(:sp)        { FactoryGirl.create(:security_profile) }
     let!(:emp_trans) { FactoryGirl.create(:onboarding_emp_transaction,
                        user_id: user.id,
