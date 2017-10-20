@@ -16,10 +16,9 @@
   <% if @employees.count > 0 %>
     <tbody>
       <% @employees.each do |e| %>
-      <tr>
-
-        <%= render partial: "employee_table_row", locals: { e: e } %>
-      </tr>
+        <tr>
+          <%= render partial: "employee_table_row", locals: { e: e } %>
+        </tr>
       <% end %>
     </tbody>
   <% end %>

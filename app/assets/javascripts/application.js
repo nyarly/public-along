@@ -28,6 +28,19 @@ $(document).ready(function(){
   addAccessLevel();
 });
 
+function toggleDirectReports(manager_id) {
+  element_id = '.direct-reports-for-' + manager_id
+  element = $(element_id)
+  visible = element.is(":visible")
+  console.log(visible)
+  if (visible) {
+    element.hide();
+  } else {
+    element.show();
+  }
+
+}
+
 /*
 JS for email reuse UI in emp transaction form
 */

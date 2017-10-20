@@ -1,4 +1,8 @@
-<td><%= link_to e.cn, employee_path(e) %></td>
+<td><%= link_to e.cn, employee_path(e) %>
+  <% if e.direct_reports.count > 0 %>
+    <button class="button" id=<%= "toggle-direct-reports-for-#{e.id}" %> onclick="toggleDirectReports(<%= "#{e.id}" %>)" >show dir reports</button>
+  <% end %>
+</td>
 <td>
   <% if e.request_status == "waiting" %>
     <%= "Pending manager approval: " %>
@@ -33,19 +37,29 @@
 
 <% if e.direct_reports.count > 0 %>
 
-<ul class="accordion" data-accordion data-multi-expand="true" data-allow-all-closed="true">
-  <li class="accordion-item" data-accordion-item>
+<tr>
 
-    <p class="accordion-title">
-        <%= "#{e.cn}'s direct reports: " %>
-    </p>
-    <div class="accordion-content" data-tab-content>
-        <% e.direct_reports.each do |d| %>
-          <%= d.cn %>
-        <% end %>
-    </div>
+  <table style="display:none;" class=<%= "direct-reports-for-#{e.id}" %>>
+    <thead>
+      <tr>
+        <td>
+          Direct reports
+        </td>
+      </tr>
+    </thead>
+    <tbody>
+    <% e.direct_reports.each do |d| %>
+      <tr>
+          <%= render partial: "employee_table_row", locals: { e: d } %>
+        </tr>
+    <% end %>
 
-  </li>
-</ul>
+    </tbody>
+  </table>
+</tr>
+
+
+
+
 
 <% end %>
