@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171019210151) do
+ActiveRecord::Schema.define(version: 20170928004647) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -142,14 +142,10 @@ ActiveRecord::Schema.define(version: 20171019210151) do
     t.integer  "del_job_title_id"
     t.string   "business_card_title",        limit: 150
     t.string   "request_status"
-    t.integer  "manager_id"
-    t.integer  "current_profile_id"
   end
 
-  add_index "employees", ["current_profile_id"], name: "index_employees_on_current_profile_id", using: :btree
   add_index "employees", ["del_employee_id"], name: "index_employees_on_del_employee_id", unique: true, using: :btree
   add_index "employees", ["email"], name: "index_employees_on_email", unique: true, using: :btree
-  add_index "employees", ["manager_id"], name: "index_employees_on_manager_id", using: :btree
 
   create_table "job_titles", force: :cascade do |t|
     t.string   "name",       null: false
@@ -205,22 +201,21 @@ ActiveRecord::Schema.define(version: 20171019210151) do
   end
 
   create_table "profiles", force: :cascade do |t|
-    t.integer  "employee_id",             null: false
+    t.integer  "employee_id",     null: false
     t.string   "profile_status"
-    t.datetime "start_date",              null: false
+    t.datetime "start_date",      null: false
     t.datetime "end_date"
     t.string   "business_title"
-    t.string   "manager_adp_employee_id"
-    t.integer  "department_id",           null: false
-    t.integer  "location_id",             null: false
-    t.integer  "worker_type_id",          null: false
-    t.integer  "job_title_id",            null: false
+    t.string   "manager_id"
+    t.integer  "department_id",   null: false
+    t.integer  "location_id",     null: false
+    t.integer  "worker_type_id",  null: false
+    t.integer  "job_title_id",    null: false
     t.string   "company"
     t.string   "adp_assoc_oid"
-    t.string   "adp_employee_id",         null: false
-    t.datetime "created_at",              null: false
-    t.datetime "updated_at",              null: false
-    t.boolean  "management_position"
+    t.string   "adp_employee_id", null: false
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
   end
 
   create_table "sec_prof_access_levels", force: :cascade do |t|
@@ -254,11 +249,9 @@ ActiveRecord::Schema.define(version: 20171019210151) do
     t.datetime "created_at",                               null: false
     t.datetime "updated_at",                               null: false
     t.string   "role_names",             default: "Basic", null: false
-    t.string   "adp_employee_id"
-    t.integer  "employee_id"
+    t.string   "employee_id"
   end
 
-  add_index "users", ["employee_id"], name: "index_users_on_employee_id", using: :btree
   add_index "users", ["ldap_user"], name: "index_users_on_ldap_user", unique: true, using: :btree
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
 
