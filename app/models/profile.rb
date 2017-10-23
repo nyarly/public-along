@@ -23,7 +23,6 @@ class Profile < ActiveRecord::Base
   belongs_to :job_title
   belongs_to :location
   belongs_to :worker_type
-  has_one :employee, foreign_key: :current_profile_id
 
   aasm :column => 'profile_status' do
     state :pending, :initial => true

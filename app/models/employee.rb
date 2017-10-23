@@ -98,7 +98,7 @@ class Employee < ActiveRecord::Base
     end
 
     event :start_offboard_process do
-      transitions from: :none, to: :waiting, after: :process_upcoming_termination
+      transitions from: :none, to: :waiting, after: [:update_active_directory, :prepare_termination]
     end
   end
 
@@ -108,9 +108,8 @@ class Employee < ActiveRecord::Base
     end
   end
 
-  def process_upcoming_termination
-    update_active_directory_account
-    send_offboarding_forms
+  def prepare_termination
+    EmployeeService::Offboard.new(self).prepare_termination
   end
 
   def onboarded?
@@ -118,11 +117,7 @@ class Employee < ActiveRecord::Base
   end
 
   def onboard_new_position
-    OnboardNewWorkerService.new(self).process!
-    # TODO: add basic sec profile should remove old if worker type changed
-    # check_manager
-    # add_basic_security_profile
-    # send_manager_onboarding_form
+    EmployeeService::Onboard.new(self).process!
   end
 
   def activate_profile
@@ -322,6 +317,24 @@ class Employee < ActiveRecord::Base
     missing_onboards.select { |e| e if (e.onboarding_due_date.to_date - 1.day).between?(Date.yesterday, Date.tomorrow) }
   end
 
+  def current_profile
+    # if employee data is not persisted, like when previewing employee data from an event
+    # scope on profiles is not available, so must access by method last
+    @current_profile ||= self.profiles.last if !self.persisted?
+
+    case self.status
+    when "active"
+      @current_profile ||= self.profiles.active.last
+    when "inactive"
+      @current_profile ||= self.profiles.leave.last
+    when "pending"
+      @current_profile ||= self.profiles.pending.last
+    when "terminated"
+      @current_profile ||= self.profiles.terminated.last
+    else
+      self.profiles.last
+    end
+  end
 
   def start_date
     current_profile.start_date.strftime("%b %e, %Y")
@@ -362,12 +375,12 @@ class Employee < ActiveRecord::Base
 
   # def send_manager_onboarding_form
   #   EmployeeWorker.perform_async("Onboarding", employee_id: self.id)
-  # end
+  # end_date
 
-  def send_offboarding_forms
-    TechTableMailer.offboard_notice(self).deliver_now
-    EmployeeWorker.perform_async("Offboarding", employee_id: self.id)
-  end
+  # def send_offboarding_forms
+  #   TechTableMailer.offboard_notice(self).deliver_now
+  #   EmployeeWorker.perform_async("Offboarding", employee_id: self.id)
+  # end
 
   def downcase_unique_attrs
     self.email = email.downcase if email.present?
