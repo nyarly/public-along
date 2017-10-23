@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171023180038) do
+ActiveRecord::Schema.define(version: 20171013235241) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -142,11 +142,9 @@ ActiveRecord::Schema.define(version: 20171023180038) do
     t.integer  "del_job_title_id"
     t.string   "business_card_title",        limit: 150
     t.string   "request_status"
-    t.integer  "current_profile_id"
     t.integer  "manager_id"
   end
 
-  add_index "employees", ["current_profile_id"], name: "index_employees_on_current_profile_id", using: :btree
   add_index "employees", ["del_employee_id"], name: "index_employees_on_del_employee_id", unique: true, using: :btree
   add_index "employees", ["email"], name: "index_employees_on_email", unique: true, using: :btree
   add_index "employees", ["manager_id"], name: "index_employees_on_manager_id", using: :btree
