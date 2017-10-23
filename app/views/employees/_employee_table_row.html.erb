@@ -1,6 +1,6 @@
 <td><%= link_to e.cn, employee_path(e) %>
   <% if e.direct_reports.count > 0 %>
-    <button class="button" id=<%= "toggle-direct-reports-for-#{e.id}" %> onclick="toggleDirectReports(<%= "#{e.id}" %>)" >show dir reports</button>
+    <button class="button" id=<%= "toggle-direct-reports-for-#{e.id}" %> onclick="toggleDirectReports(<%= "#{e.id}" %>)" >Show Direct Reports</button>
   <% end %>
 </td>
 <td>
@@ -37,13 +37,13 @@
 
 <% if e.direct_reports.count > 0 %>
 
-<tr>
 
-  <table style="display:none;" class=<%= "direct-reports-for-#{e.id}" %>>
+
+  <table style="display:none;" class="direct-reports <%= "direct-reports-for-#{e.id}" %>">
     <thead>
       <tr>
         <td>
-          Direct reports
+          <%= "Direct reports for #{e.cn}" %>
         </td>
       </tr>
     </thead>
@@ -56,7 +56,7 @@
 
     </tbody>
   </table>
-</tr>
+  <table>
 
 
 
