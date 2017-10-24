@@ -1,5 +1,5 @@
 module EmployeeService
-  class GrantManagerAccess
+  class GrantManagerAccess < Base
     def process!
       @manager_sec_profile = SecurityProfile.find_by(name: "Basic Manager")
       begin

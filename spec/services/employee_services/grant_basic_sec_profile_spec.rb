@@ -1,19 +1,19 @@
 require 'rails_helper'
 
-describe BasicSecurityProfileService, type: :service do
+describe EmployeeService::GrantBasicSecProfile, type: :sevice do
   let!(:regular)  { FactoryGirl.create(:security_profile, name: "Basic Regular Worker Profile") }
   let!(:temp)     { FactoryGirl.create(:security_profile, name: "Basic Temp Worker Profile") }
   let!(:contract) { FactoryGirl.create(:security_profile, name: "Basic Contract Worker Profile") }
 
   context "with a regular worker" do
     let!(:worker_type) { FactoryGirl.create(:worker_type, kind: "Regular") }
-    let(:employee)    { FactoryGirl.create(:pending_employee) }
-    let!(:profile)    { FactoryGirl.create(:profile,
-                        employee: employee,
-                        worker_type: worker_type) }
+    let(:employee)     { FactoryGirl.create(:pending_employee) }
+    let!(:profile)     { FactoryGirl.create(:profile,
+                         employee: employee,
+                         worker_type: worker_type) }
 
     it "should add the regular security profile" do
-      service = BasicSecurityProfileService.new(employee).process!
+      service = EmployeeService::GrantBasicSecProfile.new(employee).process!
       expect(service).to include(regular)
       expect(service).not_to include(temp)
       expect(service).not_to include(contract)
@@ -29,7 +29,7 @@ describe BasicSecurityProfileService, type: :service do
                          worker_type: worker_type) }
 
     it "should add the temporary security profile" do
-      service = BasicSecurityProfileService.new(employee).process!
+      service = EmployeeService::GrantBasicSecProfile.new(employee).process!
       expect(service).to include(temp)
       expect(service).not_to include(regular)
       expect(service).not_to include(contract)
@@ -45,7 +45,7 @@ describe BasicSecurityProfileService, type: :service do
                          worker_type: worker_type) }
 
     it "should add the temporary security profile" do
-      service = BasicSecurityProfileService.new(employee).process!
+      service = EmployeeService::GrantBasicSecProfile.new(employee).process!
       expect(service).to include(contract)
       expect(service).not_to include(regular)
       expect(service).not_to include(temp)

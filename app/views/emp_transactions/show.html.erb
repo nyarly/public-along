@@ -20,7 +20,7 @@
   </div>
 
   <!-- buddy section -->
-  <% if @emp_transaction.kind == "Onboarding" && !@employee.is_contingent_worker? %>
+  <% if @emp_transaction.kind == "Onboarding" && !is_contingent_worker?(@employee) %>
     <div class="row">
       <p>
         <strong>Buddy:</strong>
@@ -35,7 +35,7 @@
   <!-- end buddy section -->
 
   <!-- contingent worker section -->
-  <% if @emp_transaction.kind == "Onboarding" && @employee.is_contingent_worker? %>
+  <% if @emp_transaction.kind == "Onboarding" && is_contingent_worker?(@employee) %>
     <div class="row">
       <p>
         <strong>Contingent Worker:</strong>

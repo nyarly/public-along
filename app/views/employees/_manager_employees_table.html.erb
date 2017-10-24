@@ -14,12 +14,12 @@
   </thead>
 
   <% if @employees.count > 0 %>
-      <% @employees.each do |e| %>
     <tbody>
+      <% @employees.each do |e| %>
         <tr>
           <%= render partial: "employee_table_row", locals: { e: e } %>
         </tr>
-    </tbody>
       <% end %>
+    </tbody>
   <% end %>
 </table>

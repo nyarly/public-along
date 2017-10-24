@@ -78,7 +78,7 @@ module SummaryReportHelper
             salesforce(employee).try(:cn),
             employee.hire_date.strftime("%b %e, %Y"),
             employee.termination_date.strftime("%b %e, %Y"),
-            employee.offboarding_complete?,
+            employee.request_status,
             last_changed(employee).try(:strftime, "%b %e, %Y at %H:%M:%S")
           ]
         end

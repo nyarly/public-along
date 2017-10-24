@@ -14,7 +14,7 @@
     <% if @employee.contract_end_date.present? %>
       <strong>Contract End Date:</strong><%= @employee.contract_end_date.strftime("%b %e, %Y") %>
     <% end %>
-    <% if @employee.is_contingent_worker? %>
+    <% if is_contingent_worker?(@employee) %>
       <p><strong>Contingent Worker: true</strong>
         <div style="margin-left: 2em">
           <ul>

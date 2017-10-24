@@ -214,12 +214,12 @@ describe AdpService::Events, type: :service do
       let!(:manager_profile)  { FactoryGirl.create(:active_profile,
                                 employee: manager,
                                 adp_employee_id: "654321") }
-      let(:onboard_service)   { double(OnboardNewWorkerService) }
+      let(:onboard_service)   { double(EmployeeService::Onboard) }
 
       before :each do
         expect(ActiveDirectoryService).to receive(:new).and_return(ads)
         expect(ads).to receive(:create_disabled_accounts)
-        expect(OnboardNewWorkerService).to receive(:new).and_return(onboard_service)
+        expect(EmployeeService::Onboard).to receive(:new).and_return(onboard_service)
         expect(onboard_service).to receive(:process!)
       end
 

@@ -8,7 +8,7 @@ class EmployeesController < ApplicationController
     if current_user.role_names.count == 1 && current_user.role_names.include?("Manager")
       @employees = current_user.employee.direct_reports
     else
-      @employees = Employee.all.includes([:manager, :emp_transactions, :current_profile => [:job_title, :location, :worker_type]])
+      @employees = Employee.all.includes([:manager, :emp_transactions, :profiles => [:job_title, :location, :worker_type]])
     end
     @employees = @employees.page(params[:page])
 
@@ -23,6 +23,11 @@ class EmployeesController < ApplicationController
     @employee.emp_transactions.map { |e| activity << e }
     @employee.emp_deltas.map { |e| activity << e }
     @activities = activity.sort_by!(&:created_at).reverse!
+  end
+
+  def direct_reports
+    @employee = Employee.find(params[:employee_id])
+    @employees = @employee.direct_reports
   end
 
   def autocomplete_name

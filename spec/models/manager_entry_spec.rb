@@ -151,6 +151,10 @@ RSpec.describe ManagerEntry do
     end
 
     it "should create a new employee when the manager does not link accounts" do
+      expect(ActiveDirectoryService).to receive(:new).and_return(ads)
+      expect(ads).to receive(:create_disabled_accounts)
+      expect(EmployeeWorker).to receive(:perform_async)
+
       job_title = FactoryGirl.create(:job_title,
         code: "CTRANL",
         name: "Control Analyst")
@@ -167,6 +171,7 @@ RSpec.describe ManagerEntry do
       expect(employee.profiles.count).to eq(1)
       expect(employee.profiles.terminated.last).to eq(nil)
       expect(employee.profiles.pending.last.worker_type).to eq(worker_type)
+      expect(employee.security_profiles).to include(sp_1)
       expect(event.status).to eq("Processed")
     end
   end
@@ -244,6 +249,10 @@ RSpec.describe ManagerEntry do
     end
 
     it "should create a new employee when the manager doesn't link employees" do
+      expect(ActiveDirectoryService).to receive(:new).and_return(ads)
+      expect(ads).to receive(:create_disabled_accounts)
+      expect(EmployeeWorker).to receive(:perform_async)
+
       manager_entry = ManagerEntry.new(link_off_params)
       manager_entry.save
 

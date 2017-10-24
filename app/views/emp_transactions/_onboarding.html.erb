@@ -9,7 +9,7 @@
   <p>If you have questions about the information on this form, please contact TechTable as soon as possible, or submit the form with your questions in the note section below.</p>
 </div>
 
-<% if @employee.is_contingent_worker? %>
+<% if is_contingent_worker?(@employee) %>
   <div class="callout large">
     <h4>Contingent Worker Options</h4>
     <br>
@@ -34,7 +34,7 @@
 <%= render partial: "security_access", locals: {f: f, employee: @employee, kind: @kind} %>
 <%= render partial: "equipment", locals: {f: f} %>
 
-<% unless @employee.is_contingent_worker? %>
+<% unless is_contingent_worker?(@employee) %>
   <div class="callout">
     <h4>Buddy *</h4>
     <p class="help-text">Select a buddy for the worker's first day.</p>

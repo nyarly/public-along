@@ -1,6 +1,7 @@
-<td><%= link_to e.cn, employee_path(e) %>
+<td>
+  <%= link_to e.cn, employee_path(e) %>
   <% if e.direct_reports.count > 0 %>
-    <button class="button" id=<%= "toggle-direct-reports-for-#{e.id}" %> onclick="toggleDirectReports(<%= "#{e.id}" %>)" >Show Direct Reports</button>
+    <%= link_to "View Direct Reports", employee_direct_reports_path(e), class: "button direct-report-btn" %>
   <% end %>
 </td>
 <td>
@@ -34,32 +35,3 @@
 <td><%= e.current_profile.start_date.strftime("%m/%d/%Y") if e.current_profile.start_date.present? %></td>
 <td><%= e.contract_end_date.strftime("%m/%d/%Y") if e.contract_end_date.present? %></td>
 <td><%= e.termination_date.strftime("%m/%d/%Y") if e.termination_date.present? %></td>
-
-<% if e.direct_reports.count > 0 %>
-
-
-
-  <table style="display:none;" class="direct-reports <%= "direct-reports-for-#{e.id}" %>">
-    <thead>
-      <tr>
-        <td>
-          <%= "Direct reports for #{e.cn}" %>
-        </td>
-      </tr>
-    </thead>
-    <tbody>
-    <% e.direct_reports.each do |d| %>
-      <tr>
-          <%= render partial: "employee_table_row", locals: { e: d } %>
-        </tr>
-    <% end %>
-
-    </tbody>
-  </table>
-  <table>
-
-
-
-
-
-<% end %>

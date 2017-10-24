@@ -260,14 +260,6 @@ describe Employee, type: :model do
       expect(Employee.deactivation_group).to_not include(non_deactivation_group)
     end
 
-    it "should check if the employee is contingent" do
-      reg_emp = FactoryGirl.create(:regular_employee)
-      contingent_emp = FactoryGirl.create(:contract_worker)
-
-      expect(reg_emp.is_contingent_worker?).to eq(false)
-      expect(contingent_emp.is_contingent_worker?).to eq(true)
-    end
-
     it "should scope the offboarding groups" do
       offboarding_group = [
         FactoryGirl.create(:employee, :termination_date => Date.today),
@@ -283,32 +275,6 @@ describe Employee, type: :model do
 
       expect(Employee.offboarding_report_group).to match_array(offboarding_group)
       expect(Employee.offboarding_report_group).to_not include(non_offboarding_group)
-    end
-
-    it "should check onboarding is complete" do
-      completed = FactoryGirl.create(:employee)
-      emp_trans_1 = FactoryGirl.create(:onboarding_emp_transaction,
-        employee_id: completed.id)
-      onboarding_info = FactoryGirl.create(:onboarding_info,
-        emp_transaction_id: emp_trans_1.id)
-
-      not_completed = FactoryGirl.create(:employee, request_status: "waiting")
-
-      expect(completed.onboarded?).to eq(true)
-      expect(not_completed.onboarded?).to eq(false)
-    end
-
-    it "should check offboarding is complete" do
-      completed = FactoryGirl.create(:employee)
-      emp_trans_1 = FactoryGirl.create(:onboarding_emp_transaction,
-        employee_id: completed.id)
-      offboarding_info = FactoryGirl.create(:offboarding_info,
-        emp_transaction_id: emp_trans_1.id)
-
-      not_completed = FactoryGirl.create(:employee)
-
-      expect(completed.offboarding_complete?).to eq(true)
-      expect(not_completed.offboarding_complete?).to eq(false)
     end
 
     it "should find active/revoked security profiles" do
