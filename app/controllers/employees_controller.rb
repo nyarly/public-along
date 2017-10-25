@@ -27,7 +27,7 @@ class EmployeesController < ApplicationController
 
   def direct_reports
     @employee = Employee.find(params[:id])
-    @employees = @employee.direct_reports.includes([:manager, :emp_transactions])
+    @employees = @employee.direct_reports.includes([:manager, :emp_transactions, :profiles => [:job_title, :location, :worker_type]])
   end
 
   def autocomplete_name

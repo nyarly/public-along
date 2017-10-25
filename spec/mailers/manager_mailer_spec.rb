@@ -1,7 +1,13 @@
 require "rails_helper"
 
 RSpec.describe ManagerMailer, type: :mailer do
-  let!(:manager)     { FactoryGirl.create(:active_employee, email: "manager@opentable.com") }
+  let!(:ceo)         { FactoryGirl.create(:active_employee, email: "ceo@opentable.com") }
+  let!(:ceo_profile) { FactoryGirl.create(:active_profile,
+                       adp_employee_id: "111111",
+                       employee: ceo) }
+  let!(:manager)     { FactoryGirl.create(:active_employee,
+                       email: "manager@opentable.com",
+                       manager: ceo) }
   let!(:man_profile) { FactoryGirl.create(:active_profile,
                        employee: manager,
                        adp_employee_id: "654321") }
@@ -16,18 +22,31 @@ RSpec.describe ManagerMailer, type: :mailer do
   let!(:profiler)    { EmployeeProfile.new }
 
   context "Onboarding reminder" do
-    let!(:email) { ManagerMailer.reminder(manager, employee, "reminder").deliver_now }
+    let!(:reminder_email)   { ManagerMailer.reminder(manager, employee, "reminder").deliver_now }
+    let!(:escalation_email) { ManagerMailer.reminder(ceo, employee, "escalation").deliver_now }
 
     it "should queue to send" do
       expect(ActionMailer::Base.deliveries).to_not be_empty
     end
 
-    it "should have the right content" do
-      expect(email.from).to eq(["mezzo-no-reply@opentable.com"])
-      expect(email.to).to eq(["manager@opentable.com"])
-      expect(email.subject).to eq("Urgent: Mezzo Onboarding Form Due Tomorrow for #{employee.first_name} #{employee.last_name}")
-      expect(email.text_part.body).to include("Follow the link below to complete the employee event form")
-      expect(email.html_part.body).to include("Follow the link below to complete the employee event form")
+    it "reminder email should have the right content" do
+      expect(reminder_email.from).to eq(["mezzo-no-reply@opentable.com"])
+      expect(reminder_email.to).to eq(["manager@opentable.com"])
+      expect(reminder_email.subject).to eq("Urgent: Mezzo Onboarding Form Due Tomorrow for #{employee.first_name} #{employee.last_name}")
+      expect(reminder_email.text_part.body).to include("Follow the link below to complete the employee event form")
+      expect(reminder_email.html_part.body).to include("Follow the link below to complete the employee event form")
+      expect(reminder_email.text_part.body).to include("user_emp_id=654321")
+      expect(reminder_email.html_part.body).to include("user_emp_id=654321")
+    end
+
+    it "escalation email should have the right content" do
+      expect(escalation_email.from).to eq(["mezzo-no-reply@opentable.com"])
+      expect(escalation_email.to).to eq(["ceo@opentable.com"])
+      expect(escalation_email.subject).to eq("Urgent: Mezzo Onboarding Form Due Tomorrow for #{employee.first_name} #{employee.last_name}")
+      expect(escalation_email.text_part.body).to include("Follow the link below to complete the employee event form")
+      expect(escalation_email.html_part.body).to include("Follow the link below to complete the employee event form")
+      expect(escalation_email.text_part.body).to include("user_emp_id=111111")
+      expect(escalation_email.html_part.body).to include("user_emp_id=111111")
     end
   end
 

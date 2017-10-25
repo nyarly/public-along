@@ -21,10 +21,9 @@ class ManagerMailerPreview < ActionMailer::Preview
 
   def onboarding_reminder_escalation
     employee = Employee.where("status LIKE ? AND manager_id IS NOT NULL", "pending").last
-    manager = employee.manager
-    ManagerMailer.reminder(manager, employee, "escalation")
+    managers_manager = employee.manager.manager
+    ManagerMailer.reminder(managers_manager, employee, "escalation")
   end
-
 
   def offboarding_permissions
     employee = Employee.where('termination_date IS NOT NULL').last

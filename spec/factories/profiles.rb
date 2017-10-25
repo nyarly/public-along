@@ -46,3 +46,11 @@ FactoryGirl.define do
   end
 end
 
+# To pass employee args into profile use this syntax:
+# let!(:worker) { FactoryGirl.create(:profile,
+#                 start_date: Date.new(2017, 5, 8),
+#                 employee_args: {
+#                   last_name: "Aaa",
+#                   hire_date: Date.new(2017, 5, 8),
+#                   request_status: "waiting",
+#                   status: "pending" }) }

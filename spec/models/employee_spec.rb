@@ -400,13 +400,7 @@ describe Employee, type: :model do
       last_name: "Aaaa",
       hire_date: Date.new(2017, 5, 8),
       request_status: "waiting") }
-    # let!(:due_tomorrow_no_onboard) { FactoryGirl.create(:profile,
-    #                         start_date: Date.new(2017, 5, 8),
-    #                          employee_args: {
-    #                            last_name: "Aaa",
-    #                            hire_date: Date.new(2017, 5, 8),
-    #                            request_status: "waiting",
-    #                            status: "pending" }) }
+
     let!(:due_tomorrow_no_onboard_profile) { FactoryGirl.create(:profile,
       start_date: Date.new(2017, 5, 8),
       employee: due_tomorrow_no_onboard) }
