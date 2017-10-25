@@ -16,7 +16,7 @@ Rails.application.routes.draw do
   resources :employees, :only => [:index, :show] do
     get :autocomplete_name, :on => :collection
     get :autocomplete_email, :on => :collection
-    get :direct_reports
+    get :direct_reports, on: :member
   end
   resource :emails, :only => [:create]
 

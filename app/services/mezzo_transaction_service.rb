@@ -10,6 +10,8 @@ class MezzoTransactionService
     add_security_group
   end
 
+  private
+
   def create_emp_transaction
     @emp_transaction = EmpTransaction.new(
       kind: "Service",

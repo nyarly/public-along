@@ -16,7 +16,6 @@ class BetterworksService
                                 AND hire_date <= ?",
                                 launch_date,
                                 Date.today)
-    # current_users = user_group.where("hire_date <= ?", Date.today)
     user_group.joins(:profiles).merge(Profile.regular_worker_type).to_a.uniq
   end
 

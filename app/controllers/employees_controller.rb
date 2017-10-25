@@ -26,7 +26,7 @@ class EmployeesController < ApplicationController
   end
 
   def direct_reports
-    @employee = Employee.find(params[:employee_id])
+    @employee = Employee.find(params[:id])
     @employees = @employee.direct_reports
   end
 

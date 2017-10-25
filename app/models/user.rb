@@ -30,6 +30,7 @@ class User < ActiveRecord::Base
     self.first_name = Devise::LDAP::Adapter.get_ldap_param(self.ldap_user,"givenName").first
     self.last_name = Devise::LDAP::Adapter.get_ldap_param(self.ldap_user,"sn").first
     self.adp_employee_id = Devise::LDAP::Adapter.get_ldap_param(self.ldap_user,"employeeID").first
+    self.employee_id = Employee.find_by_employee_id(self.adp_employee_id).id
   end
 
   def full_name

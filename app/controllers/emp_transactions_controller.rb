@@ -37,7 +37,7 @@ class EmpTransactionsController < ApplicationController
     end
 
     if params[:user_emp_id]
-      @manager_user = User.find_by_employee_id params[:user_emp_id]
+      @manager_user = User.find_by(adp_employee_id: params[:user_emp_id])
     elsif params[:user_id]
       @manager_user = User.find params[:user_id]
     end

@@ -1,7 +1,7 @@
 <td>
   <%= link_to e.cn, employee_path(e) %>
   <% if e.direct_reports.count > 0 %>
-    <%= link_to "View Direct Reports", employee_direct_reports_path(e), class: "button direct-report-btn" %>
+    <%= link_to "View Direct Reports", direct_reports_employee_path(e.id), class: "button direct-report-btn" %>
   <% end %>
 </td>
 <td>
