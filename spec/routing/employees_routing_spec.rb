@@ -15,5 +15,9 @@ RSpec.describe EmployeesController, type: :routing do
       expect(:get => "employees/autocomplete_name?term=something").to route_to("employees#autocomplete_name", :term => "something")
     end
 
+    it "routes to #direct_reports" do
+      expect(:get => "employees/1/direct_reports").to route_to("employees#direct_reports", :id => "1")
+    end
+
   end
 end

@@ -124,6 +124,9 @@
               </div>
             <hr>
           <% end %>
+          <% if @employee.direct_reports.count > 0 %>
+            <%= link_to "Manage Direct Reports", direct_reports_employee_path(@employee.id), class: "button" %>
+          <% end %>
 
           <!-- Start admin info section -->
           <% if can? :manage, Employee %>

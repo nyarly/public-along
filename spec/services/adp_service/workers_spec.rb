@@ -113,15 +113,25 @@ describe AdpService::Workers, type: :service do
   end
 
   describe "sync_workers" do
-    let(:worker_type) { FactoryGirl.create(:worker_type)}
-    let!(:employee) { FactoryGirl.create(:active_employee)}
-    let!(:profile) { FactoryGirl.create(:active_profile,
-      employee: employee,
-      adp_employee_id: "101455",
-      adp_assoc_oid: "G32B8JAXA1W398Z8",
-      worker_type: worker_type)}
-    let(:json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_workers.json") }
-    let(:parser) { double(AdpService::WorkerJsonParser) }
+    let(:worker_type) { FactoryGirl.create(:worker_type) }
+    let(:manager) { FactoryGirl.create(:active_employee)}
+    let!(:manager_profile)    { FactoryGirl.create(:active_profile,
+                        employee: manager,
+                        adp_employee_id: "101734",
+                        management_position: true) }
+    let(:employee)    { FactoryGirl.create(:active_employee,
+                        first_name: "BOB",
+                        manager: manager) }
+    let!(:profile)    { FactoryGirl.create(:active_profile,
+                        employee: employee,
+                        adp_employee_id: "101455",
+                        adp_assoc_oid: "G32B8JAXA1W398Z8",
+                        worker_type: worker_type) }
+    let(:json)        { File.read(Rails.root.to_s+"/spec/fixtures/adp_workers.json") }
+    let(:parser)      { double(AdpService::WorkerJsonParser) }
+    let(:sas)         { double(SecAccessService) }
+    # let(:man_access)  { double(EmployeeService::GrantManagerAccess) }
+
     let(:sorted) {
       [{
         status: "active",
@@ -132,7 +142,7 @@ describe AdpService::Workers, type: :service do
         hire_date: "2013-08-05",
         contract_end_date: nil,
         company: "OpenTable Inc.",
-        manager_id: "101734",
+        manager_adp_employee_id: "101734",
         office_phone: "(212) 555-4411",
         personal_mobile_phone: "(212) 555-4411",
         department_id: FactoryGirl.create(:department).id,
@@ -140,7 +150,8 @@ describe AdpService::Workers, type: :service do
         worker_type_id: worker_type.id,
         job_title_id: FactoryGirl.create(:job_title).id,
         start_date: 2.weeks.ago,
-        profile_status: "active"
+        profile_status: "active",
+        manager_id: manager.id
       }]
     }
 
@@ -166,7 +177,7 @@ describe AdpService::Workers, type: :service do
       expect(ActiveDirectoryService).to receive(:new).and_return(ads)
       expect(ads).to receive(:update).with([employee])
       expect(EmployeeWorker).to receive(:perform_async)
-      allow(employee).to receive(:check_manager)
+      expect(EmployeeService::GrantManagerAccess).to receive_message_chain(:new, :process!)
 
       adp.sync_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
       expect(employee.reload.first_name).to eq("Sally Jesse")
@@ -174,32 +185,27 @@ describe AdpService::Workers, type: :service do
     end
 
     it "should make indicated manager if not already a manager" do
-      manager_to_be = FactoryGirl.create(:employee)
-      profile = FactoryGirl.create(:profile,
-        employee: manager_to_be,
-        adp_employee_id: "101734")
       sp = FactoryGirl.create(:security_profile, name: "Basic Manager")
-
       expect(response).to receive(:body).and_return(json)
 
       adp = AdpService::Workers.new
       adp.token = "a-token-value"
-
       expect(AdpService::WorkerJsonParser).to receive(:new).and_return(parser)
       expect(parser).to receive(:sort_workers).and_return(sorted)
       expect(ActiveDirectoryService).to receive(:new).twice.and_return(ads)
       expect(ads).to receive(:update).with([employee])
 
-      expect{
-        adp.sync_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
-      }.to change{Employee.managers.include?(manager_to_be)}.from(false).to(true)
+      adp.sync_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
+      expect(employee.manager.emp_transactions.last.kind).to eq("Service")
+      expect(employee.manager.emp_transactions.last.emp_sec_profiles.last.security_profile_id).to eq(sp.id)
     end
 
     it "should do nothing if manager already a manager" do
-      manager = FactoryGirl.create(:employee)
-      m_prof = FactoryGirl.create(:profile,
+      manager = FactoryGirl.create(:active_employee)
+      m_prof = FactoryGirl.create(:active_profile,
         employee: manager,
-        adp_employee_id: "100449")
+        adp_employee_id: "100449",
+        management_position: true)
       sp = FactoryGirl.create(:security_profile, name: "Basic Manager")
       emp_transaction = FactoryGirl.create(:emp_transaction,
         employee_id: manager.id)
@@ -214,12 +220,12 @@ describe AdpService::Workers, type: :service do
 
       expect(AdpService::WorkerJsonParser).to receive(:new).and_return(parser)
       expect(parser).to receive(:sort_workers).and_return(sorted)
-      expect(ActiveDirectoryService).to receive(:new).and_return(ads)
+      expect(ActiveDirectoryService).to receive(:new).twice.and_return(ads)
       expect(ads).to receive(:update).with([employee])
 
       expect{
         adp.sync_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
-      }.to_not change{Employee.managers.include?(manager)}
+      }.to_not change{employee.manager.security_profiles}
     end
 
     it "should send a security access form on department, worker type, location, or job title" do
@@ -516,10 +522,11 @@ describe AdpService::Workers, type: :service do
     context "worker has contract end date less than one year" do
       contract_end_date = Date.today + 3.months
       check_contract_end_date = contract_end_date - 1.day
-      let!(:worker_type) {FactoryGirl.create(:worker_type,
+      let!(:worker_type) { FactoryGirl.create(:worker_type,
         code: "ACW",
         kind: "Contractor")}
-      let!(:new_hire) {FactoryGirl.create(:pending_employee,
+      let!(:new_hire) { FactoryGirl.create(:employee,
+        status: "pending",
         first_name: "Robert",
         contract_end_date: contract_end_date,
         hire_date: Date.today + 2.weeks)}
@@ -560,23 +567,24 @@ describe AdpService::Workers, type: :service do
     end
 
     context "new hire's manager is new manager" do
-
       check_date = 1.year.from_now.change(:usec => 0)
 
-      let!(:new_manager) { FactoryGirl.create(:employee)}
-      let!(:manager_prof) { FactoryGirl.create(:profile,
+      let!(:new_manager) { FactoryGirl.create(:active_employee) }
+      let!(:manager_prof) { FactoryGirl.create(:active_profile,
         employee: new_manager,
-        adp_employee_id: "100345") }
+        adp_employee_id: "100345",
+        management_position: true) }
       let!(:basic_manager_sec_prof) { FactoryGirl.create(:security_profile,
         name: "Basic Manager") }
-      let!(:new_hire) { FactoryGirl.create(:pending_employee,
+      let!(:new_hire) { FactoryGirl.create(:employee,
+        status: "pending",
+        manager: new_manager,
         hire_date: Date.today + 4.days)}
       let!(:profile) { FactoryGirl.create(:profile,
         employee: new_hire,
         profile_status: "pending",
         adp_employee_id: "123456",
-        adp_assoc_oid: "TESTOID",
-        manager_id: "100345")}
+        adp_assoc_oid: "TESTOID") }
 
       before :each do
         expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers/TESTOID?asOfDate=#{check_date.strftime('%m')}%2F#{check_date.strftime('%d')}%2F#{check_date.strftime('%Y')}").and_return(uri)
@@ -595,7 +603,7 @@ describe AdpService::Workers, type: :service do
         adp.token = "a-token-value"
         adp.check_new_hire_change(new_hire)
 
-        expect(new_hire.manager_id).to eq(new_manager.employee_id)
+        expect(new_hire.manager_id).to eq(new_manager.id)
         expect(new_manager.active_security_profiles).to include(basic_manager_sec_prof)
       end
     end
@@ -604,7 +612,8 @@ describe AdpService::Workers, type: :service do
       let!(:ptt_wt)      { FactoryGirl.create(:worker_type, code: "PTT") }
       let!(:jt)          { FactoryGirl.create(:job_title, code: "BRDSRNE") }
       let!(:dept)        { FactoryGirl.create(:department, code: "063050") }
-      let!(:rehire)      { FactoryGirl.create(:pending_employee,
+      let!(:rehire)      { FactoryGirl.create(:employee,
+                           status: "pending",
                            hire_date: Date.new(2016, 10, 26)) }
       let!(:old_profile) { FactoryGirl.create(:terminated_profile,
                            employee: rehire,

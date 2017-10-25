@@ -459,6 +459,7 @@
           ],
           "payrollGroupCode": "WP8",
           "payrollFileNumber": "102150",
+          "managementPositionIndicator": false,
           "payGradeCode": {
             "codeValue": "M00454",
             "shortName": "2"
@@ -565,7 +566,8 @@
             }
           },
           "payrollGroupCode": "WP8",
-          "payrollFileNumber": "101298"
+          "payrollFileNumber": "101298",
+          "managementPositionIndicator": false
         }
       ],
       "customFieldGroup": {
@@ -933,7 +935,8 @@
             }
           ],
           "payrollGroupCode": "WP8",
-          "payrollFileNumber": "101455"
+          "payrollFileNumber": "101455",
+          "managementPositionIndicator": true
         }
       ],
       "customFieldGroup": {

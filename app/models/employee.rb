@@ -19,6 +19,8 @@ class Employee < ActiveRecord::Base
   has_many :security_profiles, through: :emp_sec_profiles
   has_many :emp_deltas # on delete, cascade in db
   has_many :profiles # on delete, cascade in db
+  has_many :direct_reports, class_name: "Employee", foreign_key: "manager_id"
+  belongs_to :manager, class_name: "Employee"
 
   validates :first_name,
             presence: true
@@ -28,6 +30,7 @@ class Employee < ActiveRecord::Base
             presence: true
 
   scope :active_or_inactive, -> { where('status IN (?)', ["active", "inactive"]) }
+  scope :managers, -> { where(management_position: true) }
 
   aasm :column => "status" do
     error_on_all_events { |e| Rails.logger.info e.message }
@@ -37,17 +40,11 @@ class Employee < ActiveRecord::Base
     state :inactive
     state :terminated
 
-    event :hire, binding_event: :wait do
-      after do
-        onboard_new_position
-      end
+    event :hire, binding_event: :wait, after: :onboard_new_position do
       transitions from: :created, to: :pending, after: :create_active_directory_account
     end
 
-    event :rehire, binding_event: :wait do
-      after do
-        onboard_new_position
-      end
+    event :rehire, binding_event: :wait, after: :onboard_new_position do
       transitions from: :terminated, to: :pending, after: :update_active_directory_account
     end
 
@@ -57,7 +54,7 @@ class Employee < ActiveRecord::Base
 
     event :activate, binding_event: :clear_queue, after: [:activate_profile, :activate_active_directory_account] do
       transitions from: :inactive, to: :active
-      transitions from: :pending, to: :active, guard: [:onboarded?, :record_complete?]
+      transitions from: :pending, to: :active, guard: :activation_allowed?
     end
 
     event :start_leave do
@@ -95,30 +92,26 @@ class Employee < ActiveRecord::Base
     end
 
     event :start_offboard_process do
-      transitions from: :none, to: :waiting, after: :process_upcoming_termination
+      transitions from: :none, to: :waiting, after: [:update_active_directory_account, :prepare_termination]
     end
   end
 
-  [:manager_id, :department, :worker_type, :location, :job_title, :company, :adp_assoc_oid].each do |attribute|
+  [:department, :worker_type, :location, :job_title, :company, :adp_assoc_oid].each do |attribute|
     define_method :"#{attribute}" do
       current_profile.try(:send, "#{attribute}")
     end
   end
 
-  def process_upcoming_termination
-    update_active_directory_account
-    send_offboarding_forms
-  end
-
-  def onboarded?
-    request_status == "completed" || request_status == "none"
+  def prepare_termination
+    EmployeeService::Offboard.new(self).prepare_termination
   end
 
   def onboard_new_position
-    check_manager
-    # TODO: add basic sec profile should remove old if worker type changed
-    add_basic_security_profile
-    send_manager_onboarding_form
+    EmployeeService::Onboard.new(self).process!
+  end
+
+  def activation_allowed?
+    ActivationPolicy.new(self, self.worker_type.kind).allowed?
   end
 
   def activate_profile
@@ -249,71 +242,12 @@ class Employee < ActiveRecord::Base
     "ou=Provisional,ou=Users,"
   end
 
-  def add_basic_security_profile
-    default_sec_group = ""
-
-    if self.worker_type.kind == "Regular"
-      default_sec_group = SecurityProfile.find_by(name: "Basic Regular Worker Profile").id
-    elsif self.worker_type.kind == "Temporary"
-      default_sec_group = SecurityProfile.find_by(name: "Basic Temp Worker Profile").id
-    elsif self.worker_type.kind == "Contractor"
-      default_sec_group = SecurityProfile.find_by(name: "Basic Contract Worker Profile").id
-    end
-
-    emp_trans = EmpTransaction.new(
-      kind: "Service",
-      notes: "Initial provisioning by Mezzo",
-      employee_id: self.id
-    )
-
-    emp_trans.emp_sec_profiles.build(security_profile_id: default_sec_group)
-
-    emp_trans.save!
-
-    if emp_trans.emp_sec_profiles.count > 0
-      sas = SecAccessService.new(emp_trans)
-      sas.apply_ad_permissions
-    end
-  end
-
   def self.search(term)
     where("lower(last_name) LIKE ? OR lower(first_name) LIKE ? ", "%#{term.downcase}%", "%#{term.downcase}%").reorder("last_name ASC")
   end
 
   def self.search_email(term)
     where("lower(email) LIKE ?", "%#{term.downcase}%")
-  end
-
-  def manager
-    Employee.find_by_employee_id(manager_id) if manager_id
-  end
-
-  def self.direct_reports_of(manager_emp_id)
-    joins(:profiles).where("profiles.manager_id LIKE ?", manager_emp_id)
-  end
-
-  def check_manager
-    manager = self.manager
-    return false if manager.blank? || Employee.managers.include?(manager)
-
-    sp = SecurityProfile.find_by(name: "Basic Manager")
-
-    emp_trans = EmpTransaction.new(
-      kind: "Service",
-      notes: "Manager permissions added by Mezzo",
-      employee_id: manager.id
-    )
-
-    emp_trans.emp_sec_profiles.build(
-      security_profile_id: sp.id
-    )
-
-    emp_trans.save!
-
-    if emp_trans.emp_sec_profiles.count > 0
-      sas = SecAccessService.new(emp_trans)
-      sas.apply_ad_permissions
-    end
   end
 
   def self.leave_return_group
@@ -335,11 +269,6 @@ class Employee < ActiveRecord::Base
   def self.onboarding_reminder_group
     missing_onboards = Employee.where(status: "pending", request_status: "waiting")
     missing_onboards.select { |e| e if (e.onboarding_due_date.to_date - 1.day).between?(Date.yesterday, Date.tomorrow) }
-  end
-
-  def self.managers
-    joins(:emp_sec_profiles)
-    .where('emp_sec_profiles.security_profile_id = ?', SecurityProfile.find_by(name: 'Basic Manager').id)
   end
 
   def current_profile
@@ -398,15 +327,6 @@ class Employee < ActiveRecord::Base
     service.offboard([self])
   end
 
-  def send_manager_onboarding_form
-    EmployeeWorker.perform_async("Onboarding", employee_id: self.id)
-  end
-
-  def send_offboarding_forms
-    TechTableMailer.offboard_notice(self).deliver_now
-    EmployeeWorker.perform_async("Offboarding", employee_id: self.id)
-  end
-
   def downcase_unique_attrs
     self.email = email.downcase if email.present?
     self.status = status.downcase if status.present?
@@ -415,20 +335,6 @@ class Employee < ActiveRecord::Base
   def strip_whitespace
     self.first_name = self.first_name.strip unless self.first_name.nil?
     self.last_name = self.last_name.strip unless self.last_name.nil?
-  end
-
-  def is_contingent_worker?
-    worker_type.kind == "Temporary" || worker_type.kind == "Contractor"
-  end
-
-  # Before activating, make sure contract workers have contract end date
-  def record_complete?
-    return true if worker_type.kind == "Regular"
-    contract_end_date.present?
-  end
-
-  def offboarding_complete?
-    self.offboarding_infos.count > 0
   end
 
   def offboarding_cutoff

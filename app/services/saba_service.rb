@@ -181,7 +181,7 @@ class SabaService
         csv << [
           e.employee_id,
           status,
-          e.manager_id,
+          e.manager.try(:employee_id),
           e.worker_type.try(:name),
           e.hire_date.strftime("%Y-%m-%d"),
           e.termination_date.try(:strftime, "%Y-%m-%d"),

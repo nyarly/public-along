@@ -1,15 +1,19 @@
 FactoryGirl.define do
   factory :profile do
-    association :employee, factory: :employee
-    association :department, factory: :department
-    association :location, factory: :location
-    association :worker_type, factory: :worker_type
-    association :job_title, factory: :job_title
+    transient do
+      employee_args nil
+    end
+    employee { create(:employee, employee_args) }
+    location
+    department
+    worker_type
+    job_title
     start_date      { 1.year.ago }
     end_date        { nil }
     company         { "OpenTable, Inc." }
     adp_assoc_oid   { Faker::Number.number(10) }
     adp_employee_id { Faker::Number.number(6) }
+    management_position nil
 
     factory :active_profile do
       profile_status { "active" }
@@ -41,3 +45,12 @@ FactoryGirl.define do
     end
   end
 end
+
+# To pass employee args into profile use this syntax:
+# let!(:worker) { FactoryGirl.create(:profile,
+#                 start_date: Date.new(2017, 5, 8),
+#                 employee_args: {
+#                   last_name: "Aaa",
+#                   hire_date: Date.new(2017, 5, 8),
+#                   request_status: "waiting",
+#                   status: "pending" }) }

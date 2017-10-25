@@ -15,24 +15,25 @@ RSpec.describe AdpEvent, type: :model do
   end
 
   context "with new hire/rehire events" do
-    let!(:json)             { File.read(Rails.root.to_s+"/spec/fixtures/adp_rehire_event.json") }
-    let!(:prccd_hire_evt)   { FactoryGirl.create(:adp_event,
-                              status: "Processed",
-                              kind: "worker.hire")}
-    let!(:new_hire_evt)     { FactoryGirl.create(:adp_event,
-                              status: "New",
-                              json: json,
-                              kind: "worker.hire")}
-    let!(:prccd_rehire_evt) { FactoryGirl.create(:adp_event,
-                              status: "Processed",
-                              kind: "worker.rehire")}
-    let!(:new_rehire_evt)   { FactoryGirl.create(:adp_event,
-                              json: json,
-                              status: "New",
-                              kind: "worker.rehire")}
-    let(:profiler)          { EmployeeProfile.new }
-    let!(:reg_wt)           { FactoryGirl.create(:worker_type,
-                              code: "FTR")}
+    let(:json)             { File.read(Rails.root.to_s+"/spec/fixtures/adp_rehire_event.json") }
+    let(:manager)          { FactoryGirl.create(:active_emplyee) }
+    let!(:profile)         { FactoryGirl.create(:active_profile, adp_employee_id: "654321") }
+    let(:prccd_hire_evt)   { FactoryGirl.create(:adp_event,
+                             status: "Processed",
+                             kind: "worker.hire") }
+    let!(:new_hire_evt)    { FactoryGirl.create(:adp_event,
+                             status: "New",
+                             json: json,
+                             kind: "worker.hire") }
+    let(:prccd_rehire_evt) { FactoryGirl.create(:adp_event,
+                             status: "Processed",
+                             kind: "worker.rehire") }
+    let!(:new_rehire_evt)  { FactoryGirl.create(:adp_event,
+                             json: json,
+                             status: "New",
+                             kind: "worker.rehire") }
+    let(:profiler)         { EmployeeProfile.new }
+    let!(:reg_wt)          { FactoryGirl.create(:worker_type, code: "FTR") }
 
     it "should get unprocessed new hires" do
       expect(AdpEvent.unprocessed_onboard_evts).to eq([new_hire_evt, new_rehire_evt])

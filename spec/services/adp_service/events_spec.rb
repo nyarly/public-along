@@ -191,8 +191,12 @@ describe AdpService::Events, type: :service do
     end
 
     describe "hire event" do
-      let!(:worker_type)      { FactoryGirl.create(:worker_type, code: "OLFR") }
-      let!(:cont_worker_type) { FactoryGirl.create(:worker_type, code: "CONT") }
+      let!(:worker_type)      { FactoryGirl.create(:worker_type,
+                                code: "OLFR",
+                                kind: "Regular") }
+      let!(:cont_worker_type) { FactoryGirl.create(:worker_type,
+                                code: "CONT",
+                                kind: "Contractor") }
       let(:application)       { FactoryGirl.create(:application,
                                 name: "Security Group") }
       let(:regular_al)        { FactoryGirl.create(:access_level,
@@ -206,13 +210,17 @@ describe AdpService::Events, type: :service do
                                 security_profile_id: regular_sp.id,
                                 access_level_id: regular_al.id) }
       let(:sec_access_service){ double(SecAccessService) }
+      let(:manager)           { FactoryGirl.create(:active_employee) }
+      let!(:manager_profile)  { FactoryGirl.create(:active_profile,
+                                employee: manager,
+                                adp_employee_id: "654321") }
+      let(:onboard_service)   { double(EmployeeService::Onboard) }
 
       before :each do
         expect(ActiveDirectoryService).to receive(:new).and_return(ads)
         expect(ads).to receive(:create_disabled_accounts)
-        expect(sec_access_service).to receive(:apply_ad_permissions)
-        expect(SecAccessService).to receive(:new).and_return(sec_access_service)
-        expect(EmployeeWorker).to receive(:perform_async)
+        expect(EmployeeService::Onboard).to receive(:new).and_return(onboard_service)
+        expect(onboard_service).to receive(:process!)
       end
 
       it "should create Employee w/ pending status if regular hire event" do
@@ -223,59 +231,11 @@ describe AdpService::Events, type: :service do
           json: hire_json
         )
 
-
         expect{
           adp.process_hire(event)
         }.to change{Employee.count}.by(1)
         expect(Employee.reorder(:created_at).last.employee_id).to eq("if0rcdig4")
         expect(Employee.reorder(:created_at).last.status).to eq("pending")
-      end
-
-      it "should make indicated manager if not already a manager" do
-        manager_to_be = FactoryGirl.create(:employee)
-        profile       = FactoryGirl.create(:profile, employee: manager_to_be, adp_employee_id: "100449")
-        sp            = FactoryGirl.create(:security_profile, name: "Basic Manager")
-        al            = FactoryGirl.create(:access_level)
-        sp_al         = FactoryGirl.create(:sec_prof_access_level, security_profile_id: sp.id, access_level_id: al.id)
-
-        expect(SecAccessService).to receive(:new).and_return(sec_access_service)
-        expect(sec_access_service).to receive(:apply_ad_permissions)
-
-        adp = AdpService::Events.new
-        adp.token = "a-token-value"
-        event = FactoryGirl.create(:adp_event,
-          status: "New",
-          json: hire_json
-        )
-
-        expect{
-          adp.process_hire(event)
-        }.to change{Employee.managers.include?(manager_to_be)}.from(false).to(true)
-      end
-
-      it "should do nothing if manager is already mgr in mezzo" do
-        manager          = FactoryGirl.create(:employee)
-        profile          = FactoryGirl.create(:profile, employee: manager, adp_employee_id: "100449")
-        emp_transaction  = FactoryGirl.create(:emp_transaction, employee_id: manager.id)
-        security_profile = FactoryGirl.create(:security_profile, name: "Basic Manager")
-        emp_sec_profile  = FactoryGirl.create(:emp_sec_profile,
-                           security_profile_id: security_profile.id,
-                           emp_transaction_id: emp_transaction.id)
-
-        expect(sec_access_service).to_not receive(:apply_ad_permissions)
-
-        adp = AdpService::Events.new
-        adp.token = "a-token-value"
-
-        event = FactoryGirl.create(:adp_event,
-          status: "New",
-          json: hire_json
-        )
-
-        expect(Employee.managers.include?(manager)).to eq(true)
-        expect{
-          adp.process_hire(event)
-        }.to_not change{Employee.managers.include?(manager)}
       end
 
       it "should have worker end date if contract hire event" do
@@ -289,32 +249,20 @@ describe AdpService::Events, type: :service do
 
         expect{
           adp.process_hire(event)
-        }.to change{Employee.count}.from(0).to(1)
-        expect(Employee.last.employee_id).to eq("8vheos3zl")
-        expect(Employee.last.status).to eq("pending")
-        expect(Employee.last.contract_end_date).to eq("2017-12-01")
-      end
-
-      it "should add the user to the default security group for their worker type" do
-        adp = AdpService::Events.new
-        adp.token = "a-token-value"
-
-        event = FactoryGirl.create(:adp_event,
-          status: "New",
-          json: hire_json
-        )
-
-        expect{
-          adp.process_hire(event)
-        }.to change{Employee.count}.from(0).to(1)
-        expect(Employee.last.reload.active_security_profiles[0]).to eq(regular_sp)
-        expect(Employee.last.reload.active_security_profiles[0].access_levels[0]).to eq(regular_al)
+        }.to change{Employee.count}.by(1)
+        expect(Employee.reorder(:created_at).last.employee_id).to eq("8vheos3zl")
+        expect(Employee.reorder(:created_at).last.status).to eq("pending")
+        expect(Employee.reorder(:created_at).last.contract_end_date).to eq("2017-12-01")
       end
     end
 
     describe "hire event with category or rehire change indicator true" do
-      let!(:acw_wt)     { FactoryGirl.create(:worker_type, code: "ACW") }
-      let!(:regular_sp) { FactoryGirl.create(:security_profile, name: "Basic Regular Worker Profile") }
+      let!(:acw_wt)          { FactoryGirl.create(:worker_type, code: "ACW") }
+      let!(:regular_sp)      { FactoryGirl.create(:security_profile, name: "Basic Regular Worker Profile") }
+      let(:manager)          { FactoryGirl.create(:active_employee) }
+      let!(:manager_profile) { FactoryGirl.create(:active_profile,
+                               employee: manager,
+                               adp_employee_id: "101836") }
 
       it "should not create a new employee" do
         adp = AdpService::Events.new
@@ -343,7 +291,6 @@ describe AdpService::Events, type: :service do
         expect{
           adp.process_hire(event)
         }.not_to change{Employee.count}
-        expect(Employee.count).to eq(0)
       end
     end
 
@@ -402,14 +349,12 @@ describe AdpService::Events, type: :service do
     end
 
     describe "retroactive termination" do
-      let(:manager)   { FactoryGirl.create(:employee) }
-      let!(:man_prof) { FactoryGirl.create(:profile,
-                        employee: manager,
-                        adp_employee_id: "999999") }
-      let!(:term_emp) { FactoryGirl.create(:active_employee, termination_date: nil) }
+      let(:manager)   { FactoryGirl.create(:active_employee) }
+      let!(:term_emp) { FactoryGirl.create(:active_employee,
+                        termination_date: nil,
+                        manager: manager) }
       let!(:profile)  { FactoryGirl.create(:active_profile,
                         employee: term_emp,
-                        manager_id: "999999",
                         adp_employee_id: "101652") }
       let(:mailer)    { double(TechTableMailer) }
       let(:offboard)  { double(OffboardingService) }
@@ -541,7 +486,7 @@ describe AdpService::Events, type: :service do
 
       context "for worker with a mezzo record" do
         term_date = Date.new(2017, 1, 1)
-        let!(:rehired_emp) { FactoryGirl.create(:terminated_employee,
+        let(:rehired_emp) { FactoryGirl.create(:terminated_employee,
                              hire_date: Date.new(2010, 9, 1),
                              termination_date: term_date) }
         let!(:profile)     { FactoryGirl.create(:terminated_profile,
@@ -550,6 +495,10 @@ describe AdpService::Events, type: :service do
                              employee: rehired_emp,
                              adp_employee_id: "123456") }
         let!(:sas)         { double(SecAccessService) }
+        let(:manager)      { FactoryGirl.create(:active_employee) }
+        let!(:man_prof)    { FactoryGirl.create(:active_profile,
+                             adp_employee_id: "654321",
+                             employee: manager) }
 
         it "finds and updates account with new position" do
           expect(SecAccessService).to receive(:new).and_return(sas)
@@ -573,7 +522,7 @@ describe AdpService::Events, type: :service do
           expect(rehired_emp.reload.job_title.code).to eq("SPMASR")
           expect(rehired_emp.reload.hire_date).to eq(Date.new(2010, 9, 1))
           expect(rehired_emp.reload.termination_date).to eq(nil)
-          expect(rehired_emp.profiles.count).to eq(2)
+          expect(rehired_emp.profiles.count).to eq(3)
           expect(rehired_emp.current_profile.start_date).to eq(Date.new(2018, 9, 1))
           expect(rehired_emp.current_profile.profile_status).to eq("pending")
           expect(rehired_emp.profiles.terminated.last.start_date).to eq(Date.new(2010, 9, 1))

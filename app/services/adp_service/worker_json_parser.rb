@@ -38,12 +38,15 @@ module AdpService
       business_card_title = business_card_title(w).present? ? business_card_title(w) : job_title.name
       worker_type = find_worker_type(work_assignment)
 
-      manager_id = work_assignment.dig("reportsTo",0,"workerID","idValue")
+      manager_adp_employee_id = work_assignment.dig("reportsTo",0,"workerID","idValue")
+      manager_id = find_manager(manager_adp_employee_id)
       location = find_location(work_assignment["homeWorkLocation"])
       work_assignment_status = find_work_assignment_status(work_assignment["assignmentStatus"]["statusCode"])
 
       dept_str = work_assignment["homeOrganizationalUnits"].find { |ou| ou["typeCode"]["codeValue"] == "Department"}
       dept = find_dept(dept_str)
+
+      management_position = work_assignment["managementPositionIndicator"]
 
       home_address_1 = w.dig("person","legalAddress","lineOne")
       home_address_2 = w.dig("person","legalAddress","lineTwo")
@@ -70,9 +73,11 @@ module AdpService
         job_title_id: job_title.id,
         location_id: location.id,
         manager_id: manager_id,
+        manager_adp_employee_id: manager_adp_employee_id,
         profile_status: work_assignment_status.downcase!,
         worker_type_id: worker_type.id,
-        business_card_title: business_card_title
+        business_card_title: business_card_title,
+        management_position: management_position
       }
 
       if location.kind == "Remote Location"
@@ -207,6 +212,13 @@ module AdpService
         worker_end_date = w_end_date_json.try(:dig, "dateValue")
       end
       worker_end_date
+    end
+
+    def find_manager(manager_adp_employee_id)
+      return nil if manager_adp_employee_id.blank?
+      manager = Employee.find_by_employee_id(manager_adp_employee_id)
+      return nil if manager.blank?
+      manager.id
     end
   end
 end

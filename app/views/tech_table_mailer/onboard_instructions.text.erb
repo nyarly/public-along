@@ -14,7 +14,7 @@ Submission Date: <%= @info.onboarding_info.emp_transaction.created_at.strftime("
 <% if @employee.contract_end_date.present? %>
 Contract End Date: <%= @employee.contract_end_date.strftime("%b %e, %Y") %>
 <% end %>
-<% if @employee.is_contingent_worker? %>
+<% if is_contingent_worker?(@employee) %>
 Contingent Worker: true
 <% if @info.onboarding_info.cw_email.present? %>
 Create OpenTable Email: <%= @info.onboarding_info.cw_email %>

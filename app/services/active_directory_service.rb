@@ -19,7 +19,7 @@ class ActiveDirectoryService
   def create_disabled_accounts(employees)
     employees.each do |e|
       if assign_sAMAccountName(e)
-        if !e.record_complete?
+        if !ActivationPolicy.new(e, e.worker_type.kind).allowed?
           TechTableMailer.alert_email("WARNING: #{e.first_name} #{e.last_name} is a contract worker and needs a contract_end_date. A disabled Active Directory user has been created, but will not be enabled until a contract_end_date is provided").deliver_now
         end
         attrs = e.ad_attrs.delete_if { |k,v| v.blank? } # AD#add won't accept nil or empty strings
@@ -42,12 +42,14 @@ class ActiveDirectoryService
 
   def activate(employees)
     employees.each do |e|
-      if !e.record_complete?
-        TechTableMailer.alert_email("ERROR: #{e.first_name} #{e.last_name} is a contract worker and needs a contract_end_date. Account not activated.").deliver_now
-      elsif !e.onboarded? && e.leave_return_date.blank?
-        TechTableMailer.alert_email("ERROR: #{e.first_name} #{e.last_name} requires manager to complete onboarding forms. Account not activated.").deliver_now
-      else
+      if ActivationPolicy.new(e, e.worker_type.kind).allowed?
         ldap.replace_attribute(e.dn, :userAccountControl, "512")
+      else
+        if !ActivationPolicy.new(e, e.worker_type.kind).record_complete?
+          TechTableMailer.alert_email("ERROR: #{e.first_name} #{e.last_name} is a contract worker and needs a contract_end_date. Account not activated.").deliver_now
+        elsif e.request_status == "waiting" && e.leave_return_date.blank?
+          TechTableMailer.alert_email("ERROR: #{e.first_name} #{e.last_name} requires manager to complete onboarding forms. Account not activated.").deliver_now
+        end
       end
     end
   end

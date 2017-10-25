@@ -15,4 +15,8 @@ module EmployeeHelper
     updated_at = employee.emp_transactions.present? ? employee.emp_transactions.reorder(:created_at).last.created_at : employee.created_at
     return changed_at > updated_at
   end
+
+  def is_contingent_worker?(employee)
+    employee.worker_type.kind == "Temporary" || employee.worker_type.kind == "Contractor"
+  end
 end
