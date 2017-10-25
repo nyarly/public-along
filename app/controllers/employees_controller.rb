@@ -6,7 +6,7 @@ class EmployeesController < ApplicationController
 
   def index
     if current_user.role_names.count == 1 && current_user.role_names.include?("Manager")
-      @employees = current_user.employee.direct_reports
+      @employees = current_user.employee.direct_reports.includes([:manager, :emp_transactions])
     else
       @employees = Employee.all.includes([:manager, :emp_transactions, :profiles => [:job_title, :location, :worker_type]])
     end
@@ -27,7 +27,7 @@ class EmployeesController < ApplicationController
 
   def direct_reports
     @employee = Employee.find(params[:id])
-    @employees = @employee.direct_reports
+    @employees = @employee.direct_reports.includes([:manager, :emp_transactions])
   end
 
   def autocomplete_name
