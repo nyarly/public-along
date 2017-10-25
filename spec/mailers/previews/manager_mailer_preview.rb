@@ -1,6 +1,6 @@
 class ManagerMailerPreview < ActionMailer::Preview
   def onboarding_permissions
-    employee = Employee.where(status: "Pending").last
+    employee = Employee.where(status: "pending").last
     manager = Employee.find_by_employee_id(employee.manager_id) if employee && employee.manager_id
     ManagerMailer.permissions("Onboarding", manager, employee)
   end
@@ -14,10 +14,17 @@ class ManagerMailerPreview < ActionMailer::Preview
   end
 
   def onboarding_reminder
-    employee = Employee.where(status: "Pending").last
-    manager = Employee.find_by_employee_id(employee.manager_id) if employee && employee.manager_id
-    ManagerMailer.reminder(manager, employee)
+    employee = Employee.where("status LIKE ? AND manager_id IS NOT NULL", "pending").last
+    manager = employee.manager
+    ManagerMailer.reminder(manager, employee, "reminder")
   end
+
+  def onboarding_reminder_escalation
+    employee = Employee.where("status LIKE ? AND manager_id IS NOT NULL", "pending").last
+    manager = employee.manager
+    ManagerMailer.reminder(manager, employee, "escalation")
+  end
+
 
   def offboarding_permissions
     employee = Employee.where('termination_date IS NOT NULL').last

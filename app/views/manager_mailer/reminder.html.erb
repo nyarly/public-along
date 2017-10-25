@@ -1,6 +1,10 @@
-<%= image_tag attachments['techtable.png'].url -%>
+<%= image_tag attachments['techtable.png'].url %>
 <div style="font-family: helvetica; margin: 25px; width: 550px">
-  <p>You have an onboarding form for a new employee due tomorrow, <%= @employee.onboarding_due_date %>. TechTable needs this information to provide equipment, access, and training on the new hire’s first day. Please complete it as soon as possible, or the worker’s start date may be delayed.</p>
+  <% if @level == "reminder" %>
+    <p>You have an onboarding form for a new employee due tomorrow, <%= @employee.onboarding_due_date %>. TechTable needs this information to provide equipment, access, and training on the new hire’s first day. Please complete it as soon as possible, or the worker’s start date may be delayed.</p>
+  <% elsif @level == "escalation" %>
+    <p><%= @employee.manager.cn %> has not yet filled out the onboarding form for new worker <%= @employee.cn %>, who is starting on <%= @employee.start_date %>. This form is due tomorrow, <%= @employee.onboarding_due_date %>. You may fill it out on the manager's behalf.</p>
+  <% end %>
 
   <p style="margin-left: 2em">
     <strong>Name:</strong>
@@ -23,10 +27,18 @@
   </p>
 
   <p>Please note you must be logged into the OpenTable VPN to access Mezzo. Use your OpenTable user name and password to log in. Follow the link below to complete the employee event form:</p>
-  <p style="margin-left: 2em"><%= link_to "Employee Event Form for #{@employee.cn}", new_emp_transaction_url({
-    :user_emp_id => @manager.employee_id,
-    :employee_id => @employee.id,
-    :kind => "Onboarding"}) %></p>
-
+    <% if @level == "reminder" %>
+      <p style="margin-left: 2em"><%= link_to "Employee Event Form for #{@employee.cn}", new_emp_transaction_url({
+        :user_emp_id => @manager.employee_id,
+        :employee_id => @employee.id,
+        :kind => "Onboarding"}) %>
+      </p>
+    <% elsif @level == "escalation" %>
+      <p style="margin-left: 2em"><%= link_to "Employee Event Form for #{@employee.cn}", new_emp_transaction_url({
+        :user_emp_id => @manager.manager.employee_id,
+        :employee_id => @employee.id,
+        :kind => "Onboarding"}) %>
+      </p>
+    <% end %>
   <p>For any questions, please contact <%= mail_to "othelpme@opentable.com" %>.</p>
 </div>

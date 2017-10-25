@@ -16,7 +16,7 @@ RSpec.describe ManagerMailer, type: :mailer do
   let!(:profiler)    { EmployeeProfile.new }
 
   context "Onboarding reminder" do
-    let!(:email) { ManagerMailer.reminder(manager, employee).deliver_now }
+    let!(:email) { ManagerMailer.reminder(manager, employee, "reminder").deliver_now }
 
     it "should queue to send" do
       expect(ActionMailer::Base.deliveries).to_not be_empty
