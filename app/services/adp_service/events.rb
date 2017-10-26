@@ -94,7 +94,7 @@ module AdpService
       employee.current_profile.terminate
       employee.terminate_immediately
       EmpDelta.build_from_profile(employee.current_profile).save!
-      employee.save! && employee.current_profile.save!
+      employee.current_profile.save! && employee.save!
     end
 
     def process_leave(event)
@@ -111,7 +111,7 @@ module AdpService
         employee.current_profile.start_leave
         employee.leave_immediately
         EmpDelta.build_from_profile(employee.current_profile).save!
-        employee.save!
+        employee.current_profile.save! && employee.save!
       else
         EmpDelta.build_from_profile(employee.current_profile).save!
         employee.update_active_directory_account

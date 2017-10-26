@@ -629,7 +629,7 @@ describe Employee, type: :model do
       expect(employee.ad_attrs).to eq(
         {
           cn: "Bob Barker",
-          dn: "cn=Bob Barker,ou=Operations,ou=EU,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com",
+          dn: "cn=Bob Barker,ou=Disabled Users,ou=OT,dc=ottest,dc=opentable,dc=com",
           objectclass: ["top", "person", "organizationalPerson", "user"],
           givenName: "Bob",
           sn: "Barker",
