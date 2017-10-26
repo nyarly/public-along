@@ -230,7 +230,7 @@ class Employee < ActiveRecord::Base
   end
 
   def ou
-    return "ou=Disabled Users," if status == "Terminated"
+    return "ou=Disabled Users," if status == "terminated"
 
     match = OUS.select { |k,v|
       v[:department].include?(department.name) && v[:country].include?(location.country)
@@ -319,7 +319,7 @@ class Employee < ActiveRecord::Base
   end
 
   def send_techtable_offboard_instructions
-    TechTableMailer.offboard_instructions(self.id).deliver_now
+    TechTableMailer.offboard_instructions(self).deliver_now
   end
 
   def offboard
