@@ -137,14 +137,9 @@ class ActiveDirectoryService
     end
   end
 
-  def add_to_sec_group(sec_dn, employee)
-    ldap.modify :dn => sec_dn, :operations => [[:add, :member, employee.dn]]
-    ldap_success_check(employee, "ERROR: Could not successfully add #{employee.cn} to #{sec_dn}.")
-  end
-
-  def remove_from_sec_group(sec_dn, employee)
-    ldap.modify :dn => sec_dn, :operations => [[:delete, :member, employee.dn]]
-    ldap_success_check(employee, "ERROR: Could not successfully delete #{employee.cn} from #{sec_dn}.")
+  def modify_sec_groups(action, sec_dn, employee)
+    ldap.modify :dn => sec_dn, :operations => [[action.to_sym, :member, employee.dn]]
+    { sec_dn => ldap_success_check(employee) }
   end
 
   def assign_sAMAccountName(employee)
@@ -191,15 +186,19 @@ class ActiveDirectoryService
     end
   end
 
-  def ldap_success_check(employee, error_message)
-    if ldap.get_operation_result.code == 0
-      employee.update_attributes(:ad_updated_at => DateTime.now)
-    elsif ldap.get_operation_result.code == 68 # 68 code is returned if the attr already exists in AD. Just return true in this case
-      true
-    else
-      Rails.logger.error "LDAP ERROR: #{ldap.get_operation_result}"
-      Rails.logger.error "EMPLOYEE_ID: #{employee.employee_id}"
-      TechTableMailer.alert_email(error_message + ldap.get_operation_result.to_s).deliver_now
-    end
+  def ldap_success_check(employee)
+    result_code = ldap.get_operation_result.code
+
+    # 0 code is returned on success
+    # 68 code is returned if the attr already exists in AD, and we count this as success
+    employee.update_attributes(:ad_updated_at => DateTime.now) if result_code == 0
+    return "Success" if result_code == 0 || result_code == 68
+    return "Failure: " + parse_ldap_error_message(ldap.get_operation_result)
+    # Rails.logger.error "LDAP ERROR: #{ldap.get_operation_result}"
+    # Rails.logger.error "EMPLOYEE_ID: #{employee.employee_id}"
+  end
+
+  def parse_ldap_error_message(result)
+    "LDAP Error code #{result.code}: #{result.message}"
   end
 end
