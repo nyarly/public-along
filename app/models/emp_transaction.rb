@@ -15,4 +15,9 @@ class EmpTransaction < ActiveRecord::Base
   has_many :revoked_security_profiles, through: :revoked_emp_sec_profiles, source: :security_profile
   has_many :onboarding_infos
   has_many :offboarding_infos
+
+  def performed_by
+    return "Mezzo" if kind == "Service"
+    self.user.try(:full_name)
+  end
 end

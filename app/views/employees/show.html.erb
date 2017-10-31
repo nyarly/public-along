@@ -274,7 +274,7 @@
         <% elsif activity.class == EmpTransaction %>
           <p>
             <strong><%= activity.kind %></strong><br>
-            Submitted on <%= activity.created_at.strftime("%b %e, %Y") %> by <%= activity.user.try(:full_name) %>
+            Submitted on <%= activity.created_at.strftime("%b %e, %Y") %> by <%= activity.performed_by %>
           </p>
           <% if activity.security_profiles.present? %>
             <p>
