@@ -9,6 +9,10 @@ class EmpDelta < ActiveRecord::Base
         OR after ?| ARRAY['department_id', 'location_id', 'worker_type_id', 'job_title_id'])")
   end
 
+  def self.bad_deltas
+    where("before = '' AND after = ''")
+  end
+
   def self.report_group
     where("
       created_at > ?

@@ -22,6 +22,7 @@ class EmployeesController < ApplicationController
     activity = []
     @employee.emp_transactions.map { |e| activity << e }
     @employee.emp_deltas.map { |e| activity << e }
+    activity = activity - @employee.emp_deltas.bad_deltas
     @activities = activity.sort_by!(&:created_at).reverse!
   end
 
