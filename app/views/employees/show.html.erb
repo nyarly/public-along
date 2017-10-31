@@ -248,7 +248,7 @@
   <div class="large-4 medium-6 small-2 columns float-right section">
 
     <!-- Begin trigger email section -->
-    <% if (can? :create, Email) && (@employee.status != "Terminated") %>
+    <% if (can? :create, Email) && (@employee.status != "terminated") %>
       <div class="callout secondary">
         <div id="email-info"><p>Send Manager Email<span data-tooltip aria-haspopup="true" class="has-tip float-right" data-disable-hover="false" tabindex="1" title="Use this form to immediately resend a form prompt for this employee to their manager.">?</span></p>
         </div>

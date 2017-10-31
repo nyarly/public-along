@@ -41,7 +41,7 @@ class EmpDelta < ActiveRecord::Base
     attr.each { |k,v|
       if keys.include? k
         result << "#{k.tr("_", " ")}: #{v.present? ? Date.parse(v).strftime('%b %e, %Y') : 'nil'}" if k.include? "date"
-        result << "manager: #{Employee.find_by_employee_id(v).try(:cn) || 'nil'}" if k.include? "manager"
+        result << "manager: #{Employee.find_by(id: v).try(:cn) || 'nil'}" if k.include? "manager"
         result << "location: #{Location.find_by(id: v).try(:name) || 'nil'}" if k.include? "location"
         result << "department: #{Department.find_by(id: v).try(:name) || 'nil'}" if k.include? "department"
         result << "worker type: #{WorkerType.find_by(id: v).try(:name) || 'nil'}" if k.include? "worker_type"
@@ -80,7 +80,7 @@ class EmpDelta < ActiveRecord::Base
       if k.include? "date"
         value = Date.parse(v).strftime('%b %-d, %Y')
       elsif k.include? "manager"
-        value = Employee.find_by_employee_id(v).try(:cn)
+        value = Employee.find_by(id: v).try(:cn)
       elsif k.include? "location"
         value = Location.find_by(id: v).try(:name)
       elsif k.include? "department"

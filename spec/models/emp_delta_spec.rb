@@ -118,10 +118,10 @@ RSpec.describe EmpDelta, type: :model do
       delta = FactoryGirl.create(:emp_delta,
         before: {
           "location_id" => old_loc.id,
-          "manager_id" => old_mgr.employee_id,
+          "manager_id" => old_mgr.id,
           "job_title_id" => old_jt.id},
         after: {
-          "manager_id" => new_mgr.employee_id,
+          "manager_id" => new_mgr.id,
           "job_title_id" => new_jt.id,
           "location_id" => new_loc.id}
       )
@@ -158,7 +158,7 @@ RSpec.describe EmpDelta, type: :model do
           "location_id" => nil,
           "hire_date" => nil},
         after: {
-          "manager_id" => new_mgr.employee_id,
+          "manager_id" => new_mgr.id,
           "location_id" => new_loc.id,
           "hire_date" => new_term_date}
       )
