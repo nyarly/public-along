@@ -66,21 +66,21 @@ class EmpDelta < ActiveRecord::Base
     changed_attrs.each do |a|
       row = {}
       row["name"] = a.titleize
-      row["before"] = self.format_value(a, self.before[a])
-      row["after"] = self.format_value(a, self.after[a])
+      row["before"] = self.format_value(a, self.before[a], self.created_at)
+      row["after"] = self.format_value(a, self.after[a], self.created_at)
       results << row
     end
 
     results
   end
 
-  def format_value(k, v)
+  def format_value(k, v, date)
     value = 'blank'
     if v.present?
       if k.include? "date"
         value = Date.parse(v).strftime('%b %-d, %Y')
       elsif k.include? "manager"
-        value = Employee.find_by(id: v).try(:cn)
+        value = format_manager(v, date)
       elsif k.include? "location"
         value = Location.find_by(id: v).try(:name)
       elsif k.include? "department"
@@ -113,4 +113,19 @@ class EmpDelta < ActiveRecord::Base
     end
     emp_delta
   end
+
+  private
+
+  # Mezzo needs to display manager changes as firstname lastname
+  # changes prior to 10/30/2017 reference manager by adp employee id
+  # changes after this date reference by primary key
+
+  def format_manager(value, date)
+    if date <= Date.new(2017, 10, 30)
+      Employee.find_by_employee_id(value).try(:cn)
+    else
+      Employee.find_by(id: value).try(:cn)
+    end
+  end
+
 end
