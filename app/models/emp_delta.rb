@@ -9,6 +9,8 @@ class EmpDelta < ActiveRecord::Base
         OR after ?| ARRAY['department_id', 'location_id', 'worker_type_id', 'job_title_id'])")
   end
 
+  # temporary way to exclude emp deltas that have blank values
+  # remove this code when the database has been cleaned up
   def self.bad_deltas
     where("before = '' AND after = ''")
   end
