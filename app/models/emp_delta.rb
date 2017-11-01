@@ -72,7 +72,7 @@ class EmpDelta < ActiveRecord::Base
       row["name"] = a.titleize
       row["before"] = self.format_value(a, self.before[a], self.created_at)
       row["after"] = self.format_value(a, self.after[a], self.created_at)
-      results << row
+      results << row unless is_address_field?(a)
     end
 
     results
@@ -130,6 +130,11 @@ class EmpDelta < ActiveRecord::Base
     else
       Employee.find_by(id: value).try(:cn)
     end
+  end
+
+  # Don't show home address changes to managers
+  def is_address_field?(key)
+    ["home_address_1", "home_address_2", "home_city", "home_state", "home_zip"].include? key
   end
 
 end
