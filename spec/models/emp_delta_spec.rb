@@ -232,7 +232,7 @@ RSpec.describe EmpDelta, type: :model do
         before: {"home_city"=>"city", "home_address_1"=>"address", "business_title"=>"biztitle"},
         after: {"home_city"=>"city2", "home_address_1"=>"address2", "business_title"=>"biztitle2"})
 
-      expect(delta.format_by_key).to eq([{"name"=>"Business Title", "before"=>"biztitle", "after"=>"biztitle2"}])
+      expect(delta.format_by_key).to eq([{"name"=> "Home City", "before"=>"", "after"=>""}, {"name"=>"Home Address 1", "before"=>"", "after"=>""}, {"name"=>"Business Title", "before"=>"biztitle", "after"=>"biztitle2"}])
     end
   end
 

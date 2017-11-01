@@ -267,7 +267,11 @@
           </p>
           <p>
             <% activity.format_by_key.each do |t| %>
-              • <%= t['name'] %> changed from <%= t['before'] %> to <%= t['after'] %><br>
+              • <%= t['name'] %> change
+                <% if t['before'].present? %>
+                  from <%= t['before'] %> to <%= t['after'] %>
+                <% end %>
+                <br>
             <% end %>
           </p>
         <!-- Employee Transaction Box -->

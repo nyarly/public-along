@@ -70,9 +70,16 @@ class EmpDelta < ActiveRecord::Base
     changed_attrs.each do |a|
       row = {}
       row["name"] = a.titleize
-      row["before"] = self.format_value(a, self.before[a], self.created_at)
-      row["after"] = self.format_value(a, self.after[a], self.created_at)
-      results << row unless is_address_field?(a)
+
+      if is_address_field?(a)
+        row["before"] = ''
+        row["after"] = ''
+        results << row
+      else
+        row["before"] = self.format_value(a, self.before[a], self.created_at)
+        row["after"] = self.format_value(a, self.after[a], self.created_at)
+        results << row
+      end
     end
 
     results
