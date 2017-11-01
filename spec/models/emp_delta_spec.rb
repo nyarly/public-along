@@ -118,10 +118,10 @@ RSpec.describe EmpDelta, type: :model do
       delta = FactoryGirl.create(:emp_delta,
         before: {
           "location_id" => old_loc.id,
-          "manager_id" => old_mgr.employee_id,
+          "manager_id" => old_mgr.id,
           "job_title_id" => old_jt.id},
         after: {
-          "manager_id" => new_mgr.employee_id,
+          "manager_id" => new_mgr.id,
           "job_title_id" => new_jt.id,
           "location_id" => new_loc.id}
       )
@@ -158,7 +158,7 @@ RSpec.describe EmpDelta, type: :model do
           "location_id" => nil,
           "hire_date" => nil},
         after: {
-          "manager_id" => new_mgr.employee_id,
+          "manager_id" => new_mgr.id,
           "location_id" => new_loc.id,
           "hire_date" => new_term_date}
       )
@@ -202,6 +202,37 @@ RSpec.describe EmpDelta, type: :model do
       expect(delta_a.format_by_key).to eq(formatted_results)
       expect(delta_b.format_by_key).to eq([{'name'=>'Contract End Date', 'before'=> 'blank', 'after'=>'May 6, 2018'}])
       expect(delta_c.format_by_key).to eq([{'name'=>'Office Phone', 'before'=> 'blank', 'after'=>'888-888-8888'}])
+    end
+
+    it "should be able to format both manager pk and manager employee id" do
+      manager_referenced_by_adp_emp_id_1 = FactoryGirl.create(:employee, :with_profile)
+      manager_referenced_by_adp_emp_id_2 = FactoryGirl.create(:employee, :with_profile)
+      manager_referenced_by_id_1 = FactoryGirl.create(:employee, :with_profile)
+      manager_referenced_by_id_2 = FactoryGirl.create(:employee, :with_profile)
+
+      delta_a = FactoryGirl.create(:emp_delta,
+        created_at: Date.new(2017, 10, 1),
+        before: { "manager_id"=>"#{manager_referenced_by_adp_emp_id_1.employee_id}" },
+        after: { "manager_id"=>"#{manager_referenced_by_adp_emp_id_2.employee_id}"} )
+
+      delta_b = FactoryGirl.create(:emp_delta,
+        before: { "manager_id"=>"#{manager_referenced_by_id_1.id}" },
+        after: { "manager_id"=>"#{manager_referenced_by_id_2.id}"} )
+
+      expect(delta_a.format_by_key).to eq([{"name"=>"Manager", "before"=>"#{manager_referenced_by_adp_emp_id_1.cn}", "after"=>"#{manager_referenced_by_adp_emp_id_2.cn}"}])
+      expect(delta_b.format_by_key).to eq([{"name"=>"Manager", "before"=>"#{manager_referenced_by_id_1.cn}", "after"=>"#{manager_referenced_by_id_2.cn}"}])
+    end
+
+
+    it "should exclude address information" do
+      employee = FactoryGirl.create(:employee, :with_profile)
+
+      delta = FactoryGirl.create(:emp_delta,
+        employee: employee,
+        before: {"home_city"=>"city", "home_address_1"=>"address", "business_title"=>"biztitle"},
+        after: {"home_city"=>"city2", "home_address_1"=>"address2", "business_title"=>"biztitle2"})
+
+      expect(delta.format_by_key).to eq([{"name"=> "Home City", "before"=>"", "after"=>""}, {"name"=>"Home Address 1", "before"=>"", "after"=>""}, {"name"=>"Business Title", "before"=>"biztitle", "after"=>"biztitle2"}])
     end
   end
 
