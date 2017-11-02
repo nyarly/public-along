@@ -1,6 +1,6 @@
 class SecAccessService
-  attr_accessor :emp_transaction, :add_sec_groups, :revoke_sec_groups
-  attr_accessor :results, :handle_results
+  # attr_accessor :emp_transaction, :add_sec_groups, :revoke_sec_groups
+  attr_accessor :results, :failures
 
   def initialize(emp_transaction)
     @emp_transaction = emp_transaction
@@ -16,6 +16,7 @@ class SecAccessService
     handle_results
   end
 
+  private
 
   def set_employee
     emp_id = @emp_transaction.employee_id
@@ -29,10 +30,10 @@ class SecAccessService
                         }
                       }
     @revoke_sec_groups = @emp_transaction.revoked_security_profiles.flat_map {
-                          |s| s.access_levels.map {
-                            |a| a.ad_security_group
-                            }
-                          }
+                           |s| s.access_levels.map {
+                             |a| a.ad_security_group
+                           }
+                         }
   end
 
   def add_or_remove_employee_from_groups
@@ -44,21 +45,31 @@ class SecAccessService
   end
 
   def handle_results
-    # scan for failed transactions
-    return true if !@results.include? "Failed"
-    alert_tech_table
-    # log results
+    scan_for_failed_ldap_transactions
+    alert_tech_table if @failures.present?
+    @results
+  end
+
+  def scan_for_failed_ldap_transactions
+    @failures = []
+    @results[:added][0].each do |k, v|
+      v.scan("Failure") { |e| @failures << k + " could not be added. " + v }
+    end
+    @results[:revoked][0].each do |k, v|
+      v.scan("Failure") { |e| @failures << k + " could not be removed. " + v }
+    end
+    @failures
   end
 
   def alert_tech_table
-    Error::ErrorMailer.new("TechTableMailer", composed_subject, composed_message)
+    Errors::ErrorMailer.new(TechTableMailer, composed_subject, composed_message, @failures).send_message
   end
 
   def composed_subject
-    "Mezzo: Failed Security Access Change for #{@emloyee.cn}"
+    "Failed Security Access Change for #{@emp_transaction.employee.cn}"
   end
 
   def composed_message
-    "Mezzo received a request to add and/or remove #{@employee.cn} from security groups in Active Directory.\nOne or more of these transactions have failed. Please reference the results of the transaction below:\n#{@results}"
+    "Mezzo received a request to add and/or remove #{@emp_transaction.employee.cn} from security groups in Active Directory.\nOne or more of these transactions have failed. Please review the results of the transaction below:"
   end
 end

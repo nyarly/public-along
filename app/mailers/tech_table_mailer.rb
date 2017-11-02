@@ -7,9 +7,11 @@ class TechTableMailer < ApplicationMailer
     mail(subject: "ALERT: Mezzo Error")
   end
 
-  def alert(subject, message)
+  def alert(subject, message, data)
+    @subject = subject
     @message = message
-    mail(subject: subject)
+    @data = data
+    mail(subject: @subject)
   end
 
   def permissions(emp_transaction)

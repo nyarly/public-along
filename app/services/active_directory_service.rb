@@ -137,6 +137,8 @@ class ActiveDirectoryService
     end
   end
 
+  # add or remove security group for employee
+  # action parameter can be "add" or "delete" as string
   def modify_sec_groups(action, sec_dn, employee)
     ldap.modify :dn => sec_dn, :operations => [[action.to_sym, :member, employee.dn]]
     { sec_dn => ldap_success_check(employee) }
