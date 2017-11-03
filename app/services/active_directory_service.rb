@@ -18,39 +18,28 @@ class ActiveDirectoryService
 
   def create_disabled_accounts(employees)
     employees.each do |e|
-      if assign_sAMAccountName(e)
-        if !ActivationPolicy.new(e, e.worker_type.kind).allowed?
-          TechTableMailer.alert_email("WARNING: #{e.first_name} #{e.last_name} is a contract worker and needs a contract_end_date. A disabled Active Directory user has been created, but will not be enabled until a contract_end_date is provided").deliver_now
-        end
-        attrs = e.ad_attrs.delete_if { |k,v| v.blank? } # AD#add won't accept nil or empty strings
-        attrs.delete(:dn) # need to remove dn for create
-        ldap.add(dn: e.dn, attributes: attrs)
-        if ldap.get_operation_result.code == 0
-          e.update_attributes(:ad_updated_at => DateTime.now)
-        else
-          Rails.logger.error "LDAP ERROR: #{ldap.get_operation_result}"
-          Rails.logger.info "EMPLOYEE_ID: #{e.employee_id}"
-          Rails.logger.info "EMPLOYEE_NAME: #{e.cn}"
-          e.update_attributes(email: nil, sam_account_name: nil)
-          @errors[:active_directory] = "Creation of disabled account for #{e.first_name} #{e.last_name} failed. Check the record for errors and re-submit."
-        end
-      else
-        TechTableMailer.alert_email("ERROR: could not find a suitable sAMAccountName for #{e.first_name} #{e.last_name}: Must create AD account manually").deliver_now
-      end
+      assign_sAMAccountName(e)
+
+      return account_creation_error(e) if e.sam_account_name.blank?
+
+      needs_contract_end_date(e) if !ActivationPolicy.new(e).record_complete?
+
+      attrs = e.ad_attrs.delete_if { |k,v| v.blank? } # AD#add won't accept nil or empty strings
+      attrs.delete(:dn) # need to remove dn for create
+      ldap.add(dn: e.dn, attributes: attrs)
+
+      return account_creation_error(e) if ldap.get_operation_result.code != 0
+
+      e.update_attributes(:ad_updated_at => DateTime.now)
     end
   end
 
   def activate(employees)
     employees.each do |e|
-      if ActivationPolicy.new(e, e.worker_type.kind).allowed?
-        ldap.replace_attribute(e.dn, :userAccountControl, "512")
-      else
-        if !ActivationPolicy.new(e, e.worker_type.kind).record_complete?
-          TechTableMailer.alert_email("ERROR: #{e.first_name} #{e.last_name} is a contract worker and needs a contract_end_date. Account not activated.").deliver_now
-        elsif e.request_status == "waiting" && e.leave_return_date.blank?
-          TechTableMailer.alert_email("ERROR: #{e.first_name} #{e.last_name} requires manager to complete onboarding forms. Account not activated.").deliver_now
-        end
-      end
+      return needs_contract_end_date(e) if !ActivationPolicy.new(e).record_complete?
+      return needs_onboard_form(e) if !ActivationPolicy.new(e).onboarded?
+
+      ldap.replace_attribute(e.dn, :userAccountControl, "512")
     end
   end
 
@@ -84,16 +73,45 @@ class ActiveDirectoryService
   def update(employees)
     employees.each do |e|
       ldap_entry = find_entry("sAMAccountName", e.sam_account_name).first
-      if ldap_entry
-        attrs = updatable_attrs(e, ldap_entry)
-        blank_attrs, populated_attrs = attrs.partition { |k,v| v.blank? }
+      results = {}
+      failures = []
 
-        delete_attrs(e, ldap_entry, blank_attrs)
-        replace_attrs(e, ldap_entry, populated_attrs)
-      else
-        TechTableMailer.alert_email("ERROR: #{e.first_name} #{e.last_name} not found in Active Directory. Update failed.").deliver_now
+      return update_failure(e) if ldap_entry.blank?
+      attrs = updatable_attrs(e, ldap_entry)
+      blank_attrs, populated_attrs = attrs.partition { |k,v| v.blank? }
+
+      results[:deleted] = delete_attrs(e, ldap_entry, blank_attrs)
+      results[:replaced] = replace_attrs(e, ldap_entry, populated_attrs)
+
+      failures << scan_for_failed_ldap_transactions(results)
+      return update_failure(e) if failures.present?
+
+      results
+    end
+  end
+
+  def scan_for_failed_ldap_transactions(results)
+    failures = []
+
+    unless results[:deleted].blank?
+      results[:deleted].each do |k, v|
+        v.scan("Failure") { |e| failures << k + " could not be deleted. " + v }
       end
     end
+    unless results[:replaced].blank?
+      results[:replaced].each do |k, v|
+        v.scan("Failure") { |e| failures << k + " could not be replaced. " + v }
+      end
+    end
+    failures
+  end
+
+  def update_failure(e)
+    subject = "#{e.cn} Couldn't be Updated in Active Directory"
+    message = "Update failed."
+    data = parse_ldap_error_message(ldap.get_operation_result)
+
+    Errors::ErrorMailer.new(TechTableMailer, subject, message, data)
   end
 
   def updatable_attrs(employee, ldap_entry)
@@ -112,13 +130,18 @@ class ActiveDirectoryService
   end
 
   def delete_attrs(employee, ldap_entry, attrs)
+    results = []
     attrs.each do |k,v|
       ldap.delete_attribute(ldap_entry.dn, k)
-      ldap_success_check(employee, "ERROR: Could not successfully delete #{k}: #{v} for #{employee.cn}.")
+      results << { dn: ldap_entry.dn, attribute: k.to_s, action: "delete" } + ldap_success_check(employee)
     end
+    puts results
+    results
   end
 
   def replace_attrs(employee, ldap_entry, attrs)
+    puts attrs
+    results = []
     attrs.each do |k,v|
       if k == :dn
         ldap.rename(
@@ -127,14 +150,16 @@ class ActiveDirectoryService
           :delete_attributes => true,
           :new_superior => employee.ou + SECRETS.ad_ou_base
         )
-        ldap_success_check(employee, "ERROR: Could not successfully update #{k}: #{v} for #{employee.cn}.")
+        results << { dn: ldap_entry.dn, attribute: k.to_s, action: "replace" }.merge(ldap_success_check(employee))
       end
 
       unless k == :cn || k == :dn
         ldap.replace_attribute(employee.dn, k, v)
-        ldap_success_check(employee, "ERROR: Could not successfully update #{k}: #{v} for #{employee.cn}.")
+        results << { dn: ldap_entry.dn, attribute: k.to_s, action: "replace" }.merge(ldap_success_check(employee))
       end
     end
+    puts results
+    results
   end
 
   # add or remove security group for employee
@@ -190,14 +215,41 @@ class ActiveDirectoryService
 
   def ldap_success_check(employee)
     result_code = ldap.get_operation_result.code
+    status = "failure"
 
     # 0 code is returned on success
-    # 68 code is returned if the attr already exists in AD, and we count this as success
     employee.update_attributes(:ad_updated_at => DateTime.now) if result_code == 0
-    return "Success" if result_code == 0 || result_code == 68
-    return "Failure: " + parse_ldap_error_message(ldap.get_operation_result)
-    # Rails.logger.error "LDAP ERROR: #{ldap.get_operation_result}"
-    # Rails.logger.error "EMPLOYEE_ID: #{employee.employee_id}"
+    # 68 code is returned if the attr already exists in AD, and we count this as success
+    status = "success" if result_code == 0 || result_code == 68
+
+    { status: status, code: result_code, message: ldap.get_operation_result.message }
+  end
+
+  def account_creation_error(e)
+    e.update_attributes(email: nil, sam_account_name: nil)
+
+    subject = "Active Directory Account Creation Failure"
+    message = "An Active Directory account could not be created for #{e.cn}."
+    data = parse_ldap_error_message(ldap.get_operation_result)
+
+    Errors::ErrorMailer.new(TechTableMailer, subject, message, [data]).process!
+
+    @errors[:active_directory] = "Creation of disabled account for #{e.first_name} #{e.last_name} failed. Check the record for errors and re-submit."
+  end
+
+  def needs_contract_end_date(e)
+    # should be an email to pc ops
+    subject = "Missing Worker End Date for #{e.cn}"
+    message = "#{e.cn} is a contingent worker and needs a worker end date in ADP. A disabled Active Directory user has been created, but will not be enabled until a contract end date is provided."
+    Errors::ErrorMailer.new(PeopleAndCultureMailer, subject, message, []).process!
+    Errors::ErrorMailer.new(TechTableMailer, subject, message, []).process!
+  end
+
+  def needs_onboard_form(e)
+    subject = "Onboarding Failure for #{e.cn}"
+    message = "#{e.cn} requires a manager onboarding form. Account was not activated."
+    Errors::ErrorMailer.new(PeopleAndCultureMailer, subject, message, []).process!
+    Errors::ErrorMailer.new(TechTableMailer, subject, message, []).process!
   end
 
   def parse_ldap_error_message(result)
