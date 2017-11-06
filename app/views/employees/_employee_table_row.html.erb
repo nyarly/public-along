@@ -2,30 +2,34 @@
   <%= link_to e.cn, employee_path(e) %>
 </td>
 <td>
-  <% if e.direct_reports.count > 0 %>
+  <% if (can? :direct_reports, e) && (e.direct_reports.count > 0) %>
     <%= link_to "Roster", direct_reports_employee_path(e.id), class: "button small direct-report-btn" %>
   <% end %>
 </td>
 <td>
-  <% if e.request_status == "waiting" %>
-    <%= "Pending manager approval: " %><br>
-    <%= link_to "Complete #{manager_form_type(e)} Form by #{manager_form_due(e)}", new_emp_transaction_url({
-      :user_emp_id => current_user.employee.employee_id,
-      :employee_id => e.id,
-      :kind => manager_form_type(e)}), class: "needs-manager-action" %>
-  <% elsif e.request_status == "completed" %>
-    <%= "#{manager_form_type(e)}" + " " + e.request_status.titleize + ": " %><br>
-    <% if manager_form_type(e) == "Onboarding" %>
-      <%= "First Day is #{e.current_profile.start_date.strftime("%b %e, %Y")}" %>
-    <% elsif manager_form_type(e) == "Offboarding" %>
-      <%= "Last Day is #{e.termination_date.strftime("%b %e, %Y")}" %>
+  <% if can? :direct_reports, e %>
+    <% if e.request_status == "waiting" %>
+      <%= "Pending manager approval: " %><br>
+      <%= link_to "Complete #{manager_form_type(e)} Form by #{manager_form_due(e)}", new_emp_transaction_url({
+        :user_emp_id => current_user.employee.employee_id,
+        :employee_id => e.id,
+        :kind => manager_form_type(e)}), class: "needs-manager-action" %>
+    <% elsif e.request_status == "completed" %>
+      <%= "#{manager_form_type(e)}" + " " + e.request_status.titleize + ": " %><br>
+      <% if manager_form_type(e) == "Onboarding" %>
+        <%= "First Day is #{e.current_profile.start_date.strftime("%b %e, %Y")}" %>
+      <% elsif manager_form_type(e) == "Offboarding" %>
+        <%= "Last Day is #{e.termination_date.strftime("%b %e, %Y")}" %>
+      <% end %>
+    <% elsif needs_security_profile_update?(e) && e.status == "active" %>
+      <%= "Confirm job change: " %><br>
+      <%= link_to "Update Security Access", new_emp_transaction_url({
+        :user_emp_id => current_user.employee.employee_id,
+        :employee_id => e.id,
+        :kind => "Security Access"}), class: "needs-manager-action" %>
+    <% else %>
+      <%= e.status.titleize %>
     <% end %>
-  <% elsif needs_security_profile_update?(e) && e.status == "active" %>
-    <%= "Confirm job change: " %><br>
-    <%= link_to "Update Security Access", new_emp_transaction_url({
-      :user_emp_id => current_user.employee.employee_id,
-      :employee_id => e.id,
-      :kind => "Security Access"}), class: "needs-manager-action" %>
   <% else %>
     <%= e.status.titleize %>
   <% end %>
