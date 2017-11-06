@@ -2,10 +2,10 @@ class Role::Manager < Role
   Role.register 'Manager', self
 
   def set_abilities(ability)
-    ability.can :read, Employee, Employee.all do |e|
+    ability.can :read, Employee.all do |e|
       ManagementTreeQuery.new(e).call.include? user.employee_id
     end
-    ability.can :direct_reports, Employee, Employee.all do |e|
+    ability.can :direct_reports, Employee.all do |e|
       ManagementTreeQuery.new(e).call.include? user.employee_id
     end
     ability.can :new, EmpTransaction
@@ -16,3 +16,4 @@ class Role::Manager < Role
     ability.can :autocomplete_email, Employee
   end
 end
+
