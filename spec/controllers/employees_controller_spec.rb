@@ -62,5 +62,4 @@ RSpec.describe EmployeesController, type: :controller do
       expect(assigns(:employees)).to_not include(manager)
     end
   end
-
 end

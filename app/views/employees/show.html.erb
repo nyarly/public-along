@@ -248,7 +248,7 @@
   <div class="large-4 medium-6 small-2 columns float-right section">
 
     <!-- Begin trigger email section -->
-    <% if (can? :create, Email) && (@employee.status != "Terminated") %>
+    <% if (can? :create, Email) && (@employee.status != "terminated") %>
       <div class="callout secondary">
         <div id="email-info"><p>Send Manager Email<span data-tooltip aria-haspopup="true" class="has-tip float-right" data-disable-hover="false" tabindex="1" title="Use this form to immediately resend a form prompt for this employee to their manager.">?</span></p>
         </div>
@@ -267,14 +267,18 @@
           </p>
           <p>
             <% activity.format_by_key.each do |t| %>
-              • <%= t['name'] %> changed from <%= t['before'] %> to <%= t['after'] %><br>
+              • <%= t['name'] %> change
+                <% if t['before'].present? %>
+                  from <%= t['before'] %> to <%= t['after'] %>
+                <% end %>
+                <br>
             <% end %>
           </p>
         <!-- Employee Transaction Box -->
         <% elsif activity.class == EmpTransaction %>
           <p>
             <strong><%= activity.kind %></strong><br>
-            Submitted on <%= activity.created_at.strftime("%b %e, %Y") %> by <%= activity.user.try(:full_name) %>
+            Submitted on <%= activity.created_at.strftime("%b %e, %Y") %> by <%= activity.performed_by %>
           </p>
           <% if activity.security_profiles.present? %>
             <p>
