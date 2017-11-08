@@ -63,7 +63,7 @@ class ActiveDirectoryService
       e.security_profiles.each do |sp|
         sp.access_levels.each do |al|
           if al.ad_security_group.present?
-            remove_from_sec_group(al.ad_security_group, e)
+            modify_sec_group("delete", al.ad_security_group, e)
           end
         end
       end
@@ -73,45 +73,23 @@ class ActiveDirectoryService
   def update(employees)
     employees.each do |e|
       ldap_entry = find_entry("sAMAccountName", e.sam_account_name).first
-      results = {}
+      results = []
       failures = []
 
-      return update_failure(e) if ldap_entry.blank?
+      return update_failure(e, worker_not_found_msg(e)) if ldap_entry.blank?
+
       attrs = updatable_attrs(e, ldap_entry)
       blank_attrs, populated_attrs = attrs.partition { |k,v| v.blank? }
 
-      results[:deleted] = delete_attrs(e, ldap_entry, blank_attrs)
-      results[:replaced] = replace_attrs(e, ldap_entry, populated_attrs)
+      results << delete_attrs(e, ldap_entry, blank_attrs) if blank_attrs.present?
+      results << replace_attrs(e, ldap_entry, populated_attrs) if populated_attrs.present?
 
-      failures << scan_for_failed_ldap_transactions(results)
-      return update_failure(e) if failures.present?
+      failed_ldap_transactions = scan_for_failed_ldap_transactions(results.flatten)
+      failures << failed_ldap_transactions if failed_ldap_transactions.present?
 
+      return update_failure(e, failures) if failures.present?
       results
     end
-  end
-
-  def scan_for_failed_ldap_transactions(results)
-    failures = []
-
-    unless results[:deleted].blank?
-      results[:deleted].each do |k, v|
-        v.scan("Failure") { |e| failures << k + " could not be deleted. " + v }
-      end
-    end
-    unless results[:replaced].blank?
-      results[:replaced].each do |k, v|
-        v.scan("Failure") { |e| failures << k + " could not be replaced. " + v }
-      end
-    end
-    failures
-  end
-
-  def update_failure(e)
-    subject = "#{e.cn} Couldn't be Updated in Active Directory"
-    message = "Update failed."
-    data = parse_ldap_error_message(ldap.get_operation_result)
-
-    Errors::ErrorMailer.new(TechTableMailer, subject, message, data)
   end
 
   def updatable_attrs(employee, ldap_entry)
@@ -133,14 +111,12 @@ class ActiveDirectoryService
     results = []
     attrs.each do |k,v|
       ldap.delete_attribute(ldap_entry.dn, k)
-      results << { dn: ldap_entry.dn, attribute: k.to_s, action: "delete" } + ldap_success_check(employee)
+      results << { dn: ldap_entry.dn, attribute: k.to_s, action: "delete" }.merge(ldap_success_check(employee))
     end
-    puts results
     results
   end
 
   def replace_attrs(employee, ldap_entry, attrs)
-    puts attrs
     results = []
     attrs.each do |k,v|
       if k == :dn
@@ -158,15 +134,14 @@ class ActiveDirectoryService
         results << { dn: ldap_entry.dn, attribute: k.to_s, action: "replace" }.merge(ldap_success_check(employee))
       end
     end
-    puts results
     results
   end
 
   # add or remove security group for employee
   # action parameter can be "add" or "delete" as string
-  def modify_sec_groups(action, sec_dn, employee)
+  def modify_sec_group(action, sec_dn, employee)
     ldap.modify :dn => sec_dn, :operations => [[action.to_sym, :member, employee.dn]]
-    { sec_dn => ldap_success_check(employee) }
+    { dn: employee.dn, sec_dn: sec_dn, action: action }.merge(ldap_success_check(employee))
   end
 
   def assign_sAMAccountName(employee)
@@ -214,15 +189,29 @@ class ActiveDirectoryService
   end
 
   def ldap_success_check(employee)
-    result_code = ldap.get_operation_result.code
+    results = ldap.get_operation_result
+    result_code = results.code
     status = "failure"
 
     # 0 code is returned on success
     employee.update_attributes(:ad_updated_at => DateTime.now) if result_code == 0
     # 68 code is returned if the attr already exists in AD, and we count this as success
     status = "success" if result_code == 0 || result_code == 68
+    { status: status, code: result_code, message: results.message }
+  end
 
-    { status: status, code: result_code, message: ldap.get_operation_result.message }
+  def scan_for_failed_ldap_transactions(results)
+    failures = []
+    results.each do |r|
+      if r[:status] == "failure"
+        failures << r
+      end
+    end
+    return failures if failures.present?
+  end
+
+  def worker_not_found_msg(e)
+    { message: "#{e.cn} not found in Active Directory" }
   end
 
   def account_creation_error(e)
@@ -230,9 +219,10 @@ class ActiveDirectoryService
 
     subject = "Active Directory Account Creation Failure"
     message = "An Active Directory account could not be created for #{e.cn}."
-    data = parse_ldap_error_message(ldap.get_operation_result)
+    result = ldap.get_operation_result
+    data = { status: "failure", code: result.code, message: result.message }
 
-    Errors::ErrorMailer.new(TechTableMailer, subject, message, [data]).process!
+    Errors::Handler.new(TechTableMailer, subject, message, [data]).process!
 
     @errors[:active_directory] = "Creation of disabled account for #{e.first_name} #{e.last_name} failed. Check the record for errors and re-submit."
   end
@@ -241,18 +231,26 @@ class ActiveDirectoryService
     # should be an email to pc ops
     subject = "Missing Worker End Date for #{e.cn}"
     message = "#{e.cn} is a contingent worker and needs a worker end date in ADP. A disabled Active Directory user has been created, but will not be enabled until a contract end date is provided."
-    Errors::ErrorMailer.new(PeopleAndCultureMailer, subject, message, []).process!
-    Errors::ErrorMailer.new(TechTableMailer, subject, message, []).process!
+    Errors::Handler.new(PeopleAndCultureMailer, subject, message, []).process!
+    Errors::Handler.new(TechTableMailer, subject, message, []).process!
   end
 
   def needs_onboard_form(e)
     subject = "Onboarding Failure for #{e.cn}"
     message = "#{e.cn} requires a manager onboarding form. Account was not activated."
-    Errors::ErrorMailer.new(PeopleAndCultureMailer, subject, message, []).process!
-    Errors::ErrorMailer.new(TechTableMailer, subject, message, []).process!
+    Errors::Handler.new(PeopleAndCultureMailer, subject, message, []).process!
+    Errors::Handler.new(TechTableMailer, subject, message, []).process!
   end
 
-  def parse_ldap_error_message(result)
-    "LDAP Error code #{result.code}: #{result.message}"
+  def update_failure(e, failures)
+    subject = "#{e.cn} Couldn't be Updated in Active Directory"
+    message = "Update failed."
+    Errors::Handler.new(TechTableMailer, subject, message, failures).process!
+  end
+
+  def sec_access_update_failure(e, failures)
+    subject = "Failed Security Access Change for #{e.cn}"
+    message = "Mezzo received a request to add and/or remove #{e.cn} from security groups in Active Directory. One or more of these transactions have failed."
+    Errors::Handler.new(TechTableMailer, subject, message, failures).process!
   end
 end

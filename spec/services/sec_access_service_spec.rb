@@ -45,6 +45,7 @@ describe SecAccessService, type: :service do
       allow(ldap).to receive(:auth)
       allow(ldap).to receive(:bind)
       allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
+      allow(ldap).to receive_message_chain(:get_operation_result, :message).and_return("message")
     end
 
     it "should add/remove worker to/from correct AD security groups" do
@@ -61,13 +62,16 @@ describe SecAccessService, type: :service do
 
       sas.apply_ad_permissions
 
-      expect(sas.results).to eq({:added=>[{"sample new sec_dn"=>"Success"}], :revoked=>[{"sample old sec_dn"=>"Success"}]})
+      expect(sas.results).to eq(
+        [{:dn=>"#{employee.dn}", :sec_dn=>"sample new sec_dn", :action=>"add", :status=>"success", :code=>0, :message=>"message"},
+         {:dn=>"#{employee.dn}", :sec_dn=>"sample old sec_dn", :action=>"delete", :status=>"success", :code=>0, :message=>"message"}]
+        )
       expect(sas.failures).to eq([])
     end
   end
 
   context "failure" do
-    let(:failure_ldap_response) { OpenStruct.new(code: "53", message: "Unwilling to perform") }
+    let(:failure_ldap_response) { OpenStruct.new(code: 53, message: "Unwilling to perform") }
 
     before :each do
       allow(Net::LDAP).to receive(:new).and_return(ldap)
@@ -85,25 +89,30 @@ describe SecAccessService, type: :service do
 
       sas.apply_ad_permissions
 
-      expect(sas.results).to eq({:added=>[{"sample new sec_dn"=>"Failure: LDAP Error code 53: Unwilling to perform"}], :revoked=>[{"sample old sec_dn"=>"Failure: LDAP Error code 53: Unwilling to perform"}]})
-      expect(sas.failures).to eq(["sample new sec_dn could not be added. Failure: LDAP Error code 53: Unwilling to perform", "sample old sec_dn could not be removed. Failure: LDAP Error code 53: Unwilling to perform"])
-      expect(sas.failures).to eq(["sample new sec_dn could not be added. Failure: LDAP Error code 53: Unwilling to perform", "sample old sec_dn could not be removed. Failure: LDAP Error code 53: Unwilling to perform"])
+      expect(sas.results).to eq(
+        [{:dn=>"#{employee.dn}", :sec_dn=>"sample new sec_dn", :action=>"add", :status=>"failure", :code=>53, :message=>"Unwilling to perform"},
+         {:dn=>"#{employee.dn}", :sec_dn=>"sample old sec_dn", :action=>"delete", :status=>"failure", :code=>53, :message=>"Unwilling to perform"}]
+        )
+      expect(sas.failures).to eq(
+        [{:dn=>"#{employee.dn}", :sec_dn=>"sample new sec_dn", :action=>"add", :status=>"failure", :code=>53, :message=>"Unwilling to perform"},
+         {:dn=>"#{employee.dn}", :sec_dn=>"sample old sec_dn", :action=>"delete", :status=>"failure", :code=>53, :message=>"Unwilling to perform"}]
+        )
     end
 
     it "should send an alert email on failure" do
       subject = "Failed Security Access Change for #{employee.cn}"
-      message = "Mezzo received a request to add and/or remove #{employee.cn} from security groups in Active Directory.\nOne or more of these transactions have failed. Please review the results of the transaction below:"
-      data = ["sample new sec_dn could not be added. Failure: LDAP Error code 53: Unwilling to perform", "sample old sec_dn could not be removed. Failure: LDAP Error code 53: Unwilling to perform"]
+      message = "Mezzo received a request to add and/or remove #{employee.cn} from security groups in Active Directory. One or more of these transactions have failed."
+      failure_data = [{:dn=>"#{employee.dn}", :sec_dn=>"sample new sec_dn", :action=>"add", :status=>"failure", :code=>53, :message=>"Unwilling to perform"},
+                      {:dn=>"#{employee.dn}", :sec_dn=>"sample old sec_dn", :action=>"delete", :status=>"failure", :code=>53, :message=>"Unwilling to perform"}]
 
       expect(ldap).to receive(:modify).twice
-      expect(TechTableMailer).to receive(:alert).with(subject, message, data).and_return(mailer)
+      expect(TechTableMailer).to receive(:alert).with(subject, message, failure_data).and_return(mailer)
       expect(mailer).to receive(:deliver_now)
 
       sas.apply_ad_permissions
 
-      expect(sas.results).to eq({:added=>[{"sample new sec_dn"=>"Failure: LDAP Error code 53: Unwilling to perform"}], :revoked=>[{"sample old sec_dn"=>"Failure: LDAP Error code 53: Unwilling to perform"}]})
-      expect(sas.failures).to eq(["sample new sec_dn could not be added. Failure: LDAP Error code 53: Unwilling to perform", "sample old sec_dn could not be removed. Failure: LDAP Error code 53: Unwilling to perform"])
-      expect(sas.failures).to eq(["sample new sec_dn could not be added. Failure: LDAP Error code 53: Unwilling to perform", "sample old sec_dn could not be removed. Failure: LDAP Error code 53: Unwilling to perform"])
+      expect(sas.results).to eq(failure_data)
+      expect(sas.failures).to eq(failure_data)
     end
   end
 end

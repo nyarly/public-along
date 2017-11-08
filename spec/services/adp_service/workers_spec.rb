@@ -130,7 +130,6 @@ describe AdpService::Workers, type: :service do
     let(:json)        { File.read(Rails.root.to_s+"/spec/fixtures/adp_workers.json") }
     let(:parser)      { double(AdpService::WorkerJsonParser) }
     let(:sas)         { double(SecAccessService) }
-    # let(:man_access)  { double(EmployeeService::GrantManagerAccess) }
 
     let(:sorted) {
       [{
@@ -194,6 +193,7 @@ describe AdpService::Workers, type: :service do
       expect(parser).to receive(:sort_workers).and_return(sorted)
       expect(ActiveDirectoryService).to receive(:new).twice.and_return(ads)
       expect(ads).to receive(:update).with([employee])
+      expect(ads).to receive(:scan_for_failed_ldap_transactions)
 
       adp.sync_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
       expect(employee.manager.emp_transactions.last.kind).to eq("Service")
@@ -222,6 +222,7 @@ describe AdpService::Workers, type: :service do
       expect(parser).to receive(:sort_workers).and_return(sorted)
       expect(ActiveDirectoryService).to receive(:new).twice.and_return(ads)
       expect(ads).to receive(:update).with([employee])
+      expect(ads).to receive(:scan_for_failed_ldap_transactions)
 
       expect{
         adp.sync_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
@@ -514,6 +515,31 @@ describe AdpService::Workers, type: :service do
           .with("Cannot get updated ADP info for new contract hire #{new_hire.cn}, employee id: #{new_hire.employee_id}.\nPlease contact the developer to help diagnose the problem.")
           .and_return(mailer)
         expect(mailer).to receive(:deliver_now)
+
+        adp.check_new_hire_change(new_hire)
+      end
+    end
+
+    context "adp request timeout" do
+      before :each do
+        expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers/G3NQ5754ETA080N?asOfDate=#{future_date.strftime('%m')}%2F#{future_date.strftime('%d')}%2F#{future_date.strftime('%Y')}").and_return(uri)
+        expect(response).to receive(:body).and_return(nil)
+        allow(http).to receive(:get).with(
+          request_uri,
+          { "Accept"=>"application/json",
+            "Authorization"=>"Bearer a-token-value",
+          }).and_return(response)
+        expect(response).to receive(:code)
+        expect(response).to receive(:message)
+      end
+
+      it "should not send an error message if job has to retry" do
+        expect(ActiveDirectoryService).to_not receive(:new)
+
+        adp = AdpService::Workers.new
+        adp.token = "a-token-value"
+
+        expect(TechTableMailer).not_to receive(:alert_email)
 
         adp.check_new_hire_change(new_hire)
       end

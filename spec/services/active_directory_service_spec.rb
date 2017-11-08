@@ -34,7 +34,7 @@ describe ActiveDirectoryService, type: :service do
     let!(:profile)   { FactoryGirl.create(:profile, :with_valid_ou, employee: employee) }
     let(:contractor) { FactoryGirl.create(:employee) }
     let!(:cont_prof) { FactoryGirl.create(:contractor, employee: contractor) }
-    let(:ldap_err)   { OpenStruct.new(message: "message", code: "00") }
+    let(:ldap_err)   { OpenStruct.new(message: "message", code: 53) }
     let(:mailer)     { double(TechTableMailer) }
     let(:pcmailer)   { double(PeopleAndCultureMailer) }
 
@@ -76,7 +76,7 @@ describe ActiveDirectoryService, type: :service do
       allow(ldap).to receive(:search).and_return([]) # Mock search not finding conflicting existing sAMAccountName
       allow(ldap).to receive(:get_operation_result).and_return(ldap_err) # Simulate AD LDAP error
 
-      expect(TechTableMailer).to receive(:alert).with("Active Directory Account Creation Failure", "An Active Directory account could not be created for #{employee.cn}.", ["LDAP Error code #{ldap_err.code}: #{ldap_err.message}"]).and_return(mailer)
+      expect(TechTableMailer).to receive(:alert).with("Active Directory Account Creation Failure", "An Active Directory account could not be created for #{employee.cn}.", [{:status=>"failure", :code=>53, :message=>"message"}]).and_return(mailer)
       expect(mailer).to receive(:deliver_now)
 
       ads.create_disabled_accounts([employee])
@@ -88,7 +88,7 @@ describe ActiveDirectoryService, type: :service do
       allow(ldap).to receive(:search).and_return("entry", "entry", "entry", "entry")
       allow(ldap).to receive(:get_operation_result).and_return(ldap_err)
 
-      expect(TechTableMailer).to receive(:alert).with("Active Directory Account Creation Failure", "An Active Directory account could not be created for #{employee.cn}.", ["LDAP Error code #{ldap_err.code}: #{ldap_err.message}"]).and_return(mailer)
+      expect(TechTableMailer).to receive(:alert).with("Active Directory Account Creation Failure", "An Active Directory account could not be created for #{employee.cn}.", [{:status=>"failure", :code=>53, :message=>"message"}]).and_return(mailer)
       expect(mailer).to receive(:deliver_now)
 
       ads.create_disabled_accounts([employee])
@@ -235,6 +235,7 @@ describe ActiveDirectoryService, type: :service do
 
     let(:ldap_entry) { Net::LDAP::Entry.new(employee.dn) }
     let(:ldap_err) { OpenStruct.new(message: "message", code: "67") }
+    let(:ldap_ok) { OpenStruct.new(message: "message", code: "0") }
     let(:mailer) { double(TechTableMailer) }
 
     before :each do
@@ -256,8 +257,6 @@ describe ActiveDirectoryService, type: :service do
       ldap_entry[:mobile] = "123-456-7890"
       ldap_entry[:telephoneNumber] = "123-456-7890"
       ldap_entry[:thumbnailPhoto] = employee.decode_img_code
-      allow(ldap).to receive_message_chain(:get_operation_result, :message)
-      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
     end
 
     it "should update changed attributes" do
@@ -275,6 +274,9 @@ describe ActiveDirectoryService, type: :service do
         adp_employee_id: "12345678")
 
       allow(ldap).to receive(:search).and_return([ldap_entry])
+      allow(ldap).to receive_message_chain(:get_operation_result, :message).and_return("message")
+      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
+
       expect(ldap).to_not receive(:replace_attribute).with(employee.dn, :cn, "The Dude Lebowski")
       expect(ldap).to receive(:replace_attribute).once.with(employee.dn, :givenName, "The Dude")
       expect(ldap).to receive(:replace_attribute).once.with(employee.dn, :title, new_job_title.name)
@@ -298,14 +300,18 @@ describe ActiveDirectoryService, type: :service do
       allow(ldap).to receive(:search).and_return([ldap_entry])
       allow(ldap_entry).to receive(:dn).and_return(dn.force_encoding(Encoding::ASCII_8BIT))
 
-      expect(ldap).to receive(:replace_attribute).once.with(employee.dn.force_encoding(Encoding::ASCII_8BIT), :sn, "Ordo\xC3\xB1ez".force_encoding(Encoding::ASCII_8BIT))
-      expect(ldap).to receive(:replace_attribute).once.with(employee.dn.force_encoding(Encoding::ASCII_8BIT), :displayName, "Jeffrey Ordo\xC3\xB1ez".force_encoding(Encoding::ASCII_8BIT))
       expect(ldap).to receive(:rename).once.with(
         :olddn => "#{dn.force_encoding(Encoding::ASCII_8BIT)}",
         :newrdn => "cn=Jeffrey Ordoñez".force_encoding(Encoding::ASCII_8BIT),
         :delete_attributes => true,
         :new_superior => "ou=People and Culture,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com"
       )
+      expect(ldap).to receive(:replace_attribute).once.with(employee.dn.force_encoding(Encoding::ASCII_8BIT), :displayName, "Jeffrey Ordo\xC3\xB1ez".force_encoding(Encoding::ASCII_8BIT))
+      expect(ldap).to receive(:replace_attribute).once.with(employee.dn.force_encoding(Encoding::ASCII_8BIT), :sn, "Ordo\xC3\xB1ez".force_encoding(Encoding::ASCII_8BIT))
+
+      allow(ldap).to receive_message_chain(:get_operation_result, :message).and_return("message")
+      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
+
       ads.update([employee])
       expect(employee.ad_updated_at).to eq(DateTime.now)
     end
@@ -328,6 +334,8 @@ describe ActiveDirectoryService, type: :service do
         adp_employee_id: "12345678")
 
       allow(ldap).to receive(:search).and_return([ldap_entry])
+      allow(ldap).to receive_message_chain(:get_operation_result, :message).and_return("message")
+      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
 
       expect(ldap).to receive(:replace_attribute).once.with(employee.dn, :co, "GB")
       expect(ldap).to receive(:rename).once.with(
@@ -356,6 +364,8 @@ describe ActiveDirectoryService, type: :service do
         location: location)
 
       allow(ldap).to receive(:search).and_return([ldap_entry])
+      allow(ldap).to receive_message_chain(:get_operation_result, :message).and_return("message")
+      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
 
       expect(ldap).to receive(:replace_attribute).once.with(employee.dn, :department, "Customer Support")
       expect(ldap).to receive(:rename).once.with(
@@ -379,11 +389,13 @@ describe ActiveDirectoryService, type: :service do
     it "should send an alert email when account update fails" do
       employee.office_phone = "323-999-5555"
       employee.personal_mobile_phone = "fff"
+
       allow(ldap).to receive(:search).and_return([ldap_entry])
       allow(ldap).to receive(:replace_attribute).twice
       allow(ldap).to receive_message_chain(:get_operation_result).and_return(ldap_err) # Simulate AD LDAP error
 
       expect(TechTableMailer).to receive(:alert).and_return(mailer)
+      expect(mailer).to receive(:deliver_now)
 
       ads.update([employee])
     end
@@ -394,7 +406,9 @@ describe ActiveDirectoryService, type: :service do
       allow(ldap).to receive(:delete_attribute)
       allow(ldap).to receive(:get_operation_result).and_return(ldap_err) # Simulate AD LDAP error
 
-      expect(TechTableMailer).to receive_message_chain(:alert_email, :deliver_now)
+      expect(TechTableMailer).to receive(:alert).and_return(mailer)
+      expect(mailer).to receive(:deliver_now)
+
       ads.update([employee])
     end
 
@@ -436,7 +450,12 @@ describe ActiveDirectoryService, type: :service do
       expect(ldap).to receive(:delete_attribute).once.with(rem_to_reg_employee.dn, :l)
       expect(ldap).to receive(:delete_attribute).once.with(rem_to_reg_employee.dn, :st)
       expect(ldap).to receive(:delete_attribute).once.with(rem_to_reg_employee.dn, :postalCode)
+
+      allow(ldap).to receive_message_chain(:get_operation_result, :message).and_return("message")
+      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
+
       ads.update([rem_to_reg_employee])
+
       expect(rem_to_reg_employee.ad_updated_at).to eq(DateTime.now)
     end
   end
@@ -461,6 +480,7 @@ describe ActiveDirectoryService, type: :service do
     let!(:emp_sec_profile) { FactoryGirl.create(:emp_sec_profile,
       emp_transaction_id: emp_transaction.id,
       security_profile_id: security_profile.id)}
+    let(:ldap_response) { OpenStruct.new(code: 0, message: "message") }
 
     before :each do
       ldap_entry[:cn] = "Jeffrey Lebowski"
@@ -482,7 +502,9 @@ describe ActiveDirectoryService, type: :service do
       ldap_entry[:telephoneNumber] = employee.office_phone
       ldap_entry[:thumbnailPhoto] = employee.decode_img_code
 
-      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
+      allow(ldap).to receive_message_chain(:get_operation_result).and_return(ldap_response)
+      allow(ldap).to receive(:message)
+      allow(ldap).to receive(:code)
     end
 
     it "should remove the user from security groups and distribution lists" do

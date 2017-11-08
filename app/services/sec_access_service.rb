@@ -1,12 +1,13 @@
 class SecAccessService
-  # attr_accessor :emp_transaction, :add_sec_groups, :revoke_sec_groups
   attr_accessor :results, :failures
 
   def initialize(emp_transaction)
+    @ads = ActiveDirectoryService.new
     @emp_transaction = emp_transaction
     @add_sec_groups = []
     @revoke_sec_groups = []
-    @results = {}
+    @results = []
+    @failures = []
   end
 
   def apply_ad_permissions
@@ -37,10 +38,13 @@ class SecAccessService
   end
 
   def add_or_remove_employee_from_groups
-    ads = ActiveDirectoryService.new
+    @add_sec_groups.each do |sg|
+      @results << @ads.modify_sec_group("add", sg, @employee) unless sg.blank?
+    end unless @add_sec_groups.blank?
 
-    @results[:added] = @add_sec_groups.map { |sg| ads.modify_sec_groups("add", sg, @employee) unless sg.blank? } unless @add_sec_groups.blank?
-    @results[:revoked] = @revoke_sec_groups.map { |sg| ads.modify_sec_groups("delete", sg, @employee) unless sg.blank? } unless @revoke_sec_groups.blank?
+    @revoke_sec_groups.each do |sg|
+      @results << @ads.modify_sec_group("delete", sg, @employee) unless sg.blank?
+    end unless @revoke_sec_groups.blank?
     @results
   end
 
@@ -51,25 +55,12 @@ class SecAccessService
   end
 
   def scan_for_failed_ldap_transactions
-    @failures = []
-    @results[:added][0].each do |k, v|
-      v.scan("Failure") { |e| @failures << k + " could not be added. " + v }
-    end
-    @results[:revoked][0].each do |k, v|
-      v.scan("Failure") { |e| @failures << k + " could not be removed. " + v }
-    end
-    @failures
+    failed_ldap_transactions = @ads.scan_for_failed_ldap_transactions(@results)
+    @failures << failed_ldap_transactions if failed_ldap_transactions.present?
+    @failures = @failures.flatten
   end
 
   def alert_tech_table
-    Errors::ErrorMailer.new(TechTableMailer, composed_subject, composed_message, @failures).send_message
-  end
-
-  def composed_subject
-    "Failed Security Access Change for #{@emp_transaction.employee.cn}"
-  end
-
-  def composed_message
-    "Mezzo received a request to add and/or remove #{@emp_transaction.employee.cn} from security groups in Active Directory.\nOne or more of these transactions have failed. Please review the results of the transaction below:"
+    @ads.sec_access_update_failure(@employee, @failures)
   end
 end
