@@ -223,8 +223,8 @@ describe BetterworksService, type: :service do
       email,employee_id,first_name,last_name,department_name,title,location,deactivation_date,on_leave,manager_id,manager_email
       #{emp.email},#{emp.employee_id},#{emp.first_name},#{emp.last_name},#{emp.department.name},#{emp.job_title.name},#{emp.location.name},,false,"",""
       #{rehired_worker.email},#{rehired_old_prof.adp_employee_id},#{rehired_worker.first_name},#{rehired_worker.last_name},#{rehired_old_prof.department.name},#{rehired_old_prof.job_title.name},#{rehired_old_prof.location.name},#{rehired_old_prof.end_date.strftime('%m/%d/%Y')},false,"",""
-      #{term_emp.email},#{term_emp.employee_id},#{term_emp.first_name},#{term_emp.last_name},#{term_emp.department.name},#{term_emp.job_title.name},#{term_emp.location.name},#{DateTime.now.strftime('%m/%d/%Y')},false,"123A",#{term_emp.manager.email}
-      #{leave_emp.email},#{leave_emp.employee_id},#{leave_emp.first_name},#{leave_emp.last_name},#{leave_emp.department.name},#{leave_emp.job_title.name},#{leave_emp.location.name},,true,"123A",#{leave_emp.manager.email}
+      #{term_emp.email},#{term_emp.employee_id},#{term_emp.first_name},#{term_emp.last_name},#{term_emp.department.name},#{term_emp.job_title.name},#{term_emp.location.name},#{DateTime.now.strftime('%m/%d/%Y')},false,123a,#{term_emp.manager.email}
+      #{leave_emp.email},#{leave_emp.employee_id},#{leave_emp.first_name},#{leave_emp.last_name},#{leave_emp.department.name},#{leave_emp.job_title.name},#{leave_emp.location.name},,true,123a,#{leave_emp.manager.email}
       EOS
     }
     let(:future_csv) {
@@ -232,8 +232,8 @@ describe BetterworksService, type: :service do
       email,employee_id,first_name,last_name,department_name,title,location,deactivation_date,on_leave,manager_id,manager_email
       #{emp.email},#{emp.employee_id},#{emp.first_name},#{emp.last_name},#{emp.department.name},#{emp.job_title.name},#{emp.location.name},,false,"",""
       #{rehired_worker.email},#{rehired_profile.adp_employee_id},#{rehired_worker.first_name},#{rehired_worker.last_name},#{rehired_profile.department.name},#{rehired_profile.job_title.name},#{rehired_profile.location.name},,false,"",""
-      #{term_emp.email},#{term_emp.employee_id},#{term_emp.first_name},#{term_emp.last_name},#{term_emp.department.name},#{term_emp.job_title.name},#{term_emp.location.name},#{term_emp.termination_date.strftime('%m/%d/%Y')},false,"123A",#{term_emp.manager.email}
-      #{leave_emp.email},#{leave_emp.employee_id},#{leave_emp.first_name},#{leave_emp.last_name},#{leave_emp.department.name},#{leave_emp.job_title.name},#{leave_emp.location.name},,true,"123A",#{leave_emp.manager.email}
+      #{term_emp.email},#{term_emp.employee_id},#{term_emp.first_name},#{term_emp.last_name},#{term_emp.department.name},#{term_emp.job_title.name},#{term_emp.location.name},#{term_emp.termination_date.strftime('%m/%d/%Y')},false,123a,#{term_emp.manager.email}
+      #{leave_emp.email},#{leave_emp.employee_id},#{leave_emp.first_name},#{leave_emp.last_name},#{leave_emp.department.name},#{leave_emp.job_title.name},#{leave_emp.location.name},,true,123a,#{leave_emp.manager.email}
       EOS
     }
 
