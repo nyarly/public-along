@@ -68,7 +68,7 @@ class BetterworksService
           location = u.location.try(:name)
           job_title = u.job_title.try(:name)
           manager_email = u.manager_id.present? ? u.manager.email : ""
-          manager_id = u.manager_id.present? ? u.manager_id : ""
+          manager_id = u.manager_id.present? ? u.manager.current_profile.adp_employee_id : ""
         end
           on_leave = u.status == "inactive"
 
