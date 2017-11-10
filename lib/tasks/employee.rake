@@ -40,7 +40,7 @@ namespace :employee do
   end
 
   desc "send onboarding reminders"
-  task :send_reminders => :environment do
+  task :send_onboarding_reminders => :environment do
     Employee.onboarding_reminder_group.each do |e|
       # send reminders at 9am local time day before onboarding due date
       if in_time_window?(e.onboarding_due_date.to_time - 1.day, 9, e.nearest_time_zone)

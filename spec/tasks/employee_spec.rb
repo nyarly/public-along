@@ -404,7 +404,7 @@ describe "employee rake tasks", type: :tasks do
     end
   end
 
-  context "employee:send_reminders" do
+  context "employee:send_onboarding_reminders" do
     let!(:reg_wt)     { FactoryGirl.create(:worker_type, code: "FTR") }
     let!(:us_due_tom) { FactoryGirl.create(:pending_employee,
                         request_status: "completed",
@@ -448,20 +448,20 @@ describe "employee rake tasks", type: :tasks do
       # 9am PST
       Timecop.freeze(Time.new(2017, 11, 26, 17, 0, 0, "+00:00"))
       expect(ReminderWorker).to receive(:perform_async).with({:employee_id=>us_overdue.id})
-      Rake::Task["employee:send_reminders"].invoke
+      Rake::Task["employee:send_onboarding_reminders"].invoke
     end
 
     it "should remind manager to onboard au worker" do
       # 9am AEST
       Timecop.freeze(Time.new(2017, 11, 25, 22, 00, 0, "+00:00"))
       expect(ReminderWorker).to receive(:perform_async).with({:employee_id=>au_due_tom.id})
-      Rake::Task["employee:send_reminders"].invoke
+      Rake::Task["employee:send_onboarding_reminders"].invoke
     end
 
     it "should remind manager to onboard rehire" do
       Timecop.freeze(Time.new(2018, 8, 23, 16, 0, 0, "+00:00"))
      expect(ReminderWorker).to receive(:perform_async).with({:event_id=>nh_evt. id})
-     Rake::Task["employee:send_reminders"].invoke
+     Rake::Task["employee:send_onboarding_reminders"].invoke
     end
   end
 end
