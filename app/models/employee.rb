@@ -31,6 +31,7 @@ class Employee < ActiveRecord::Base
 
   scope :active_or_inactive, -> { where('status IN (?)', ["active", "inactive"]) }
   scope :managers, -> { where(management_position: true) }
+  scope :upcoming_ending_contracts, -> { where("contract_end_date = ?", 2.weeks.from_now) }
 
   aasm :column => "status" do
     error_on_all_events { |e| Rails.logger.info e.message }
@@ -338,10 +339,11 @@ class Employee < ActiveRecord::Base
   end
 
   def offboarding_cutoff
-    if self.termination_date.present?
-      # noon on termination date, when we send offboarding instructions to techtable
-      ActiveSupport::TimeZone.new(self.nearest_time_zone).local_to_utc(DateTime.new(self.termination_date.year, self.termination_date.month, self.termination_date.day, 12))
-    end
+    return nil if termination_date.blank? && contract_end_date.blank?
+    end_date = termination_date.present? ? termination_date : contract_end_date
+
+    # noon on termination date, when we send offboarding instructions to techtable
+    ActiveSupport::TimeZone.new(nearest_time_zone).local_to_utc(DateTime.new(end_date.year, end_date.month, end_date.day, 12))
   end
 
   def fn

@@ -7,25 +7,34 @@
   <% end %>
 </td>
 <td>
+  <!-- Worker is onboarding or offboarding -->
+  <!-- Form not completed -->
+  <!-- Link to onboarding or offboarding form -->
   <% if e.request_status == "waiting" %>
     <%= "Pending manager approval: " %><br>
     <%= link_to "Complete #{manager_form_type(e)} Form by #{manager_form_due(e)}", new_emp_transaction_url({
       :user_emp_id => current_user.employee.employee_id,
       :employee_id => e.id,
       :kind => manager_form_type(e)}), class: "needs-manager-action" %>
+  <!-- Worker is onboarding or offboarding -->
+  <!-- Form has been completed -->
+  <!-- Shows day worker will start or end -->
   <% elsif e.request_status == "completed" %>
     <%= "#{manager_form_type(e)}" + " " + e.request_status.titleize + ": " %><br>
     <% if manager_form_type(e) == "Onboarding" %>
       <%= "First Day is #{e.current_profile.start_date.strftime("%b %e, %Y")}" %>
     <% elsif manager_form_type(e) == "Offboarding" %>
-      <%= "Last Day is #{e.termination_date.strftime("%b %e, %Y")}" %>
+      <%= "Last Day is #{e.offboarding_cutoff.strftime("%b %e, %Y")}" %>
     <% end %>
+  <!-- Worker may need security profile update -->
+  <!-- Link to security access form -->
   <% elsif needs_security_profile_update?(e) && e.status == "active" %>
     <%= "Confirm job change: " %><br>
     <%= link_to "Update Security Access", new_emp_transaction_url({
       :user_emp_id => current_user.employee.employee_id,
       :employee_id => e.id,
       :kind => "Security Access"}), class: "needs-manager-action" %>
+  <!-- Show status -->
   <% else %>
     <%= e.status.titleize %>
   <% end %>
