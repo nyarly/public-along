@@ -22,6 +22,6 @@ module EmployeeHelper
   def offboard_in_progress?(employee)
     return false if employee.status != "active"
     return true if employee.termination_date.present?
-    employee.contract_end_date.present? && employee.contract_end_date >= 10.business_days.ago
+    employee.contract_end_date.present? && employee.contract_end_date.between?(Date.today, 2.weeks.from_now)
   end
 end

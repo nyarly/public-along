@@ -10,6 +10,11 @@ every 1.hour do
 end
 
 # 4pm UTC / 9am PT
+every :day, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Time.parse("9:00"))
+  rake "employee:send_contract_end_notificatons"
+end
+
+# 4pm UTC / 9am PT
 every :weekday, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Time.parse("9:00")) do
   rake "report:onboards"
 end

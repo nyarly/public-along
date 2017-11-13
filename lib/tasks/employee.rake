@@ -56,6 +56,20 @@ namespace :employee do
       end
     end
   end
+
+  desc "send contract end notifications"
+  task :send_contract_end_notificatons => :environment do
+    puts "calling?"
+    workers = Employee.upcoming_ending_contracts
+    puts "worker count"
+    puts workers.count
+    return true if workers.empty?
+    workers.each do |e|
+      e.request_status = "waiting"
+      e.save!
+      ContractorWorker.perform_async(employee_id: e.id)
+    end
+  end
 end
 
 def in_time_window?(date, hour, zone)
