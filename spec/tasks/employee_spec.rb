@@ -391,15 +391,17 @@ describe "employee rake tasks", type: :tasks do
       emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile,
         emp_transaction_id: emp_trans_2.id,
         security_profile_id: sec_prof.id)
+      ldap_success = OpenStruct.new(code: 0, message: "message")
 
       # 8/28/2016 at 3am PST/10am UTC
       Timecop.freeze(Time.new(2016, 8, 28, 10, 0, 0, "+00:00"))
-      allow(@ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
+      allow(@ldap).to receive(:get_operation_result).and_return(ldap_success)
 
       expect(@ldap).to receive(:modify).once.ordered.with({:dn => "sec_dn_1", :operations => [[:delete, :member, termination.dn]]})
       expect(@ldap).to receive(:modify).once.ordered.with({:dn => "sec_dn_2", :operations => [[:delete, :member, termination.dn]]})
       expect(@ldap).to_not receive(:modify).with({:dn => "sec_dn_1", :operations => [[:delete, :member, recent_termination.dn]]})
       expect(@ldap).to_not receive(:modify).with({:dn => "sec_dn_2", :operations => [[:delete, :member, recent_termination.dn]]})
+
       Rake::Task["employee:change_status"].invoke
     end
   end

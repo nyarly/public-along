@@ -4,6 +4,15 @@ class TechTableMailerPreview < ActionMailer::Preview
     TechTableMailer.alert_email(message)
   end
 
+  def alert_security_access_failure
+    emp_transaction = EmpTransaction.where(kind: "Security Access").last
+    security_access_change = SecAccessService.new(emp_transaction)
+    subject = security_access_change.composed_subject
+    message = security_access_change.composed_message
+    data = ["#{emp_transaction.security_profiles.first.access_levels.first.ad_security_group} could not be added. Failure: LDAP Error code 53: Unwilling to perform"]
+    TechTableMailer.alert(subject, message, data)
+  end
+
   def security_access_permissions
     emp_delta = EmpDelta.important_changes.last
     employee = Employee.find(emp_delta.employee_id)
