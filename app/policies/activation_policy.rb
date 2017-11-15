@@ -1,7 +1,7 @@
 class ActivationPolicy
-  def initialize(employee, worker_type_kind)
+  def initialize(employee)
     @employee = employee
-    @worker_type_kind = worker_type_kind
+    @worker_type_kind = @employee.worker_type.kind
   end
 
   def allowed?

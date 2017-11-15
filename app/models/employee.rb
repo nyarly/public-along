@@ -111,7 +111,7 @@ class Employee < ActiveRecord::Base
   end
 
   def activation_allowed?
-    ActivationPolicy.new(self, self.worker_type.kind).allowed?
+    ActivationPolicy.new(self).allowed?
   end
 
   def activate_profile

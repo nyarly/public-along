@@ -4,8 +4,8 @@ describe ActiveDirectoryService, type: :service do
   let(:ldap) { double(Net::LDAP) }
   let(:ads) { ActiveDirectoryService.new }
 
-  let(:department) { Department.find_or_create_by(:name => "People & Culture-HR & Total Rewards") }
-  let(:location) { Location.find_or_create_by(:name => "San Francisco Headquarters") }
+  let(:department) { Department.find_or_create_by(name: "People & Culture-HR & Total Rewards") }
+  let(:location) { Location.find_or_create_by(name: "San Francisco Headquarters") }
   let!(:job_title) { FactoryGirl.create(:job_title) }
   let!(:new_job_title) { FactoryGirl.create(:job_title) }
   let(:manager) { FactoryGirl.create(:employee) }
@@ -27,11 +27,16 @@ describe ActiveDirectoryService, type: :service do
   end
 
   context "create disabled employees" do
-    let(:employee) { FactoryGirl.create(:employee,
-                     first_name: "Donny",
-                     last_name: "Kerabatsos",
-                     manager: manager) }
-    let!(:profile) { FactoryGirl.create(:profile, :with_valid_ou, employee: employee) }
+    let(:employee)   { FactoryGirl.create(:employee,
+                       first_name: "Donny",
+                       last_name: "Kerabatsos",
+                       manager: manager) }
+    let!(:profile)   { FactoryGirl.create(:profile, :with_valid_ou, employee: employee) }
+    let(:contractor) { FactoryGirl.create(:employee) }
+    let!(:cont_prof) { FactoryGirl.create(:contractor, employee: contractor) }
+    let(:ldap_err)   { OpenStruct.new(message: "message", code: 53) }
+    let(:mailer)     { double(TechTableMailer) }
+    let(:pcmailer)   { double(PeopleAndCultureMailer) }
 
     it "should call ldap.add with correct info for regular employee" do
       allow(ldap).to receive(:search).and_return([]) # Mock search not finding conflicting existing sAMAccountName
@@ -66,79 +71,116 @@ describe ActiveDirectoryService, type: :service do
       expect(employee.ad_updated_at).to eq(DateTime.now)
     end
 
-    it "should set errors when account creation fails" do
+    it "should send failure message to techtable and set errors when account creation fails with ldap error" do
       allow(ldap).to receive(:add)
       allow(ldap).to receive(:search).and_return([]) # Mock search not finding conflicting existing sAMAccountName
-      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(67) # Simulate AD LDAP error
+      allow(ldap).to receive(:get_operation_result).and_return(ldap_err) # Simulate AD LDAP error
+
+      expect(TechTableMailer).to receive(:alert).with("Active Directory Account Creation Failure", "An Active Directory account could not be created for #{employee.cn}.", [{:status=>"failure", :code=>53, :message=>"message"}]).and_return(mailer)
+      expect(mailer).to receive(:deliver_now)
 
       ads.create_disabled_accounts([employee])
 
       expect(ads.errors).to eq({active_directory: "Creation of disabled account for Donny Kerabatsos failed. Check the record for errors and re-submit."})
     end
+
+    it "should send failure message to techtable when account creation fails to create sam_account_name" do
+      allow(ldap).to receive(:search).and_return("entry", "entry", "entry", "entry")
+      allow(ldap).to receive(:get_operation_result).and_return(ldap_err)
+
+      expect(TechTableMailer).to receive(:alert).with("Active Directory Account Creation Failure", "An Active Directory account could not be created for #{employee.cn}.", [{:status=>"failure", :code=>53, :message=>"message"}]).and_return(mailer)
+      expect(mailer).to receive(:deliver_now)
+
+      ads.create_disabled_accounts([employee])
+
+      expect(employee.sam_account_name).to be(nil)
+      expect(ads.errors).to eq({active_directory: "Creation of disabled account for Donny Kerabatsos failed. Check the record for errors and re-submit."})
+    end
+
+    it "should request a worker end date from p&c if a contingent worker does not have one" do
+      allow(ldap).to receive(:search).and_return("entry", "entry", [])
+      expect(PeopleAndCultureMailer).to receive(:alert).with("Missing Worker End Date for #{contractor.cn}", "#{contractor.cn} is a contingent worker and needs a worker end date in ADP. A disabled Active Directory user has been created, but will not be enabled until a contract end date is provided.", []).and_return(pcmailer)
+      expect(pcmailer).to receive(:deliver_now)
+      expect(ldap).to receive(:add)
+      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
+
+      ads.create_disabled_accounts([contractor])
+
+      expect(contractor.sam_account_name).not_to be(nil)
+    end
   end
 
   context "activate employees" do
-    let(:mailer) { double(TechTableMailer) }
+    let(:mailer)   { double(TechTableMailer) }
+    let(:pcmailer) { double(PeopleAndCultureMailer) }
 
     it "should fail and send alert email if it is a contract worker and there is no contract end date set" do
-      invalid_contract_worker = FactoryGirl.create(:contract_worker,
-        status: "pending",
-        contract_end_date: nil)
-      emp_trans = FactoryGirl.create(:onboarding_emp_transaction,
-       employee_id: invalid_contract_worker.id)
-      sec_prof = FactoryGirl.create(:security_profile)
-      emp_sec_prof = FactoryGirl.create(:emp_sec_profile,
-        emp_transaction_id: emp_trans.id,
-        security_profile_id: sec_prof.id)
-      allow(invalid_contract_worker).to receive(:ou).and_return("ou=Valid OU")
+      invalid_contractor = FactoryGirl.create(:contract_worker,
+                           status: "pending",
+                           contract_end_date: nil)
+      emp_trans          = FactoryGirl.create(:onboarding_emp_transaction,
+                           employee_id: invalid_contractor.id)
+      sec_prof           = FactoryGirl.create(:security_profile)
+      emp_sec_prof       = FactoryGirl.create(:emp_sec_profile,
+                           emp_transaction_id: emp_trans.id,
+                           security_profile_id: sec_prof.id)
 
-      expect(TechTableMailer).to receive(:alert_email).once.and_return(mailer)
+      allow(invalid_contractor).to receive(:ou).and_return("ou=Valid OU")
+
+      expect(PeopleAndCultureMailer).to receive(:alert).once.and_return(mailer)
+      expect(TechTableMailer).to receive(:alert).once.and_return(pcmailer)
       expect(mailer).to receive(:deliver_now).once
-      ads.activate([invalid_contract_worker])
+      expect(pcmailer).to receive(:deliver_now).once
+
+      ads.activate([invalid_contractor])
     end
 
     it "should activate for properly set contract worker" do
-      valid_contract_worker = FactoryGirl.create(:contract_worker,
-        status: "pending",
-        request_status: "completed",
-        contract_end_date: 1.year.from_now)
-      emp_trans = FactoryGirl.create(:onboarding_emp_transaction,
-        employee_id: valid_contract_worker.id)
-      onboarding_info = FactoryGirl.create(:onboarding_info,
-        emp_transaction_id: emp_trans.id)
-      sec_prof = FactoryGirl.create(:security_profile)
-      emp_sec_prof = FactoryGirl.create(:emp_sec_profile,
-        emp_transaction_id: emp_trans.id,
-        security_profile_id: sec_prof.id)
-      allow(valid_contract_worker).to receive(:ou).and_return("ou=Valid OU")
+      valid_contractor = FactoryGirl.create(:contract_worker,
+                         status: "pending",
+                         request_status: "completed",
+                         contract_end_date: 1.year.from_now)
+      emp_trans        = FactoryGirl.create(:onboarding_emp_transaction,
+                         employee_id: valid_contractor.id)
+      onboarding_info  = FactoryGirl.create(:onboarding_info,
+                         emp_transaction_id: emp_trans.id)
+      sec_prof         = FactoryGirl.create(:security_profile)
+      emp_sec_prof     = FactoryGirl.create(:emp_sec_profile,
+                         emp_transaction_id: emp_trans.id,
+                         security_profile_id: sec_prof.id)
+
+      allow(valid_contractor).to receive(:ou).and_return("ou=Valid OU")
 
       allow(ldap).to receive(:replace_attribute).once
-      expect(TechTableMailer).to_not receive(:alert_email).with("ERROR: #{valid_contract_worker.first_name} #{valid_contract_worker.last_name} is a contract worker and needs a contract_end_date. Account not activated.")
-      ads.activate([valid_contract_worker])
+      expect(TechTableMailer).to_not receive(:alert_email).with("ERROR: #{valid_contractor.first_name} #{valid_contractor.last_name} is a contract worker and needs a contract_end_date. Account not activated.")
+      ads.activate([valid_contractor])
     end
 
     it "should activate for properly set contract worker with no security profiles" do
-      valid_contract_worker = FactoryGirl.create(:contract_worker,
-        status: "pending",
-        request_status: "completed",
-        contract_end_date: 1.year.from_now)
-      emp_trans = FactoryGirl.create(:onboarding_emp_transaction,
-        employee_id: valid_contract_worker.id)
-      onboarding_info = FactoryGirl.create(:onboarding_info,
-        emp_transaction_id: emp_trans.id)
-      allow(valid_contract_worker).to receive(:ou).and_return("ou=Valid OU")
+      valid_contractor = FactoryGirl.create(:contract_worker,
+                         status: "pending",
+                         request_status: "completed",
+                         contract_end_date: 1.year.from_now)
+      emp_trans        = FactoryGirl.create(:onboarding_emp_transaction,
+                         employee_id: valid_contractor.id)
+      onboarding_info  = FactoryGirl.create(:onboarding_info,
+                         emp_transaction_id: emp_trans.id)
+
+      allow(valid_contractor).to receive(:ou).and_return("ou=Valid OU")
 
       allow(ldap).to receive(:replace_attribute).once
-      expect(TechTableMailer).to_not receive(:alert_email).with("ERROR: #{valid_contract_worker.first_name} #{valid_contract_worker.last_name} is a contract worker and needs a contract_end_date. Account not activated.")
-      ads.activate([valid_contract_worker])
+      expect(TechTableMailer).to_not receive(:alert_email).with("ERROR: #{valid_contractor.first_name} #{valid_contractor.last_name} is a contract worker and needs a contract_end_date. Account not activated.")
+      ads.activate([valid_contractor])
     end
 
     it "should fail if the manager has not completed the onboarding forms" do
       invalid_worker = FactoryGirl.create(:regular_employee,
-        request_status: "waiting")
+                       request_status: "waiting")
 
-      expect(TechTableMailer).to receive(:alert_email).once.and_return(mailer)
+      expect(TechTableMailer).to receive(:alert).once.and_return(mailer)
+      expect(PeopleAndCultureMailer).to receive(:alert).once.and_return(pcmailer)
       expect(mailer).to receive(:deliver_now).once
+      expect(pcmailer).to receive(:deliver_now).once
       ads.activate([invalid_worker])
     end
   end
@@ -192,6 +234,9 @@ describe ActiveDirectoryService, type: :service do
       adp_employee_id: "12345678")}
 
     let(:ldap_entry) { Net::LDAP::Entry.new(employee.dn) }
+    let(:ldap_err) { OpenStruct.new(message: "message", code: "67") }
+    let(:ldap_ok) { OpenStruct.new(message: "message", code: "0") }
+    let(:mailer) { double(TechTableMailer) }
 
     before :each do
       ldap_entry[:cn] = "Jeffrey Lebowski"
@@ -212,8 +257,6 @@ describe ActiveDirectoryService, type: :service do
       ldap_entry[:mobile] = "123-456-7890"
       ldap_entry[:telephoneNumber] = "123-456-7890"
       ldap_entry[:thumbnailPhoto] = employee.decode_img_code
-
-      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
     end
 
     it "should update changed attributes" do
@@ -231,6 +274,9 @@ describe ActiveDirectoryService, type: :service do
         adp_employee_id: "12345678")
 
       allow(ldap).to receive(:search).and_return([ldap_entry])
+      allow(ldap).to receive_message_chain(:get_operation_result, :message).and_return("message")
+      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
+
       expect(ldap).to_not receive(:replace_attribute).with(employee.dn, :cn, "The Dude Lebowski")
       expect(ldap).to receive(:replace_attribute).once.with(employee.dn, :givenName, "The Dude")
       expect(ldap).to receive(:replace_attribute).once.with(employee.dn, :title, new_job_title.name)
@@ -254,14 +300,18 @@ describe ActiveDirectoryService, type: :service do
       allow(ldap).to receive(:search).and_return([ldap_entry])
       allow(ldap_entry).to receive(:dn).and_return(dn.force_encoding(Encoding::ASCII_8BIT))
 
-      expect(ldap).to receive(:replace_attribute).once.with(employee.dn.force_encoding(Encoding::ASCII_8BIT), :sn, "Ordo\xC3\xB1ez".force_encoding(Encoding::ASCII_8BIT))
-      expect(ldap).to receive(:replace_attribute).once.with(employee.dn.force_encoding(Encoding::ASCII_8BIT), :displayName, "Jeffrey Ordo\xC3\xB1ez".force_encoding(Encoding::ASCII_8BIT))
       expect(ldap).to receive(:rename).once.with(
         :olddn => "#{dn.force_encoding(Encoding::ASCII_8BIT)}",
         :newrdn => "cn=Jeffrey Ordoñez".force_encoding(Encoding::ASCII_8BIT),
         :delete_attributes => true,
         :new_superior => "ou=People and Culture,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com"
       )
+      expect(ldap).to receive(:replace_attribute).once.with(employee.dn.force_encoding(Encoding::ASCII_8BIT), :displayName, "Jeffrey Ordo\xC3\xB1ez".force_encoding(Encoding::ASCII_8BIT))
+      expect(ldap).to receive(:replace_attribute).once.with(employee.dn.force_encoding(Encoding::ASCII_8BIT), :sn, "Ordo\xC3\xB1ez".force_encoding(Encoding::ASCII_8BIT))
+
+      allow(ldap).to receive_message_chain(:get_operation_result, :message).and_return("message")
+      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
+
       ads.update([employee])
       expect(employee.ad_updated_at).to eq(DateTime.now)
     end
@@ -284,6 +334,8 @@ describe ActiveDirectoryService, type: :service do
         adp_employee_id: "12345678")
 
       allow(ldap).to receive(:search).and_return([ldap_entry])
+      allow(ldap).to receive_message_chain(:get_operation_result, :message).and_return("message")
+      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
 
       expect(ldap).to receive(:replace_attribute).once.with(employee.dn, :co, "GB")
       expect(ldap).to receive(:rename).once.with(
@@ -312,6 +364,8 @@ describe ActiveDirectoryService, type: :service do
         location: location)
 
       allow(ldap).to receive(:search).and_return([ldap_entry])
+      allow(ldap).to receive_message_chain(:get_operation_result, :message).and_return("message")
+      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
 
       expect(ldap).to receive(:replace_attribute).once.with(employee.dn, :department, "Customer Support")
       expect(ldap).to receive(:rename).once.with(
@@ -334,11 +388,15 @@ describe ActiveDirectoryService, type: :service do
 
     it "should send an alert email when account update fails" do
       employee.office_phone = "323-999-5555"
-      allow(ldap).to receive(:search).and_return([ldap_entry])
-      allow(ldap).to receive(:replace_attribute)
-      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(67) # Simulate AD LDAP error
+      employee.personal_mobile_phone = "fff"
 
-      expect(TechTableMailer).to receive_message_chain(:alert_email, :deliver_now)
+      allow(ldap).to receive(:search).and_return([ldap_entry])
+      allow(ldap).to receive(:replace_attribute).twice
+      allow(ldap).to receive_message_chain(:get_operation_result).and_return(ldap_err) # Simulate AD LDAP error
+
+      expect(TechTableMailer).to receive(:alert).and_return(mailer)
+      expect(mailer).to receive(:deliver_now)
+
       ads.update([employee])
     end
 
@@ -346,9 +404,11 @@ describe ActiveDirectoryService, type: :service do
       employee.office_phone = nil
       allow(ldap).to receive(:search).and_return([ldap_entry])
       allow(ldap).to receive(:delete_attribute)
-      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(67) # Simulate AD LDAP error
+      allow(ldap).to receive(:get_operation_result).and_return(ldap_err) # Simulate AD LDAP error
 
-      expect(TechTableMailer).to receive_message_chain(:alert_email, :deliver_now)
+      expect(TechTableMailer).to receive(:alert).and_return(mailer)
+      expect(mailer).to receive(:deliver_now)
+
       ads.update([employee])
     end
 
@@ -390,7 +450,12 @@ describe ActiveDirectoryService, type: :service do
       expect(ldap).to receive(:delete_attribute).once.with(rem_to_reg_employee.dn, :l)
       expect(ldap).to receive(:delete_attribute).once.with(rem_to_reg_employee.dn, :st)
       expect(ldap).to receive(:delete_attribute).once.with(rem_to_reg_employee.dn, :postalCode)
+
+      allow(ldap).to receive_message_chain(:get_operation_result, :message).and_return("message")
+      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
+
       ads.update([rem_to_reg_employee])
+
       expect(rem_to_reg_employee.ad_updated_at).to eq(DateTime.now)
     end
   end
@@ -415,6 +480,7 @@ describe ActiveDirectoryService, type: :service do
     let!(:emp_sec_profile) { FactoryGirl.create(:emp_sec_profile,
       emp_transaction_id: emp_transaction.id,
       security_profile_id: security_profile.id)}
+    let(:ldap_response) { OpenStruct.new(code: 0, message: "message") }
 
     before :each do
       ldap_entry[:cn] = "Jeffrey Lebowski"
@@ -436,7 +502,9 @@ describe ActiveDirectoryService, type: :service do
       ldap_entry[:telephoneNumber] = employee.office_phone
       ldap_entry[:thumbnailPhoto] = employee.decode_img_code
 
-      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
+      allow(ldap).to receive_message_chain(:get_operation_result).and_return(ldap_response)
+      allow(ldap).to receive(:message)
+      allow(ldap).to receive(:code)
     end
 
     it "should remove the user from security groups and distribution lists" do
