@@ -59,11 +59,7 @@ namespace :employee do
 
   desc "send contract end notifications"
   task :send_contract_end_notificatons => :environment do
-    puts "calling?"
     workers = Employee.upcoming_ending_contracts
-    puts "worker count"
-    puts workers.count
-    return true if workers.empty?
     workers.each do |e|
       e.request_status = "waiting"
       e.save!

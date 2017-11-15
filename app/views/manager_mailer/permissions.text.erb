@@ -21,7 +21,17 @@ If you do not wish to make any changes, you may disregard this email.
 <% elsif @kind == "Onboarding" %>
 You must complete this form by <%= @employee.onboarding_due_date %>. The onboarding form is necessary to have your new hire’s equipment and access ready for their first day. Please fill it out as soon as possible so that we can provide the best possible onboarding experience.
 <% elsif @kind == "Offboarding" %>
+<% if @employee.needs_contract_end_confirmation? %>
+This worker's contract expires on <%= @employee.contract_end_date.strftime("%b %e, %Y") %>. If you wish to extend their contract, please fill out the contractor form for P&C with the updated information.
+You may find that from here: https://docs.google.com/forms/d/1sFNGn6hW3StGJJFjH5zT2-QKR-Y7xrNXQ4w1zHH5KuA
+If the contractor's last day is listed correctly, you must complete the offboarding form here by noon on <%= @employee.contract_end_date.strftime("%b %e, %Y") %>:
+<%= new_emp_transaction_url({
+  :user_emp_id => @manager.employee_id,
+  :employee_id => @employee.id,
+  :kind => @kind}) %>
+<% else %>
 You must complete this form by noon on <%= @employee.termination_date.strftime("%b %e, %Y") %>.
+<% end %>
 ------------------------------------------------------
 <% end %>
 

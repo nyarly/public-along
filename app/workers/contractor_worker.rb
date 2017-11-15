@@ -2,7 +2,11 @@ class ContractorWorker
   include Sidekiq::Worker
 
   def perform(employee_id)
-    e = Employee.find(employee_id)
-    puts e
+    employee = Employee.find(employee_id)
+    manager = employee.manager
+    if e.manager.present?
+      mailer = ManagerMailer.permissions("Offboarding", manager, employee)
+      mailer.deliver_now
+    end
   end
 end

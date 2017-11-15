@@ -31,6 +31,12 @@ class ManagerMailerPreview < ActionMailer::Preview
     ManagerMailer.permissions("Offboarding", manager, employee)
   end
 
+  def offboarding_contractor
+    employee = Employee.where('contract_end_date IS NOT NULL AND termination_date IS NULL').last
+    manager = employee.manager
+    ManagerMailer.permissions("Offboarding", manager, employee)
+  end
+
   def sec_access_permissions
     important_change = EmpDelta.important_changes.last
     employee = Employee.find(important_change.employee_id)

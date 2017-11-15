@@ -31,7 +31,7 @@ class Employee < ActiveRecord::Base
 
   scope :active_or_inactive, -> { where('status IN (?)', ["active", "inactive"]) }
   scope :managers, -> { where(management_position: true) }
-  scope :upcoming_ending_contracts, -> { where("contract_end_date = ?", 2.weeks.from_now) }
+  scope :upcoming_ending_contracts, -> { where("contract_end_date BETWEEN ? AND ?", 13.days.from_now, 14.days.from_now) }
 
   aasm :column => "status" do
     error_on_all_events { |e| Rails.logger.info e.message }
@@ -378,5 +378,9 @@ class Employee < ActiveRecord::Base
 
   def email_options
     self.termination_date ? EMAIL_OPTIONS : EMAIL_OPTIONS - ["Offboarding"]
+  end
+
+  def needs_contract_end_confirmation?
+    contract_end_date.present? && termination_date.blank?
   end
 end
