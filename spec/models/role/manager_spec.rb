@@ -2,15 +2,15 @@ require 'rails_helper'
 require 'cancan/matchers'
 
 describe Role::Manager, :type => :model do
-  let(:manager)         { FactoryGirl.create(:employee) }
-  let(:user)            { FactoryGirl.create(:user, :manager, employee: manager) }
-  let(:direct_report)   { FactoryGirl.create(:employee, manager: manager) }
-  let(:indirect_report) { FactoryGirl.create(:employee, manager: direct_report) }
-  let(:employee)        { FactoryGirl.create(:employee) }
-  let(:ability)         { Ability.new(user) }
+  let!(:manager)         { FactoryGirl.create(:employee) }
+  let!(:user)            { FactoryGirl.create(:user, :manager, employee: manager) }
+  let!(:direct_report)   { FactoryGirl.create(:employee, manager: manager) }
+  let!(:indirect_report) { FactoryGirl.create(:employee, manager: direct_report) }
+  let!(:employee)        { FactoryGirl.create(:employee) }
+  let!(:ability)         { Ability.new(user) }
 
   describe 'abilities' do
-    it_should_behave_like "role abilities", Employee, [:read, :autocomplete_email, :autocomplete_name, :direct_reports]
+    it_should_behave_like "role abilities", Employee, [:autocomplete_email, :autocomplete_name]
     it_should_behave_like "role abilities", EmpTransaction, [:new, :show, :create]
     it_should_behave_like "role abilities", ManagerEntry, [:create]
 
