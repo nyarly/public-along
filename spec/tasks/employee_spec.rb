@@ -210,11 +210,13 @@ describe "employee rake tasks", type: :tasks do
 
       allow(@ldap).to receive(:get_operation_result)
 
-      expect(OffboardingService).to receive(:new).and_return(@offboarding_service).once
-      expect(@offboarding_service).to receive(:offboard).once.with([us_term])
+      expect(OffboardingService).to receive(:new).and_return(@offboarding_service).twice
+      expect(@offboarding_service).to receive(:offboard).with([us_term])
+      expect(@offboarding_service).to receive(:offboard).with([contract_end_us])
       Rake::Task["employee:change_status"].invoke
 
       expect(us_term.reload.status).to eq("terminated")
+      expect(contract_end_us.reload.status).to eq("terminated")
       expect(leave_us.reload.status).to eq("inactive")
     end
 
@@ -291,11 +293,13 @@ describe "employee rake tasks", type: :tasks do
 
       allow(@ldap).to receive(:get_operation_result)
 
-      expect(OffboardingService).to receive(:new).and_return(@offboarding_service).once
-      expect(@offboarding_service).to receive(:offboard).once.with([termination])
+      expect(OffboardingService).to receive(:new).and_return(@offboarding_service).twice
+      expect(@offboarding_service).to receive(:offboard).with([termination])
+      expect(@offboarding_service).to receive(:offboard).with([contract_end])
       Rake::Task["employee:change_status"].invoke
 
       expect(termination.reload.status).to eq("terminated")
+      expect(contract_end.reload.status).to eq("terminated")
       expect(leave.reload.status).to eq("inactive")
     end
 

@@ -19,12 +19,14 @@ namespace :employee do
       if e.leave_start_date && in_time_window?(e.leave_start_date - 1.day, 21, e.nearest_time_zone)
         e.start_leave!
       elsif e.contract_end_date && in_time_window?(e.contract_end_date, 21, e.nearest_time_zone)
-        # TODO handle contract end dates
-        e.deactivate_active_directory_account
+        # offboard contractors on contract end date
+        e.terminate!
       elsif e.termination_date && in_time_window?(e.termination_date, 21, e.nearest_time_zone)
         e.terminate!
       # send techtable info around noon
       elsif e.termination_date && in_time_window?(e.termination_date, 12, e.nearest_time_zone)
+        TechTableMailer.offboard_instructions(e).deliver_now
+      elsif e.contract_end_date && in_time_window?(e.termination_date, 12, e.nearest_time_zone)
         TechTableMailer.offboard_instructions(e).deliver_now
       end
     end
