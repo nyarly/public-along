@@ -68,4 +68,79 @@ describe EmployeeService::ChangeHandler, type: :service do
       EmployeeService::ChangeHandler.new(emp_2).call
     end
   end
+
+  context "department/job_title/location changes" do
+    let(:old_location) { FactoryGirl.create(:location) }
+    let(:new_location) { FactoryGirl.create(:location) }
+    let(:old_dept)     { FactoryGirl.create(:department) }
+    let(:new_dept)     { FactoryGirl.create(:department) }
+    let(:old_job)      { FactoryGirl.create(:job_title) }
+    let(:new_job)      { FactoryGirl.create(:job_title) }
+    let(:emp_1)        { FactoryGirl.create(:active_employee) }
+    let!(:emp_delta_1) { FactoryGirl.create(:emp_delta,
+                         employee: emp_1,
+                         before: {"first_name"=>"name"},
+                         after: {"first_name"=>"name1"}) }
+    let(:emp_2)        { FactoryGirl.create(:active_employee) }
+    let!(:emp_delta_2) { FactoryGirl.create(:emp_delta,
+                         employee: emp_2,
+                         before: {"location_id"=>"#{old_location.id}"},
+                         after: {"location_id"=>"#{new_location.id}"}) }
+    let(:emp_3)        { FactoryGirl.create(:active_employee) }
+    let!(:emp_delta_3) { FactoryGirl.create(:emp_delta,
+                         employee: emp_3,
+                         before: {"department_id"=>"#{old_dept.id}"},
+                         after: {"department_id"=>"#{new_dept.id}"}) }
+    let(:emp_4)        { FactoryGirl.create(:active_employee) }
+    let!(:emp_delta_4) { FactoryGirl.create(:emp_delta,
+                         employee: emp_4,
+                         before: {"job_title_id"=>"#{old_job.id}"},
+                         after: {"job_title_id"=>"#{new_job.id}"}) }
+    let(:emp_5)        { FactoryGirl.create(:active_employee) }
+    let!(:emp_delta_5) { FactoryGirl.create(:emp_delta,
+                         employee: emp_5,
+                         before: {"job_title_id"=>"#{old_job.id}"},
+                         after: {"job_title_id"=>"#{new_job.id}"}) }
+    let!(:emp_delta_6) { FactoryGirl.create(:emp_delta,
+                         employee: emp_5,
+                         before: {"job_title_id"=>"#{old_job.id}"},
+                         after: {"job_title_id"=>"#{new_job.id}"}) }
+    let(:emp_6)        { FactoryGirl.create(:regular_employee,
+                         status: "pending") }
+    let!(:emp_delta_7) { FactoryGirl.create(:emp_delta,
+                         employee: emp_6,
+                         before: {"job_title_id"=>"#{old_job.id}"},
+                         after: {"job_title_id"=>"#{new_job.id}"}) }
+
+
+    it "should not send security access form if department/job title/location does not change" do
+      expect(EmployeeWorker).not_to receive(:perform_async)
+      EmployeeService::ChangeHandler.new(emp_1).call
+    end
+
+    it "should not send security access form if had recent change" do
+      expect(EmployeeWorker).not_to receive(:perform_async)
+      EmployeeService::ChangeHandler.new(emp_5).call
+    end
+
+    it "should not send security access form if worker is not active" do
+      expect(EmployeeWorker).not_to receive(:perform_async)
+      EmployeeService::ChangeHandler.new(emp_6).call
+    end
+
+    it "should send security access form if location changes" do
+      expect(EmployeeWorker).to receive(:perform_async)
+      EmployeeService::ChangeHandler.new(emp_2).call
+    end
+
+    it "should send security access form if department changes" do
+      expect(EmployeeWorker).to receive(:perform_async)
+      EmployeeService::ChangeHandler.new(emp_3).call
+    end
+
+    it "should send security access form if job title changes" do
+      expect(EmployeeWorker).to receive(:perform_async)
+      EmployeeService::ChangeHandler.new(emp_4).call
+    end
+  end
 end

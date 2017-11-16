@@ -82,12 +82,6 @@ class EmployeeProfile
       end
 
       new_profile.save!
-    else
-      send_email = send_email?(profile)
-
-      if send_email
-        EmployeeWorker.perform_async("Security Access", employee_id: employee.id)
-      end
     end
 
     if delta.present?
@@ -96,7 +90,6 @@ class EmployeeProfile
     end
 
     profile.save! && employee.save!
-    employee
   end
 
   # new employee takes an event object and returns saved employee
@@ -146,22 +139,5 @@ class EmployeeProfile
 
   def needs_new_profile?(profile)
     profile.worker_type_id_changed? || profile.adp_employee_id_changed?
-  end
-
-  def send_email?(profile)
-    has_changed = profile.changed? && profile.valid?
-    has_triggering_change = profile.department_id_changed? || profile.location_id_changed? || profile.job_title_id_changed?
-    no_previous_changes = profile.employee.emp_deltas.important_changes.blank?
-
-    if has_changed && has_triggering_change && profile.profile_status == "active"
-      if no_previous_changes
-        true
-      else
-        last_emailed_on = profile.employee.emp_deltas.important_changes.last.created_at
-        if last_emailed_on <= 1.day.ago
-          true
-        end
-      end
-    end
   end
 end

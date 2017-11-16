@@ -603,7 +603,6 @@ describe AdpService::Workers, type: :service do
         name: "Basic Manager") }
       let!(:new_hire) { FactoryGirl.create(:employee,
         status: "pending",
-        manager: new_manager,
         hire_date: Date.today + 4.days)}
       let!(:profile) { FactoryGirl.create(:profile,
         employee: new_hire,
