@@ -45,6 +45,27 @@ describe EmployeeService::ChangeHandler, type: :service do
       EmployeeService::ChangeHandler.new(pending_contractor).call
       expect(pending_contractor.request_status).to eq("waiting")
     end
+  end
 
+  context "manager" do
+    let(:emp_1)       { FactoryGirl.create(:regular_employee) }
+    let(:old_manager) { FactoryGirl.create(:regular_employee) }
+    let(:manager)     { FactoryGirl.create(:regular_employee) }
+    let(:emp_2)       { FactoryGirl.create(:regular_employee,
+                        manager: manager) }
+    let!(:emp_delta)  { FactoryGirl.create(:emp_delta,
+                        employee: emp_2,
+                        before: {"manager_id"=>"#{old_manager.id}"},
+                        after: {"manager_id"=>"#{manager.id}"}) }
+
+    it "should do nothing if the manager does not change" do
+      expect(EmployeeService::GrantManagerAccess).not_to receive(:new)
+      EmployeeService::ChangeHandler.new(emp_1).call
+    end
+
+    it "should call the manager access service when manager changes" do
+      expect(EmployeeService::GrantManagerAccess).to receive_message_chain(:new, :process!)
+      EmployeeService::ChangeHandler.new(emp_2).call
+    end
   end
 end

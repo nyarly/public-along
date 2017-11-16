@@ -9,10 +9,19 @@ module EmployeeService
     private
 
     def parse_changes
-      reset_contract if changed_contract_end_date?
+      reset_contract if contract_end_date_changed?
+      update_manager_permissions if manager_changed?
     end
 
-    def changed_contract_end_date?
+    def update_manager_permissions
+      GrantManagerAccess.new(@employee.manager).process! if @employee.manager.present?
+    end
+
+    def manager_changed?
+      @delta.before.include? "manager_id"
+    end
+
+    def contract_end_date_changed?
       @delta.before.include? "contract_end_date"
     end
 

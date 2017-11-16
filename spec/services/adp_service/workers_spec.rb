@@ -120,8 +120,7 @@ describe AdpService::Workers, type: :service do
                         adp_employee_id: "101734",
                         management_position: true) }
     let(:employee)    { FactoryGirl.create(:active_employee,
-                        first_name: "BOB",
-                        manager: manager) }
+                        first_name: "BOB") }
     let!(:profile)    { FactoryGirl.create(:active_profile,
                         employee: employee,
                         adp_employee_id: "101455",
@@ -196,8 +195,8 @@ describe AdpService::Workers, type: :service do
       expect(ads).to receive(:scan_for_failed_ldap_transactions)
 
       adp.sync_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
-      expect(employee.manager.emp_transactions.last.kind).to eq("Service")
-      expect(employee.manager.emp_transactions.last.emp_sec_profiles.last.security_profile_id).to eq(sp.id)
+      expect(employee.reload.manager.emp_transactions.last.kind).to eq("Service")
+      expect(employee.reload.manager.emp_transactions.last.emp_sec_profiles.last.security_profile_id).to eq(sp.id)
     end
 
     it "should do nothing if manager already a manager" do
@@ -226,7 +225,7 @@ describe AdpService::Workers, type: :service do
 
       expect{
         adp.sync_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
-      }.to_not change{employee.manager.security_profiles}
+      }.to_not change{manager.security_profiles}
     end
 
     it "should send a security access form on department, worker type, location, or job title" do
