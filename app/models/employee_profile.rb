@@ -90,9 +90,12 @@ class EmployeeProfile
       end
     end
 
-    profile.save!
-    delta.save! if delta.present?
-    employee.save!
+    if delta.present?
+      delta.save!
+      EmployeeService::ChangeHandler.new(employee).call
+    end
+
+    profile.save! && employee.save!
     employee
   end
 
