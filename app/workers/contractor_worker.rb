@@ -4,7 +4,7 @@ class ContractorWorker
   def perform(employee_id)
     employee = Employee.find(employee_id)
     manager = employee.manager
-    if e.manager.present?
+    if employee.manager.present?
       mailer = ManagerMailer.permissions("Offboarding", manager, employee)
       mailer.deliver_now
     end
