@@ -40,6 +40,10 @@ RSpec.describe EmpDelta, type: :model do
         before: {"location_id" => "some number"},
         after: {"location_id" => "some number"},
         created_at: Date.yesterday
+      ),
+      FactoryGirl.create(:emp_delta,
+        before: {"department_id" => "some dept"},
+        after: {"department_id" => "some dept"}
       )
     ]}
 
@@ -52,10 +56,6 @@ RSpec.describe EmpDelta, type: :model do
       FactoryGirl.create(:emp_delta,
         before: {"first_name" => "some name"},
         after: {"first_name" => "some name"}
-      ),
-      FactoryGirl.create(:emp_delta,
-        before: {"department_id" => "some dept"},
-        after: {"department_id" => "some dept"}
       ),
       FactoryGirl.create(:emp_delta,
         before: {"employee_id" => "some number"},
