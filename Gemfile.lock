@@ -287,6 +287,7 @@ GEM
       rspec (~> 3.0, >= 3.0.0)
       sidekiq (>= 2.4.0)
     rspec-support (3.4.1)
+    ruby-ole (1.2.12.1)
     rubyzip (1.2.0)
     sass (3.4.22)
     sass-rails (5.0.4)
@@ -319,6 +320,8 @@ GEM
       json (~> 1.8)
       simplecov-html (~> 0.10.0)
     simplecov-html (0.10.0)
+    spreadsheet (1.1.5)
+      ruby-ole (>= 1.0)
     spring (1.7.1)
     sprockets (3.6.0)
       concurrent-ruby (~> 1.0)
@@ -411,6 +414,7 @@ DEPENDENCIES
   shoulda-matchers
   sidekiq
   simplecov
+  spreadsheet
   spring
   timecop
   tiny_tds
@@ -421,4 +425,4 @@ DEPENDENCIES
   whenever
 
 BUNDLED WITH
-   1.14.6
+   1.15.4
