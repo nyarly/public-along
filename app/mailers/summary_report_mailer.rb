@@ -1,8 +1,10 @@
 class SummaryReportMailer < ApplicationMailer
   def onboard_report
-    csv = SummaryReportHelper::Csv.new
+    report = Report::Onboarding.new
+    report.create
+    file_name = "onboarding_#{DateTime.now.strftime('%Y%m%d')}.xls"
 
-    attachments.inline["onboarding_summary_#{DateTime.now.strftime('%Y%m%d')}.csv"] = csv.onboarding_data
+    attachments.inline[file_name] = File.read(Rails.root.join('tmp/reports/' + file_name))
     attachments.inline['pandc.png'] = File.read(Rails.root.join('app/assets/images/pandc.png'))
     mail(to: Rails.application.secrets.onoffboard_email, subject: "Onboard Summary Report")
   end
