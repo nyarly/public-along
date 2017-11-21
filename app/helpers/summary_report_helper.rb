@@ -87,12 +87,13 @@ module SummaryReportHelper
 
     def job_change_data
       attrs = [
+        "Parent Org",
+        "Department",
         "Employee ID",
         "First Name",
         "Last Name",
         "Job Title",
         "Manager Full Name",
-        "Department",
         "Location",
         "Start Date",
         "Change Type",
@@ -107,24 +108,24 @@ module SummaryReportHelper
 
         EmpDelta.report_group.each do |delta|
           changes = delta.format_by_key
-          created_at = delta.created_at
-          start_date = delta.employee.current_profile.start_date
+          employee = delta.employee
 
           changes.each do |change|
             csv << [
-              delta.employee.current_profile.adp_employee_id,
-              delta.employee.first_name,
-              delta.employee.last_name,
-              delta.employee.job_title.try(:name),
-              delta.employee.manager.try(:cn),
-              delta.employee.department.try(:name),
-              delta.employee.location.try(:name),
-              start_date,
+              employee.department.parent_org.try(:name),
+              employee.department.try(:name),
+              employee.current_profile.adp_employee_id,
+              employee.first_name,
+              employee.last_name,
+              employee.job_title.try(:name),
+              employee.manager.try(:cn),
+              employee.location.try(:name),
+              employee.current_profile.start_date,
               change["name"].titleize,
               change["before"],
               change["after"],
-              created_at,
-              delta.employee.worker_type.name
+              delta.created_at,
+              employee.worker_type.try(:name)
             ]
           end
         end
