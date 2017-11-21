@@ -783,4 +783,47 @@ describe Employee, type: :model do
       expect(employee.ou).to eq("ou=Provisional,ou=Users,")
     end
   end
+
+  context "#last_changed_at" do
+    let(:yesterday)                 { 1.day.ago }
+    let(:two_days_ago)              { 2.days.ago }
+    let(:last_week)                 { 1.week.ago }
+    let(:last_changed_at_onboard)   { FactoryGirl.create(:employee,
+                                      created_at: last_week) }
+    let(:onboard)                   { FactoryGirl.create(:emp_transaction,
+                                      employee: last_changed_at_onboard,
+                                      created_at: two_days_ago) }
+    let!(:onboard_info)             { FactoryGirl.create(:onboarding_info,
+                                      emp_transaction: onboard,
+                                      created_at: two_days_ago) }
+    let(:last_changed_at_emp_delta) { FactoryGirl.create(:employee,
+                                      created_at: last_week) }
+    let(:onboard_2)                 { FactoryGirl.create(:emp_transaction,
+                                      employee: last_changed_at_emp_delta,
+                                      created_at: two_days_ago) }
+    let!(:onboard_info_2)           { FactoryGirl.create(:onboarding_info,
+                                      emp_transaction: onboard_2,
+                                      created_at: two_days_ago) }
+    let!(:emp_delta)                { FactoryGirl.create(:emp_delta,
+                                      employee: last_changed_at_emp_delta,
+                                      before: {"thing"=>"thing"},
+                                      after: {"thing"=>"thing"},
+                                      created_at: yesterday) }
+    let(:last_changed_at_offboard)  { FactoryGirl.create(:employee) }
+    let(:offboard)                  { FactoryGirl.create(:emp_transaction,
+                                      employee: last_changed_at_offboard,
+                                      created_at: two_days_ago) }
+    let!(:offboard_info)            { FactoryGirl.create(:offboarding_info,
+                                      emp_transaction: offboard,
+                                      created_at: two_days_ago) }
+    let(:last_changed_at_create)    { FactoryGirl.create(:employee,
+                                      created_at: last_week) }
+
+    it "should get the right date last changed" do
+      expect(last_changed_at_onboard.last_changed_at).to eq(two_days_ago)
+      expect(last_changed_at_emp_delta.last_changed_at).to eq(yesterday)
+      expect(last_changed_at_offboard.last_changed_at).to eq(two_days_ago)
+      expect(last_changed_at_create.last_changed_at).to eq(last_week)
+    end
+  end
 end

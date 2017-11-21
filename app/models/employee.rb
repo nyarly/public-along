@@ -372,4 +372,20 @@ class Employee < ActiveRecord::Base
   def email_options
     self.termination_date ? EMAIL_OPTIONS : EMAIL_OPTIONS - ["Offboarding"]
   end
+
+  # looking for last meaningful change to employee record,
+  # which may include changes to offboarding or onboarding info.
+  # this function will return the most recent change.
+  # if for some reason there are no changes to the record, it will return the created_at date
+  # this is a workaround as the sync updates the record every hour.
+  def last_changed_at
+    changes = []
+    deltas = self.emp_deltas.where("before != '' AND after != ''")
+    changes << deltas.last.created_at if deltas.present?
+    changes << self.onboarding_infos.last.created_at if self.onboarding_infos.present?
+    changes << self.offboarding_infos.last.created_at if self.offboarding_infos.present?
+
+    return changes.sort.last if changes.present?
+    created_at
+  end
 end
