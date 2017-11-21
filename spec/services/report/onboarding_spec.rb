@@ -65,7 +65,7 @@ describe Report::Onboarding, type: :service do
 
   it "should create report with correct info" do
     report.create
-    book = Spreadsheet.open "tmp/report/onboarding_" + DateTime.now.strftime('%Y%m%d') + ".xls"
+    book = Spreadsheet.open "tmp/reports/onboarding_" + DateTime.now.strftime('%Y%m%d') + ".xls"
     sheet =  book.worksheet 'Onboards'
 
     expect(sheet.rows.count).to eq(4)
