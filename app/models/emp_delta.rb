@@ -24,9 +24,7 @@ class EmpDelta < ActiveRecord::Base
         'hire_date',
         'contract_end_date',
         'job_title_id',
-        'department_id',
         'manager_id',
-        'worker_type_id',
         'location_id'))
       )",
       2.days.ago

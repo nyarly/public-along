@@ -44,46 +44,21 @@ module SummaryReportHelper
 
     def job_change_data
       attrs = [
-        "Employee ID",
-        "First Name",
-        "Last Name",
-        "Job Title",
-        "Manager Full Name",
-        "Department",
-        "Location",
-        "Start Date",
-        "Change Type",
-        "Old Value",
-        "New Value",
-        "Changed At",
-        "Worker Type"
+        "Name",
+        "Prior Values",
+        "Current Values",
+        "Changed At"
       ]
-
       CSV.generate(headers: true) do |csv|
         csv << attrs
 
         EmpDelta.report_group.each do |delta|
-          changes = delta.format_by_key
-          created_at = delta.created_at
-          start_date = delta.employee.current_profile.start_date
-
-          changes.each do |change|
-            csv << [
-              delta.employee.current_profile.adp_employee_id,
-              delta.employee.first_name,
-              delta.employee.last_name,
-              delta.employee.job_title.try(:name),
-              delta.employee.manager.try(:cn),
-              delta.employee.department.try(:name),
-              delta.employee.location.try(:name),
-              start_date,
-              change["name"].titleize,
-              change["before"],
-              change["after"],
-              created_at,
-              delta.employee.worker_type.name
-            ]
-          end
+          csv << [
+            delta.employee.cn,
+            delta.format(delta.before),
+            delta.format(delta.after),
+            delta.created_at.strftime("%b %e, %Y at %H:%M:%S")
+          ]
         end
       end
     end
