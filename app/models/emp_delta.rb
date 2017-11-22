@@ -16,6 +16,7 @@ class EmpDelta < ActiveRecord::Base
   end
 
   def self.report_group
+    includes(:employee => [:profiles => [:department => [:parent_org]]]).
     where("
       created_at > ?
       AND EXISTS(
@@ -30,7 +31,9 @@ class EmpDelta < ActiveRecord::Base
         'location_id'))
       )",
       2.days.ago
-    )
+    ).sort_by{
+      |d| [d.employee.current_profile.department.parent_org.name, d.employee.current_profile.department.name]
+    }
   end
 
   def format(attr)

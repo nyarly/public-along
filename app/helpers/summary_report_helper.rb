@@ -106,11 +106,7 @@ module SummaryReportHelper
       CSV.generate(headers: true) do |csv|
         csv << attrs
 
-        deltas = EmpDelta.includes(:employee => [:profiles => [:department => [:parent_org]]]).report_group.sort_by{
-          |d| [d.employee.current_profile.department.parent_org.name, d.employee.current_profile.department.name]
-        }
-
-        deltas.each do |delta|
+        EmpDelta.report_group.each do |delta|
           changes = delta.format_by_key
           employee = delta.employee
 
@@ -124,11 +120,11 @@ module SummaryReportHelper
               employee.job_title.try(:name),
               employee.manager.try(:cn),
               employee.location.try(:name),
-              employee.current_profile.start_date,
+              employee.current_profile.start_date.strftime("%b %e, %Y"),
               change["name"].titleize,
               change["before"],
               change["after"],
-              delta.created_at,
+              delta.created_at.try(:strftime, "%b %e, %Y at %H:%M:%S"),
               employee.worker_type.try(:name)
             ]
           end
