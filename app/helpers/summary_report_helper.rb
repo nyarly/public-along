@@ -106,7 +106,11 @@ module SummaryReportHelper
       CSV.generate(headers: true) do |csv|
         csv << attrs
 
-        EmpDelta.report_group.each do |delta|
+        deltas = EmpDelta.includes(:employee => [:profiles => [:department => [:parent_org]]]).report_group.sort_by{
+          |d| [d.employee.current_profile.department.parent_org.name, d.employee.current_profile.department.name]
+        }
+
+        deltas.each do |delta|
           changes = delta.format_by_key
           employee = delta.employee
 
