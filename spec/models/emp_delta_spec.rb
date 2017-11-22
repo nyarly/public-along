@@ -1,12 +1,18 @@
 require 'rails_helper'
 
 RSpec.describe EmpDelta, type: :model do
-  let(:employee) { FactoryGirl.create(:regular_employee)}
-  let(:job_title) { FactoryGirl.create(:job_title)}
-
+  let(:parent)    { FactoryGirl.create(:parent_org) }
+  let(:dept)      { FactoryGirl.create(:department,
+                    parent_org: parent) }
+  let(:employee)  { FactoryGirl.create(:employee,
+                    status: "active") }
+  let!(:profile)  { FactoryGirl.create(:profile,
+                    profile_status: "active",
+                    employee: employee,
+                    department: dept) }
+  let(:job_title) { FactoryGirl.create(:job_title) }
   let(:emp_delta) { FactoryGirl.build(:emp_delta,
-    employee_id: employee.id
-  )}
+                    employee_id: employee.id) }
 
   it "should meet validations" do
     expect(emp_delta).to be_valid
@@ -17,6 +23,7 @@ RSpec.describe EmpDelta, type: :model do
   context "report group" do
     let!(:report_group) {[
       FactoryGirl.create(:emp_delta,
+        employee: employee,
         before: {
           "leave_start_date" => Date.today,
           "hire_date" => Date.today},
@@ -25,23 +32,28 @@ RSpec.describe EmpDelta, type: :model do
           "hire_date" => Date.tomorrow}
       ),
       FactoryGirl.create(:emp_delta,
+        employee: employee,
         before: {"contract_end_date" => Date.today},
         after: {"contract_end_date" => Date.tomorrow}
       ),
       FactoryGirl.create(:emp_delta,
+        employee: employee,
         before: {"job_title_id" => "some number"},
         after: {"job_title_id" => "some number"}
       ),
       FactoryGirl.create(:emp_delta,
+        employee: employee,
         before: {"manager_id" => "some number"},
         after: {"manager_id" => "some number"}
       ),
       FactoryGirl.create(:emp_delta,
+        employee: employee,
         before: {"location_id" => "some number"},
         after: {"location_id" => "some number"},
         created_at: Date.yesterday
       ),
       FactoryGirl.create(:emp_delta,
+        employee: employee,
         before: {"department_id" => "some dept"},
         after: {"department_id" => "some dept"}
       )
@@ -50,31 +62,38 @@ RSpec.describe EmpDelta, type: :model do
 
     let!(:non_report) {[
       FactoryGirl.create(:emp_delta,
+        employee: employee,
         before: {"leave_start_date" => Date.today},
         after: {"leave_start_date" => Date.tomorrow}
       ),
       FactoryGirl.create(:emp_delta,
+        employee: employee,
         before: {"first_name" => "some name"},
         after: {"first_name" => "some name"}
       ),
       FactoryGirl.create(:emp_delta,
+        employee: employee,
         before: {"employee_id" => "some number"},
         after: {"employee_id" => "some number"}
       ),
       FactoryGirl.create(:emp_delta,
+        employee: employee,
         before: {"termination_date" => Date.today},
         after: {"termination_date" => nil}
       ),
       FactoryGirl.create(:emp_delta,
+        employee: employee,
         before: {"termination_date" => nil},
         after: {"termination_date" => Date.today}
       ),
       FactoryGirl.create(:emp_delta,
+        employee: employee,
         before: {"termination_date" => ""},
         after: {"termination_date" => Date.today},
         created_at: 2.days.ago
       ),
       FactoryGirl.create(:emp_delta,
+        employee: employee,
         before: {"termination_date" => Date.yesterday},
         after: {"termination_date" => Date.today},
         created_at: 2.days.ago
