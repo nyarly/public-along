@@ -66,7 +66,7 @@ describe Report::Onboarding, type: :service do
   it "should create report with correct info" do
     report.create
     book = Spreadsheet.open "tmp/reports/onboarding_" + DateTime.now.strftime('%Y%m%d') + ".xls"
-    sheet =  book.worksheet 'Onboards'
+    sheet = book.worksheet 'Onboards'
 
     expect(sheet.rows.count).to eq(4)
     expect(sheet.rows[0]).to eq([
@@ -85,7 +85,7 @@ describe Report::Onboarding, type: :service do
       "BuddyEmail",
       "StartDate",
       "ContractEndDate",
-      "LastModified"
+      "LastModifiedAt"
     ])
     expect(sheet.rows[1]).to eq([
       "Aaa",
@@ -140,5 +140,24 @@ describe Report::Onboarding, type: :service do
       "#{2.weeks.from_now.strftime("%b %e, %Y")}",
       nil,
       "#{new_hire_2.created_at.try(:strftime, "%b %e, %Y at %H:%M:%S")}"])
+  end
+
+  it "should highlight changes since last sent" do
+    report.create
+    book = Spreadsheet.open "tmp/reports/onboarding_" + DateTime.now.strftime('%Y%m%d') + ".xls"
+    sheet = book.worksheet 'Onboards'
+
+    expect(sheet.rows[0].default_format.pattern_fg_color).to eq(:border)
+    expect(sheet.rows[1].default_format.pattern_fg_color).to eq(:yellow)
+    expect(sheet.rows[2].default_format.pattern_fg_color).to eq(:border)
+    expect(sheet.rows[3].default_format.pattern_fg_color).to eq(:yellow)
+  end
+
+  it "should format date cells" do
+    report.create
+    book = Spreadsheet.open "tmp/reports/onboarding_" + DateTime.now.strftime('%Y%m%d') + ".xls"
+    sheet = book.worksheet 'Onboards'
+
+    expect(sheet.rows[1].format(8)).to eq('')
   end
 end
