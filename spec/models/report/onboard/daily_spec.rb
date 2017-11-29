@@ -1,6 +1,7 @@
 require 'rails_helper'
 
-describe Report::Onboarding, type: :service do
+describe Report::Onboard::Daily, type: :model do
+  let!(:start_date)   { DateTime.new(2018, 1, 1, 0, 0, 0) }
   let!(:manager)      { FactoryGirl.create(:employee) }
   let(:buddy)         { FactoryGirl.create(:employee, email: "buddy@example.com") }
   let(:parent_org_1)  { FactoryGirl.create(:parent_org, name: "Aaa") }
@@ -15,28 +16,32 @@ describe Report::Onboarding, type: :service do
                         parent_org: parent_org_2,
                         name: "Eee") }
   let!(:new_hire_1)   { FactoryGirl.create(:employee,
+                        created_at: 1.month.ago,
                         email: "new_hire_1@example.com",
                         status: "pending",
-                        hire_date: 1.week.from_now,
+                        hire_date: start_date,
                         manager: manager) }
   let!(:new_hire_p_1) { FactoryGirl.create(:profile,
-                        start_date: 1.week.from_now,
+                        created_at: 1.month.ago,
+                        start_date: start_date,
                         profile_status: "pending",
                         employee: new_hire_1,
                         department: dept_1) }
   let!(:onboard)      { FactoryGirl.create(:emp_transaction,
                         kind: "Onboarding",
+                        created_at: 3.days.ago,
                         employee: new_hire_1) }
   let!(:onboard_info) { FactoryGirl.create(:onboarding_info,
+                        created_at: 3.days.ago,
                         emp_transaction: onboard,
                         buddy_id: buddy.id) }
   let!(:new_hire_2)   { FactoryGirl.create(:employee,
                         email: "new_hire_2@example.com",
                         status: "pending",
-                        hire_date: 2.weeks.from_now,
+                        hire_date: start_date,
                         manager: manager) }
   let!(:new_hire_p_2) { FactoryGirl.create(:profile,
-                        start_date: 2.weeks.from_now,
+                        start_date: start_date,
                         profile_status: "pending",
                         employee: new_hire_2,
                         department: dept_3) }
@@ -50,25 +55,26 @@ describe Report::Onboarding, type: :service do
                         created_at: 2.weeks.ago,
                         profile_status: "pending",
                         employee: rehire,
-                        start_date: 1.week.from_now,
+                        start_date: start_date,
                         department: dept_2) }
   let!(:rehire_old_p) { FactoryGirl.create(:terminated_profile,
                         created_at: 3.years.ago,
                         employee: rehire,
                         start_date: 3.years.ago) }
-  let(:report)        { Report::Onboarding.new }
+  # let!(:conversion)   { FactoryGirl.create(:)}
+
 
   it "should call the correct Employee scope" do
     expect(Profile).to receive(:onboarding_report_group).and_return([new_hire_p_1, new_hire_p_2, rehire_new_p])
-    report.create
+    Report::Onboard::Daily.new
   end
 
   it "should create report with correct info" do
-    report.create
-    book = Spreadsheet.open "tmp/reports/onboarding_" + DateTime.now.strftime('%Y%m%d') + ".xls"
-    sheet = book.worksheet 'Onboards'
+    Report::Onboard::Daily.new
+    book = Spreadsheet.open "tmp/reports/onboard/daily_" + DateTime.now.strftime('%Y%m%d') + ".xls"
+    sheet = book.worksheet 'daily'
 
-    expect(sheet.rows.count).to eq(4)
+    # expect(sheet.rows.count).to eq(4)
     expect(sheet.rows[0]).to eq([
       "ParentOrg",
       "Department",
@@ -97,14 +103,14 @@ describe Report::Onboarding, type: :service do
       "#{manager.cn}",
       "#{new_hire_1.location.name}",
       "#{new_hire_1.onboarding_due_date}",
-      "#{onboard.created_at.try(:strftime, "%b %e, %Y at %H:%M:%S")}",
+      (onboard.created_at.to_datetime - DateTime.new(1899, 12, 30, 0, 0, 0)).to_f,
       "new_hire_1@example.com",
       "#{buddy.cn}",
       "buddy@example.com",
-      "#{1.week.from_now.strftime("%b %e, %Y")}",
+      ((start_date) - DateTime.new(1899, 12, 30, 0, 0, 0)).to_f,
       nil,
-      "#{onboard.created_at.try(:strftime, "%b %e, %Y at %H:%M:%S")}"
-      ])
+      (onboard_info.created_at.to_datetime - DateTime.new(1899, 12, 30, 0, 0, 0)).to_f
+    ])
     expect(sheet.rows[2]).to eq([
       "Bbb",
       "Ddd",
@@ -119,9 +125,9 @@ describe Report::Onboarding, type: :service do
       "rehire@example.com",
       nil,
       nil,
-      "#{1.week.from_now.strftime("%b %e, %Y")}",
+      ((start_date) - DateTime.new(1899, 12, 30, 0, 0, 0)).to_f,
       nil,
-      "#{rehire_new_p.created_at.try(:strftime, "%b %e, %Y at %H:%M:%S")}"
+      (rehire_new_p.created_at.to_datetime - DateTime.new(1899, 12, 30, 0, 0, 0)).to_f
     ])
     expect(sheet.rows[3]).to eq([
       "Bbb",
@@ -137,27 +143,20 @@ describe Report::Onboarding, type: :service do
       "new_hire_2@example.com",
       nil,
       nil,
-      "#{2.weeks.from_now.strftime("%b %e, %Y")}",
+      ((start_date) - DateTime.new(1899, 12, 30, 0, 0, 0)).to_f,
       nil,
-      "#{new_hire_2.created_at.try(:strftime, "%b %e, %Y at %H:%M:%S")}"])
+      (new_hire_p_2.created_at.to_datetime - DateTime.new(1899, 12, 30, 0, 0, 0)).to_f
+    ])
   end
 
   it "should highlight changes since last sent" do
-    report.create
-    book = Spreadsheet.open "tmp/reports/onboarding_" + DateTime.now.strftime('%Y%m%d') + ".xls"
-    sheet = book.worksheet 'Onboards'
+    Report::Onboard::Daily.new
+    book = Spreadsheet.open "tmp/reports/onboard/daily_" + DateTime.now.strftime('%Y%m%d') + ".xls"
+    sheet = book.worksheet 'daily'
 
     expect(sheet.rows[0].default_format.pattern_fg_color).to eq(:border)
-    expect(sheet.rows[1].default_format.pattern_fg_color).to eq(:yellow)
+    expect(sheet.rows[1].default_format.pattern_fg_color).to eq(:border)
     expect(sheet.rows[2].default_format.pattern_fg_color).to eq(:border)
     expect(sheet.rows[3].default_format.pattern_fg_color).to eq(:yellow)
-  end
-
-  it "should format date cells" do
-    report.create
-    book = Spreadsheet.open "tmp/reports/onboarding_" + DateTime.now.strftime('%Y%m%d') + ".xls"
-    sheet = book.worksheet 'Onboards'
-
-    expect(sheet.rows[1].format(8)).to eq('')
   end
 end

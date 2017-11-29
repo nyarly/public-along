@@ -381,11 +381,11 @@ class Employee < ActiveRecord::Base
     deltas = self.emp_deltas.where("before != '' AND after != ''")
 
     changes << deltas.last.created_at if deltas.present?
-    changes << self.onboarding_infos.last.created_at if self.onboarding_infos.present?
-    changes << self.offboarding_infos.last.created_at if self.offboarding_infos.present?
-    changes << self.current_profile.created_at if self.current_profile.present?
+    changes << self.onboarding_infos.last.created_at.to_datetime if self.onboarding_infos.present?
+    changes << self.offboarding_infos.last.created_at.to_datetime if self.offboarding_infos.present?
+    changes << self.current_profile.created_at.to_datetime if self.current_profile.present?
 
     return changes.sort.last if changes.present?
-    created_at
+    created_at.to_datetime
   end
 end

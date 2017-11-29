@@ -12,7 +12,7 @@ RSpec.describe SummaryReportMailer, type: :mailer do
       expect(email.subject).to eq("Onboard Summary Report")
       expect(email.attachments.count).to eq(2)
       expect(email.attachments[0].content_type).to have_content("application/excel")
-      expect(email.attachments[0].filename).to eq("onboarding_#{DateTime.now.strftime('%Y%m%d')}.xls")
+      expect(email.attachments[0].filename).to eq("daily_#{DateTime.now.strftime('%Y%m%d')}.xls")
       expect(ActionMailer::Base.deliveries).to_not be_empty
     end
   end
