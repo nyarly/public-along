@@ -66,14 +66,14 @@ module Report
             employee.job_title.try(:name),
             employee.manager.try(:cn),
             employee.location.try(:name),
-            employee.onboarding_due_date,                                     # string field
-            onboard_submitted_on(employee),                                   # date field
+            employee.onboarding_due_date,        # string field
+            onboard_submitted_on(employee),      # date field
             employee.email,
             buddy(employee).try(:cn),
             buddy(employee).try(:email),
-            employee.current_profile.start_date,  # date field
-            employee.contract_end_date,           # date field
-            employee.last_changed_at                # date field
+            employee.current_profile.start_date, # date field
+            employee.contract_end_date,          # date field
+            employee.last_changed_at             # date field
           ]
           @sheet.insert_row(row_num, values)
         end

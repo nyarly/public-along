@@ -61,8 +61,6 @@ describe Report::Onboard::Daily, type: :model do
                         created_at: 3.years.ago,
                         employee: rehire,
                         start_date: 3.years.ago) }
-  # let!(:conversion)   { FactoryGirl.create(:)}
-
 
   it "should call the correct Employee scope" do
     expect(Profile).to receive(:onboarding_report_group).and_return([new_hire_p_1, new_hire_p_2, rehire_new_p])
@@ -74,7 +72,7 @@ describe Report::Onboard::Daily, type: :model do
     book = Spreadsheet.open "tmp/reports/onboard/daily_" + DateTime.now.strftime('%Y%m%d') + ".xls"
     sheet = book.worksheet 'daily'
 
-    # expect(sheet.rows.count).to eq(4)
+    expect(sheet.rows.count).to eq(4)
     expect(sheet.rows[0]).to eq([
       "ParentOrg",
       "Department",
