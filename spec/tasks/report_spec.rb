@@ -11,11 +11,16 @@ describe "report rake tasks", type: :tasks do
   end
 
   context "employee change summaries" do
-
-    it "should send onboarding report" do
-      expect(SummaryReportMailer).to receive(:onboard_report).and_return(mailer)
+    it "should send daily onboarding report" do
+      expect(SummaryReportMailer).to receive(:daily_onboard_report).and_return(mailer)
       expect(mailer).to receive(:deliver_now)
-      Rake::Task["report:onboards"].invoke
+      Rake::Task["report:daily_onboards"].invoke
+    end
+
+    it "should send weekly onboarding report" do
+      expect(SummaryReportMailer).to receive(:weekly_onboard_report).and_return(mailer)
+      expect(mailer).to receive(:deliver_now)
+      Rake::Task["report:weekly_onboards"].invoke
     end
 
     it "should send offboarding report" do

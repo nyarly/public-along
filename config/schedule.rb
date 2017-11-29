@@ -44,6 +44,11 @@ every :weekday, at: '6:00am' do
   rake "report:missed_terminations"
 end
 
+# 11pm UTC / 4pm PT
+every :friday, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Time.parse("16:00")) do
+  rake "report:weekly_onboards"
+end
+
 # 3:30am UTC / 8:30pm PT
 every :saturday, at: '3:30am' do
   rake "adp:update_all_email"

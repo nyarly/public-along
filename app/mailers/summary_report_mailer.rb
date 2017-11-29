@@ -1,12 +1,20 @@
 class SummaryReportMailer < ApplicationMailer
-  def onboard_report
+  def daily_onboard_report
     report = Report::Onboard::Daily.new
     file_name = "daily_#{DateTime.now.strftime('%Y%m%d')}.xls"
-    @onboards = Profile.daily_onboard_report_group
+    @onboards = OnboardQuery.new(:onboarding).all
 
     attachments.inline[file_name] = File.read(Rails.root.join('tmp/reports/onboard/' + file_name))
     attachments.inline['pandc.png'] = File.read(Rails.root.join('app/assets/images/pandc.png'))
-    mail(to: Rails.application.secrets.onoffboard_email, subject: "Onboard Summary Report")
+    mail(to: Rails.application.secrets.onoffboard_email, subject: "Daily Onboard Summary Report")
+  end
+
+  def weekly_onboard_report
+    file_name = "weekly_#{DateTime.now.strftime('%Y%m%d')}.xls"
+    @onboards = OnboardQuery.new(:onboarded_this_week).all
+
+    attachments.inline['pandc.png'] = File.read(Rails.root.join('app/assets/images/pandc.png'))
+    mail(to: Rails.application.secrets.onoffboard_email, subject: "Weekly Onboard Summary Report")
   end
 
   def offboard_report

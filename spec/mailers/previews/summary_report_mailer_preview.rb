@@ -1,6 +1,10 @@
 class SummaryReportMailerPreview < ActionMailer::Preview
-  def onboard
-    SummaryReportMailer.onboard_report
+  def daily_onboard
+    SummaryReportMailer.daily_onboard_report
+  end
+
+  def weekly_onboard
+    SummaryReportMailer.weekly_onboard_report
   end
 
   def offboard
