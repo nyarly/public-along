@@ -1,3 +1,13 @@
 Hello,
 
 Attached you will find a list of employees and contingent workers that have been submitted through today with a future start date. If you have any questions, please e-mail peopleandculture@opentable.com.
+
++------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|                                                                                    Onboards                                                                                        |
++------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Parent Org | Department | Name | Employee ID  | Position   | Manager Name | Work Location | Onboarding Form Due | Email | Buddy <NAV></NAV>ame | Buddy Email | Start Date | Contract End Date | Last Modified On |
++------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+<% @onboards.each do |onboard| %>
+| <%= onboard.employee.department.parent_org.try(:name) %> | <%= onboard.employee.department.try(:name) %> | <%= onboard.employee.cn %> | <%= onboard.employee.current_profile.adp_employee_id %> | <%= onboard.employee.worker_type.try(:name) %> | <%= onboard.employee.job_title.try(:name) %> | <%= onboard.employee.manager.try(:cn) %> | <%= onboard.employee.location.try(:name) %> | <%= onboard.employee.onboarding_due_date %> | <%= onboard.employee.email %> | <%= onboard.employee.buddy.try(:cn) %> | <%= onboard.employee.buddy.try(:email) %> | <%= onboard.employee.current_profile.start_date.try(:strftime, "%b %e, %Y") %> | <%= onboard.employee.contract_end_date.try(:strftime, "%b %e, %Y") %> | <%= onboard.employee.last_changed_at.try(:strftime, "%b %e, %Y at %H:%M:%S") %> |
++------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+<% end %>

@@ -2,6 +2,7 @@ class SummaryReportMailer < ApplicationMailer
   def onboard_report
     report = Report::Onboard::Daily.new
     file_name = "daily_#{DateTime.now.strftime('%Y%m%d')}.xls"
+    @onboards = Profile.daily_onboard_report_group
 
     attachments.inline[file_name] = File.read(Rails.root.join('tmp/reports/onboard/' + file_name))
     attachments.inline['pandc.png'] = File.read(Rails.root.join('app/assets/images/pandc.png'))

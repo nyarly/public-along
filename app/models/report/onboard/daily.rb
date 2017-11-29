@@ -69,8 +69,8 @@ module Report
             employee.onboarding_due_date,                                     # string field
             onboard_submitted_on(employee),                                   # date field
             employee.email,
-            buddy(employee).try(:cn),
-            buddy(employee).try(:email),
+            employee.buddy.try(:cn),
+            employee.buddy.try(:email),
             employee.current_profile.start_date,  # date field
             employee.contract_end_date,           # date field
             employee.last_changed_at                # date field
@@ -98,16 +98,6 @@ module Report
         # cwday returns the day of calendar week (1-7, Monday is 1).
         3.days.ago if Date.today.cwday == 1
         1.day.ago
-      end
-
-      def buddy(employee)
-        return nil if employee.onboarding_infos.blank?
-        return nil if employee.onboarding_infos.last.buddy_id.blank?
-
-        buddy_id = employee.onboarding_infos.last.buddy_id
-        buddy = Employee.find(buddy_id)
-
-        return buddy if buddy.present?
       end
 
       def onboard_submitted_on(employee)

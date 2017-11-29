@@ -56,4 +56,13 @@ class Profile < ActiveRecord::Base
   def self.onboarding_report_group
     where('start_date >= ?', Date.today)
   end
+
+  def self.daily_onboard_report_group
+    includes([:department, department: :parent_org]).
+    where('start_date >= ?', Date.today).
+    sort_by{ |e|
+      [e.department.parent_org.name,
+       e.department.name]
+    }
+  end
 end

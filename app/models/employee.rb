@@ -388,4 +388,14 @@ class Employee < ActiveRecord::Base
     return changes.sort.last if changes.present?
     created_at.to_datetime
   end
+
+  def buddy
+    return nil if self.onboarding_infos.blank?
+    return nil if self.onboarding_infos.last.buddy_id.blank?
+
+    buddy_id = self.onboarding_infos.last.buddy_id
+    buddy = Employee.find(buddy_id)
+
+    return buddy if buddy.present?
+  end
 end
