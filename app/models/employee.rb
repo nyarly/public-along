@@ -48,13 +48,12 @@ class Employee < ActiveRecord::Base
       transitions from: :terminated, to: :pending, after: [:update_active_directory_account, :onboard_new_position]
     end
 
-    event :rehire_from_event, binding_event: :clear_queue, after: :update_active_directory_account do
-      transitions from: :terminated, to: :pending
+    event :rehire_from_event, binding_event: :clear_queue do
+      transitions from: :terminated, to: :pending, after: :update_active_directory_account
     end
 
     event :activate, guard: :activation_allowed?, binding_event: :clear_queue do
-      transitions from: :inactive, to: :active, after: :activate_active_directory_account
-      transitions from: :pending, to: :active, after: :activate_active_directory_account
+      transitions from: [:pending, :inactive], to: :active, after: :activate_active_directory_account
     end
 
     event :start_leave do
@@ -62,11 +61,11 @@ class Employee < ActiveRecord::Base
     end
 
     event :terminate, binding_event: :clear_queue do
-      transitions from: :active, to: :terminated, after: [:deactivate_active_directory_account, :terminate_profile, :offboard]
+      transitions from: :active, to: :terminated, after: [:terminate_profile, :deactivate_active_directory_account, :offboard]
     end
 
-    event :terminate_immediately do
-      transitions from: :active, to: :terminated, after: [:deactivate_active_directory_account, :offboard, :send_techtable_offboard_instructions]
+    event :terminate_immediately, binding_event: :clear_queue do
+      transitions from: :active, to: :terminated, after: [:deactivate_active_directory_account, :send_techtable_offboard_instructions, :offboard]
     end
 
     event :leave_immediately do
