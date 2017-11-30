@@ -176,10 +176,7 @@ class Employee < ActiveRecord::Base
       streetAddress: generated_address,
       l: home_city,
       st: home_state,
-      postalCode: home_zip,
-      # thumbnailPhoto: decode_img_code
-      # TODO bring back thumbnail photo when we pull the info from ADP or other source
-      # Make cure to comment back in the relevant tests in models/employee_spec.rb, and tasks/employee_spec.rb
+      postalCode: home_zip
     }
   end
 
@@ -215,7 +212,6 @@ class Employee < ActiveRecord::Base
   def generated_email
     return nil if email.blank? && sam_account_name.blank?
     return email if email.present?
-    # TODO: this is always running, what kind of workers shouldn't have email addresses?
     gen_email = sam_account_name + "@opentable.com"
     update_attribute(:email, gen_email)
     gen_email
@@ -226,7 +222,6 @@ class Employee < ActiveRecord::Base
   end
 
   def encode_password
-    #TODO Replace this with a randomized password that gets sent to the new hire via email/text/???
     "\"JoeSevenPack#007#\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT)
   end
 

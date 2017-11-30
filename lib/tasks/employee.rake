@@ -71,7 +71,6 @@ namespace :employee do
 end
 
 def in_time_window?(date, hour, zone)
-  # TODO refactor this as a scope in Employee model
   start_time = ActiveSupport::TimeZone.new(zone).local_to_utc(DateTime.new(date.year, date.month, date.day, hour))
   end_time = ActiveSupport::TimeZone.new(zone).local_to_utc(DateTime.new(date.year, date.month, date.day, (hour + 1)))
   start_time <= DateTime.now.in_time_zone("UTC") && DateTime.now.in_time_zone("UTC") < end_time
