@@ -59,7 +59,6 @@ RSpec.describe EmpDelta, type: :model do
       )
     ]}
 
-
     let!(:non_report) {[
       FactoryGirl.create(:emp_delta,
         employee: employee,

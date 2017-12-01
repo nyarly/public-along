@@ -372,4 +372,20 @@ class Employee < ActiveRecord::Base
   def email_options
     self.termination_date ? EMAIL_OPTIONS : EMAIL_OPTIONS - ["Offboarding"]
   end
+
+  # Date of last meaningful change to employee record.
+  # Considers the following categories:
+  # Onboarding form submitted, offboarding form submitted, last employee delta created, profile created, employee created
+  def last_changed_at
+    changes = []
+    deltas = self.emp_deltas.where("before != '' AND after != ''")
+
+    changes << deltas.last.created_at if deltas.present?
+    changes << self.onboarding_infos.last.created_at.to_datetime if self.onboarding_infos.present?
+    changes << self.offboarding_infos.last.created_at.to_datetime if self.offboarding_infos.present?
+    changes << self.current_profile.created_at.to_datetime if self.current_profile.present?
+
+    return changes.sort.last if changes.present?
+    created_at.to_datetime
+  end
 end
