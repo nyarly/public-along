@@ -36,25 +36,25 @@ class Employee < ActiveRecord::Base
     error_on_all_events { |e| Rails.logger.info e.message }
     state :created, :initial => true
     state :pending
-    state :active
+    state :active, :before_enter => :activate_profile
     state :inactive
     state :terminated
 
-    event :hire, binding_event: :wait, after: :onboard_new_position do
-      transitions from: :created, to: :pending, after: :create_active_directory_account
+    event :hire, binding_event: :wait do
+      transitions from: :created, to: :pending, after: [:create_active_directory_account, :onboard_new_position]
     end
 
-    event :rehire, binding_event: :wait, after: :onboard_new_position do
+    event :rehire, binding_event: :wait do
+      transitions from: :terminated, to: :pending, after: [:update_active_directory_account, :onboard_new_position]
+    end
+
+    event :rehire_from_event, binding_event: :clear_queue do
       transitions from: :terminated, to: :pending, after: :update_active_directory_account
     end
 
-    event :rehire_from_event, binding_event: :clear_queue, after: :update_active_directory_account do
-      transitions from: :terminated, to: :pending
-    end
-
-    event :activate, binding_event: :clear_queue, after: [:activate_profile, :activate_active_directory_account] do
-      transitions from: :inactive, to: :active
-      transitions from: :pending, to: :active, guard: :activation_allowed?
+    event :activate, guard: :activation_allowed?, binding_event: :clear_queue do
+      # ADP sometimes updates the status before we want to activate worker
+      transitions from: [:pending, :inactive, :active], to: :active, after: :activate_active_directory_account
     end
 
     event :start_leave do
@@ -62,11 +62,11 @@ class Employee < ActiveRecord::Base
     end
 
     event :terminate, binding_event: :clear_queue do
-      transitions from: :active, to: :terminated, after: [:deactivate_active_directory_account, :terminate_profile, :offboard]
+      transitions from: :active, to: :terminated, after: [:terminate_profile, :deactivate_active_directory_account, :offboard]
     end
 
-    event :terminate_immediately do
-      transitions from: :active, to: :terminated, after: [:deactivate_active_directory_account, :offboard, :send_techtable_offboard_instructions]
+    event :terminate_immediately, binding_event: :clear_queue do
+      transitions from: :active, to: :terminated, after: [:deactivate_active_directory_account, :send_techtable_offboard_instructions, :offboard]
     end
 
     event :leave_immediately do
@@ -115,7 +115,7 @@ class Employee < ActiveRecord::Base
   end
 
   def activate_profile
-    self.current_profile.activate!
+    current_profile.activate!
   end
 
   def employee_id

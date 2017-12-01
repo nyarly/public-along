@@ -3,25 +3,44 @@ require 'aasm/rspec'
 
 describe Employee, type: :model do
 
-  let(:manager) { FactoryGirl.create(:employee,
-    first_name: "Alex",
-    last_name: "Trebek",
-    sam_account_name: "atrebek",
-    hire_date: 5.years.ago,
-    ad_updated_at: 2.years.ago) }
+  let!(:manager) { FactoryGirl.create(:employee,
+                   first_name: "Alex",
+                   last_name: "Trebek",
+                   sam_account_name: "atrebek",
+                   hire_date: 5.years.ago,
+                   ad_updated_at: 2.years.ago) }
 
   describe "state machine" do
-    let!(:regular_sp)      { FactoryGirl.create(:security_profile, name: "Basic Regular Worker Profile") }
-    let(:employee)         { FactoryGirl.create(:employee, :with_profile, first_name: "aa") }
-    let(:active_employee) { FactoryGirl.create(:active_employee, first_name: "bb") }
-    let(:pending_employee){ FactoryGirl.create(:pending_employee, first_name: "cc") }
-    let(:leave_employee)  { FactoryGirl.create(:leave_employee, first_name: "dd") }
-    let(:termed_employee) { FactoryGirl.create(:terminated_employee, first_name: "ee") }
-    let!(:new_profile)     { FactoryGirl.create(:profile, employee: termed_employee) }
-    let(:ad)               { double(ActiveDirectoryService) }
-    let(:mailer)           { double(ManagerMailer) }
-    let(:os)               { double(OffboardingService) }
-    let(:sas)              { double(SecAccessService) }
+    let(:pending_onboard) { FactoryGirl.create(:employee,
+                            status: "pending",
+                            request_status: "waiting") }
+    let!(:pend_onboard_p) { FactoryGirl.create(:profile,
+                            employee: pending_onboard,
+                            profile_status: "pending") }
+    let(:pending_start)   { FactoryGirl.create(:employee,
+                            status: "pending",
+                            request_status: "completed") }
+    let!(:pend_start_p)   { FactoryGirl.create(:profile,
+                            employee: pending_start,
+                            profile_status: "pending") }
+    let!(:employee)       { FactoryGirl.create(:employee, :with_profile,
+                            manager: manager) }
+    let(:active_employee) { FactoryGirl.create(:active_employee) }
+    let(:leave_employee)  { FactoryGirl.create(:leave_employee) }
+    let(:termed_employee) { FactoryGirl.create(:terminated_employee) }
+    let!(:new_profile)    { FactoryGirl.create(:profile,
+                            employee: termed_employee) }
+    let(:pending_rehire)  { FactoryGirl.create(:employee,
+                            status: "pending") }
+    let!(:pend_reh_p_1)   { FactoryGirl.create(:profile,
+                            employee: pending_rehire,
+                            profile_status: "terminated") }
+    let!(:pend_reh_p_2)   { FactoryGirl.create(:profile,
+                            employee: pending_rehire,
+                            profile_status: "pending") }
+    let(:ad)              { double(ActiveDirectoryService) }
+    let(:os)              { double(OffboardingService) }
+    let(:onboard_service) { double(EmployeeService::Onboard) }
 
     it "should initialize as created" do
       expect(employee).to have_state(:created)
@@ -39,81 +58,104 @@ describe Employee, type: :model do
       expect(employee).to allow_event(:wait).on(:request_status)
       expect(employee).to allow_transition_to(:waiting).on(:request_status)
       expect(employee).not_to allow_event(:clear).on(:request_status)
-
-      expect(employee.profiles.count).to eq(1)
-      expect(employee.current_profile.profile_status).to eq("pending")
     end
 
     it "employee.hire! should create accounts and set as pending" do
-      expect(pending_employee).to receive(:create_active_directory_account).and_return(ad)
-      expect(EmployeeWorker).to receive(:perform_async)
-      expect(pending_employee).to transition_from(:created).to(:pending).on_event(:hire)
-      expect(pending_employee).to have_state(:pending)
-      expect(pending_employee).not_to allow_transition_to(:created)
-      expect(pending_employee).not_to allow_transition_to(:terminated)
-      expect(pending_employee).not_to allow_transition_to(:inactive)
-      expect(pending_employee).not_to allow_event(:rehire)
-      expect(pending_employee).not_to allow_event(:start_leave)
-      expect(pending_employee).not_to allow_event(:end_leave)
-      expect(pending_employee).not_to allow_event(:terminate)
-      expect(pending_employee).to have_state(:waiting).on(:request_status)
-      expect(pending_employee).to allow_event(:complete).on(:request_status)
-      expect(pending_employee.profiles.count).to eq(1)
-      expect(pending_employee.current_profile.profile_status).to eq("pending")
-    end
+      expect(ActiveDirectoryService).to receive(:new).and_return(ad)
+      expect(ad).to receive(:create_disabled_accounts).with([employee])
 
-    it "should allow employee to activate if onboarding is complete" do
-      pending_employee.request_status = "completed"
-      expect(pending_employee).to allow_event(:activate)
-      expect(pending_employee).to allow_transition_to(:active)
-    end
+      expect(EmployeeService::Onboard).to receive(:new).with(employee).and_return(onboard_service)
+      expect(onboard_service).to receive(:process!)
 
-    it "employee.activate! should make employee active" do
-      employee.request_status = "completed"
+      employee.hire!
 
-      expect(employee).to receive(:activate_active_directory_account).and_return(ad)
-      expect(employee).to transition_from(:pending).to(:active).on_event(:activate)
-      expect(employee).to have_state(:active)
-      expect(employee).to allow_event(:start_leave)
-      expect(employee).to allow_event(:terminate)
-      expect(employee).to allow_transition_to(:inactive)
-      expect(employee).to allow_transition_to(:terminated)
-      expect(employee).not_to allow_transition_to(:created)
-      expect(employee).not_to allow_transition_to(:pending)
-      expect(employee).not_to allow_event(:hire)
-      expect(employee).not_to allow_event(:rehire)
-      expect(employee).not_to allow_event(:activate)
-
-      expect(employee).to have_state(:none).on(:request_status)
-
-      expect(employee.profiles.count).to eq(1)
-      expect(employee.current_profile.profile_status).to eq("active")
-    end
-
-    it "should not activate employee if onboarding form is not complete" do
-      employee.status = "pending"
-      employee.request_status = "waiting"
-
-      employee.activate!
-
-      expect(employee).not_to transition_from(:pending).to(:active).on_event(:activate)
       expect(employee).to have_state(:pending)
-      expect(employee).not_to allow_event(:terminate)
       expect(employee).not_to allow_transition_to(:created)
-      expect(employee).not_to allow_transition_to(:active)
-      expect(employee).not_to allow_event(:hire)
+      expect(employee).not_to allow_transition_to(:terminated)
+      expect(employee).not_to allow_transition_to(:inactive)
       expect(employee).not_to allow_event(:rehire)
-      expect(employee).not_to allow_event(:activate)
-
+      expect(employee).not_to allow_event(:start_leave)
+      expect(employee).not_to allow_event(:end_leave)
+      expect(employee).not_to allow_event(:terminate)
       expect(employee).to have_state(:waiting).on(:request_status)
+      expect(employee).to allow_event(:complete).on(:request_status)
 
-      expect(employee.profiles.count).to eq(1)
+      expect(employee.status).to eq("pending")
+      expect(employee.request_status).to eq("waiting")
       expect(employee.current_profile.profile_status).to eq("pending")
     end
 
+    it "employee.activate! should make employee active" do
+      expect(ActiveDirectoryService).to receive(:new).and_return(ad)
+      expect(ad).to receive(:activate).with([pending_start])
+
+      pending_start.activate!
+
+      expect(pending_start).to have_state(:active)
+      expect(pending_start).to allow_event(:start_leave)
+      expect(pending_start).to allow_event(:terminate)
+      expect(pending_start).to allow_transition_to(:inactive)
+      expect(pending_start).to allow_transition_to(:terminated)
+      expect(pending_start).not_to allow_transition_to(:created)
+      expect(pending_start).not_to allow_transition_to(:pending)
+      expect(pending_start).not_to allow_event(:hire)
+      expect(pending_start).not_to allow_event(:rehire)
+      expect(pending_start).to have_state(:none).on(:request_status)
+
+      expect(pending_start.status).to eq("active")
+      expect(pending_start.request_status).to eq("none")
+      expect(pending_start.current_profile.profile_status).to eq("active")
+    end
+
+    it "employee.activate! should make rehire active" do
+      expect(ActiveDirectoryService).to receive(:new).and_return(ad)
+      expect(ad).to receive(:activate).with([pending_rehire])
+
+      pending_rehire.activate!
+
+      expect(pending_rehire).to have_state(:active)
+      expect(pending_rehire).to allow_event(:start_leave)
+      expect(pending_rehire).to allow_event(:terminate)
+      expect(pending_rehire).to allow_transition_to(:inactive)
+      expect(pending_rehire).to allow_transition_to(:terminated)
+      expect(pending_rehire).not_to allow_transition_to(:created)
+      expect(pending_rehire).not_to allow_transition_to(:pending)
+      expect(pending_rehire).not_to allow_event(:hire)
+      expect(pending_rehire).not_to allow_event(:rehire)
+      expect(pending_rehire).to have_state(:none).on(:request_status)
+
+      expect(pending_rehire.status).to eq("active")
+      expect(pending_rehire.request_status).to eq("none")
+      expect(pending_rehire.current_profile).to eq(pend_reh_p_2)
+      expect(pend_reh_p_2.reload.profile_status).to eq("active")
+      expect(pend_reh_p_1.reload.profile_status).to eq("terminated")
+    end
+
+    it "should not activate employee if onboarding form is not complete" do
+      expect(ActiveDirectoryService).not_to receive(:new)
+
+      pending_onboard.activate!
+
+      expect(pending_onboard).to have_state(:pending)
+      expect(pending_onboard).not_to allow_event(:terminate)
+      expect(pending_onboard).not_to allow_transition_to(:created)
+      expect(pending_onboard).not_to allow_transition_to(:active)
+      expect(pending_onboard).not_to allow_event(:hire)
+      expect(pending_onboard).not_to allow_event(:rehire)
+      expect(pending_onboard).not_to allow_event(:activate)
+      expect(pending_onboard).to have_state(:waiting).on(:request_status)
+
+      expect(pending_onboard.status).to eq("pending")
+      expect(pending_onboard.request_status).to eq("waiting")
+      expect(pending_onboard.current_profile.profile_status).to eq("pending")
+    end
+
     it "employee.start_leave! should put employee on leave" do
-      expect(active_employee).to receive(:deactivate_active_directory_account).and_return(ad)
-      expect(active_employee).to transition_from(:active).to(:inactive).on_event(:start_leave)
+      expect(ActiveDirectoryService).to receive(:new).and_return(ad)
+      expect(ad).to receive(:deactivate).with([active_employee])
+
+      active_employee.start_leave!
+
       expect(active_employee).to have_state(:inactive)
       expect(active_employee).to allow_event(:activate)
       expect(active_employee).to allow_transition_to(:active)
@@ -124,14 +166,19 @@ describe Employee, type: :model do
       expect(active_employee).not_to allow_event(:rehire)
       expect(active_employee).not_to allow_event(:terminate)
       expect(active_employee).not_to allow_event(:start_leave)
-
       expect(active_employee).to have_state(:none).on(:request_status)
 
+      expect(active_employee.status).to eq("inactive")
       expect(active_employee.current_profile.profile_status).to eq("leave")
+      expect(active_employee.request_status).to eq("none")
     end
 
     it "employee.activate! should return employee from leave" do
-      expect(leave_employee).to transition_from(:inactive).to(:active).on_event(:activate)
+      expect(ActiveDirectoryService).to receive(:new).and_return(ad)
+      expect(ad).to receive(:activate).with([leave_employee])
+
+      leave_employee.activate!
+
       expect(leave_employee).to have_state(:active)
       expect(leave_employee).to allow_event(:start_leave)
       expect(leave_employee).to allow_event(:terminate)
@@ -141,15 +188,19 @@ describe Employee, type: :model do
       expect(leave_employee).not_to allow_transition_to(:pending)
       expect(leave_employee).not_to allow_event(:hire)
       expect(leave_employee).not_to allow_event(:rehire)
-      expect(leave_employee).not_to allow_event(:activate)
-
       expect(leave_employee).to have_state(:none).on(:request_status)
+
+      expect(leave_employee.status).to eq("active")
+      expect(leave_employee.request_status).to eq("none")
+      expect(leave_employee.current_profile.profile_status).to eq("active")
     end
 
     it "employee.terminate! should terminate employee" do
       expect(active_employee).to receive(:deactivate_active_directory_account).and_return(ad)
       expect(active_employee).to receive(:offboard).and_return(os)
-      expect(active_employee).to transition_from(:active).to(:terminated).on_event(:terminate)
+
+      active_employee.terminate!
+
       expect(active_employee).to have_state(:terminated)
       expect(active_employee).to allow_event(:rehire)
       expect(active_employee).to allow_transition_to(:pending)
@@ -160,16 +211,18 @@ describe Employee, type: :model do
       expect(active_employee).not_to allow_event(:activate)
       expect(active_employee).not_to allow_event(:terminate)
       expect(active_employee).not_to allow_event(:start_leave)
-
       expect(active_employee).to have_state(:none).on(:request_status)
 
+      expect(active_employee.status).to eq("terminated")
       expect(active_employee.current_profile.profile_status).to eq("terminated")
     end
 
     it "employee.rehire! should kick off rehire process" do
       expect(termed_employee).to receive(:update_active_directory_account).and_return(ad)
-      expect(EmployeeWorker).to receive(:perform_async)
-      expect(termed_employee).to transition_from(:terminated).to(:pending).on_event(:rehire)
+      expect(EmployeeService::Onboard).to receive(:new).with(termed_employee).and_return(onboard_service)
+      expect(onboard_service).to receive(:process!)
+
+      termed_employee.rehire!
       expect(termed_employee).to have_state(:pending)
       expect(termed_employee).not_to allow_transition_to(:active)
       expect(termed_employee).not_to allow_transition_to(:terminated)
@@ -179,9 +232,9 @@ describe Employee, type: :model do
       expect(termed_employee).not_to allow_event(:hire)
       expect(termed_employee).not_to allow_event(:start_leave)
       expect(termed_employee).not_to allow_event(:terminate)
-
       expect(termed_employee).to have_state(:waiting).on(:request_status)
 
+      expect(termed_employee.status).to eq("pending")
       expect(termed_employee.profiles.first.profile_status).to eq("terminated")
       expect(termed_employee.current_profile.profile_status).to eq("pending")
     end
