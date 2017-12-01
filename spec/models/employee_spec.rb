@@ -9,7 +9,7 @@ describe Employee, type: :model do
                    sam_account_name: "atrebek",
                    hire_date: 5.years.ago,
                    ad_updated_at: 2.years.ago) }
-  
+
   describe "state machine" do
     let(:pending_onboard) { FactoryGirl.create(:employee,
                             status: "pending",
@@ -23,12 +23,12 @@ describe Employee, type: :model do
     let!(:pend_start_p)   { FactoryGirl.create(:profile,
                             employee: pending_start,
                             profile_status: "pending") }
-    let!(:employee)       { FactoryGirl.create(:employee, :with_profile, 
+    let!(:employee)       { FactoryGirl.create(:employee, :with_profile,
                             manager: manager) }
     let(:active_employee) { FactoryGirl.create(:active_employee) }
     let(:leave_employee)  { FactoryGirl.create(:leave_employee) }
     let(:termed_employee) { FactoryGirl.create(:terminated_employee) }
-    let!(:new_profile)    { FactoryGirl.create(:profile, 
+    let!(:new_profile)    { FactoryGirl.create(:profile,
                             employee: termed_employee) }
     let(:pending_rehire)  { FactoryGirl.create(:employee,
                             status: "pending") }
@@ -63,10 +63,10 @@ describe Employee, type: :model do
     it "employee.hire! should create accounts and set as pending" do
       expect(ActiveDirectoryService).to receive(:new).and_return(ad)
       expect(ad).to receive(:create_disabled_accounts).with([employee])
-      
+
       expect(EmployeeService::Onboard).to receive(:new).with(employee).and_return(onboard_service)
       expect(onboard_service).to receive(:process!)
-      
+
       employee.hire!
 
       expect(employee).to have_state(:pending)
@@ -100,7 +100,6 @@ describe Employee, type: :model do
       expect(pending_start).not_to allow_transition_to(:pending)
       expect(pending_start).not_to allow_event(:hire)
       expect(pending_start).not_to allow_event(:rehire)
-      expect(pending_start).not_to allow_event(:activate)
       expect(pending_start).to have_state(:none).on(:request_status)
 
       expect(pending_start.status).to eq("active")
@@ -123,7 +122,6 @@ describe Employee, type: :model do
       expect(pending_rehire).not_to allow_transition_to(:pending)
       expect(pending_rehire).not_to allow_event(:hire)
       expect(pending_rehire).not_to allow_event(:rehire)
-      expect(pending_rehire).not_to allow_event(:activate)
       expect(pending_rehire).to have_state(:none).on(:request_status)
 
       expect(pending_rehire.status).to eq("active")
@@ -135,7 +133,7 @@ describe Employee, type: :model do
 
     it "should not activate employee if onboarding form is not complete" do
       expect(ActiveDirectoryService).not_to receive(:new)
-      
+
       pending_onboard.activate!
 
       expect(pending_onboard).to have_state(:pending)
@@ -190,7 +188,6 @@ describe Employee, type: :model do
       expect(leave_employee).not_to allow_transition_to(:pending)
       expect(leave_employee).not_to allow_event(:hire)
       expect(leave_employee).not_to allow_event(:rehire)
-      expect(leave_employee).not_to allow_event(:activate)
       expect(leave_employee).to have_state(:none).on(:request_status)
 
       expect(leave_employee.status).to eq("active")

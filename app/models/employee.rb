@@ -53,7 +53,8 @@ class Employee < ActiveRecord::Base
     end
 
     event :activate, guard: :activation_allowed?, binding_event: :clear_queue do
-      transitions from: [:pending, :inactive], to: :active, after: :activate_active_directory_account
+      # ADP sometimes updates the status before we want to activate worker
+      transitions from: [:pending, :inactive, :active], to: :active, after: :activate_active_directory_account
     end
 
     event :start_leave do
