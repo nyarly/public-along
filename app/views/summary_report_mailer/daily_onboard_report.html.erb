@@ -1,64 +1,6 @@
-<style type="text/css">
-  html {
-    font-family: helvetica;
-  }
-  table, th, td {
-    border: 1px solid black;
-  }
-  table {
-    border-collapse: collapse;
-  }
-  th, td {
-    padding: .25em;
-  }
-</style>
 <div style="font-family: helvetica; margin: 50px; width: 500px">
   <p>Hello,</p>
 
   <p>Attached you will find a list of employees and contingent workers that have been submitted through today with a future start date. If you have any questions, please e-mail <%= mail_to "peopleandculture@opentable.com." %></p>
-</div>
-<div style="margin: 50px;">
-  <table>
-    <thead>
-      <tr>
-        <th>Parent Org</th>
-        <th>Department</th>
-        <th>Name</th>
-        <th>Employee ID</th>
-        <th>Employee Type</th>
-        <th>Position</th>
-        <th>Manager</th>
-        <th>Work Location</th>
-        <th>Onboarding Form Due</th>
-        <th>Email</th>
-        <th>Buddy Name</th>
-        <th>Buddy Email</th>
-        <th>Start Date</th>
-        <th>Contract End Date</th>
-        <th>Last Modified On</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @onboards.each do |onboard| %>
-        <tr>
-          <td><%= onboard.employee.department.parent_org.try(:name) %></td>
-          <td><%= onboard.employee.department.try(:name) %></td>
-          <td><%= onboard.employee.cn %></td>
-          <td><%= onboard.employee.current_profile.adp_employee_id %></td>
-          <td><%= onboard.employee.worker_type.try(:name) %></td>
-          <td><%= onboard.employee.job_title.try(:name) %></td>
-          <td><%= onboard.employee.manager.try(:cn) %></td>
-          <td><%= onboard.employee.location.try(:name) %></td>
-          <td><%= onboard.employee.onboarding_due_date %></td>
-          <td><%= onboard.employee.email %></td>
-          <td><%= onboard.employee.buddy.try(:cn) %></td>
-          <td><%= onboard.employee.buddy.try(:email) %></td>
-          <td><%= onboard.employee.current_profile.start_date.try(:strftime, "%b %e, %Y") %></td>
-          <td><%= onboard.employee.contract_end_date.try(:strftime, "%b %e, %Y") %></td>
-          <td><%= onboard.employee.last_changed_at.try(:strftime, "%b %e, %Y at %H:%M:%S") %></td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
 </div>
 <%= image_tag attachments['pandc.png'].url -%>
