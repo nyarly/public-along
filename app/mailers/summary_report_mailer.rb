@@ -2,7 +2,6 @@ class SummaryReportMailer < ApplicationMailer
   def daily_onboard_report
     report = Report::Onboard::Daily.new
     file_name = "daily_#{DateTime.now.strftime('%Y%m%d')}.xls"
-    @onboards = OnboardQuery.new(:onboarding).all
 
     attachments.inline[file_name] = File.read(Rails.root.join('tmp/reports/onboard/' + file_name))
     attachments.inline['pandc.png'] = File.read(Rails.root.join('app/assets/images/pandc.png'))
@@ -10,7 +9,6 @@ class SummaryReportMailer < ApplicationMailer
   end
 
   def weekly_onboard_report
-    file_name = "weekly_#{DateTime.now.strftime('%Y%m%d')}.xls"
     @onboards = OnboardQuery.new(:onboarded_this_week).all
 
     attachments.inline['pandc.png'] = File.read(Rails.root.join('app/assets/images/pandc.png'))
