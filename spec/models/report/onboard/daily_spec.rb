@@ -67,6 +67,10 @@ describe Report::Onboard::Daily, type: :model do
     Report::Onboard::Daily.new
   end
 
+  it "should have correct formatting" do
+    expect(Spreadsheet.client_encoding).to eq("UTF-8")
+  end
+
   it "should create report with correct info" do
     Report::Onboard::Daily.new
     book = Spreadsheet.open "tmp/reports/onboard/daily_" + DateTime.now.strftime('%Y%m%d') + ".xls"
