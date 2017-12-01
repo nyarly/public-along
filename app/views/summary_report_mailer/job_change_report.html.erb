@@ -1,6 +1,63 @@
-<%= image_tag attachments['pandc.png'].url -%>
+<style type="text/css">
+  html {
+    font-family: helvetica;
+  }
+  table, th, td {
+    border: 1px solid black;
+  }
+  table {
+    border-collapse: collapse;
+  }
+  th, td {
+    padding: .25em;
+  }
+</style>
+<div style="margin: 50px;">
+  <table>
+    <thead>
+      <tr>
+        <th>Parent Org</th>
+        <th>Department</th>
+        <th>Employee ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Job Title</th>
+        <th>Manager Name</th>
+        <th>Location</th>
+        <th>Start Date</th>
+        <th>Change Type</th>
+        <th>Old Value</th>
+        <th>New Value</th>
+        <th>Changed At</th>
+        <th>Worker Type</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @job_changes.each do |delta| %>
+        <% @changes = delta.format_by_key %>
+        <% @changes.each do |change| %>
+          <tr>
+            <td><%= delta.employee.department.parent_org.try(:name) %></td>
+            <td><%= delta.employee.department.try(:name) %></td>
+            <td><%= delta.employee.current_profile.adp_employee_id %></td>
+            <td><%= delta.employee.first_name %></td>
+            <td><%= delta.employee.last_name %></td>
+            <td><%= delta.employee.job_title.try(:name) %></td>
+            <td><%= delta.employee.manager.try(:cn) %></td>
+            <td><%= delta.employee.location.try(:name) %></td>
+            <td><%= delta.employee.current_profile.start_date.strftime("%m/%e/%Y") %></td>
+            <td><%= change["name"].titleize %></td>
+            <td><%= change["before"] %></td>
+            <td><%= change["after"] %></td>
+            <td><%= delta.created_at.try(:strftime, "%m/%e/%Y at %H:%M") %></td>
+            <td><%= delta.employee.worker_type.try(:name) %></td>
+          </tr>
+        <% end %>
+      <% end %>
+    </tbody>
+  </table>
+</div>
 <div style="font-family: helvetica; margin: 50px; width: 500px">
-  <p>Hello,</p>
-
   <p>Attached you will find a list of employees and contingent workers that have had job changes within the last 24 hours. If you have any questions, please e-mail <%= mail_to "peopleandculture@opentable.com." %></p>
 </div>
+<%= image_tag attachments['pandc.png'].url -%>
