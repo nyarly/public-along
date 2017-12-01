@@ -18,11 +18,14 @@
 <%= f.label :replacement_hired, "No" %>
 <p class="section text-center">Please assign yourself if the worker does not have email, Salesforce or Google Doc accounts. No action will be taken.</strong></p>
 <p>Forward Email to: *</p>
-<%= f.collection_select :forward_email_id, Employee.all - [@employee], :id, :cn, {prompt: "Select from List"}, required: true %>
+<%= f.autocomplete_field :forward_email_id, autocomplete_name_employees_path, :id_element => '#forward_email_id', :update_elements => {}, :placeholder => "Search for Employee", required: true %>
 <p>Reassign Salesforce cases to: *</p>
-<%= f.collection_select :reassign_salesforce_id, Employee.all - [@employee], :id, :cn, {prompt: "Select from List"}, required: true %>
+<%= f.autocomplete_field :reassign_salesforce_id, autocomplete_name_employees_path, :id_element => '#reassign_salesforce_id', :update_elements => {}, :placeholder => "Search for Employee", required: true %>
 <p>Transfer Google Docs to:</p>
-<%= f.collection_select :transfer_google_docs_id, Employee.all - [@employee], :id, :cn, {prompt: "Select from List"} %>
+<%= f.autocomplete_field :transfer_google_docs_id, autocomplete_name_employees_path, :id_element => '#transfer_google_docs_id', :update_elements => {}, :placeholder => "Search for Employee", required: true %>
+<%= f.hidden_field :forward_email_id, id: 'forward_email_id' %>
+<%= f.hidden_field :reassign_salesforce_id, id: 'reassign_salesforce_id' %>
+<%= f.hidden_field :transfer_google_docs_id, id: 'transfer_google_docs_id' %>
 <hr>
 
 <% else %>
