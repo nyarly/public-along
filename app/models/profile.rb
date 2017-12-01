@@ -44,9 +44,6 @@ class Profile < ActiveRecord::Base
   end
 
   scope :regular_worker_type, -> { joins(:worker_type).where(:worker_types => {:kind => "Regular"}) }
-  scope :onboarding, -> { where("start_date >= ?", Date.today ) }
-  scope :onboarded_this_week, -> { where("start_date BETWEEN ? AND ?", 7.days.ago, Date.today) }
-  scope :sort_by_parent_department, -> { joins(:department => :parent_org).order("parent_orgs.name", "departments.name") }
 
   def downcase_unique_attrs
     self.adp_employee_id = adp_employee_id.downcase if adp_employee_id.present?

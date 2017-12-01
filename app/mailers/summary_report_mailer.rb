@@ -9,7 +9,7 @@ class SummaryReportMailer < ApplicationMailer
   end
 
   def weekly_onboard_report
-    @onboards = OnboardQuery.new(:onboarded_this_week).all
+    @onboards = OnboardQuery.new.onboarded_this_week
 
     attachments.inline['pandc.png'] = File.read(Rails.root.join('app/assets/images/pandc.png'))
     mail(to: Rails.application.secrets.onoffboard_email, subject: "Weekly Onboard Summary Report")

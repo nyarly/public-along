@@ -40,7 +40,7 @@ module Report
       end
 
       def onboarding_workers
-        OnboardQuery.new(:onboarding).all
+        OnboardQuery.new.onboarding
       end
 
       def add_headers

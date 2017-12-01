@@ -85,12 +85,12 @@ describe OnboardQuery, type: :query do
                           department: dept_e) }
 
   it "should get the pending orders in the correct order" do
-    query = OnboardQuery.new(:onboarding).all
+    query = OnboardQuery.new.onboarding
     expect(query).to eq([new_hire_2_p, rehire_p, new_hire_3_p, conversion_p, new_hire_1_p])
   end
 
   it "should get the workers who started in the last week in the correct order" do
-    query = OnboardQuery.new(:onboarded_this_week).all
+    query = OnboardQuery.new.onboarded_this_week
     expect(query).to eq([new_emp_2_p, new_emp_1_p])
   end
 end
