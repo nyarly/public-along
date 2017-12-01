@@ -28,6 +28,7 @@ class SummaryReportMailer < ApplicationMailer
   def job_change_report
     csv = SummaryReportHelper::Csv.new
 
+    @job_changes = EmpDelta.report_group
     attachments.inline["job_change_summary_#{DateTime.now.strftime('%Y%m%d')}.csv"] = csv.job_change_data
     attachments.inline['pandc.png'] = File.read(Rails.root.join('app/assets/images/pandc.png'))
     mail(to: Rails.application.secrets.onoffboard_email, subject: "Job Change Summary Report")

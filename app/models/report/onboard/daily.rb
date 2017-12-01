@@ -9,7 +9,6 @@ module Report
         @date = DateTime.now.strftime('%Y%m%d')
 
         prepare_directory
-        setup_spreadsheet
 
         @book = Spreadsheet::Workbook.new
         @sheet = @book.create_worksheet(name: @name)
@@ -34,10 +33,6 @@ module Report
         unless File.directory?(@dirname)
           FileUtils.mkdir_p(@dirname)
         end
-      end
-
-      def setup_spreadsheet
-        Spreadsheet.client_encoding = 'UTF-8'
       end
 
       def filename
