@@ -62,11 +62,6 @@ describe Report::Onboard::Daily, type: :model do
                         employee: rehire,
                         start_date: 3.years.ago) }
 
-  it "should call the correct Employee scope" do
-    expect(Profile).to receive(:onboarding_report_group).and_return([new_hire_p_1, new_hire_p_2, rehire_new_p])
-    Report::Onboard::Daily.new
-  end
-
   it "should have correct formatting" do
     expect(Spreadsheet.client_encoding).to eq("UTF-8")
   end
