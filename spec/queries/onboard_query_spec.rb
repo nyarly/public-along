@@ -33,30 +33,36 @@ describe OnboardQuery, type: :query do
 
   let(:new_hire_1)      { FactoryGirl.create(:employee,
                           status: "pending",
-                          hire_date: 3.days.from_now) }
+                          hire_date: 3.days.from_now,
+                          created_at: 10.days.ago) }
   let!(:new_hire_1_p)   { FactoryGirl.create(:profile,
                           employee: new_hire_1,
                           start_date: 3.days.from_now,
                           profile_status: "pending",
-                          department: dept_e) }
+                          department: dept_e,
+                          created_at: 10.days.ago) }
   let(:new_hire_2)      { FactoryGirl.create(:employee,
                           last_name: "Aaa",
                           status: "pending",
-                          hire_date: 1.week.from_now) }
+                          hire_date: 1.week.from_now,
+                          created_at: 1.hour.ago) }
   let!(:new_hire_2_p)   { FactoryGirl.create(:profile,
                           employee: new_hire_2,
                           profile_status: "pending",
                           start_date: 1.week.from_now,
-                          department: dept_c) }
+                          department: dept_c,
+                          created_at: 1.hour.ago) }
   let(:new_hire_3)      { FactoryGirl.create(:employee,
                           last_name: "Aaa",
                           status: "pending",
-                          hire_date: 1.week.from_now) }
+                          hire_date: 1.week.from_now,
+                          created_at: 10.days.ago) }
   let!(:new_hire_3_p)   { FactoryGirl.create(:profile,
                           employee: new_hire_3,
                           profile_status: "pending",
                           start_date: 1.week.from_now,
-                          department: dept_d) }
+                          department: dept_d,
+                          created_at: 10.days.ago) }
   let(:rehire)          { FactoryGirl.create(:employee,
                           last_name: "Bbb",
                           status: "pending",
@@ -65,7 +71,8 @@ describe OnboardQuery, type: :query do
                           employee: rehire,
                           profile_status: "pending",
                           start_date: 4.days.from_now,
-                          department: dept_c) }
+                          department: dept_c,
+                          created_at: 10.days.ago) }
   let!(:rehire_p_2)    { FactoryGirl.create(:profile,
                           employee: rehire,
                           profile_status: "terminated",
@@ -77,20 +84,37 @@ describe OnboardQuery, type: :query do
   let!(:conversion_p)   { FactoryGirl.create(:profile,
                           profile_status: "pending",
                           start_date: 4.days.from_now,
-                          department: dept_d) }
+                          department: dept_d,
+                          created_at: 10.days.ago) }
   let!(:conversion_p_2) { FactoryGirl.create(:profile,
                           profile_status: "active",
                           start_date: 6.months.ago,
                           end_date: 3.days.from_now,
                           department: dept_e) }
 
-  it "should get the pending orders in the correct order" do
-    query = OnboardQuery.new.onboarding
-    expect(query).to eq([new_hire_2_p, rehire_p, new_hire_3_p, conversion_p, new_hire_1_p])
+  let!(:emp_delta)      { FactoryGirl.create(:emp_delta,
+                          employee: new_hire_3,
+                          before: {"x"=>"x"},
+                          after: {"x"=>"x"}) }
+
+  context "#onboarding" do
+    it "should get the pending workers in the correct order" do
+      query = OnboardQuery.new.onboarding
+      expect(query).to eq([new_hire_2_p, rehire_p, new_hire_3_p, conversion_p, new_hire_1_p])
+    end
   end
 
-  it "should get the workers who started in the last week in the correct order" do
-    query = OnboardQuery.new.onboarded_this_week
-    expect(query).to eq([new_emp_2_p, new_emp_1_p])
+  context "#onboarded_this_week" do
+    it "should get the workers who started in the last week in the correct order" do
+      query = OnboardQuery.new.onboarded_this_week
+      expect(query).to eq([new_emp_2_p, new_emp_1_p])
+    end
+  end
+
+  context "#added_and_updated_onboards" do
+    it "should get the pending workers with new changes in the correct order" do
+      query = OnboardQuery.new.added_and_updated_onboards
+      expect(query).to eq([new_hire_2_p, new_hire_3_p])
+    end
   end
 end
