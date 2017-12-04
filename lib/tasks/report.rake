@@ -1,7 +1,12 @@
 namespace :report do
-  desc "send onboarding summary reports"
-  task :onboards => :environment do
-    SummaryReportMailer.onboard_report.deliver_now
+  desc "send daily onboarding summary report"
+  task :daily_onboards => :environment do
+    SummaryReportMailer.daily_onboard_report.deliver_now
+  end
+
+  desc "send weekly onboarding summary report"
+  task :weekly_onboards => :environment do
+    SummaryReportMailer.weekly_onboard_report.deliver_now
   end
 
   desc "send job change summary reports"

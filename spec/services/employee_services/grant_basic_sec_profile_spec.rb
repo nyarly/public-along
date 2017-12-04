@@ -52,4 +52,31 @@ describe EmployeeService::GrantBasicSecProfile, type: :sevice do
       expect(employee.security_profiles).to eq([contract])
     end
   end
+
+  context "with a rehire" do
+    let(:old_wt)        { FactoryGirl.create(:worker_type,
+                          kind: "Regular") }
+    let(:new_wt)        { FactoryGirl.create(:worker_type,
+                          kind: "Contractor") }
+    let(:rehire)        { FactoryGirl.create(:employee,
+                          status: "pending") }
+    let!(:old_position) { FactoryGirl.create(:profile,
+                          employee: rehire,
+                          profile_status: "terminated",
+                          worker_type: old_wt,
+                          management_position: false) }
+    let!(:new_position) { FactoryGirl.create(:profile,
+                          employee: rehire,
+                          profile_status: "pending",
+                          worker_type: new_wt,
+                          management_position: true) }
+
+    it "should give basic security profile for new worker type" do
+      service = EmployeeService::GrantBasicSecProfile.new(rehire).process!
+      expect(service).to include(contract)
+      expect(service).not_to include(regular)
+      expect(service).not_to include(temp)
+      expect(rehire.security_profiles).to eq([contract])
+    end
+  end
 end
