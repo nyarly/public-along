@@ -42,13 +42,14 @@
   <% elsif @kind == "Offboarding" %>
     <% if @employee.needs_contract_end_confirmation? %>
       <p>
-        This worker's contract expires on <%= @employee.contract_end_date.strftime("%b %e, %Y") %>. If you wish to extend their contract, please fill out the <a href="https://docs.google.com/forms/d/1sFNGn6hW3StGJJFjH5zT2-QKR-Y7xrNXQ4w1zHH5KuA">contractor form</a> for P&C with the updated information.
-      </p>
-      <p>
-        If the contractor's last day is listed correctly, you must complete the <%= link_to "offboarding form", new_emp_transaction_url({
+        This worker's contract expires on <%= @employee.contract_end_date.strftime("%b %e, %Y") %>.
+        <ul>
+          <li><b>If you wish to extend their contract: </b>please fill out the P&C contractor request form <a href="https://docs.google.com/forms/d/1sFNGn6hW3StGJJFjH5zT2-QKR-Y7xrNXQ4w1zHH5KuA">here</a>.</li>
+          <li><b>If the contractor's last day is listed correctly,</b> you should fill out the <%= link_to "offboarding form", new_emp_transaction_url({
       :user_emp_id => @manager.employee_id,
       :employee_id => @employee.id,
-      :kind => @kind}) %> by noon on <%= @employee.contract_end_date.strftime("%b %e, %Y") %>.
+      :kind => @kind}) %> by noon on <%= @employee.contract_end_date.strftime("%b %e, %Y") %>.</li>
+        </ul>
       </p>
     <% else %>
       <p>
