@@ -33,7 +33,7 @@
   <% elsif @kind == "Onboarding" %>
     <p>
       <strong style="color: red; text-decoration: underline">
-        You must complete this form by <%= @employee.onboarding_due_date %>.
+        You must complete this form by <%= @employee.onboarding_due_date.try(:strftime, "%b %e, %Y") %>.
       </strong>
     </p>
     <p>

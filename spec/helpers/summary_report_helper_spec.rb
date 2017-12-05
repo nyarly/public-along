@@ -70,11 +70,11 @@ describe SummaryReportHelper, type: :helper do
 
     let(:csv) {
       <<-EOS.strip_heredoc
-      Parent Org,Department,Employee ID,First Name,Last Name,Job Title,Manager Full Name,Location,Start Date,Change Type,Old Value,New Value,Changed At,Worker Type
-      A_org,A_dept,#{emp_3.current_profile.adp_employee_id},#{emp_3.first_name},#{emp_3.last_name},#{emp_3.job_title.name},,#{emp_3.location.name},"#{emp_3.current_profile.start_date.strftime("%b %e, %Y")}",Job Title,#{old_job.name},#{new_job.name},"#{emp_delta_3.created_at.try(:strftime, "%b %e, %Y at %H:%M:%S")}",#{emp_3.worker_type.name}
-      B_org,B_dept,#{emp_2.current_profile.adp_employee_id},#{emp_2.first_name},#{emp_2.last_name},#{emp_2.job_title.name},,#{emp_2.location.name},"#{emp_2.current_profile.start_date.strftime("%b %e, %Y")}",Job Title,#{old_job.name},#{new_job.name},"#{emp_delta_2.created_at.try(:strftime, "%b %e, %Y at %H:%M:%S")}",#{emp_2.worker_type.name}
-      B_org,C_dept,#{emp_1.current_profile.adp_employee_id},#{emp_1.first_name},#{emp_1.last_name},#{emp_1.job_title.name},#{manager.cn},#{emp_1.location.name},"#{emp_1.current_profile.start_date.strftime("%b %e, %Y")}",First Name,name1,name2,"#{emp_delta_1.created_at.try(:strftime, "%b %e, %Y at %H:%M:%S")}",#{emp_1.worker_type.name}
-      B_org,C_dept,#{emp_1.current_profile.adp_employee_id},#{emp_1.first_name},#{emp_1.last_name},#{emp_1.job_title.name},#{manager.cn},#{emp_1.location.name},"#{emp_1.current_profile.start_date.strftime("%b %e, %Y")}",Job Title,#{old_job.name},#{new_job.name},"#{emp_delta_1.created_at.try(:strftime, "%b %e, %Y at %H:%M:%S")}",#{emp_1.worker_type.name}
+      Parent Department,Department,First Name,Last Name,ADP Job Title,Manager Full Name,Location,Start Date,Change Type,Old Value,New Value,Change Time Stamp
+      A_org,A_dept,#{emp_3.first_name},#{emp_3.last_name},#{emp_3.job_title.name},,#{emp_3.location.name},#{emp_3.current_profile.start_date.strftime("%Y-%m-%d")},Job Title,#{old_job.name},#{new_job.name},#{emp_delta_3.created_at.try(:strftime, "%Y-%m-%d %H:%M:%S")}
+      B_org,B_dept,#{emp_2.first_name},#{emp_2.last_name},#{emp_2.job_title.name},,#{emp_2.location.name},#{emp_2.current_profile.start_date.strftime("%Y-%m-%d")},Job Title,#{old_job.name},#{new_job.name},#{emp_delta_2.created_at.try(:strftime, "%Y-%m-%d %H:%M:%S")}
+      B_org,C_dept,#{emp_1.first_name},#{emp_1.last_name},#{emp_1.job_title.name},#{manager.cn},#{emp_1.location.name},#{emp_1.current_profile.start_date.strftime("%Y-%m-%d")},First Name,name1,name2,#{emp_delta_1.created_at.try(:strftime, "%Y-%m-%d %H:%M:%S")}
+      B_org,C_dept,#{emp_1.first_name},#{emp_1.last_name},#{emp_1.job_title.name},#{manager.cn},#{emp_1.location.name},#{emp_1.current_profile.start_date.strftime("%Y-%m-%d")},Job Title,#{old_job.name},#{new_job.name},#{emp_delta_1.created_at.try(:strftime, "%Y-%m-%d %H:%M:%S")}
       EOS
     }
 
