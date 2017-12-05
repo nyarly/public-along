@@ -1,0 +1,10 @@
+<div style="font-family: helvetica; margin: 25px; width: 550px">
+  <p>P&C Ops Team: Please immediately run the ADP termination wizard for the following worker.</p>
+  <p><%= @worker.cn %></p>
+  <p>
+    The worker end date for <%= @worker.cn %> with associate ID of <%= @worker.current_profile.adp_employee_id %> was reached on <%= @worker.contract_end_date.strftime("%b %e, %Y") %>.
+  </p>
+  <p>
+    The manager, <%= @worker.manager.cn %>, has been given two weeks notice of the impending worker end date, and the worker end date in ADP has not been extended. Mezzo has fully disabled this worker's system access and informed TechTable that the worker is terminated. This worker is reported as terminated on the Mezzo Off Board report. To re-enable this worker, they must first be terminated and then rehired via the ADP rehire process.
+  </p>
+</div>

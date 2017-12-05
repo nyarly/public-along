@@ -31,7 +31,6 @@ class Employee < ActiveRecord::Base
 
   scope :active_or_inactive, -> { where('status IN (?)', ["active", "inactive"]) }
   scope :managers, -> { where(management_position: true) }
-  scope :upcoming_ending_contracts, -> { where("contract_end_date BETWEEN ? AND ?", 13.days.from_now, 14.days.from_now) }
 
   aasm :column => "status" do
     error_on_all_events { |e| Rails.logger.info e.message }

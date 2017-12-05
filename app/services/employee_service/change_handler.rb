@@ -20,7 +20,7 @@ module EmployeeService
     end
 
     def reset_contract
-      @employee.request_status = "none" if extended_contract? && @employee.status == "active"
+      @employee.clear_queue! if extended_contract? && @employee.status == "active"
     end
 
     def extended_contract?
