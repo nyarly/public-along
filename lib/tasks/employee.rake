@@ -23,7 +23,7 @@ namespace :employee do
       # These contractors were not given worker end dates in ADP
       # Send P&C request to terminate them
       elsif e.contract_end_date && in_time_window?(e.contract_end_date, 21, e.nearest_time_zone)
-        # e.terminate!
+        e.terminate!
         PeopleAndCultureMailer.terminate_contract(e).deliver_now
 
       elsif e.leave_start_date && in_time_window?(e.leave_start_date - 1.day, 21, e.nearest_time_zone)

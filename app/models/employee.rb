@@ -198,7 +198,7 @@ class Employee < ActiveRecord::Base
     # AD expires the account at midnight of the day before the expiry date
 
     if offboard_date.present?
-      expiration_date = end_date + 1.day
+      expiration_date = offboard_date + 1.day
       time_conversion = ActiveSupport::TimeZone.new(nearest_time_zone).local_to_utc(expiration_date)
       DateTimeHelper::FileTime.wtime(time_conversion)
     else

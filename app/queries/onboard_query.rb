@@ -1,5 +1,5 @@
 class OnboardQuery
-  def initialize(relation = Profile.includes([:department, department: :parent_org]).order("parent_orgs.name", "departments.name"))
+  def initialize(relation = Profile.includes([:employee, :department, department: :parent_org]).order("parent_orgs.name", "departments.name", "employees.last_name"))
     @relation = relation
   end
 

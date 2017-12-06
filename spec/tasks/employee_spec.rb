@@ -11,6 +11,7 @@ describe "employee rake tasks", type: :tasks do
   let!(:illinois)    { Location.find_by(name: "Illinois") }
   let!(:worker_type) { FactoryGirl.create(:worker_type, kind: "Regular") }
   let!(:contract_wt) { FactoryGirl.create(:worker_type, kind: "Contractor") }
+  let!(:manager)     { FactoryGirl.create(:employee) }
 
   let(:mailer) { double(ManagerMailer) }
 
@@ -167,7 +168,8 @@ describe "employee rake tasks", type: :tasks do
       contract_end_us = FactoryGirl.create(:active_employee,
         first_name: "bb",
         hire_date: 5.years.ago,
-        contract_end_date: Date.new(2016, 7, 29))
+        contract_end_date: Date.new(2016, 7, 29),
+        manager: manager)
       t_prof = FactoryGirl.create(:active_profile,
         employee: contract_end_us,
         location: sf)
@@ -175,7 +177,8 @@ describe "employee rake tasks", type: :tasks do
       leave_us = FactoryGirl.create(:active_employee,
         first_name: "cc",
         hire_date: 2.years.ago,
-        leave_start_date: Date.new(2016, 7, 30))
+        leave_start_date: Date.new(2016, 7, 30),
+        manager: manager)
       t_prof = FactoryGirl.create(:active_profile,
         employee: leave_us,
         location: sf)
@@ -221,10 +224,11 @@ describe "employee rake tasks", type: :tasks do
     end
 
 
-    it "should call ldap and update only terminations or workers on leave at 9pm in IST" do
+    it "should call ldap and update only terminations, contract ends, or workers on leave at 9pm in IST" do
       contract_end = FactoryGirl.create(:active_employee,
         hire_date: Date.new(2014, 5, 3),
-        contract_end_date: Date.new(2016, 7, 29))
+        contract_end_date: Date.new(2016, 7, 29),
+        manager: manager)
       ce_profile = FactoryGirl.create(:active_profile,
         employee: contract_end,
         department_id: Department.find_by(:name => "Technology/CTO Admin").id,
@@ -254,6 +258,7 @@ describe "employee rake tasks", type: :tasks do
       nh_us_profile = FactoryGirl.create(:active_profile,
         employee: new_hire_us,
         location_id: sf.id)
+      mailer = double(PeopleAndCultureMailer)
 
       # 7/29/2016 at 9pm IST/3:30pm UTC
       Timecop.freeze(Time.new(2016, 7, 29, 15, 30, 0, "+00:00"))
@@ -293,6 +298,8 @@ describe "employee rake tasks", type: :tasks do
 
       allow(@ldap).to receive(:get_operation_result)
 
+      expect(PeopleAndCultureMailer).to receive(:terminate_contract).with(contract_end).and_return(mailer)
+      expect(mailer).to receive(:deliver_now)
       expect(OffboardingService).to receive(:new).and_return(@offboarding_service).twice
       expect(@offboarding_service).to receive(:offboard).with([termination])
       expect(@offboarding_service).to receive(:offboard).with([contract_end])
@@ -431,7 +438,6 @@ describe "employee rake tasks", type: :tasks do
     let!(:au_profile) { FactoryGirl.create(:profile,
                         start_date: Date.new(2017, 12, 11),
                         employee: au_due_tom,
-                        start_date: Date.new(2017, 12, 11),
                         location: Location.find_by_name("Melbourne Office")) }
 
     let!(:json)       { File.read(Rails.root.to_s+"/spec/fixtures/adp_rehire_event.json") }
