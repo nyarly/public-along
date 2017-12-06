@@ -40,11 +40,24 @@
       The onboarding form is necessary to have your new hire’s equipment and access ready for their first day. Please fill it out as soon as possible so that we can provide the best possible onboarding experience.
     </p>
   <% elsif @kind == "Offboarding" %>
-    <p>
-      <strong style="color: red; text-decoration: underline">
-        You must complete this form by noon on <%= @employee.termination_date.strftime("%b %e, %Y") %>.
-      </strong>
-    </p>
+    <% if @employee.needs_contract_end_confirmation? %>
+      <p>
+        This worker's contract expires on <%= @employee.contract_end_date.strftime("%b %e, %Y") %>.
+        <ul>
+          <li><b>If you wish to extend their contract: </b>please fill out the P&C contractor request form <a href="https://docs.google.com/forms/d/1sFNGn6hW3StGJJFjH5zT2-QKR-Y7xrNXQ4w1zHH5KuA">here</a>.</li>
+          <li><b>If the contractor's last day is listed correctly,</b> you should fill out the <%= link_to "offboarding form", new_emp_transaction_url({
+      :user_emp_id => @manager.employee_id,
+      :employee_id => @employee.id,
+      :kind => @kind}) %> by noon on <%= @employee.contract_end_date.strftime("%b %e, %Y") %>.</li>
+        </ul>
+      </p>
+    <% else %>
+      <p>
+        <strong style="color: red; text-decoration: underline">
+          You must complete this form by noon on <%= @employee.termination_date.strftime("%b %e, %Y") %>.
+        </strong>
+      </p>
+    <% end %>
   <% end %>
 
   <p>Please note you must be logged into the OpenTable VPN to access Mezzo. Use your OpenTable user name and password to log in. Follow the link below to complete the employee event form:</p>

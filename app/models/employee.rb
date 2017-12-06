@@ -196,11 +196,9 @@ class Employee < ActiveRecord::Base
   def generated_account_expires
     # The expiration date needs to be set a day after term date
     # AD expires the account at midnight of the day before the expiry date
-    end_date = contract_end_date if contract_end_date.present?
-    end_date = termination_date if termination_date.present?
 
-    if end_date
-      expiration_date = end_date + 1.day
+    if offboard_date.present?
+      expiration_date = offboard_date + 1.day
       time_conversion = ActiveSupport::TimeZone.new(nearest_time_zone).local_to_utc(expiration_date)
       DateTimeHelper::FileTime.wtime(time_conversion)
     else
@@ -333,10 +331,11 @@ class Employee < ActiveRecord::Base
   end
 
   def offboarding_cutoff
-    if self.termination_date.present?
-      # noon on termination date, when we send offboarding instructions to techtable
-      ActiveSupport::TimeZone.new(self.nearest_time_zone).local_to_utc(DateTime.new(self.termination_date.year, self.termination_date.month, self.termination_date.day, 12))
-    end
+    return nil if termination_date.blank? && contract_end_date.blank?
+    end_date = termination_date.present? ? termination_date : contract_end_date
+
+    # noon on termination date, when we send offboarding instructions to techtable
+    ActiveSupport::TimeZone.new(nearest_time_zone).local_to_utc(DateTime.new(end_date.year, end_date.month, end_date.day, 12))
   end
 
   def fn
@@ -370,7 +369,16 @@ class Employee < ActiveRecord::Base
   end
 
   def email_options
-    self.termination_date ? EMAIL_OPTIONS : EMAIL_OPTIONS - ["Offboarding"]
+    offboard_date.present? ? EMAIL_OPTIONS : EMAIL_OPTIONS - ["Offboarding"]
+  end
+
+  def needs_contract_end_confirmation?
+    contract_end_date.present? && termination_date.blank?
+  end
+
+  def offboard_date
+    return contract_end_date if needs_contract_end_confirmation?
+    termination_date
   end
 
   # Date of last meaningful change to employee record.

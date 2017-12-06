@@ -11,6 +11,7 @@ describe "employee rake tasks", type: :tasks do
   let!(:illinois)    { Location.find_by(name: "Illinois") }
   let!(:worker_type) { FactoryGirl.create(:worker_type, kind: "Regular") }
   let!(:contract_wt) { FactoryGirl.create(:worker_type, kind: "Contractor") }
+  let!(:manager)     { FactoryGirl.create(:employee) }
 
   let(:mailer) { double(ManagerMailer) }
 
@@ -167,7 +168,8 @@ describe "employee rake tasks", type: :tasks do
       contract_end_us = FactoryGirl.create(:active_employee,
         first_name: "bb",
         hire_date: 5.years.ago,
-        contract_end_date: Date.new(2016, 7, 29))
+        contract_end_date: Date.new(2016, 7, 29),
+        manager: manager)
       t_prof = FactoryGirl.create(:active_profile,
         employee: contract_end_us,
         location: sf)
@@ -175,7 +177,8 @@ describe "employee rake tasks", type: :tasks do
       leave_us = FactoryGirl.create(:active_employee,
         first_name: "cc",
         hire_date: 2.years.ago,
-        leave_start_date: Date.new(2016, 7, 30))
+        leave_start_date: Date.new(2016, 7, 30),
+        manager: manager)
       t_prof = FactoryGirl.create(:active_profile,
         employee: leave_us,
         location: sf)
@@ -210,19 +213,22 @@ describe "employee rake tasks", type: :tasks do
 
       allow(@ldap).to receive(:get_operation_result)
 
-      expect(OffboardingService).to receive(:new).and_return(@offboarding_service).once
-      expect(@offboarding_service).to receive(:offboard).once.with([us_term])
+      expect(OffboardingService).to receive(:new).and_return(@offboarding_service).twice
+      expect(@offboarding_service).to receive(:offboard).with([us_term])
+      expect(@offboarding_service).to receive(:offboard).with([contract_end_us])
       Rake::Task["employee:change_status"].invoke
 
       expect(us_term.reload.status).to eq("terminated")
+      expect(contract_end_us.reload.status).to eq("terminated")
       expect(leave_us.reload.status).to eq("inactive")
     end
 
 
-    it "should call ldap and update only terminations or workers on leave at 9pm in IST" do
+    it "should call ldap and update only terminations, contract ends, or workers on leave at 9pm in IST" do
       contract_end = FactoryGirl.create(:active_employee,
         hire_date: Date.new(2014, 5, 3),
-        contract_end_date: Date.new(2016, 7, 29))
+        contract_end_date: Date.new(2016, 7, 29),
+        manager: manager)
       ce_profile = FactoryGirl.create(:active_profile,
         employee: contract_end,
         department_id: Department.find_by(:name => "Technology/CTO Admin").id,
@@ -252,6 +258,7 @@ describe "employee rake tasks", type: :tasks do
       nh_us_profile = FactoryGirl.create(:active_profile,
         employee: new_hire_us,
         location_id: sf.id)
+      mailer = double(PeopleAndCultureMailer)
 
       # 7/29/2016 at 9pm IST/3:30pm UTC
       Timecop.freeze(Time.new(2016, 7, 29, 15, 30, 0, "+00:00"))
@@ -291,11 +298,15 @@ describe "employee rake tasks", type: :tasks do
 
       allow(@ldap).to receive(:get_operation_result)
 
-      expect(OffboardingService).to receive(:new).and_return(@offboarding_service).once
-      expect(@offboarding_service).to receive(:offboard).once.with([termination])
+      expect(PeopleAndCultureMailer).to receive(:terminate_contract).with(contract_end).and_return(mailer)
+      expect(mailer).to receive(:deliver_now)
+      expect(OffboardingService).to receive(:new).and_return(@offboarding_service).twice
+      expect(@offboarding_service).to receive(:offboard).with([termination])
+      expect(@offboarding_service).to receive(:offboard).with([contract_end])
       Rake::Task["employee:change_status"].invoke
 
       expect(termination.reload.status).to eq("terminated")
+      expect(contract_end.reload.status).to eq("terminated")
       expect(leave.reload.status).to eq("inactive")
     end
 
@@ -406,7 +417,7 @@ describe "employee rake tasks", type: :tasks do
     end
   end
 
-  context "employee:send_reminders" do
+  context "employee:send_onboarding_reminders" do
     let!(:reg_wt)     { FactoryGirl.create(:worker_type, code: "FTR") }
     let!(:us_due_tom) { FactoryGirl.create(:pending_employee,
                         request_status: "completed",
@@ -427,7 +438,6 @@ describe "employee rake tasks", type: :tasks do
     let!(:au_profile) { FactoryGirl.create(:profile,
                         start_date: Date.new(2017, 12, 11),
                         employee: au_due_tom,
-                        start_date: Date.new(2017, 12, 11),
                         location: Location.find_by_name("Melbourne Office")) }
 
     let!(:json)       { File.read(Rails.root.to_s+"/spec/fixtures/adp_rehire_event.json") }
@@ -450,20 +460,45 @@ describe "employee rake tasks", type: :tasks do
       # 9am PST
       Timecop.freeze(Time.new(2017, 11, 26, 17, 0, 0, "+00:00"))
       expect(ReminderWorker).to receive(:perform_async).with({:employee_id=>us_overdue.id})
-      Rake::Task["employee:send_reminders"].invoke
+      Rake::Task["employee:send_onboarding_reminders"].invoke
     end
 
     it "should remind manager to onboard au worker" do
       # 9am AEST
       Timecop.freeze(Time.new(2017, 11, 25, 22, 00, 0, "+00:00"))
       expect(ReminderWorker).to receive(:perform_async).with({:employee_id=>au_due_tom.id})
-      Rake::Task["employee:send_reminders"].invoke
+      Rake::Task["employee:send_onboarding_reminders"].invoke
     end
 
     it "should remind manager to onboard rehire" do
       Timecop.freeze(Time.new(2018, 8, 23, 16, 0, 0, "+00:00"))
      expect(ReminderWorker).to receive(:perform_async).with({:event_id=>nh_evt. id})
-     Rake::Task["employee:send_reminders"].invoke
+     Rake::Task["employee:send_onboarding_reminders"].invoke
+    end
+  end
+
+  context "employee:send_contract_end_notification" do
+    let!(:manager)     { FactoryGirl.create(:employee) }
+    let!(:contractor)  { FactoryGirl.create(:contract_worker,
+                        request_status: "none",
+                        contract_end_date: Date.new(2017, 12, 01),
+                        manager: manager) }
+
+    before :each do
+      Rake.application = Rake::Application.new
+      Rake.application.rake_require "lib/tasks/employee", [Rails.root.to_s], ''
+      Rake::Task.define_task :environment
+    end
+
+    after :each do
+      Timecop.return
+    end
+
+    it "should remind manager of worker with contract end date in two weeks" do
+      Timecop.freeze(Time.new(2017, 11, 17, 17, 0, 0, "+00:00"))
+      expect(ContractorWorker).to receive(:perform_async).with({:employee_id=>contractor.id})
+      Rake::Task["employee:send_contract_end_notificatons"].invoke
+      expect(contractor.reload.request_status).to eq("waiting")
     end
   end
 end

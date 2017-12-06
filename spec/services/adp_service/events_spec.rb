@@ -295,14 +295,12 @@ describe AdpService::Events, type: :service do
     end
 
     describe "termination event" do
-      let!(:term_emp) { FactoryGirl.create(:active_employee, termination_date: nil) }
-      let!(:profile)  { FactoryGirl.create(:active_profile,
-                        employee: term_emp,
-                        adp_employee_id: "101652") }
-      let(:mailer)    { double(TechTableMailer) }
-      let!(:event)    { FactoryGirl.create(:adp_event,
-                        kind: "worker.terminate",
-                        json: term_json) }
+
+
+      let(:mailer)      { double(TechTableMailer) }
+      let!(:event)      { FactoryGirl.create(:adp_event,
+                          kind: "worker.terminate",
+                          json: term_json) }
 
       before :each do
         Timecop.freeze(Time.new(2017, 1, 1, 1, 0, 0))
@@ -312,23 +310,67 @@ describe AdpService::Events, type: :service do
         Timecop.return
       end
 
-      it "should update termination date" do
-        expect(ActiveDirectoryService).to receive(:new).and_return(ads)
-        expect(ads).to receive(:update)
-        expect(TechTableMailer).to receive(:offboard_notice).and_return(mailer)
-        expect(mailer).to receive(:deliver_now)
-        expect(EmployeeWorker).to receive(:perform_async)
+      context "normal termination" do
+        let!(:term_emp)   { FactoryGirl.create(:active_employee, termination_date: nil) }
+        let!(:profile)    { FactoryGirl.create(:active_profile,
+                            employee: term_emp,
+                            adp_employee_id: "101652") }
 
-        adp = AdpService::Events.new
-        adp.token = "a-token-value"
+        it "should update termination date" do
+          expect(ActiveDirectoryService).to receive(:new).and_return(ads)
+          expect(ads).to receive(:update)
+          expect(TechTableMailer).to receive(:offboard_notice).and_return(mailer)
+          expect(mailer).to receive(:deliver_now)
+          expect(EmployeeWorker).to receive(:perform_async)
 
-        expect(adp).to receive(:job_change?).and_return(false)
-        expect{
-          adp.process_term(event)
-        }.to_not change{Employee.count}
-        expect(term_emp.reload.termination_date).to eq("2017-01-24")
-        expect(term_emp.emp_deltas.last.before).to eq({"end_date"=>nil, "termination_date"=>nil})
-        expect(term_emp.emp_deltas.last.after).to eq({"end_date"=>"2017-01-24 00:00:00 UTC", "termination_date"=>"2017-01-24 00:00:00 UTC"})
+          adp = AdpService::Events.new
+          adp.token = "a-token-value"
+
+          expect(adp).to receive(:job_change?).and_return(false)
+          expect{
+            adp.process_term(event)
+          }.to_not change{Employee.count}
+          expect(term_emp.reload.termination_date).to eq("2017-01-24")
+          expect(term_emp.emp_deltas.last.before).to eq({"end_date"=>nil, "termination_date"=>nil})
+          expect(term_emp.emp_deltas.last.after).to eq({"end_date"=>"2017-01-24 00:00:00 UTC", "termination_date"=>"2017-01-24 00:00:00 UTC"})
+        end
+      end
+
+      context "contractor terminated on contract end date" do
+        let!(:contractor) { FactoryGirl.create(:employee,
+                            status: "terminated",
+                            contract_end_date: Date.new(2017, 01, 24),
+                            termination_date: nil) }
+        let!(:profile)    { FactoryGirl.create(:profile,
+                            profile_status: "terminated",
+                            end_date: Date.new(2017, 01, 24),
+                            employee: contractor,
+                            adp_employee_id: "101652") }
+        let!(:event)      { FactoryGirl.create(:adp_event,
+                            kind: "worker.terminate",
+                            json: term_json) }
+        let(:policy)      { double(OffboardPolicy) }
+
+        after :each do
+          Timecop.return
+        end
+
+        it "should only update termination date" do
+          Timecop.freeze(Time.new(2017, 2, 02, 2, 0, 0, "+00:00"))
+
+          adp = AdpService::Events.new
+          adp.token = "a-token-value"
+
+          expect(adp).to receive(:job_change?).and_return(false)
+          expect(OffboardPolicy).to receive(:new).with(contractor).and_return(policy)
+          expect(policy).to receive(:offboarded_contractor?).and_return(true)
+          expect{
+            adp.process_term(event)
+          }.to_not change{Employee.count}
+          expect(contractor.reload.termination_date).to eq("2017-01-24")
+          expect(contractor.emp_deltas.last.before).to eq({"termination_date"=>nil})
+          expect(contractor.emp_deltas.last.after).to eq({"termination_date"=>"2017-01-24 00:00:00 UTC"})
+        end
       end
     end
 

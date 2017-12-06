@@ -12,4 +12,10 @@ class PeopleAndCultureMailer < ApplicationMailer
     @items = items
     mail(subject: "Mezzo Request for Code List Updates")
   end
+
+  def terminate_contract(worker)
+    @worker = worker
+    subject = "Please Terminate Worker #{@worker.cn}"
+    mail(subject: subject)
+  end
 end

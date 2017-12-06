@@ -120,8 +120,7 @@ describe AdpService::Workers, type: :service do
                         adp_employee_id: "101734",
                         management_position: true) }
     let(:employee)    { FactoryGirl.create(:active_employee,
-                        first_name: "BOB",
-                        manager: manager) }
+                        first_name: "BOB") }
     let!(:profile)    { FactoryGirl.create(:active_profile,
                         employee: employee,
                         adp_employee_id: "101455",
@@ -196,8 +195,8 @@ describe AdpService::Workers, type: :service do
       expect(ads).to receive(:scan_for_failed_ldap_transactions)
 
       adp.sync_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
-      expect(employee.manager.emp_transactions.last.kind).to eq("Service")
-      expect(employee.manager.emp_transactions.last.emp_sec_profiles.last.security_profile_id).to eq(sp.id)
+      expect(employee.reload.manager.emp_transactions.last.kind).to eq("Service")
+      expect(employee.reload.manager.emp_transactions.last.emp_sec_profiles.last.security_profile_id).to eq(sp.id)
     end
 
     it "should do nothing if manager already a manager" do
@@ -226,7 +225,7 @@ describe AdpService::Workers, type: :service do
 
       expect{
         adp.sync_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
-      }.to_not change{employee.manager.security_profiles}
+      }.to_not change{manager.security_profiles}
     end
 
     it "should send a security access form on department, worker type, location, or job title" do
@@ -309,6 +308,37 @@ describe AdpService::Workers, type: :service do
 
       adp.sync_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
       expect(employee.reload.job_title.id).to eq(new_job_title.id)
+    end
+
+    context "contractor termination" do
+      let(:contractor)  { FactoryGirl.create(:employee,
+                          last_name: "blah",
+                          status: "terminated",
+                          contract_end_date: Date.today,
+                          termination_date: nil) }
+      let!(:profile)    { FactoryGirl.create(:profile,
+                          profile_status: "terminated",
+                          employee: contractor,
+                          adp_employee_id: "101455")}
+      let(:sorted)      {[{
+                          adp_employee_id: "101455",
+                          status: "active",
+                          profile_status: "active"
+                        }]}
+
+      it "should not reactivate after mezzo termiantion" do
+        expect(response).to receive(:body).and_return(json)
+
+        adp = AdpService::Workers.new
+        adp.token = "a-token-value"
+
+        expect(JSON).to receive(:parse).with(json)
+        expect(AdpService::WorkerJsonParser).to receive(:new).and_return(parser)
+        expect(parser).to receive(:sort_workers).and_return(sorted)
+        adp.sync_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
+
+        expect(contractor.reload.status).to eq("terminated")
+      end
     end
   end
 
@@ -604,7 +634,6 @@ describe AdpService::Workers, type: :service do
         name: "Basic Manager") }
       let!(:new_hire) { FactoryGirl.create(:employee,
         status: "pending",
-        manager: new_manager,
         hire_date: Date.today + 4.days)}
       let!(:profile) { FactoryGirl.create(:profile,
         employee: new_hire,
