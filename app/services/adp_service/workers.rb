@@ -43,7 +43,8 @@ module AdpService
 
         workers.each do |w|
           e = Employee.find_by_employee_id(w[:adp_employee_id])
-          if e.present?
+
+          if e.present? && e.status != "terminated"
             profiler = EmployeeProfile.new
             profiler.update_employee(e, w)
 

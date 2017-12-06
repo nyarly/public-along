@@ -309,6 +309,37 @@ describe AdpService::Workers, type: :service do
       adp.sync_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
       expect(employee.reload.job_title.id).to eq(new_job_title.id)
     end
+
+    context "contractor termination" do
+      let(:contractor)  { FactoryGirl.create(:employee,
+                          last_name: "blah",
+                          status: "terminated",
+                          contract_end_date: Date.today,
+                          termination_date: nil) }
+      let!(:profile)    { FactoryGirl.create(:profile,
+                          profile_status: "terminated",
+                          employee: contractor,
+                          adp_employee_id: "101455")}
+      let(:sorted)      {[{
+                          adp_employee_id: "101455",
+                          status: "active",
+                          profile_status: "active"
+                        }]}
+
+      it "should not reactivate after mezzo termiantion" do
+        expect(response).to receive(:body).and_return(json)
+
+        adp = AdpService::Workers.new
+        adp.token = "a-token-value"
+
+        expect(JSON).to receive(:parse).with(json)
+        expect(AdpService::WorkerJsonParser).to receive(:new).and_return(parser)
+        expect(parser).to receive(:sort_workers).and_return(sorted)
+        adp.sync_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
+
+        expect(contractor.reload.status).to eq("terminated")
+      end
+    end
   end
 
   describe "check leave return" do
