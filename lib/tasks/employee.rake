@@ -66,8 +66,8 @@ namespace :employee do
   end
 
   desc "send contract end notifications"
-  task :send_contract_end_notificatons => :environment do
-    contractors = Employee.where("contract_end_date <= ?", 2.weeks.from_now)
+  task :send_contract_end_notifications => :environment do
+    contractors = EmployeeQuery.new.contract_end_reminder_group
     contractors.each do |e|
       if e.request_status == "none"
         e.wait!
