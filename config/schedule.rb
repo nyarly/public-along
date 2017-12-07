@@ -16,7 +16,7 @@ end
 
 # 4pm UTC / 9am PT
 every :weekday, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Time.parse("9:00")) do
-  rake "report:onboards"
+  rake "report:daily_onboards"
 end
 
 # 4pm UTC / 9am PT
