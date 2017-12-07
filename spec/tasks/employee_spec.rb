@@ -477,12 +477,19 @@ describe "employee rake tasks", type: :tasks do
     end
   end
 
-  context "employee:send_contract_end_notification" do
-    let!(:manager)     { FactoryGirl.create(:employee) }
-    let!(:contractor)  { FactoryGirl.create(:contract_worker,
+  context "employee:send_contract_end_notifications" do
+    let!(:manager)    { FactoryGirl.create(:employee) }
+    let!(:contractor) { FactoryGirl.create(:contract_worker,
+                        status: "active",
                         request_status: "none",
                         contract_end_date: Date.new(2017, 12, 01),
+                        termination_date: nil,
                         manager: manager) }
+    let!(:cont_2)     { FactoryGirl.create(:contract_worker,
+                        status: "active",
+                        contract_end_date: Date.new(2017, 11, 11),
+                        termination_date: Date.new(2017, 12, 01),
+                        manager: manager)}
 
     before :each do
       Rake.application = Rake::Application.new
@@ -497,7 +504,7 @@ describe "employee rake tasks", type: :tasks do
     it "should remind manager of worker with contract end date in two weeks" do
       Timecop.freeze(Time.new(2017, 11, 17, 17, 0, 0, "+00:00"))
       expect(ContractorWorker).to receive(:perform_async).with({:employee_id=>contractor.id})
-      Rake::Task["employee:send_contract_end_notificatons"].invoke
+      Rake::Task["employee:send_contract_end_notifications"].invoke
       expect(contractor.reload.request_status).to eq("waiting")
     end
   end
