@@ -550,31 +550,6 @@ describe AdpService::Workers, type: :service do
       end
     end
 
-    context "adp request timeout" do
-      before :each do
-        expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers/G3NQ5754ETA080N?asOfDate=#{future_date.strftime('%m')}%2F#{future_date.strftime('%d')}%2F#{future_date.strftime('%Y')}").and_return(uri)
-        expect(response).to receive(:body).and_return(nil)
-        allow(http).to receive(:get).with(
-          request_uri,
-          { "Accept"=>"application/json",
-            "Authorization"=>"Bearer a-token-value",
-          }).and_return(response)
-        expect(response).to receive(:code)
-        expect(response).to receive(:message)
-      end
-
-      it "should not send an error message if job has to retry" do
-        expect(ActiveDirectoryService).to_not receive(:new)
-
-        adp = AdpService::Workers.new
-        adp.token = "a-token-value"
-
-        expect(TechTableMailer).not_to receive(:alert_email)
-
-        adp.check_new_hire_change(new_hire)
-      end
-    end
-
     context "worker has contract end date less than one year" do
       contract_end_date = Date.today + 3.months
       check_contract_end_date = contract_end_date - 1.day

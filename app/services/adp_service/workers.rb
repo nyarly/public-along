@@ -85,11 +85,13 @@ module AdpService
         future_date = 1.year.from_now.change(:usec => 0)
       end
 
-      json = get_worker_json(e, future_date)
-
-      return false if json.blank?
+      begin
+      ensure
+        json = get_worker_json(e, future_date)
+      end
 
       adp_status = json.dig("workers", 0, "workerStatus", "statusCode", "codeValue")
+      adp_status.present?
 
       if adp_status.present? && adp_status == "Active"
         parser = WorkerJsonParser.new
@@ -104,7 +106,6 @@ module AdpService
         end
       else
         TechTableMailer.alert_email("Cannot get updated ADP info for new contract hire #{e.cn}, employee id: #{e.employee_id}.\nPlease contact the developer to help diagnose the problem.").deliver_now
-        return false
       end
     end
 
@@ -137,7 +138,6 @@ module AdpService
         y = date.strftime("%Y")
 
         str = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers/#{e.adp_assoc_oid}?asOfDate=#{m}%2F#{d}%2F#{y}")
-        return nil if str.blank?
         worker_json = JSON.parse(str)
       end
       worker_json
