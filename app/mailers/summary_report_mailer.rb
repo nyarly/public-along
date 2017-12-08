@@ -19,6 +19,7 @@ class SummaryReportMailer < ApplicationMailer
 
   def offboard_report
     csv = SummaryReportHelper::Csv.new
+    @offboards = OnboardQuery.new.added_and_updated_offboards
 
     attachments.inline["offboarding_summary_#{DateTime.now.strftime('%Y%m%d')}.csv"] = csv.offboarding_data
     attachments.inline['pandc.png'] = File.read(Rails.root.join('app/assets/images/pandc.png'))

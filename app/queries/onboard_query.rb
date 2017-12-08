@@ -17,6 +17,10 @@ class OnboardQuery
     }.compact
   end
 
+  def added_and_updated_offboards
+    @relation.where("employees.termination_date >= ?", summary_last_sent).compact
+  end
+
   private
 
   def summary_last_sent
