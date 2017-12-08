@@ -12,41 +12,48 @@
     padding: .25em;
   }
 </style>
-<div style="font-family: helvetica; margin: 50px; width: 500px">
-  <p>The following people have joined OpenTable this week: </p>
-</div>
-<div style="margin: 50px;">
-  <table>
-    <thead>
-      <tr>
-        <th>Parent Org</th>
-        <th>Department</th>
-        <th>Worker FName</th>
-        <th>Worker LName</th>
-        <th>Worker OT Email</th>
-        <th>Worker Category Type</th>
-        <th>Location</th>
-        <th>Start Date</th>
-        <th>Manager FName</th>
-        <th>Manager LName</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @onboards.each do |onboard| %>
+<% if @onboard_count > 0 %>
+  <div style="margin: 20px; width: 500px">
+    <p>The following people have joined OpenTable this week: </p>
+  </div>
+  <div style="margin: 20px;">
+    <table>
+      <thead>
         <tr>
-          <td><%= onboard.employee.department.parent_org.try(:name) %></td>
-          <td><%= onboard.employee.department.try(:name) %></td>
-          <td><%= onboard.employee.first_name %></td>
-          <td><%= onboard.employee.last_name %></td>
-          <td><%= onboard.employee.email %></td>
-          <td><%= onboard.employee.worker_type.try(:name) %></td>
-          <td><%= onboard.employee.location.try(:name) %></td>
-          <td><%= onboard.employee.current_profile.start_date.try(:strftime, "%b %e, %Y") %></td>
-          <td><%= onboard.employee.manager.try(:first_name) %></td>
-          <td><%= onboard.employee.manager.try(:last_name) %></td>
+          <th>Parent Org</th>
+          <th>Department</th>
+          <th>Worker FName</th>
+          <th>Worker LName</th>
+          <th>Worker OT Email</th>
+          <th>Worker Category Type</th>
+          <th>Location</th>
+          <th>Start Date</th>
+          <th>Manager FName</th>
+          <th>Manager LName</th>
         </tr>
-      <% end %>
-    </tbody>
-  </table>
-</div>
+      </thead>
+      <tbody>
+        <% @onboards.each do |onboard| %>
+          <tr>
+            <td><%= onboard.employee.department.parent_org.try(:name) %></td>
+            <td><%= onboard.employee.department.try(:name) %></td>
+            <td><%= onboard.employee.first_name %></td>
+            <td><%= onboard.employee.last_name %></td>
+            <td><%= onboard.employee.email %></td>
+            <td><%= onboard.employee.worker_type.try(:name) %></td>
+            <td><%= onboard.employee.location.try(:name) %></td>
+            <td><%= onboard.employee.current_profile.start_date.try(:strftime, "%b %e, %Y") %></td>
+            <td><%= onboard.employee.manager.try(:first_name) %></td>
+            <td><%= onboard.employee.manager.try(:last_name) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <p>Weekly Onboard Count: <%= @onboard_count %></p>
+  </div>
+<% else %>
+  <div style="margin: 20px; width: 500px">
+    <p>OpenTable had no new hires this week.</p>
+  </div>
+<% end %>
 <%= image_tag attachments['pandc.png'].url -%>
