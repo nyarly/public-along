@@ -4,7 +4,13 @@ class OffboardQuery
   end
 
   def added_and_updated_offboards
-    @relation.where("employees.termination_date BETWEEN ? AND ?", summary_last_sent, Date.today).compact
+    @relation.where("employees.termination_date BETWEEN ? AND ?
+                     OR employees.contract_end_date BETWEEN ? AND ?",
+                     summary_last_sent,
+                     Date.today,
+                     summary_last_sent,
+                     Date.today
+                     ).compact
   end
 
   private
