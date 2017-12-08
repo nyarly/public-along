@@ -90,8 +90,9 @@ module AdpService
         json = get_worker_json(e, future_date)
       end
 
+      return false if json.blank?
+
       adp_status = json.dig("workers", 0, "workerStatus", "statusCode", "codeValue")
-      adp_status.present?
 
       if adp_status.present? && adp_status == "Active"
         parser = WorkerJsonParser.new
@@ -105,7 +106,8 @@ module AdpService
           ad.update([e])
         end
       else
-        TechTableMailer.alert_email("Cannot get updated ADP info for new contract hire #{e.cn}, employee id: #{e.employee_id}.\nPlease contact the developer to help diagnose the problem.").deliver_now
+        return false
+        # TechTableMailer.alert_email("Cannot get updated ADP info for new contract hire #{e.cn}, employee id: #{e.employee_id}.\nPlease contact the developer to help diagnose the problem.").deliver_now
       end
     end
 
