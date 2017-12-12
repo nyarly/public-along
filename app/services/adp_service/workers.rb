@@ -43,10 +43,10 @@ module AdpService
 
         workers.each do |w|
           e = Employee.find_by_employee_id(w[:adp_employee_id])
-          if e.present?
+
+          if e.present? && e.status != "terminated"
             profiler = EmployeeProfile.new
             profiler.update_employee(e, w)
-            EmployeeService::GrantManagerAccess.new(e.manager).process! if e.manager.present?
 
             workers_to_update << e
           else
@@ -85,7 +85,10 @@ module AdpService
         future_date = 1.year.from_now.change(:usec => 0)
       end
 
-      json = get_worker_json(e, future_date)
+      begin
+      ensure
+        json = get_worker_json(e, future_date)
+      end
 
       return false if json.blank?
 
@@ -97,15 +100,14 @@ module AdpService
         w_hash = workers[0]
         profiler = EmployeeProfile.new
         profiler.update_employee(e, w_hash.except(:status, :profile_status))
-        EmployeeService::GrantManagerAccess.new(e.manager).process! if e.manager.present?
 
         if e.updated_at >= 1.minute.ago
           ad = ActiveDirectoryService.new
           ad.update([e])
         end
       else
-        TechTableMailer.alert_email("Cannot get updated ADP info for new contract hire #{e.cn}, employee id: #{e.employee_id}.\nPlease contact the developer to help diagnose the problem.").deliver_now
         return false
+        # TechTableMailer.alert_email("Cannot get updated ADP info for new contract hire #{e.cn}, employee id: #{e.employee_id}.\nPlease contact the developer to help diagnose the problem.").deliver_now
       end
     end
 
@@ -138,7 +140,6 @@ module AdpService
         y = date.strftime("%Y")
 
         str = get_json_str("https://#{SECRETS.adp_api_domain}/hr/v2/workers/#{e.adp_assoc_oid}?asOfDate=#{m}%2F#{d}%2F#{y}")
-        return nil if str.blank?
         worker_json = JSON.parse(str)
       end
       worker_json

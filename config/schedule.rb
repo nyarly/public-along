@@ -6,12 +6,17 @@ require 'tzinfo'
 every 1.hour do
   rake "employee:change_status"
   rake "adp:sync_all"
-  rake "employee:send_reminders"
+  rake "employee:send_onboarding_reminders"
+end
+
+# 4pm UTC / 9am PT
+every :day, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Time.parse("9:00")) do
+  rake "employee:send_contract_end_notifications"
 end
 
 # 4pm UTC / 9am PT
 every :weekday, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Time.parse("9:00")) do
-  rake "report:onboards"
+  rake "report:daily_onboards"
 end
 
 # 4pm UTC / 9am PT

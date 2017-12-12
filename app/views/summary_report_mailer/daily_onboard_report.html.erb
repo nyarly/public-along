@@ -1,6 +1,55 @@
-<%= image_tag attachments['pandc.png'].url -%>
-<div style="font-family: helvetica; margin: 50px; width: 500px">
+<style type="text/css">
+  html {
+    font-family: helvetica;
+  }
+  table, th, td {
+    border: 1px solid black;
+  }
+  table {
+    border-collapse: collapse;
+  }
+  th, td {
+    padding: .25em;
+  }
+</style>
+<div style="margin: 50px; width: 500px">
   <p>Hello,</p>
 
-  <p>Attached you will find a list of employees and contingent workers that have been submitted through today with a future start date. If you have any questions, please e-mail <%= mail_to "peopleandculture@opentable.com." %></p>
+  <p>The table below shows updates received by Mezzo since the last email. The attachment contains all known pre-hires. If you have any questions, please e-mail <%= mail_to "peopleandculture@opentable.com." %></p>
 </div>
+
+<div style="margin: 50px;">
+  <table>
+    <thead>
+      <tr>
+        <th>Parent Org</th>
+        <th>Department</th>
+        <th>Worker FName</th>
+        <th>Worker LName</th>
+        <th>Worker OT Email</th>
+        <th>Worker Category Type</th>
+        <th>Location</th>
+        <th>Start Date</th>
+        <th>Manager FName</th>
+        <th>Manager LName</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @onboards.each do |onboard| %>
+        <tr>
+          <td><%= onboard.employee.department.parent_org.try(:name) %></td>
+          <td><%= onboard.employee.department.try(:name) %></td>
+          <td><%= onboard.employee.first_name %></td>
+          <td><%= onboard.employee.last_name %></td>
+          <td><%= onboard.employee.email %></td>
+          <td><%= onboard.employee.worker_type.try(:name) %></td>
+          <td><%= onboard.employee.location.try(:name) %></td>
+          <td><%= onboard.employee.current_profile.start_date.try(:strftime, "%b %e, %Y") %></td>
+          <td><%= onboard.employee.manager.try(:first_name) %></td>
+          <td><%= onboard.employee.manager.try(:last_name) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+<%= image_tag attachments['pandc.png'].url -%>

@@ -84,10 +84,18 @@ module AdpService
       employee.assign_attributes(termination_date: term_date)
       employee.current_profile.assign_attributes(end_date: term_date)
 
+      return process_offboarded_contractor(employee) if OffboardPolicy.new(employee).offboarded_contractor?
       return process_retro_term(employee) if is_retroactive?(employee, term_date)
 
       EmpDelta.build_from_profile(employee.current_profile).save!
       employee.save! && employee.start_offboard_process!
+    end
+
+    def process_offboarded_contractor(employee)
+      # If contractor has already been offboarded on contract end date,
+      # don't do it a second time
+      EmpDelta.build_from_profile(employee.current_profile).save!
+      employee.current_profile.save! && employee.save!
     end
 
     def process_retro_term(employee)
