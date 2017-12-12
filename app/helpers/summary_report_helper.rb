@@ -34,7 +34,7 @@ module SummaryReportHelper
             employee.email,
             salesforce(employee).try(:cn),
             employee.hire_date.strftime("%Y-%b-%e"),
-            employee.termination_date.strftime("%Y-%b-%e"),
+            employee.offboard_date.strftime("%Y-%b-%e"),
             employee.request_status,
             employee.last_changed_at.try(:strftime, "%Y-%m-%d %H:%M:%S")
           ]
