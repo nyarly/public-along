@@ -3,6 +3,7 @@ class Role::Admin < Role
 
   def set_abilities(ability)
     ability.can :manage, Employee
+    ability.can :direct_reports, Employee
     ability.can :manage, MachineBundle
     ability.can :manage, Location
     ability.can :manage, Department

@@ -1,5 +1,5 @@
 <div style="font-family: helvetica;">
-  <h2>Security Profile Change Requested for <%= @employee.cn %> on <%= @emp_transaction.created_at.strftime("%b %e, %Y") %></h2>
+  <h2>Security Profile Change Requested for <%= @employee.cn %> on <%= l @emp_transaction.created_at, format: :verbose %></h2>
 
 
   <% if @emp_transaction.security_profiles.count > 0 %>
@@ -12,7 +12,7 @@
     <% end %>
 
     <% if @employee.emp_deltas.important_changes.present? %>
-      <p>This security access change was requested after the following employee information was updated on <%= @employee.emp_deltas.important_changes.last.created_at.try(:strftime, "%b %e, %Y") %>:</p>
+      <p>This security access change was requested after the following employee information was updated on <%= l @employee.emp_deltas.important_changes.last.created_at, format: :verbose %>:</p>
         <% @employee.emp_deltas.important_changes.last.format_by_key.each do |e| %>
           <p>- <%= e['name'] %> changed from <%= e['before'] %> to <%= e['after'] %></p>
         <% end %>

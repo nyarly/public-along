@@ -1,8 +1,8 @@
 <h3 class="text-center">Employee Onboarding Form</h3>
 <div class="text-center" style="margin-left: 7%; margin-right: 7%;">
-  <p><strong>Due: <%= @employee.onboarding_due_date %>.</strong>
+  <p><strong>Due: <%= l @employee.onboarding_due_date, format: :verbose %></strong>
     <br>
-    <strong>Start Date: <%= @employee.current_profile.start_date.strftime("%b %e, %Y")%></strong>
+    <strong>Start Date: <%= l @employee.current_profile.start_date, format: :verbose %></strong>
   </p>
   <hr>
   <p>You are receiving this action request because you are listed as the manager of new hire <%= @employee.cn %>. This form helps TechTable and People & Culture prepare your new hire’s equipment and access. It must be submitted by the due date in order for the worker to be onboarded in time for their start date.</p>

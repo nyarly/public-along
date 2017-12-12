@@ -1,8 +1,8 @@
 <h1>Employee Offboarding Form</h1>
 <% if @employee.offboarding_cutoff >= DateTime.now %>
   <div class="callout danger text-center">
-  <p>You are receiving this form because you are listed as the manager of <%= @employee.cn %>, whose last day at OpenTable is listed in ADP as <strong><%= @employee.termination_date.strftime("%b %e, %Y") %></strong>.</p>
-  <p><strong>Submit this form before 4 P.M. PST on <%= @employee.termination_date.strftime("%b %e, %Y") %></strong> to indicate data transfer and/or send special instructions to TechTable for the offboard.</p>
+  <p>You are receiving this form because you are listed as the manager of <%= @employee.cn %>, whose last day at OpenTable is listed in ADP as <strong><%= l @employee.termination_date, format: :verbose %></strong>.</p>
+  <p><strong>Submit this form before 4 P.M. PST on <%= l @employee.termination_date, format: :verbose %></strong> to indicate data transfer and/or send special instructions to TechTable for the offboard.</p>
   <p>If you do not submit the form on time, data access and email related to this worker will be transferred to your account. Any changes needed after the termination should be requested via TechTable.</p>
 </div>
 

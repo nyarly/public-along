@@ -81,11 +81,11 @@
                 </p>
                 <p>
                   <strong>Position Start Date:</strong>
-                  <%= p.start_date.try(:strftime, "%B %e, %Y") %>
+                  <%= l p.start_date, format: :verbose %>
                 </p>
                <p>
                   <strong>Position End Date:</strong>
-                  <%= p.end_date.try(:strftime, "%B %e, %Y") %>
+                  <%= l p.end_date, format: :verbose if p.end_date.present? %>
                 </p>
                 <p>
                   <strong>Business Title:</strong>
@@ -193,23 +193,23 @@
       <div class="tabs-panel" id="important-dates">
         <p>
           <strong>Date of Original Hire:</strong>
-          <%= @employee.hire_date.try(:strftime, "%B %e, %Y") %>
+          <%= l @employee.hire_date, format: :verbose %>
         </p>
         <p>
           <strong>Termination Date:</strong>
-          <%= @employee.termination_date.try(:strftime, "%B %e, %Y") %>
+          <%= l @employee.termination_date, format: :verbose if @employee.termination_date.present? %>
         </p>
         <p>
           <strong>Contract End Date:</strong>
-          <%= @employee.contract_end_date.try(:strftime, "%B %e, %Y") %>
+          <%= l @employee.contract_end_date, format: :verbose if @employee.contract_end_date.present? %>
         </p>
         <p>
           <strong>Leave Start Date:</strong>
-          <%= @employee.leave_start_date.try(:strftime, "%B %e, %Y") %>
+          <%= l @employee.leave_start_date, format: :verbose if @employee.leave_start_date.present? %>
         </p>
         <p>
           <strong>Leave Return Date:</strong>
-          <%= @employee.leave_return_date.try(:strftime, "%B %e, %Y") %>
+          <%= l @employee.leave_return_date, format: :verbose if @employee.leave_return_date.present? %>
         </p>
       </div>
 
@@ -263,7 +263,7 @@
         <% if activity.class == EmpDelta %>
           <p>
             <strong>Employee Change</strong><br>
-            <%= activity.created_at.strftime("%b %e, %Y") %>
+            <%= l activity.created_at, format: :verbose %>
           </p>
           <p>
             <% activity.format_by_key.each do |t| %>
@@ -278,7 +278,7 @@
         <% elsif activity.class == EmpTransaction %>
           <p>
             <strong><%= activity.kind %></strong><br>
-            Submitted on <%= activity.created_at.strftime("%b %e, %Y") %> by <%= activity.performed_by %>
+            Submitted on <%= l activity.created_at, format: :verbose %> by <%= activity.performed_by %>
           </p>
           <% if activity.security_profiles.present? %>
             <p>

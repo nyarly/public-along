@@ -95,8 +95,8 @@ RSpec.describe ManagerMailer, type: :mailer do
       expect(email.subject).to eq("IMMEDIATE ACTION REQUIRED: Employee Event Form for #{employee.first_name} #{employee.last_name}")
       expect(email.text_part.body).to include("Follow the link below to complete the employee event form")
       expect(email.html_part.body).to include("Follow the link below to complete the employee event form")
-      expect(email.text_part.body).to include("You must complete this form by #{employee.onboarding_due_date.try(:strftime, "%b %e, %Y")}")
-      expect(email.html_part.body).to include("You must complete this form by #{employee.onboarding_due_date.try(:strftime, "%b %e, %Y")}")
+      expect(email.text_part.body).to include("You must complete this form by #{employee.onboarding_due_date.try(:strftime, "%B %e, %Y")}")
+      expect(email.html_part.body).to include("You must complete this form by #{employee.onboarding_due_date.try(:strftime, "%B %e, %Y")}")
     end
   end
 
@@ -117,8 +117,8 @@ RSpec.describe ManagerMailer, type: :mailer do
       expect(email.subject).to eq("IMMEDIATE ACTION REQUIRED: Employee Event Form for Bob Fakename")
       expect(email.text_part.body).to include("Follow the link below to complete the employee event form")
       expect(email.html_part.body).to include("Follow the link below to complete the employee event form")
-      expect(email.text_part.body).to include("You must complete this form by Aug 24, 2018")
-      expect(email.html_part.body).to include("You must complete this form by Aug 24, 2018")
+      expect(email.text_part.body).to include("You must complete this form by August 24, 2018")
+      expect(email.html_part.body).to include("You must complete this form by August 24, 2018")
     end
   end
 end

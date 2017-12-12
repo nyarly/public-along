@@ -1,7 +1,7 @@
 Mezzo Automatic Offboarding Status
 ========================
 
-Termination Date: <%= @employee.termination_date.strftime("%b %e, %Y") %>
+Termination Date: <%= l @employee.termination_date, format: :verbose %>
 
 Name: <%= @employee.cn %>
 

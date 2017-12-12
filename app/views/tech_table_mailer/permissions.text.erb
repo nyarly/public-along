@@ -1,4 +1,4 @@
-Security Profile Change Requested for <%= @employee.cn %> on <%= @emp_transaction.created_at.strftime("%b %e, %Y") %>
+Security Profile Change Requested for <%= @employee.cn %> on <%= l @emp_transaction.created_at, format: :verbose %>
 =================================================
 
 <% if @emp_transaction.security_profiles.count > 0 %>
@@ -13,7 +13,7 @@ Please update access for the applications not controlled by Mezzo.
 <% end %>
 
 <% if @employee.emp_deltas.important_changes.present? %>
-This security access change was requested after the following employee information was updated on <%= @employee.emp_deltas.important_changes.last.created_at.try(:strftime, "%b %e, %Y") %>:
+This security access change was requested after the following employee information was updated on <%= l @employee.emp_deltas.important_changes.last.created_at, format: :verbose %>:
 <% @employee.emp_deltas.important_changes.last.format_by_key.each do |e| %>
 - <%= e['name'] %> changed from <%= e['before'] %> to <%= e['after'] %>
 <% end %>

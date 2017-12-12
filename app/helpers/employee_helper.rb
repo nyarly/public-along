@@ -6,8 +6,8 @@ module EmployeeHelper
 
   def manager_form_due(employee)
     return nil if employee.request_status != "waiting"
-    return employee.onboarding_due_date if employee.status == "pending"
-    return employee.offboarding_cutoff.strftime("%b %e, %Y") if employee.status == "active"
+    return employee.onboarding_due_date.strftime("%B %e, %Y") if employee.status == "pending"
+    return employee.offboarding_cutoff.strftime("%B %e, %Y") if employee.status == "active"
   end
 
   def needs_security_profile_update?(employee)
