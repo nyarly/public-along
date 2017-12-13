@@ -41,6 +41,7 @@ describe SummaryReportHelper, type: :helper do
                             parent_org: parent_org_2) }
     let!(:old_job)        { FactoryGirl.create(:job_title) }
     let!(:new_job)        { FactoryGirl.create(:job_title) }
+    let(:old_manager)     { FactoryGirl.create(:active_employee) }
     let(:manager)         { FactoryGirl.create(:active_employee) }
     let(:emp_1)           { FactoryGirl.create(:employee,
                             manager: manager) }
@@ -65,8 +66,9 @@ describe SummaryReportHelper, type: :helper do
                             after: {"job_title_id"=>"#{new_job.id}"}) }
     let!(:emp_delta_3)    { FactoryGirl.create(:emp_delta,
                             employee: emp_3,
-                            before: {"job_title_id"=>"#{old_job.id}"},
-                            after: {"job_title_id"=>"#{new_job.id}"}) }
+                            before: {"job_title_id"=>"#{old_job.id}", "manager_id"=>"#{old_manager.id}", "manager_adp_employee_id"=>"#{old_manager.current_profile.adp_employee_id}"},
+                            after: {"job_title_id"=>"#{new_job.id}", "manager_id"=>"#{manager.id}", "manager_adp_employee_id"=>"#{manager.current_profile.adp_employee_id}"}) }
+
 
     let(:csv) {
       <<-EOS.strip_heredoc
