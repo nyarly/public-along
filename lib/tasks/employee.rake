@@ -71,7 +71,7 @@ namespace :employee do
     contractors.each do |e|
       if e.request_status == "none"
         e.wait!
-        ContractorWorker.perform_async(employee_id: e.id)
+        ContractorWorker.perform_async(e.id)
       end
     end
   end
