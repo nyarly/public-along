@@ -504,7 +504,7 @@ describe "employee rake tasks", type: :tasks do
 
     it "should remind manager of worker with contract end date in two weeks" do
       Timecop.freeze(Time.new(2017, 11, 17, 17, 0, 0, "+00:00"))
-      expect(ContractorWorker).to receive(:perform_async).with({:employee_id=>contractor.id})
+      expect(ContractorWorker).to receive(:perform_async).with(contractor.id)
       Rake::Task["employee:send_contract_end_notifications"].invoke
       expect(contractor.reload.request_status).to eq("waiting")
     end
