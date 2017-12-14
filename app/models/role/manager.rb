@@ -2,9 +2,7 @@ class Role::Manager < Role
   Role.register 'Manager', self
 
   def set_abilities(ability)
-    ability.can :read, Employee.all do |e|
-      ManagementTreeQuery.new(e).call.include? user.employee_id
-    end
+    ability.can :read, Employee
     ability.can :direct_reports, Employee.all do |e|
       ManagementTreeQuery.new(e).call.include? user.employee_id
     end
