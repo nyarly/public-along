@@ -7,4 +7,5 @@ Get-Mailbox -identity <%= @employee.email %> | set-mailbox -type "Shared"
 Set-Mailbox -identity <%= @employee.email%> -DeliverToMailboxAndForward $true -ForwardingAddress <%= @info.forward_email %>
 Set-MsolUserLicense -UserPrincipalName <%= @employee.email %> -RemoveLicenses "opentable:ENTERPRISEPACK"
 Add-MailboxPermission <%= @employee.email %> -User <%= @info.forward_email %> -AccessRights FullAccess
+Remove-CalendarEvents -Identity <%= @employee.email %> -CancelOrganizedMeetings
 </pre>
