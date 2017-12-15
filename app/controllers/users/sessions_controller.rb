@@ -11,7 +11,8 @@ class Users::SessionsController < Devise::SessionsController
     "Admin" => "CN=OTApplications-Mezzo-Admin,OU=Mezzo,OU=OT Applications,OU=Security Groups," + SECRETS.ad_ou_base,
     "HumanResources" => "CN=OTApplications-Mezzo-HR,OU=Mezzo,OU=OT Applications,OU=Security Groups," + SECRETS.ad_ou_base,
     "Manager" => "CN=OTApplications-Mezzo-Manager,OU=Mezzo,OU=OT Applications,OU=Security Groups," + SECRETS.ad_ou_base,
-    "Helpdesk" => "CN=OTApplications-Mezzo-TechTable,OU=Mezzo,OU=OT Applications,OU=Security Groups," + SECRETS.ad_ou_base
+    "Helpdesk" => "CN=OTApplications-Mezzo-TechTable,OU=Mezzo,OU=OT Applications,OU=Security Groups," + SECRETS.ad_ou_base,
+    "Security" => "CN=OTApplications-Mezzo-Security,OU=Mezzo,OU=OT Applications,OU=Security Groups," + SECRETS.ad_ou_base
   }
 
   def roles(user)

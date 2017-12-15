@@ -23,4 +23,8 @@ FactoryGirl.define do
   trait :manager do
     role_names { ["Manager"] }
   end
+
+  trait :security do
+    role_names { ["Security"] }
+  end
 end
