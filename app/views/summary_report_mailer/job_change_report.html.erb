@@ -45,11 +45,11 @@
             <td><%= delta.employee.job_title.try(:name) %></td>
             <td><%= delta.employee.manager.try(:cn) %></td>
             <td><%= delta.employee.location.try(:name) %></td>
-            <td><%= delta.employee.current_profile.start_date.strftime("%m/%e/%Y") %></td>
+            <td><%= l delta.employee.current_profile.start_date, format: :ymd %></td>
             <td><%= change["name"].titleize %></td>
             <td><%= change["before"] %></td>
             <td><%= change["after"] %></td>
-            <td><%= delta.created_at.try(:strftime, "%m/%e/%Y at %H:%M") %></td>
+            <td><%= l delta.created_at, format: :ymdhms %></td>
             <td><%= delta.employee.worker_type.try(:name) %></td>
           </tr>
         <% end %>

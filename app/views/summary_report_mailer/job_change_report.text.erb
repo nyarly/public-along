@@ -6,7 +6,7 @@
 <% @job_changes.each do |delta| %>
 <% @changes = delta.format_by_key %>
 <% @changes.each do |change| %>
-|<%= delta.employee.department.parent_org.try(:name) %> | <%= delta.employee.department.try(:name) %> | <%= delta.employee.current_profile.adp_employee_id %> | <%= delta.employee.cn %> | <%= delta.employee.job_title.try(:name) %> | <%= delta.employee.manager.try(:cn) %> | <%= delta.employee.location.try(:name) %> | <%= delta.employee.current_profile.start_date.strftime("%m/%e/%Y") %> | <%= change["name"].titleize %> | <%= change["before"] %> | <%= change["after"] %> | <%= delta.created_at.try(:strftime, "%m/%e/%Y at %H:%M") %> | <%= delta.employee.worker_type.try(:name) %> |
+|<%= delta.employee.department.parent_org.try(:name) %> | <%= delta.employee.department.try(:name) %> | <%= delta.employee.current_profile.adp_employee_id %> | <%= delta.employee.cn %> | <%= delta.employee.job_title.try(:name) %> | <%= delta.employee.manager.try(:cn) %> | <%= delta.employee.location.try(:name) %> | <%= l delta.employee.current_profile.start_date, format: :mdy %> | <%= change["name"].titleize %> | <%= change["before"] %> | <%= change["after"] %> | <%= l delta.created_at, format: :mdyhm %> | <%= delta.employee.worker_type.try(:name) %> |
 +------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 <% end %>
 <% end %>

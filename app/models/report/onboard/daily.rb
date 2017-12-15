@@ -21,7 +21,7 @@ module Report
       def call
         add_headers
         populate_rows
-        highlight_new_changes
+        format_rows
         write_to_file
       end
 
@@ -61,7 +61,7 @@ module Report
             employee.job_title.try(:name),
             employee.manager.try(:cn),
             employee.location.try(:name),
-            employee.onboarding_due_date,        # string field
+            employee.onboarding_due_date,        # date field
             onboard_submitted_on(employee),      # date field
             employee.email,
             employee.buddy.try(:cn),
@@ -78,18 +78,61 @@ module Report
         @book.write(filename)
       end
 
-      def highlight_new_changes
-        highlight = Spreadsheet::Format.new(pattern_fg_color: :yellow, pattern: 1)
-
+      def format_rows
         @sheet.rows.each_with_index do |row, idx|
-          last_changed = row[15]
-          if last_changed >= summary_last_sent
-            @sheet.row(idx).default_format = highlight
-          end unless idx == 0
+          format_row(row) unless is_header?(idx)
         end
       end
 
-      def summary_last_sent
+      def format_row(row)
+        return assign_highlighted_formats(row) if changed_since_last_sent?(row[15])
+        assign_regular_formats(row)
+      end
+
+      def assign_regular_formats(row)
+        row.enum_for(:each_with_index).map { |cell_val, idx| row.set_format(idx, regular_cell_format(idx)) }
+      end
+
+      def assign_highlighted_formats(row)
+        row.enum_for(:each_with_index).map { |cell_val, idx| row.set_format(idx, highlighted_cell_format(idx)) }
+      end
+
+      def regular_cell_format(idx)
+        date_time_format = Spreadsheet::Format.new(number_format: 'YYYY-MM-DD hh:mm:ss')
+        date_format = Spreadsheet::Format.new(number_format: 'YYYY-MM-DD')
+
+        return date_format if is_short_date?(idx)
+        return date_time_format if is_long_date?(idx)
+        nil
+      end
+
+      def highlighted_cell_format(idx)
+        highlight_short_date = Spreadsheet::Format.new(pattern_fg_color: :yellow, pattern: 1, number_format: 'YYYY-MM-DD')
+        highlight_long_date = Spreadsheet::Format.new(pattern_fg_color: :yellow, pattern: 1, number_format: 'YYYY-MM-DD hh:mm:ss')
+        highlight = Spreadsheet::Format.new(pattern_fg_color: :yellow, pattern: 1)
+
+        return highlight_short_date if is_short_date?(idx)
+        return highlight_long_date if is_long_date?(idx)
+        highlight
+      end
+
+      def is_header?(row_idx)
+        row_idx == 0
+      end
+
+      def changed_since_last_sent?(last_changed_datetime)
+        last_changed_datetime >= summary_last_sent_datetime
+      end
+
+      def is_short_date?(column_idx)
+        [8, 13, 14].include? column_idx
+      end
+
+      def is_long_date?(column_idx)
+        [9, 15].include? column_idx
+      end
+
+      def summary_last_sent_datetime
         # cwday returns the day of calendar week (1-7, Monday is 1).
         3.days.ago if Date.today.cwday == 1
         1.day.ago

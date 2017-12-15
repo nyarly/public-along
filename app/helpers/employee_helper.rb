@@ -5,7 +5,7 @@ module EmployeeHelper
   end
 
   def manager_form_due(employee)
-    return employee.onboarding_due_date if employee.status == "pending"
+    return employee.onboarding_due_date.strftime("%B %e, %Y") if employee.status == "pending"
     return employee.offboarding_cutoff.strftime("%b %e, %Y") if offboard_in_progress?(employee)
   end
 

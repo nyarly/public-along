@@ -3,7 +3,7 @@
 
   <p>
     <strong>Termination Date:</strong>
-    <%= @employee.termination_date.strftime("%b %e, %Y") %>
+    <%= l @employee.termination_date, format: :verbose %>
   </p>
 
   <p>

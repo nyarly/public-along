@@ -62,6 +62,6 @@
 <td><%= e.location.try(:name) %></td>
 <td><%= e.worker_type.try(:name) %></td>
 <td><%= e.manager.try(:cn) %></td>
-<td><%= e.current_profile.start_date.strftime("%m/%d/%Y") if e.current_profile.start_date.present? %></td>
-<td><%= e.contract_end_date.strftime("%m/%d/%Y") if e.contract_end_date.present? %></td>
-<td><%= e.termination_date.strftime("%m/%d/%Y") if e.termination_date.present? %></td>
+<td><%= l e.current_profile.start_date, format: :mdy if e.current_profile.start_date.present? %></td>
+<td><%= l e.contract_end_date, format: :mdy if e.contract_end_date.present? %></td>
+<td><%= l e.termination_date, format: :mdy if e.termination_date.present? %></td>

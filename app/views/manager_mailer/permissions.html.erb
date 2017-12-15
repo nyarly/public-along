@@ -24,7 +24,7 @@
 
   <% if @kind == "Security Access" %>
     <% if @employee.emp_deltas.important_changes.present? %>
-      <p>You are receiving this form because you are listed as the manager of <%= @employee.cn %>, who may need a security profile update because the following information changed on <strong><%= @employee.emp_deltas.important_changes.last.created_at.try(:strftime, "%b %e, %Y") %></strong>:</p>
+      <p>You are receiving this form because you are listed as the manager of <%= @employee.cn %>, who may need a security profile update because the following information changed on <strong><%= l @employee.emp_deltas.important_changes.last.created_at, format: :verbose %></strong>:</p>
         <% @employee.emp_deltas.important_changes.last.format_by_key.each do |e| %>
           <p><%= e['name'] %> changed from <%= e['before'] %> to <%= e['after'] %></p>
         <% end %>
@@ -33,7 +33,7 @@
   <% elsif @kind == "Onboarding" %>
     <p>
       <strong style="color: red; text-decoration: underline">
-        You must complete this form by <%= @employee.onboarding_due_date %>.
+        You must complete this form by <%= l @employee.onboarding_due_date, format: :verbose %>.
       </strong>
     </p>
     <p>

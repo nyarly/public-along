@@ -72,6 +72,9 @@ describe Report::Onboard::Daily, type: :model do
     sheet = book.worksheet 'daily'
 
     expect(sheet.rows.count).to eq(4)
+    expect(sheet.rows[0].length).to eq(16)
+    expect(sheet.rows[1].length).to eq(16)
+
     expect(sheet.rows[0]).to eq([
       "ParentOrg",
       "Department",
@@ -99,7 +102,7 @@ describe Report::Onboard::Daily, type: :model do
       "#{new_hire_1.job_title.name}",
       "#{manager.cn}",
       "#{new_hire_1.location.name}",
-      "#{new_hire_1.onboarding_due_date}",
+      (new_hire_1.onboarding_due_date.to_datetime - DateTime.new(1899, 12, 30, 0, 0, 0)).to_f,
       (onboard.created_at.to_datetime - DateTime.new(1899, 12, 30, 0, 0, 0)).to_f,
       "new_hire_1@example.com",
       "#{buddy.cn}",
@@ -117,7 +120,7 @@ describe Report::Onboard::Daily, type: :model do
       "#{rehire.job_title.name}",
       nil,
       "#{rehire.location.name}",
-      "#{rehire.onboarding_due_date}",
+      (rehire.onboarding_due_date.to_datetime - DateTime.new(1899, 12, 30, 0, 0, 0)).to_f,
       nil,
       "rehire@example.com",
       nil,
@@ -135,7 +138,7 @@ describe Report::Onboard::Daily, type: :model do
       "#{new_hire_2.job_title.name}",
       "#{manager.cn}",
       "#{new_hire_2.location.name}",
-      "#{new_hire_2.onboarding_due_date}",
+      (new_hire_2.onboarding_due_date.to_datetime - DateTime.new(1899, 12, 30, 0, 0, 0)).to_f,
       nil,
       "new_hire_2@example.com",
       nil,
@@ -146,14 +149,27 @@ describe Report::Onboard::Daily, type: :model do
     ])
   end
 
-  it "should highlight changes since last sent" do
+  it "format the cells with background color and number format" do
     Report::Onboard::Daily.new
     book = Spreadsheet.open "tmp/reports/onboard/daily_" + DateTime.now.strftime('%Y%m%d') + ".xls"
     sheet = book.worksheet 'daily'
 
-    expect(sheet.rows[0].default_format.pattern_fg_color).to eq(:border)
-    expect(sheet.rows[1].default_format.pattern_fg_color).to eq(:border)
-    expect(sheet.rows[2].default_format.pattern_fg_color).to eq(:border)
-    expect(sheet.rows[3].default_format.pattern_fg_color).to eq(:yellow)
+    expect(sheet.row(0).format(8).pattern_fg_color).to eq(:border)
+    expect(sheet.row(0).format(8).number_format).to eq("GENERAL")
+    expect(sheet.row(1).format(8).pattern_fg_color).to eq(:border)
+    expect(sheet.row(1).format(8).number_format).to eq("YYYY-MM-DD")
+    expect(sheet.row(2).format(8).pattern_fg_color).to eq(:border)
+    expect(sheet.row(2).format(8).number_format).to eq("YYYY-MM-DD")
+    expect(sheet.row(3).format(8).pattern_fg_color).to eq(:yellow)
+    expect(sheet.row(3).format(8).number_format).to eq("YYYY-MM-DD")
+
+    expect(sheet.row(0).format(9).pattern_fg_color).to eq(:border)
+    expect(sheet.row(0).format(9).number_format).to eq("GENERAL")
+    expect(sheet.row(1).format(9).pattern_fg_color).to eq(:border)
+    expect(sheet.row(1).format(9).number_format).to eq("YYYY-MM-DD hh:mm:ss")
+    expect(sheet.row(2).format(9).pattern_fg_color).to eq(:border)
+    expect(sheet.row(2).format(9).number_format).to eq("YYYY-MM-DD hh:mm:ss")
+    expect(sheet.row(3).format(9).pattern_fg_color).to eq(:yellow)
+    expect(sheet.row(3).format(9).number_format).to eq("YYYY-MM-DD hh:mm:ss")
   end
 end
