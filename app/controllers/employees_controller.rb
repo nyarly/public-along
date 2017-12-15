@@ -18,6 +18,11 @@ class EmployeesController < ApplicationController
   end
 
   def show
+    if current_user.role_names.count == 1 && current_user.role_names.include?("Manager")
+      if !ManagementTreeQuery.new(@employee).call.include? current_user.employee_id
+        redirect_to root_url, :alert => "You are not authorized to view this page."
+      end
+    end
     @email = Email.new
     activity = []
     @employee.emp_transactions.map { |e| activity << e }
