@@ -80,7 +80,7 @@ class Employee < ActiveRecord::Base
     state :completed
 
     event :wait do
-      transitions from: :none, to: :waiting
+      transitions from: [:none, :waiting], to: :waiting
     end
 
     event :complete do
