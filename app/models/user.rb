@@ -36,4 +36,13 @@ class User < ActiveRecord::Base
   def full_name
     self.first_name + " " + self.last_name
   end
+
+  def is_manager?
+    self.employee.direct_reports.count > 0
+  end
+
+  # user is a manager + another role
+  def has_dual_manager_role?
+    self.roles.count > 1 && self.roles.include?("Manager")
+  end
 end
