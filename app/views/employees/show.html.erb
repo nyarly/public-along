@@ -8,33 +8,11 @@
       </div>
       <div class="columns large-4 float-right">
         <!-- Status with links to forms -->
-        <% if can? :create, EmpTransaction %>
-          <% if @employee.request_status == "waiting" && @employee.manager.present? %>
-            <h5><%= "#{manager_form_type(@employee)} Form Due #{manager_form_due(@employee)}" %></h5>
-            <%= link_to "Complete #{manager_form_type(@employee)} Form Now", new_emp_transaction_url({
-              :user_emp_id => @employee.manager.employee_id,
-              :employee_id => @employee.id,
-              :kind => manager_form_type(@employee)}), class: "button" %>
-          <% elsif @employee.request_status == "completed" %>
-            <h4 class="text-center"><%= "#{manager_form_type(@employee)}" + " " + @employee.request_status.titleize %></h4>
-          <% elsif needs_security_profile_update?(@employee) && @employee.status == "active" && @employee.manager.present? %>
-            <h4>Security Access Update Needed</h4>
-            <%= link_to "Update Security Access", new_emp_transaction_url({
-              :user_emp_id => @employee.manager.employee_id,
-              :employee_id => @employee.id,
-              :kind => "Security Access"}), class: "button" %>
-          <% end %>
+        <% if can? :direct_reports, @employee %>
+          <%= render partial: "employee_form_link", locals: { e: @employee } %>
         <!-- View status only -->
         <% else %>
-          <% if @employee.request_status == "waiting" && @employee.manager.present? %>
-            <h5><%= "#{manager_form_type(@employee)} Form Due #{manager_form_due(@employee)}" %></h5>
-          <% elsif @employee.request_status == "completed" %>
-            <h4 class="text-center"><%= "#{manager_form_type(@employee)}" + " " + @employee.request_status.titleize %></h4>
-          <% elsif needs_security_profile_update?(@employee) && @employee.status == "active" && @employee.manager.present? %>
-            <h4>Security Access Update Needed</h4>
-          <% else %>
-            <%= @employee.request_status.titleize %>
-          <% end %>
+          <%= render partial: "employee_form_status", locals: { e: @employee } %>
         <% end %>
       </div>
     </div>
@@ -228,7 +206,7 @@
             </div>
           <% end %>
         </div>
-        <% if can? :create, EmpTransaction %>
+        <% if can? :direct_reports, @employee %>
           <% if @employee.status == "active" %>
             <%= link_to "Update Security Profile",
                   { controller: "emp_transactions",
