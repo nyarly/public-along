@@ -16,7 +16,7 @@ class EmployeesController < ApplicationController
   def show
     if current_user.manager_role_only? && !ManagementTreeQuery.new(@employee).up.include?(current_user.employee_id)
       @employee = nil
-      redirect_to root_url, :alert => "You are not authorized to view this page."
+      redirect_to :back, :alert => "You are not authorized to view this page."
     end
     unless @employee.blank?
       @email = Email.new
@@ -25,7 +25,7 @@ class EmployeesController < ApplicationController
   end
 
   def direct_reports
-    @employees = @employee.direct_reports.includes([:manager, :emp_transactions, :profiles => [:job_title, :location, :worker_type]])
+    @employees = @employee.direct_reports.includes([:manager,:emp_transactions])
   end
 
   def autocomplete_name
@@ -45,7 +45,7 @@ class EmployeesController < ApplicationController
   private
 
   def set_employee
-    @employee = Employee.includes(:profiles => [:job_title, :department, :location, :worker_type]).find(params[:id])
+    @employee = Employee.find(params[:id])
   end
 
   def employee_params
