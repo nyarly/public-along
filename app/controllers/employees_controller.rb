@@ -5,21 +5,17 @@ class EmployeesController < ApplicationController
   before_action :set_employee, only: :show
 
   def index
-    if current_user.role_names.count == 1 && current_user.role_names.include?("Manager")
+    if !current_user.has_dual_manager_role?
       @employees = current_user.employee.direct_reports.includes([:manager, :emp_transactions])
     else
-      @employees = Employee.all.includes([:manager, :emp_transactions, :profiles => [:job_title, :location, :worker_type]])
+      @employees = Employee.all.includes([:manager, :emp_transactions])
     end
     @employees = @employees.page(params[:page])
-
-    if search_params[:search]
-      @employees = @employees.search(search_params[:search]).order("last_name ASC")
-    end
   end
 
   def show
-    if current_user.role_names.count == 1 && current_user.role_names.include?("Manager")
-      if !ManagementTreeQuery.new(@employee).call.include? current_user.employee_id
+    if !current_user.has_dual_manager_role?
+      if !ManagementTreeQuery.new(@employee).up.include? current_user.employee_id
         redirect_to root_url, :alert => "You are not authorized to view this page."
       end
     end
@@ -39,7 +35,11 @@ class EmployeesController < ApplicationController
   def autocomplete_name
     term = params[:term]
     if term && !term.empty?
-      @employees = Employee.search(params[:term])
+      if current_user.has_dual_manager_role?
+        @employees = @employees.search(params[:term])
+      else
+        @employees = current_user.employee.direct_reports.search(params[:term])
+      end
     else
       term = {}
     end

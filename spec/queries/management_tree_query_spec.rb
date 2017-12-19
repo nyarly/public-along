@@ -11,7 +11,7 @@ describe ManagementTreeQuery, type: :query do
 
   context "for a direct report" do
     it "should get the entire management chain 1" do
-      workers = ManagementTreeQuery.new(direct_report_4).call
+      workers = ManagementTreeQuery.new(direct_report_4).up
       expect(workers).to eq([
         direct_report_3.id,
         manager_2.id,
@@ -20,7 +20,7 @@ describe ManagementTreeQuery, type: :query do
     end
 
     it "should get the entire management chain 2" do
-      workers = ManagementTreeQuery.new(direct_report_2).call
+      workers = ManagementTreeQuery.new(direct_report_2).up
       expect(workers).to eq([
         manager_2.id,
         ceo.id
@@ -28,12 +28,12 @@ describe ManagementTreeQuery, type: :query do
     end
 
     it "should get only one" do
-      workers = ManagementTreeQuery.new(manager).call
+      workers = ManagementTreeQuery.new(manager).up
       expect(workers).to eq([ceo.id])
     end
 
     it "should get no one for the ceo" do
-      workers = ManagementTreeQuery.new(ceo).call
+      workers = ManagementTreeQuery.new(ceo).up
       expect(workers).to eq([])
     end
   end
