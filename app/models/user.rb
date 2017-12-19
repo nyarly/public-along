@@ -37,6 +37,10 @@ class User < ActiveRecord::Base
     self.first_name + " " + self.last_name
   end
 
+  def manager_role_only?
+    (self.role_names.count == 1) && (self.role_names == ["Manager"])
+  end
+
   # user is a manager + another role
   def has_dual_manager_role?
     self.role_names.count > 1 && self.role_names.include?("Manager")
