@@ -36,6 +36,27 @@ class EmpDelta < ActiveRecord::Base
     }
   end
 
+  def self.changes_from_last_day
+    includes(:employee => [:profiles => [:department => [:parent_org]]]).
+    where("
+      created_at > ?
+      AND EXISTS(
+      SELECT * from skeys(before) AS k
+        WHERE (k IN (
+        'hire_date',
+        'contract_end_date',
+        'job_title_id',
+        'manager_id',
+        'location_id',
+        'department_id',
+        'worker_type_id'))
+      )",
+      1.day.ago
+    ).sort_by{
+      |d| [d.employee.current_profile.department.parent_org.name, d.employee.current_profile.department.name]
+    }
+  end
+
   def format(attr)
     keys = [
       'hire_date',
