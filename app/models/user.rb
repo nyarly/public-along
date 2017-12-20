@@ -38,7 +38,7 @@ class User < ActiveRecord::Base
   end
 
   def manager_role_only?
-    (self.role_names.count == 1) && (self.role_names == ["Manager"])
+    self.role_names == ["Manager"]
   end
 
   # user is a manager + another role
