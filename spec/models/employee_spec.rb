@@ -399,9 +399,9 @@ describe Employee, type: :model do
         start_date: Date.new(2016, 7, 25),
         location: Location.find_by_name("Mumbai Office"))
 
-      expect(emp_1.onboarding_due_date).to eq("Jul 18, 2016")
-      expect(emp_2.onboarding_due_date).to eq("Jul 18, 2016")
-      expect(emp_3.onboarding_due_date).to eq("Jul 11, 2016")
+      expect(emp_1.onboarding_due_date).to eq(DateTime.new(2016, 7, 18, 9, 0, 0, "+00:00"))
+      expect(emp_2.onboarding_due_date).to eq(DateTime.new(2016, 7, 18, 9, 0, 0, "+00:00"))
+      expect(emp_3.onboarding_due_date).to eq(DateTime.new(2016, 7, 11, 9, 0, 0, "+00:00"))
     end
 
     it "should calculate the onboarding due date for a rehired worker" do
@@ -416,8 +416,8 @@ describe Employee, type: :model do
         start_date: Date.new(2017, 9, 25),
         location: Location.find_by_name("San Francisco Headquarters"))
 
-      expect(employee.onboarding_due_date).to eq("Sep 18, 2017")
-      expect(employee.start_date).to eq("Sep 25, 2017")
+      expect(employee.onboarding_due_date).to eq(DateTime.new(2017, 9, 18, 9, 0, 0, "+00:00"))
+      expect(employee.start_date).to eq(DateTime.new(2017, 9, 25, 0, 0, 0, "+00:00"))
     end
 
     it "should calculate the offboarding submission cutoff" do

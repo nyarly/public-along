@@ -10,9 +10,9 @@ Department: <%= @employee.department.name %>
 Location: <%= @employee.location.name %>
 Manager: <%= @employee.manager.try(:cn) %>
 Manager Email: <%= @employee.manager.try(:email) %>
-Submission Date: <%= @info.onboarding_info.emp_transaction.created_at.strftime("%b %e, %Y") %>
+Submission Date: <%= l @info.onboarding_info.emp_transaction.created_at, format: :mdy %>
 <% if @employee.contract_end_date.present? %>
-Contract End Date: <%= @employee.contract_end_date.strftime("%b %e, %Y") %>
+Contract End Date: <%= l @employee.contract_end_date, format: :mdy %>
 <% end %>
 <% if is_contingent_worker?(@employee) %>
 Contingent Worker: true

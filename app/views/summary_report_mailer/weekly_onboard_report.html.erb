@@ -42,7 +42,7 @@
             <td><%= onboard.employee.email %></td>
             <td><%= onboard.employee.worker_type.try(:name) %></td>
             <td><%= onboard.employee.location.try(:name) %></td>
-            <td><%= onboard.employee.current_profile.start_date.try(:strftime, "%b %e, %Y") %></td>
+            <td><%= l onboard.employee.current_profile.start_date, format: :mdy %></td>
             <td><%= onboard.employee.manager.try(:first_name) %></td>
             <td><%= onboard.employee.manager.try(:last_name) %></td>
           </tr>

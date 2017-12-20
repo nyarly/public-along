@@ -33,10 +33,10 @@ module SummaryReportHelper
             employee.location.name,
             employee.email,
             salesforce(employee).try(:cn),
-            employee.hire_date.strftime("%b %e, %Y"),
-            employee.offboard_date.strftime("%b %e, %Y"),
+            employee.hire_date.strftime("%Y-%b-%e"),
+            employee.offboard_date.strftime("%Y-%b-%e"),
             employee.request_status,
-            employee.last_changed_at.try(:strftime, "%b %e, %Y at %H:%M:%S")
+            employee.last_changed_at.try(:strftime, "%Y-%m-%d %H:%M:%S")
           ]
         end
       end
@@ -44,20 +44,18 @@ module SummaryReportHelper
 
     def job_change_data
       attrs = [
-        "Parent Org",
+        "Parent Department",
         "Department",
-        "Employee ID",
         "First Name",
         "Last Name",
-        "Job Title",
+        "ADP Job Title",
         "Manager Full Name",
         "Location",
         "Start Date",
         "Change Type",
         "Old Value",
         "New Value",
-        "Changed At",
-        "Worker Type"
+        "Change Time Stamp"
       ]
       CSV.generate(headers: true) do |csv|
         csv << attrs
@@ -70,18 +68,16 @@ module SummaryReportHelper
             csv << [
               employee.department.parent_org.try(:name),
               employee.department.try(:name),
-              employee.current_profile.adp_employee_id,
               employee.first_name,
               employee.last_name,
               employee.job_title.try(:name),
               employee.manager.try(:cn),
               employee.location.try(:name),
-              employee.current_profile.start_date.strftime("%b %e, %Y"),
+              employee.current_profile.start_date.strftime("%Y-%m-%d"),
               change["name"],
               change["before"],
               change["after"],
-              delta.created_at.try(:strftime, "%b %e, %Y at %H:%M:%S"),
-              employee.worker_type.try(:name)
+              delta.created_at.try(:strftime, "%Y-%m-%d %H:%M:%S"),
             ]
           end
         end

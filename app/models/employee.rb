@@ -80,7 +80,7 @@ class Employee < ActiveRecord::Base
     state :completed
 
     event :wait do
-      transitions from: :none, to: :waiting
+      transitions from: [:none, :waiting], to: :waiting
     end
 
     event :complete do
@@ -284,7 +284,7 @@ class Employee < ActiveRecord::Base
   end
 
   def start_date
-    current_profile.start_date.strftime("%b %e, %Y")
+    current_profile.start_date
   end
 
   def is_rehire?
@@ -362,9 +362,9 @@ class Employee < ActiveRecord::Base
     end
     # plus 9.hours to account for the beginning of the business day
     if location.country == "US" || location.country == "GB"
-      5.business_days.before(start_date + 9.hours).strftime("%b %e, %Y")
+      5.business_days.before(start_date + 9.hours)
     else
-      10.business_days.before(start_date + 9.hours).strftime("%b %e, %Y")
+      10.business_days.before(start_date + 9.hours)
     end
   end
 

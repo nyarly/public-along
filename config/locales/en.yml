@@ -20,4 +20,10 @@
 # available at http://guides.rubyonrails.org/i18n.html.
 
 en:
-  hello: "Hello world"
+  time:
+    formats:
+      mdy: "%m/%d/%Y"
+      mdyhm: "%m/%e/%Y at %H:%M"
+      ymd: "%Y-%m-%d"
+      ymdhms: "%Y-%m-%d %H:%M:%S"
+      verbose: "%B %e, %Y"
