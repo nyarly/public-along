@@ -29,15 +29,11 @@ class EmployeesController < ApplicationController
   end
 
   def autocomplete_name
-    term = params[:term]
-    term = {} if term.empty?
     @employees = @employees.search(params[:term])
     render :json => json_for_autocomplete(@employees, :fn , [:employee_id])
   end
 
   def autocomplete_email
-    term = params[:term]
-    term = {} if term.empty?
     @employees = Employee.search_email(params[:term])
     render :json => json_for_autocomplete(@employees, :email , [:first_name, :last_name, :hire_date])
   end
