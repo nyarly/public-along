@@ -26,7 +26,15 @@ $(document).ready(function(){
   clearLinkedEmployee();
   getAppAccessLevels();
   addAccessLevel();
+  goToWorkerPage();
 });
+
+function goToWorkerPage() {
+  $('#search').bind('railsAutocomplete.select', function(event, data) {
+    employee_id = data.item.id;
+    window.location = '/employees/' + employee_id;
+  });
+}
 
 /*
 JS for email reuse UI in emp transaction form

@@ -2,64 +2,46 @@ class EmployeesController < ApplicationController
   load_and_authorize_resource
   helper EmployeeHelper
 
-  before_action :set_employee, only: :show
+  before_action :set_employee, only: [:show, :direct_reports]
 
   def index
-    if current_user.role_names.count == 1 && current_user.role_names.include?("Manager")
+    if current_user.manager_role_only?
       @employees = current_user.employee.direct_reports.includes([:manager, :emp_transactions])
     else
-      @employees = Employee.all.includes([:manager, :emp_transactions, :profiles => [:job_title, :location, :worker_type]])
+      @employees = Employee.all.includes([:manager, :emp_transactions])
     end
     @employees = @employees.page(params[:page])
-
-    if search_params[:search]
-      @employees = @employees.search(search_params[:search]).order("last_name ASC")
-    end
   end
 
   def show
-    if current_user.role_names.count == 1 && current_user.role_names.include?("Manager")
-      if !ManagementTreeQuery.new(@employee).call.include? current_user.employee_id
-        redirect_to root_url, :alert => "You are not authorized to view this page."
-      end
+    if current_user.manager_role_only? && !ManagementTreeQuery.new(@employee).up.include?(current_user.employee_id)
+      @employee = nil
+      redirect_to :back, :alert => "You are not authorized to view this page."
     end
-    @email = Email.new
-    activity = []
-    @employee.emp_transactions.map { |e| activity << e }
-    @employee.emp_deltas.map { |e| activity << e }
-    activity = activity - @employee.emp_deltas.bad_deltas
-    @activities = activity.sort_by!(&:created_at).reverse!
+    unless @employee.blank?
+      @email = Email.new
+      @activities = ActivityFeedQuery.new(@employee).all
+    end
   end
 
   def direct_reports
-    @employee = Employee.find(params[:id])
-    @employees = @employee.direct_reports.includes([:manager, :emp_transactions, :profiles => [:job_title, :location, :worker_type]])
+    @employees = @employee.direct_reports.includes([:manager,:emp_transactions])
   end
 
   def autocomplete_name
-    term = params[:term]
-    if term && !term.empty?
-      @employees = Employee.search(params[:term])
-    else
-      term = {}
-    end
+    @employees = @employees.search(params[:term])
     render :json => json_for_autocomplete(@employees, :fn , [:employee_id])
   end
 
   def autocomplete_email
-    term = params[:term]
-    if term && !term.empty?
-      @employees = Employee.search_email(params[:term])
-    else
-      term = {}
-    end
+    @employees = Employee.search_email(params[:term])
     render :json => json_for_autocomplete(@employees, :email , [:first_name, :last_name, :hire_date])
   end
 
   private
 
   def set_employee
-    @employee = Employee.includes(:profiles => [:job_title, :department, :location, :worker_type]).find(params[:id])
+    @employee = Employee.find(params[:id])
   end
 
   def employee_params

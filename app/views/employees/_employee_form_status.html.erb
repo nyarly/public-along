@@ -1,0 +1,15 @@
+<% if e.request_status == "waiting" %>
+  <%= "Pending manager approval: "%><br>
+  <%= "#{manager_form_type(e)} form due #{manager_form_due(e)}" %>
+<% elsif e.request_status == "completed" %>
+  <%= "#{manager_form_type(e)}" + " " + e.request_status.titleize + ": " %><br>
+  <% if manager_form_type(e) == "Onboarding" %>
+    <%= "First Day is #{e.current_profile.start_date.try(:strftime, "%b %e, %Y")}" %>
+  <% elsif manager_form_type(e) == "Offboarding" %>
+    <%= "Last Day is #{e.offboarding_cutoff.try(:strftime, "%b %e, %Y")}" %>
+  <% end %>
+<% elsif e.status == "active" && needs_security_profile_update?(e) %>
+  <%= "Security Access update needed" %>
+<% else %>
+  <%= e.status.titleize %>
+<% end %>

@@ -1,19 +1,18 @@
 <div id="index-employee">
-  <h1>Listing Workers</h1>
-
   <%= form_tag(employees_path, :method => "get", id: "search-form") do %>
-    <%= submit_tag "Search", class: "button" %>
     <div class="search-input-wrapper">
-      <%= text_field_tag :search, params[:search], placeholder: "Search Employees by Name" %>
+      <%= autocomplete_field_tag :search, params[:search], autocomplete_name_employees_path, placeholder: "Search for Employee" %>
     </div>
   <% end %>
 
   <% if can? :create, ManagerEntry %>
-    <%= render partial: "manager_employees_table", locals: {employees: @employees} %>
+    <%= render partial: "manager_employees_table", locals: { employees: @employees } %>
   <% else %>
+    <!-- Admin/helpdesk/hr only view -->
     <%= render partial: "employees_table", locals: { employees: @employees } %>
   <% end %>
 </div>
+
 <div id="employee-pagination">
   <%= paginate @employees %>
   <%= page_entries_info @employees %>
