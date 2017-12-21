@@ -102,7 +102,7 @@
               </div>
             <hr>
           <% end %>
-          <% if @employee.direct_reports.count > 0 %>
+          <% if (@employee.direct_reports.count > 0) && (can? :direct_reports, @employee) %>
             <%= link_to "Manage Direct Reports", direct_reports_employee_path(@employee.id), class: "button" %>
           <% end %>
 
