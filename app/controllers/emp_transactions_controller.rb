@@ -44,7 +44,9 @@ class EmpTransactionsController < ApplicationController
 
     set_machine_bundles
 
-    authorize! :new, @manager_entry.emp_transaction
+    if !params[:event_id].present?
+      authorize! :new, @manager_entry.emp_transaction
+    end
   end
 
   # POST /emp_transactions
