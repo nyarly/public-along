@@ -74,7 +74,7 @@ module SummaryReportHelper
               employee.manager.try(:cn),
               employee.location.try(:name),
               employee.current_profile.start_date.strftime("%Y-%m-%d"),
-              change["name"].titleize,
+              change["name"],
               change["before"],
               change["after"],
               delta.created_at.try(:strftime, "%Y-%m-%d %H:%M:%S"),

@@ -36,6 +36,27 @@ class EmpDelta < ActiveRecord::Base
     }
   end
 
+  def self.changes_from_last_day
+    includes(:employee => [:profiles => [:department => [:parent_org]]]).
+    where("
+      created_at > ?
+      AND EXISTS(
+      SELECT * from skeys(before) AS k
+        WHERE (k IN (
+        'hire_date',
+        'contract_end_date',
+        'job_title_id',
+        'manager_id',
+        'location_id',
+        'department_id',
+        'worker_type_id'))
+      )",
+      1.day.ago
+    ).sort_by{
+      |d| [d.employee.current_profile.department.parent_org.name, d.employee.current_profile.department.name]
+    }
+  end
+
   def format(attr)
     keys = [
       'hire_date',
@@ -76,7 +97,7 @@ class EmpDelta < ActiveRecord::Base
 
     changed_attrs.each do |a|
       row = {}
-      row["name"] = a.titleize
+      row["name"] = format_name(a)
 
       if is_address_field?(a)
         row["before"] = ''
@@ -97,6 +118,8 @@ class EmpDelta < ActiveRecord::Base
     if v.present?
       if k.include? "date"
         value = Date.parse(v).strftime('%b %-d, %Y')
+      elsif k.include? "manager_adp_employee"
+        value = v
       elsif k.include? "manager"
         value = format_manager(v, date)
       elsif k.include? "location"
@@ -140,10 +163,19 @@ class EmpDelta < ActiveRecord::Base
 
   def format_manager(value, date)
     if date <= Date.new(2017, 10, 30)
-      Employee.find_by_employee_id(value).try(:cn)
+      format_manager_from_adp_employee_id(value)
     else
       Employee.find_by(id: value).try(:cn)
     end
+  end
+
+  def format_name(value)
+    return "Manager Employee ID" if value == "manager_adp_employee_id"
+    value.titleize
+  end
+
+  def format_manager_from_adp_employee_id(value)
+    Employee.find_by_employee_id(value).try(:cn)
   end
 
   # Don't show home address changes to managers
