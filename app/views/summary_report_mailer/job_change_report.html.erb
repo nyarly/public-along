@@ -11,11 +11,19 @@
   th, td {
     padding: .25em;
   }
+  div {
+    margin: 20px;
+  }
+  p {
+    width: 500px;
+  }
 </style>
-<div style="font-family: helvetica; margin: 20px; width: 750px">
+<div>
+  <p>Hello,</p>
+
   <p>The table below shows changes made to employee information in the last 24 hours.</p>
 </div>
-<div style="margin: 20px;">
+<div>
   <table>
     <thead>
       <tr>
@@ -60,7 +68,7 @@
     </tbody>
   </table>
 </div>
-<div style="font-family: helvetica; margin: 20px; width: 750px">
+<div>
   <p>Attached you will find a list of employees and contingent workers that have had job changes within the last 48 hours. If you have any questions, please e-mail <%= mail_to "peopleandculture@opentable.com." %></p>
 </div>
 <%= image_tag attachments['pandc.png'].url -%>
