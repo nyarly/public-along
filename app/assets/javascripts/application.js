@@ -191,6 +191,11 @@ Custom form confirmation using Foundation
           if ($el.is('form, :input')) {
             // validate form with js
             if ($el.closest('form')[0].checkValidity()) {
+              confirm_button.prop('disabled', true);
+              confirm_button[0].className += ' disabled';
+              cancel_button = modal.find('[data-confirm-cancel]').html(option('cancel'))
+              cancel_button.prop('disabled', true);
+              cancel_button[0].className += ' disabled';
               return $el.closest('form').removeAttr('data-confirm').submit();
             } else {
               // if form is invalid, remove confirm, click submit to trigger html5 validation, restore confirm
