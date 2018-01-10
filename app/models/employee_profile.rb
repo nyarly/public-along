@@ -40,29 +40,33 @@ class EmployeeProfile
   # link accounts takes an employee pk and event pk
   def link_accounts(employee_id, event_id)
     w_hash = parse_event(AdpEvent.find(event_id))
+    future_status = [:profile_status, :status]
+    w_hash.except!(*future_status)
+    w_hash.except!(:contract_end_date) if contingent_worker_rehire?(w_hash)
 
     employee = Employee.find(employee_id).tap do |employee|
-      w_hash.except!(:contract_end_date) if discard_contract_end_date?(w_hash)
 
-      employee.assign_attributes(parse_attributes(Employee, w_hash.except(:status)))
+      # don't update employee info on workers who are converting
+      assign_employee_attributes(employee, w_hash) unless employee.active?
       employee.assign_attributes(termination_date: nil)
-      new_profile = build_new_profile(employee, w_hash.except(:profile_status))
 
-      EmpDelta.build_from_profile(new_profile).save!
-
+      new_profile = build_new_profile(employee, w_hash)
       new_profile.save!
+
       employee.save!
     end
   end
 
   # takes employee object and employee hash from the parser
   def update_employee(employee, employee_hash)
-    profile = employee.current_profile
+    policy = EmployeePolicy.new(employee)
 
-    employee_hash.except!(:contract_end_date) if discard_contract_end_date?(employee_hash)
+    employee_hash.except!(:contract_end_date) if contingent_worker_rehire?(employee_hash) || policy.is_conversion?
+
+    profile = employee.current_profile
+    profile.assign_attributes(parse_attributes(Profile, employee_hash))
 
     employee.assign_attributes(parse_attributes(Employee, employee_hash))
-    profile.assign_attributes(parse_attributes(Profile, employee_hash))
 
     delta = EmpDelta.build_from_profile(profile)
 
@@ -78,6 +82,7 @@ class EmployeeProfile
         new_profile.profile_status = "pending"
       else
         profile.profile_status = "terminated"
+        profile.end_date = Date.today
         new_profile.profile_status = "active"
       end
 
@@ -117,6 +122,10 @@ class EmployeeProfile
     employee.profiles.build(parse_attributes(Profile, employee_hash))
   end
 
+  def assign_employee_attributes(employee, employee_hash)
+    employee.assign_attributes(parse_attributes(Employee, employee_hash))
+  end
+
   def parse_attributes(klass, worker_hash)
     class_attrs, discard = worker_hash.partition{ |k, v| klass.column_names.include?(k.to_s) }
     class_attrs.to_h
@@ -131,10 +140,12 @@ class EmployeeProfile
     parser.gen_worker_hash(worker_json)
   end
 
-  def discard_contract_end_date?(emp_hash)
-    return false if emp_hash[:contract_end_date].blank?
-    return false if emp_hash[:rehire_date].blank?
-    emp_hash[:contract_end_date] < emp_hash[:rehire_date]
+  # Rehires may include old contract end date that no longer applies
+  def contingent_worker_rehire?(emp_hash)
+    if emp_hash[:contract_end_date].present? && emp_hash[:rehire_date].present?
+      return emp_hash[:contract_end_date] <= emp_hash[:rehire_date]
+    end
+    false
   end
 
   def needs_new_profile?(profile)

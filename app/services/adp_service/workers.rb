@@ -50,7 +50,7 @@ module AdpService
 
             workers_to_update << e
           else
-            adp_only << "{ first_name: #{w[:first_name]}, last_name: #{w[:last_name]}, employee_id: #{w[:employee_id]})"
+            adp_only << adp_only_worker_data(w)
           end
         end unless workers.blank?
 
@@ -144,5 +144,12 @@ module AdpService
       end
       worker_json
     end
+
+    private
+
+    def adp_only_worker_data(w)
+      "{ first_name: #{w[:first_name]}, last_name: #{w[:last_name]}, employee_id: #{w[:employee_id]})"
+    end
+
   end
 end
