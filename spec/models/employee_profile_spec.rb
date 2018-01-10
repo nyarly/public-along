@@ -117,6 +117,7 @@ RSpec.describe EmployeeProfile do
       profiler = EmployeeProfile.new
       profiler.update_employee(employee, w_hash)
       employee = Employee.find_by_employee_id("123456")
+
       employee.reload
 
       expect(employee.profiles.count).to eq(2)
@@ -157,6 +158,8 @@ RSpec.describe EmployeeProfile do
       w_hash = parser.gen_worker_hash(json["workers"][0])
       profiler = EmployeeProfile.new
       profiler.update_employee(employee, w_hash)
+
+      employee = Employee.find_by_employee_id("123456")
 
       expect(employee.profiles.count).to eq(2)
       expect(employee.reload.last_name).to eq("Goodall")
