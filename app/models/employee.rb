@@ -40,12 +40,9 @@ class Employee < ActiveRecord::Base
     state :inactive
     state :terminated
 
-    event :hire, binding_event: :wait do
-      transitions from: :created, to: :pending, after: [:create_active_directory_account, :onboard_new_position]
-    end
-
-    event :rehire, binding_event: :wait do
-      transitions from: :terminated, to: :pending, after: [:update_active_directory_account, :onboard_new_position]
+    event :hire do
+      transitions from: [:created, :terminated], to: :pending
+      transitions from: :active, to: :active
     end
 
     event :rehire_from_event, binding_event: :clear_queue do

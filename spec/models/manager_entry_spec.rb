@@ -75,7 +75,7 @@ RSpec.describe ManagerEntry do
 
       manager_entry.save
 
-      expect(manager_entry.errors.messages).to eq({:base => ["Employee can not be blank. Please revisit email link to refresh page."]})
+      expect(manager_entry.errors.messages).to eq({:base => ["Employee cannot be blank. Please revisit email link to refresh page."]})
     end
   end
 
@@ -91,7 +91,7 @@ RSpec.describe ManagerEntry do
     let(:user) { FactoryGirl.create(:user) }
     let(:hire_event) { File.read(Rails.root.to_s+"/spec/fixtures/adp_cat_change_hire_event.json") }
     let(:event) { FactoryGirl.create(:adp_event,
-      status: "New",
+      status: "new",
       json: hire_event) }
     let(:sp_1) { FactoryGirl.create(:security_profile, name: "Basic Regular Worker Profile") }
     let(:sp_2) { FactoryGirl.create(:security_profile, name: "Basic Temp Worker Profile") }
@@ -147,14 +147,10 @@ RSpec.describe ManagerEntry do
       expect(old_employee.profiles.count).to eq(2)
       expect(old_employee.profiles.terminated.count).to eq(1)
       expect(old_employee.profiles.pending.last.worker_type).to eq(worker_type)
-      expect(event.status).to eq("Processed")
+      expect(event.status).to eq("processed")
     end
 
     it "should create a new employee when the manager does not link accounts" do
-      expect(ActiveDirectoryService).to receive(:new).and_return(ads)
-      expect(ads).to receive(:create_disabled_accounts)
-      expect(EmployeeWorker).to receive(:perform_async)
-
       job_title = FactoryGirl.create(:job_title,
         code: "CTRANL",
         name: "Control Analyst")
@@ -172,7 +168,7 @@ RSpec.describe ManagerEntry do
       expect(employee.profiles.terminated.last).to eq(nil)
       expect(employee.profiles.pending.last.worker_type).to eq(worker_type)
       expect(employee.security_profiles).to include(sp_1)
-      expect(event.status).to eq("Processed")
+      expect(event.status).to eq("processed")
     end
   end
 
@@ -188,7 +184,7 @@ RSpec.describe ManagerEntry do
     let(:user) { FactoryGirl.create(:user) }
     let(:rehire_event) { File.read(Rails.root.to_s+"/spec/fixtures/adp_rehire_event.json") }
     let(:event) { FactoryGirl.create(:adp_event,
-      status: "New",
+      status: "new",
       json: rehire_event) }
     let(:sp_1) { FactoryGirl.create(:security_profile, name: "Basic Regular Worker Profile") }
     let(:sp_2) { FactoryGirl.create(:security_profile, name: "Basic Temp Worker Profile") }
@@ -245,14 +241,10 @@ RSpec.describe ManagerEntry do
       expect(old_employee.profiles.terminated.count).to eq(1)
       expect(old_employee.profiles.pending.last.worker_type).to eq(worker_type)
       expect(old_employee.profiles.pending.last.start_date).to eq(DateTime.new(2018, 9, 1))
-      expect(event.status).to eq("Processed")
+      expect(event.status).to eq("processed")
     end
 
     it "should create a new employee when the manager doesn't link employees" do
-      expect(ActiveDirectoryService).to receive(:new).and_return(ads)
-      expect(ads).to receive(:create_disabled_accounts)
-      expect(EmployeeWorker).to receive(:perform_async)
-
       manager_entry = ManagerEntry.new(link_off_params)
       manager_entry.save
 
@@ -266,7 +258,7 @@ RSpec.describe ManagerEntry do
       expect(employee.profiles.terminated.last).to eq(nil)
       expect(employee.profiles.pending.last.worker_type).to eq(worker_type)
       expect(employee.profiles.pending.last.job_title.name).to eq("Specialist - Major Accounts - Sr.")
-      expect(event.status).to eq("Processed")
+      expect(event.status).to eq("processed")
     end
   end
 

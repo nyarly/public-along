@@ -15,13 +15,15 @@ RSpec.describe EmpTransactionsController, type: :controller do
   let!(:user)            { FactoryGirl.create(:user,
                            role_names:["Admin"],
                            adp_employee_id: "12345") }
+  let(:emp_worker)       { double(EmpTransactionWorker) }
 
   let(:valid_attributes) {
     {
       kind: "Security Access",
       employee_id: employee.id,
       user_id: user.id,
-      machine_bundle_id: machine_bundle.id
+      machine_bundle_id: machine_bundle.id,
+      submission_token: 'present'
     }
   }
 
@@ -29,12 +31,14 @@ RSpec.describe EmpTransactionsController, type: :controller do
     {
       user_id: "12345",
       kind: "Something else",
-      employee_id: employee.id
+      employee_id: employee.id,
+      submission_token: 'present'
     }
   }
 
   before :each do
     login_as user
+    session[:submission_token] = 'present'
   end
 
   describe "GET #index" do
@@ -72,26 +76,33 @@ RSpec.describe EmpTransactionsController, type: :controller do
       it "creates a new EmpTransaction" do
         allow(TechTableMailer).to receive_message_chain(:permissions, :deliver_now)
         expect {
-          post :create, {:manager_entry => valid_attributes}
+          post :create, { :manager_entry => valid_attributes }
         }.to change(EmpTransaction, :count).by(1)
       end
 
       it "assigns a newly created emp_transaction as @emp_transaction" do
         allow(TechTableMailer).to receive_message_chain(:permissions, :deliver_now)
-        post :create, {:manager_entry => valid_attributes}
+        post :create, { :manager_entry => valid_attributes }
         expect(assigns(:emp_transaction)).to be_a(EmpTransaction)
         expect(assigns(:emp_transaction)).to be_persisted
       end
 
       it "redirects to the created emp_transaction" do
         allow(TechTableMailer).to receive_message_chain(:permissions, :deliver_now)
-        post :create, {:manager_entry => valid_attributes}
+        post :create, { :manager_entry => valid_attributes }
         expect(response).to redirect_to(emp_transaction_path(EmpTransaction.last))
       end
 
-      it "sends an email to Tech Table" do
-        expect(TechTableMailer).to receive_message_chain(:permissions, :deliver_now)
-        post :create, {:manager_entry => valid_attributes}
+      it "calls the emp transaction worker" do
+        expect(EmpTransactionWorker).to receive(:perform_async)
+        post :create, { :manager_entry => valid_attributes }
+      end
+
+      it "only sends the data once" do
+        expect {
+          post :create, {:manager_entry => valid_attributes}
+          post :create, {:manager_entry => valid_attributes}
+        }.to change(EmpTransaction, :count).by(1)
       end
     end
 
@@ -103,7 +114,7 @@ RSpec.describe EmpTransactionsController, type: :controller do
 
       it "re-renders the 'new' template" do
         post :create, {:manager_entry => invalid_attributes}
-        expect(response).to redirect_to("http://test.host/emp_transactions/new?employee_id=#{employee.id}&kind=Something+else&user_id=12345")
+        expect(response).to redirect_to("http://test.host/emp_transactions/new?employee_id=#{employee.id}&kind=Something+else&submission_token=present&user_id=12345")
       end
 
       it "does not send an email to Tech Table" do

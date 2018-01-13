@@ -18,8 +18,7 @@ module AdpService
       ae = AdpEvent.new(
         json: event_body,
         msg_id: str.to_hash["adp-msg-msgid"][0],
-        kind: kind(event_body),
-        status: "New"
+        kind: kind(event_body)
       )
 
       if ae.save
@@ -34,19 +33,19 @@ module AdpService
       case adp_event.kind
       when "worker.hire"
         if process_hire(adp_event)
-          adp_event.update_attributes(status: "Processed")
+          adp_event.process!
         end
       when "worker.terminate"
         if process_term(adp_event)
-          adp_event.update_attributes(status: "Processed")
+          adp_event.process!
         end
       when "worker.on-leave"
         if process_leave(adp_event)
-          adp_event.update_attributes(status: "Processed")
+          adp_event.process!
         end
       when "worker.rehire"
         if process_rehire(adp_event)
-          adp_event.update_attributes(status: "Processed")
+          adp_event.process!
         end
       end
       del_event(adp_event.msg_id)
@@ -68,6 +67,9 @@ module AdpService
         profiler = EmployeeProfile.new
         employee = profiler.new_employee(event)
         employee.hire!
+        onboard = EmployeeService::Onboard.new(employee)
+        onboard.new_worker
+        onboard.send_manager_form
       end
     end
 
@@ -139,7 +141,10 @@ module AdpService
 
       profiler = EmployeeProfile.new
       updated_account = profiler.link_accounts(employee.id, event.id)
-      employee.rehire!
+      employee.hire!
+      onboard = EmployeeService::Onboard.new(employee)
+      onboard.re_onboard
+      onboard.send_manager_form
     end
 
 

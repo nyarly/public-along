@@ -10,7 +10,7 @@ RSpec.describe EmployeeWorker, type: :worker do
   let(:worker) { EmployeeWorker.new }
   let(:mailer) { double(ManagerMailer) }
   let(:rehire_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_rehire_event.json") }
-  let(:event) { FactoryGirl.create(:adp_event, status: "New", json: rehire_json) }
+  let(:event) { FactoryGirl.create(:adp_event, status: "new", json: rehire_json) }
   let!(:worker_type) { FactoryGirl.create(:worker_type, code: "FTR") }
   let(:profiler) { EmployeeProfile.new }
   let(:potential_employee) { profiler.build_employee(event) }

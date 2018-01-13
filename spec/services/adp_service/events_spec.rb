@@ -95,7 +95,7 @@ describe AdpService::Events, type: :service do
         }.to change{AdpEvent.count}.from(0).to(1)
         expect(AdpEvent.last.json).to eq(json)
         expect(AdpEvent.last.msg_id).to eq("0x_414d51205554494e464f4251362020206f3e8b5866814928")
-        expect(AdpEvent.last.status).to eq("New")
+        expect(AdpEvent.last.status).to eq("new")
       end
 
       it "should scrub sensitive data" do
@@ -142,7 +142,7 @@ describe AdpService::Events, type: :service do
 
         expect(adp).to receive(:process_hire).and_return(true)
         expect(adp).to receive(:del_event).with(hire_event.msg_id)
-        expect(hire_event).to receive(:update_attributes).with(status: "Processed")
+        expect(hire_event).to receive(:process!)
 
         adp.sort_event(hire_event)
       end
@@ -153,7 +153,7 @@ describe AdpService::Events, type: :service do
 
         expect(adp).to receive(:process_hire).and_return(true)
         expect(adp).to receive(:del_event).with(contract_hire_event.msg_id)
-        expect(contract_hire_event).to receive(:update_attributes).with(status: "Processed")
+        expect(contract_hire_event).to receive(:process!)
 
         adp.sort_event(contract_hire_event)
       end
@@ -164,7 +164,7 @@ describe AdpService::Events, type: :service do
 
         expect(adp).to receive(:process_term).and_return(true)
         expect(adp).to receive(:del_event).with(term_event.msg_id)
-        expect(term_event).to receive(:update_attributes).with(status: "Processed")
+        expect(term_event).to receive(:process!)
 
         adp.sort_event(term_event)
       end
@@ -175,7 +175,7 @@ describe AdpService::Events, type: :service do
 
         expect(adp).to receive(:process_leave).and_return(true)
         expect(adp).to receive(:del_event).with(leave_event.msg_id)
-        expect(leave_event).to receive(:update_attributes).with(status: "Processed")
+        expect(leave_event).to receive(:process!)
 
         adp.sort_event(leave_event)
       end
@@ -217,17 +217,20 @@ describe AdpService::Events, type: :service do
       let(:onboard_service)   { double(EmployeeService::Onboard) }
 
       before :each do
-        expect(ActiveDirectoryService).to receive(:new).and_return(ads)
-        expect(ads).to receive(:create_disabled_accounts)
         expect(EmployeeService::Onboard).to receive(:new).and_return(onboard_service)
-        expect(onboard_service).to receive(:process!)
+        expect(onboard_service).to receive(:new_worker)
+        expect(onboard_service).to receive(:send_manager_form)
+        allow(ads).to receive(:modify_sec_group)
+        allow(ads).to receive(:scan_for_failed_ldap_transactions)
+        allow(ads).to receive(:create_disabled_accounts)
+        allow(ActiveDirectoryService).to receive(:new).and_return(ads)
       end
 
       it "should create Employee w/ pending status if regular hire event" do
         adp = AdpService::Events.new
         adp.token = "a-token-value"
         event = FactoryGirl.create(:adp_event,
-          status: "New",
+          status: "new",
           json: hire_json
         )
 
@@ -243,7 +246,7 @@ describe AdpService::Events, type: :service do
         adp.token = "a-token-value"
 
         event = FactoryGirl.create(:adp_event,
-          status: "New",
+          status: "new",
           json: contract_hire_json
         )
 
@@ -269,14 +272,14 @@ describe AdpService::Events, type: :service do
         adp.token = "a-token-value"
 
         event = FactoryGirl.create(:adp_event,
-          status: "New",
+          status: "new",
           json: cat_change_json
         )
 
         expect{
           adp.process_hire(event)
         }.not_to change{Employee.count}
-        expect(event.status).to eq("New")
+        expect(event.status).to eq("new")
       end
 
       it "should generate an onboarding form with the event" do
@@ -284,7 +287,7 @@ describe AdpService::Events, type: :service do
         adp.token = "a-token-value"
 
         event = FactoryGirl.create(:adp_event,
-          status: "New",
+          status: "new",
           json: cat_change_json
         )
         expect(EmployeeWorker).to receive(:perform_async)
@@ -499,7 +502,7 @@ describe AdpService::Events, type: :service do
           adp.token = "a-token-value"
 
           rehire_event = FactoryGirl.create(:adp_event,
-            status: "New",
+            status: "new",
             json: rehire_json
           )
 
@@ -513,7 +516,7 @@ describe AdpService::Events, type: :service do
           adp.token = "a-token-value"
 
           rehire_event = FactoryGirl.create(:adp_event,
-            status: "New",
+            status: "new",
             json: rehire_json
           )
 
@@ -552,7 +555,7 @@ describe AdpService::Events, type: :service do
           adp.token = "a-token-value"
 
           event = FactoryGirl.create(:adp_event,
-            status: "New",
+            status: "new",
             json: rehire_json
           )
           expect{
