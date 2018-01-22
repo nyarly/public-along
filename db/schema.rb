@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171013235241) do
+ActiveRecord::Schema.define(version: 20180119003829) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -24,6 +24,23 @@ ActiveRecord::Schema.define(version: 20171013235241) do
     t.datetime "updated_at",        null: false
     t.string   "ad_security_group"
   end
+
+  create_table "addresses", force: :cascade do |t|
+    t.string   "line_1"
+    t.string   "line_2"
+    t.string   "line_3"
+    t.string   "city"
+    t.string   "state_territory"
+    t.string   "postal_code"
+    t.integer  "country_id"
+    t.integer  "addressable_id"
+    t.string   "addressable_type"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "addresses", ["addressable_type", "addressable_id"], name: "index_addresses_on_addressable_type_and_addressable_id", using: :btree
+  add_index "addresses", ["country_id"], name: "index_addresses_on_country_id", using: :btree
 
   create_table "adp_events", force: :cascade do |t|
     t.text     "json"
@@ -43,6 +60,23 @@ ActiveRecord::Schema.define(version: 20171013235241) do
     t.datetime "updated_at",                            null: false
     t.text     "offboard_instructions"
     t.boolean  "ad_controls",           default: false, null: false
+  end
+
+  create_table "countries", force: :cascade do |t|
+    t.string   "name"
+    t.string   "iso_alpha_2_code"
+    t.integer  "currency_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "countries", ["currency_id"], name: "index_countries_on_currency_id", using: :btree
+
+  create_table "currencies", force: :cascade do |t|
+    t.string   "name"
+    t.string   "iso_alpha_code"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "departments", force: :cascade do |t|
@@ -105,47 +139,46 @@ ActiveRecord::Schema.define(version: 20171013235241) do
     t.string   "email"
     t.string   "first_name",                             null: false
     t.string   "last_name",                              null: false
-    t.string   "del_workday_username"
-    t.string   "del_employee_id"
     t.datetime "hire_date",                              null: false
     t.datetime "contract_end_date"
     t.datetime "termination_date"
-    t.string   "del_job_family_id"
-    t.string   "del_job_family"
-    t.string   "del_job_profile_id"
-    t.string   "del_job_profile"
-    t.string   "del_business_title"
-    t.string   "del_employee_type"
-    t.string   "del_contingent_worker_id"
-    t.string   "del_contingent_worker_type"
-    t.string   "del_manager_id"
     t.string   "personal_mobile_phone"
     t.string   "office_phone"
-    t.string   "home_address_1"
-    t.string   "home_address_2"
-    t.string   "home_city"
-    t.string   "home_state"
-    t.string   "home_zip"
+    t.string   "del_home_address_1"
+    t.string   "del_home_address_2"
+    t.string   "del_home_city"
+    t.string   "del_home_state"
+    t.string   "del_home_zip"
     t.string   "image_code"
     t.datetime "created_at",                             null: false
     t.datetime "updated_at",                             null: false
     t.datetime "ad_updated_at"
     t.datetime "leave_start_date"
     t.datetime "leave_return_date"
-    t.integer  "del_department_id"
-    t.integer  "del_location_id"
     t.string   "sam_account_name"
     t.string   "del_company"
     t.string   "status"
-    t.string   "del_adp_assoc_oid"
-    t.integer  "del_worker_type_id"
-    t.integer  "del_job_title_id"
     t.string   "business_card_title",        limit: 150
     t.string   "request_status"
     t.integer  "manager_id"
+    t.integer  "del_job_title_id"
+    t.integer  "del_worker_type_id"
+    t.string   "del_adp_assoc_oid"
+    t.integer  "del_location_id"
+    t.integer  "del_department_id"
+    t.string   "del_manager_id"
+    t.string   "del_contingent_worker_type"
+    t.string   "del_contingent_worker_id"
+    t.string   "del_employee_type"
+    t.string   "del_business_title"
+    t.string   "del_job_profile"
+    t.string   "del_job_profile_id"
+    t.string   "del_job_family"
+    t.string   "del_job_family_id"
+    t.string   "del_employee_id"
+    t.string   "del_workday_username"
   end
 
-  add_index "employees", ["del_employee_id"], name: "index_employees_on_del_employee_id", unique: true, using: :btree
   add_index "employees", ["email"], name: "index_employees_on_email", unique: true, using: :btree
   add_index "employees", ["manager_id"], name: "index_employees_on_manager_id", using: :btree
 
@@ -160,12 +193,12 @@ ActiveRecord::Schema.define(version: 20171013235241) do
   create_table "locations", force: :cascade do |t|
     t.string   "name",                                      null: false
     t.string   "kind",       default: "Pending Assignment"
-    t.string   "country",    default: "Pending Assignment"
     t.datetime "created_at",                                null: false
     t.datetime "updated_at",                                null: false
     t.string   "status",                                    null: false
-    t.string   "code",                                      null: false
-    t.string   "timezone",   default: "Pending Assignment"
+    t.string   "timezone"
+    t.string   "code"
+    t.string   "country"
   end
 
   create_table "machine_bundles", force: :cascade do |t|
@@ -290,10 +323,6 @@ ActiveRecord::Schema.define(version: 20171013235241) do
   add_foreign_key "emp_sec_profiles", "security_profiles", on_delete: :cascade
   add_foreign_key "emp_transactions", "employees", on_delete: :cascade
   add_foreign_key "emp_transactions", "users", on_delete: :nullify
-  add_foreign_key "employees", "departments", column: "del_department_id"
-  add_foreign_key "employees", "job_titles", column: "del_job_title_id"
-  add_foreign_key "employees", "locations", column: "del_location_id"
-  add_foreign_key "employees", "worker_types", column: "del_worker_type_id"
   add_foreign_key "offboarding_infos", "emp_transactions", on_delete: :cascade
   add_foreign_key "offboarding_infos", "employees", column: "forward_email_id", on_delete: :nullify
   add_foreign_key "offboarding_infos", "employees", column: "reassign_salesforce_id", on_delete: :nullify

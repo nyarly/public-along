@@ -4,8 +4,8 @@ FactoryGirl.define do
     name { Faker::Address.city }
     status "Active"
     kind "Office"
-    country "US"
     timezone "(GMT-08:00) Pacific Time (US & Canada), Tijuana"
+    association :address, factory: :address
   end
 
   trait :remote do
@@ -14,7 +14,7 @@ FactoryGirl.define do
 
   trait :eu do
     name "London Office"
-    country "GB"
     timezone "(GMT) Greenwich Mean Time : Dublin, Edinburgh, Lisbon, London"
+    association :address, :factory => [:address, :london_office]
   end
 end

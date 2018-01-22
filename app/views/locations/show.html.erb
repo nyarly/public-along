@@ -30,5 +30,10 @@
   <%= @location.timezone %>
 </p>
 
+<p>
+  <strong>Address</strong>
+  <%= @location.address.inspect %>
+</p>
+
 <%= link_to 'Edit', edit_location_path(@location) %> |
 <%= link_to 'Back', locations_path %>

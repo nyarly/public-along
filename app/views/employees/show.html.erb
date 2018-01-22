@@ -148,21 +148,13 @@
         <% if can? :manage, Employee %>
           <div class="callout secondary">
             <p><strong>Admin Only</strong></p>
-            <p>
-              Home Address 1: <%= @employee.home_address_1 %>
-            </p>
-            <p>
-              Home Address 2: <%= @employee.home_address_2 %>
-            </p>
-            <p>
-              Home City: <%= @employee.home_city %>
-            </p>
-            <p>
-              Home State: <%= @employee.home_state %>
-            </p>
-            <p>
-              Home Zip: <%= @employee.home_zip %>
-            </p>
+            <p>Address 1: <%= @employee.address.line_1 if @employee.address.line_1.present? %></p>
+            <p>Address 2: <%= @employee.address.line_2 if @employee.address.line_2.present? %></p>
+            <p>Address 2: <%= @employee.address.line_3 if @employee.address.line_3.present? %>
+            <p>City: <%= @employee.address.city if @employee.address.city.present? %></p>
+            <p>State: <%= @employee.address.state_territory if @employee.address.state_territory.present? %></p>
+            <p>Zip: <%= @employee.address.postal_code if @employee.address.postal_code.present? %></p>
+            <p>Country: <%= @employee.address.country.name if @employee.address.country.name.present? %></p>
           </div>
         <% end %>
       </div>

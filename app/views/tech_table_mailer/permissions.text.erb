@@ -77,13 +77,16 @@ Machine Bundle:
     - <%= mb.description %>
 <% end %>
 
-<% if @employee.home_address_1.present? %>
+<% if @employee.address.present? %>
   Shipping Address:
-    Address 1: <%= @employee.home_address_1 %>
-    Address 2: <%= @employee.home_address_2 if @employee.home_address_2.present? %>
-    City: <%= @employee.home_city if @employee.home_city.present? %>
-    State: <%= @employee.home_state if @employee.home_state.present? %>
-    Zip: <%= @employee.home_zip if @employee.home_zip.present? %>
+
+  Address 1: <%= @employee.address.line_1 if @employee.address.line_1.present? %>
+  Address 2: <%= @employee.address.line_2 if @employee.address.line_2.present? %>
+  Address 2: <%= @employee.address.line_3 if @employee.address.line_3.present? %>
+  City: <%= @employee.address.city if @employee.address.city.present? %>
+  State: <%= @employee.address.state_territory if @employee.address.state_territory.present? %>
+  Zip: <%= @employee.address.postal_code if @employee.address.postal_code.present? %>
+  Country: <%= @employee.address.country.name if @employee.address.country.name.present? %>
 <% end %>
   Personal Mobile: <%= @employee.personal_mobile_phone if @employee.personal_mobile_phone.present? %>
 <% end %>

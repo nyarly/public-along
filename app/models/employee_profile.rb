@@ -14,11 +14,6 @@ class EmployeeProfile
   attribute :contract_end_date, DateTime
   attribute :office_phone, String
   attribute :personal_mobile_phone, String
-  attribute :home_address_1, String
-  attribute :home_address_2, String
-  attribute :home_city, String
-  attribute :home_state, String
-  attribute :home_zip, String
   attribute :business_card_title, String
   attribute :manager_id, Integer
 
@@ -36,6 +31,15 @@ class EmployeeProfile
   attribute :end_date, DateTime
   attribute :management_position, Boolean
   attribute :manager_adp_employee_id, String
+
+  # attributes for address model
+  attribute :line_1, String
+  attribute :line_2, String
+  attribute :line_3, String
+  attribute :city, String
+  attribute :state_territory, String
+  attribute :postal_code, String
+  attribute :country_id, Integer
 
   # link accounts takes an employee pk and event pk
   def link_accounts(employee_id, event_id)
@@ -60,9 +64,10 @@ class EmployeeProfile
     profile = employee.current_profile
 
     employee_hash.except!(:contract_end_date) if discard_contract_end_date?(employee_hash)
-
     employee.assign_attributes(parse_attributes(Employee, employee_hash))
     profile.assign_attributes(parse_attributes(Profile, employee_hash))
+
+    handle_address(employee, employee_hash) if address_hash?(employee_hash)
 
     delta = EmpDelta.build_from_profile(profile)
 
@@ -100,6 +105,8 @@ class EmployeeProfile
       profile = build_new_profile(employee, worker_hash)
       profile.profile_status = "pending"
       profile.save!
+      address = build_new_address(employee, worker_hash)
+      address.save!
     end
   end
 
@@ -112,6 +119,25 @@ class EmployeeProfile
   end
 
   private
+
+  def address_hash?(worker_hash)
+    worker_hash[:line_1].present?
+  end
+
+  def handle_address(employee, worker_hash)
+    address = employee.address
+    if address.present?
+      address.assign_attributes(parse_attributes(Address, employee_hash))
+      address.save!
+    else
+      new_address = build_new_address(employee, employee_hash)
+      new_address.save!
+    end
+  end
+
+  def build_new_address(employee, worker_hash)
+    employee.addresses.build(parse_attributes(Address, worker_hash))
+  end
 
   def build_new_profile(employee, employee_hash)
     employee.profiles.build(parse_attributes(Profile, employee_hash))

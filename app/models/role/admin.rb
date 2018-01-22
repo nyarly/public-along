@@ -17,5 +17,8 @@ class Role::Admin < Role
     ability.can :manage, WorkerType
     ability.can :create, Email
     ability.can :manage, Profile
+    ability.can :manage, Address
+    ability.can :manage, Country
+    ability.can :manage, Currency
   end
 end

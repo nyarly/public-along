@@ -8,6 +8,9 @@ class Role::Helpdesk < Role
     ability.can :manage, SecProfAccessLevel
     ability.can :manage, AccessLevel
     ability.can :manage, Application
+    ability.can :manage, Country
+    ability.can :manage, Address
+    ability.can :manage, Currency
     ability.can :new, EmpTransaction
     ability.can :read, Employee
     ability.can :read, EmpTransaction

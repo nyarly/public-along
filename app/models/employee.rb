@@ -20,6 +20,7 @@ class Employee < ActiveRecord::Base
   has_many :emp_deltas # on delete, cascade in db
   has_many :profiles # on delete, cascade in db
   has_many :direct_reports, class_name: "Employee", foreign_key: "manager_id"
+  has_many :addresses, as: :addressable
   belongs_to :manager, class_name: "Employee"
 
   validates :first_name,
@@ -172,10 +173,10 @@ class Employee < ActiveRecord::Base
       department: department.name,
       employeeID: employee_id,
       telephoneNumber: office_phone,
-      streetAddress: generated_address,
-      l: home_city,
-      st: home_state,
-      postalCode: home_zip
+      streetAddress: address.try(:formatted_street),
+      l: address.try(:city),
+      st: address.try(:state_territory),
+      postalCode: address.try(:postal_code)
     }
   end
 
@@ -187,10 +188,8 @@ class Employee < ActiveRecord::Base
     image_code ? Base64.decode64(image_code) : nil
   end
 
-  def generated_address
-    return nil if home_address_1.blank?
-    return home_address_1 + ", " + home_address_2 if home_address_1.present? && home_address_2.present?
-    home_address_1
+  def address
+    addresses.last if addresses.present?
   end
 
   def generated_account_expires

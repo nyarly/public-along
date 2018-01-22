@@ -1,6 +1,5 @@
 class Location < ActiveRecord::Base
   KINDS = ["Office", "Remote Location"]
-  COUNTRIES = ["AU", "CA", "DE", "GB", "IE", "IN", "JP", "MX", "US"]
   STATUS = ["Active", "Inactive"]
   TIMEZONES = [
     "(GMT-12:00) Eniwektok, Kwajalein",
@@ -81,9 +80,6 @@ class Location < ActiveRecord::Base
   validates :kind,
             presence: true,
             inclusion: { in: KINDS + ["Pending Assignment"] }
-  validates :country,
-            presence: true,
-            inclusion: { in: COUNTRIES + ["Pending Assignment"] }
   validates :status,
             presence: true,
             inclusion: { in: STATUS }
@@ -91,7 +87,12 @@ class Location < ActiveRecord::Base
             allow_nil: true,
             inclusion: { in: TIMEZONES + ["Pending Assignment"] }
 
+  has_one :address, as: :addressable
   has_many :profiles
   has_many :employees, through: :profiles
 
+  define_method :country do
+    return nil if address.blank? || address.country.blank?
+    address.country.try(:send, :code)
+  end
 end

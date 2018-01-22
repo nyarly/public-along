@@ -1,24 +1,29 @@
 require 'sidekiq/web'
 
 Rails.application.routes.draw do
-  resources :worker_types
-  resources :parent_orgs
-  resources :emp_transactions, :except => [:edit, :update, :destroy]
   resources :access_levels
   resources :applications
-  resources :security_profiles
-  resources :locations
-  resources :machine_bundles
+  resources :countries, only: [:new, :create, :edit, :update]
+  resources :currencies, only: [:new, :create, :edit, :update]
   resources :departments
+  resource :emails, only: :create
+  resources :employees, only: [:index, :show] do
+    get :autocomplete_name, on: :collection
+    get :autocomplete_email, on: :collection
+    get :direct_reports, on: :member
+    resources :addresses, only: [:new, :create, :edit, :update]
+  end
+  resources :emp_transactions, except: [:edit, :update, :destroy]
+  resources :locations do
+    resources :addresses, only: [:new, :create, :edit, :update]
+  end
+  resources :machine_bundles
+  resources :parent_orgs
+  resources :security_profiles
   devise_for :users, controllers: {
     sessions: 'users/sessions'
   }
-  resources :employees, :only => [:index, :show] do
-    get :autocomplete_name, :on => :collection
-    get :autocomplete_email, :on => :collection
-    get :direct_reports, on: :member
-  end
-  resource :emails, :only => [:create]
+  resources :worker_types
 
   get '/app_access_levels' => "security_profiles#app_access_levels", as: 'app_access_levels'
   get '/sp_access_level' => "security_profiles#sp_access_level", as: 'sp_access_level'
@@ -39,55 +44,4 @@ Rails.application.routes.draw do
     mount Sidekiq::Web => '/sidekiq'
   end
 
-  # You can have the root of your site routed with "root"
-  # root 'welcome#index'
-
-  # Example of regular route:
-  #   get 'products/:id' => 'catalog#view'
-
-  # Example of named route that can be invoked with purchase_url(id: product.id)
-  #   get 'products/:id/purchase' => 'catalog#purchase', as: :purchase
-
-  # Example resource route (maps HTTP verbs to controller actions automatically):
-  #   resources :products
-
-  # Example resource route with options:
-  #   resources :products do
-  #     member do
-  #       get 'short'
-  #       post 'toggle'
-  #     end
-  #
-  #     collection do
-  #       get 'sold'
-  #     end
-  #   end
-
-  # Example resource route with sub-resources:
-  #   resources :products do
-  #     resources :comments, :sales
-  #     resource :seller
-  #   end
-
-  # Example resource route with more complex sub-resources:
-  #   resources :products do
-  #     resources :comments
-  #     resources :sales do
-  #       get 'recent', on: :collection
-  #     end
-  #   end
-
-  # Example resource route with concerns:
-  #   concern :toggleable do
-  #     post 'toggle'
-  #   end
-  #   resources :posts, concerns: :toggleable
-  #   resources :photos, concerns: :toggleable
-
-  # Example resource route within a namespace:
-  #   namespace :admin do
-  #     # Directs /admin/products/* to Admin::ProductsController
-  #     # (app/controllers/admin/products_controller.rb)
-  #     resources :products
-  #   end
 end
