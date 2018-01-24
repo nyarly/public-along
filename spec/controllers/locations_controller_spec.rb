@@ -36,7 +36,7 @@ RSpec.describe LocationsController, type: :controller do
   let(:invalid_attributes) {
     {
       name: "OT HQ",
-      kind: "Office",
+      kind: "Something else",
       country: "CVB"
     }
   }

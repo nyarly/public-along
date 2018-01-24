@@ -100,36 +100,6 @@
               </ul>
             </li>
           <% end %>
-          <% if can? :read, Currency %>
-            <li>
-              <%= link_to "Currencies", currencies_path %>
-              <% if can? :create, Currency %>
-                <ul class="menu vertical">
-                  <li><%= link_to "New Currency", new_currency_path %></li>
-                </ul>
-              <% end %>
-            </li>
-          <% end %>
-          <% if can? :read, Country %>
-            <li>
-              <%= link_to "Countries", countries_path %>
-              <% if can? :create, Country %>
-                <ul class="menu vertical">
-                  <li><%= link_to "New Country", new_country_path %></li>
-                </ul>
-              <% end %>
-            </li>
-          <% end %>
-          <% if can? :read, Address %>
-            <li>
-              <%= link_to "Addresss", addresses_path %>
-              <% if can? :create, Address %>
-                <ul class="menu vertical">
-                  <li><%= link_to "New Address", new_address_path %></li>
-                </ul>
-              <% end %>
-            </li>
-          <% end %>
         </ul>
       </div>
       <div class="top-bar-right">

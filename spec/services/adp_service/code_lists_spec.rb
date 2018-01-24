@@ -122,15 +122,12 @@ describe AdpService::CodeLists, type: :service do
       adp = AdpService::CodeLists.new
       adp.token = "a-token-value"
 
-
-
       expect{
         adp.sync_locations
       }.to change{Location.find_by(code: "AB").name}.from("Alberta").to("New Alberta")
       expect(Location.find_by(code: "AB").address.country.code).to eq("CA")
       expect(Location.find_by(code: "AB").kind).to eq("Remote Location")
       expect(Location.find_by(code: "AB").timezone).to eq("(GMT-07:00) Mountain Time (US & Canada)")
-      puts Location.find_by(code: "AZ").inspect
       expect(Location.find_by(code: "AZ").country).to eq("Pending Assignment")
       expect(Location.find_by(code: "AZ").kind).to eq("Pending Assignment")
       expect(Location.find_by(code: "AZ").timezone).to eq("Pending Assignment")

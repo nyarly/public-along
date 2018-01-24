@@ -2,6 +2,7 @@
 # The data can then be loaded with the rake db:seed (or created alongside the db with db:setup).
 
 standard_countries = [
+  { name: 'Pending Assignment', iso_alpha_2_code: 'Pending Assignment'},
   { name: 'Australia', iso_alpha_2_code: 'AU', currency: Currency.find_or_create_by(name: 'Australian Dollar', iso_alpha_code: 'AUD') },
   { name: 'Canada', iso_alpha_2_code: 'CA', currency: Currency.find_or_create_by(name: 'Canadian Dollar', iso_alpha_code: 'CAD') },
   { name: 'Germany', iso_alpha_2_code: 'DE', currency: Currency.find_or_create_by(name: 'Euro', iso_alpha_code: 'EUR') },
