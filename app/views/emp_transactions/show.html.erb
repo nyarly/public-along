@@ -20,12 +20,12 @@
   </div>
 
   <!-- buddy section -->
-  <% if @emp_transaction.kind == "Onboarding" && !is_contingent_worker?(@employee) %>
+  <% if @emp_transaction.onboarding? && !is_contingent_worker?(@employee) %>
     <div class="row">
       <p>
         <strong>Buddy:</strong>
-        <% if @buddy.present? %>
-          <%= @buddy.first_name %> <%= @buddy.last_name %>
+        <% if @employee.buddy.present? %>
+          <%= @employee.buddy.try(:cn) %>
         <% else %>
           None selected
         <% end %>

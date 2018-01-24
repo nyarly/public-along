@@ -1,4 +1,7 @@
 class EmpTransaction < ActiveRecord::Base
+  include Tokenable
+  attr_accessor :token
+
   KINDS = ["Security Access", "Equipment", "Onboarding", "Offboarding", "Service"]
 
   validates :kind,
@@ -16,8 +19,23 @@ class EmpTransaction < ActiveRecord::Base
   has_many :onboarding_infos
   has_many :offboarding_infos
 
+  KINDS.each do |transaction_type|
+    method_name = transaction_type.gsub(" ","_").downcase + "?"
+    define_method method_name.to_sym do
+      transaction_type == kind
+    end
+  end
+
+  def token
+    @token ||= generate_token
+  end
+
   def performed_by
-    return "Mezzo" if kind == "Service"
+    return "Mezzo" if is_service?
     self.user.try(:full_name)
+  end
+
+  def process!
+    TransactionProcesser.new(self).call
   end
 end

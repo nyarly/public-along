@@ -46,7 +46,7 @@ RSpec.describe EmployeeProfile do
 
   context "link existing employee to new adp profile" do
     let(:terminated_employee) { FactoryGirl.create(:terminated_employee) }
-    let(:event) { FactoryGirl.create(:adp_event, json: rehire_json, status: "New") }
+    let(:event) { FactoryGirl.create(:adp_event, json: rehire_json, status: "new") }
 
     it "should create a new profile on a terminated employee" do
       employee = employee_profile.link_accounts(terminated_employee.id, event.id)
@@ -117,6 +117,7 @@ RSpec.describe EmployeeProfile do
       profiler = EmployeeProfile.new
       profiler.update_employee(employee, w_hash)
       employee = Employee.find_by_employee_id("123456")
+
       employee.reload
 
       expect(employee.profiles.count).to eq(2)
@@ -157,6 +158,8 @@ RSpec.describe EmployeeProfile do
       w_hash = parser.gen_worker_hash(json["workers"][0])
       profiler = EmployeeProfile.new
       profiler.update_employee(employee, w_hash)
+
+      employee = Employee.find_by_employee_id("123456")
 
       expect(employee.profiles.count).to eq(2)
       expect(employee.reload.last_name).to eq("Goodall")
@@ -210,7 +213,7 @@ RSpec.describe EmployeeProfile do
 
     it "should create a new employee record" do
       event = FactoryGirl.create(:adp_event,
-        status: "New",
+        status: "new",
         json: hire_json)
       profiler = EmployeeProfile.new
       profiler.new_employee(event)
@@ -241,7 +244,7 @@ RSpec.describe EmployeeProfile do
 
     it "should build but not persist employee and profile" do
       event = FactoryGirl.create(:adp_event,
-        status: "New",
+        status: "new",
         json: hire_json)
       profiler = EmployeeProfile.new
       employee = profiler.build_employee(event)

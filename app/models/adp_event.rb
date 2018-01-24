@@ -1,14 +1,22 @@
 class AdpEvent < ActiveRecord::Base
-  STATUS = ["New", "Processed"]
+  include AASM
+
   validates :json,
             presence: true
   validates :msg_id,
             presence: true
-  validates :status,
-            inclusion: { in: STATUS }
+
+  aasm :column => "status" do
+    state :new, :initial => true
+    state :processed
+
+    event :process do
+      transitions from: :new, to: :processed
+    end
+  end
 
   def self.unprocessed_onboard_evts
-    where(kind: ["worker.rehire", "worker.hire"], status: "New")
+    where(kind: ["worker.rehire", "worker.hire"], status: "new")
   end
 
   def self.onboarding_reminder_group

@@ -19,18 +19,18 @@ RSpec.describe AdpEvent, type: :model do
     let(:manager)          { FactoryGirl.create(:active_emplyee) }
     let!(:profile)         { FactoryGirl.create(:active_profile, adp_employee_id: "654321") }
     let(:prccd_hire_evt)   { FactoryGirl.create(:adp_event,
-                             status: "Processed",
+                             status: "processed",
                              kind: "worker.hire") }
     let!(:new_hire_evt)    { FactoryGirl.create(:adp_event,
-                             status: "New",
+                             status: "new",
                              json: json,
                              kind: "worker.hire") }
     let(:prccd_rehire_evt) { FactoryGirl.create(:adp_event,
-                             status: "Processed",
+                             status: "processed",
                              kind: "worker.rehire") }
     let!(:new_rehire_evt)  { FactoryGirl.create(:adp_event,
                              json: json,
-                             status: "New",
+                             status: "new",
                              kind: "worker.rehire") }
     let(:profiler)         { EmployeeProfile.new }
     let!(:reg_wt)          { FactoryGirl.create(:worker_type, code: "FTR") }

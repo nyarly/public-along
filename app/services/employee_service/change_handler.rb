@@ -3,6 +3,7 @@ module EmployeeService
     def call
       return true if @employee.emp_deltas.blank?
       @delta = @employee.emp_deltas.last
+      @policy = EmployeePolicy.new(@employee)
       parse_changes
       @employee
     end
@@ -24,8 +25,12 @@ module EmployeeService
     end
 
     def extended_contract?
-      @delta.before["contract_end_date"] < @delta.after["contract_end_date"] &&
-      @delta.after["contract_end_date"] > 2.weeks.from_now
+      before = @delta.before["contract_end_date"]
+      after = @delta.after["contract_end_date"]
+
+      return false if before.blank? || after.blank?
+
+      (before < after) && (after > 2.weeks.from_now)
     end
 
     def update_manager_permissions

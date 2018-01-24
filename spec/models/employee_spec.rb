@@ -61,12 +61,6 @@ describe Employee, type: :model do
     end
 
     it "employee.hire! should create accounts and set as pending" do
-      expect(ActiveDirectoryService).to receive(:new).and_return(ad)
-      expect(ad).to receive(:create_disabled_accounts).with([employee])
-
-      expect(EmployeeService::Onboard).to receive(:new).with(employee).and_return(onboard_service)
-      expect(onboard_service).to receive(:process!)
-
       employee.hire!
 
       expect(employee).to have_state(:pending)
@@ -77,11 +71,8 @@ describe Employee, type: :model do
       expect(employee).not_to allow_event(:start_leave)
       expect(employee).not_to allow_event(:end_leave)
       expect(employee).not_to allow_event(:terminate)
-      expect(employee).to have_state(:waiting).on(:request_status)
-      expect(employee).to allow_event(:complete).on(:request_status)
 
       expect(employee.status).to eq("pending")
-      expect(employee.request_status).to eq("waiting")
       expect(employee.current_profile.profile_status).to eq("pending")
     end
 
@@ -98,8 +89,6 @@ describe Employee, type: :model do
       expect(pending_start).to allow_transition_to(:terminated)
       expect(pending_start).not_to allow_transition_to(:created)
       expect(pending_start).not_to allow_transition_to(:pending)
-      expect(pending_start).not_to allow_event(:hire)
-      expect(pending_start).not_to allow_event(:rehire)
       expect(pending_start).to have_state(:none).on(:request_status)
 
       expect(pending_start.status).to eq("active")
@@ -120,8 +109,6 @@ describe Employee, type: :model do
       expect(pending_rehire).to allow_transition_to(:terminated)
       expect(pending_rehire).not_to allow_transition_to(:created)
       expect(pending_rehire).not_to allow_transition_to(:pending)
-      expect(pending_rehire).not_to allow_event(:hire)
-      expect(pending_rehire).not_to allow_event(:rehire)
       expect(pending_rehire).to have_state(:none).on(:request_status)
 
       expect(pending_rehire.status).to eq("active")
@@ -186,8 +173,6 @@ describe Employee, type: :model do
       expect(leave_employee).to allow_transition_to(:terminated)
       expect(leave_employee).not_to allow_transition_to(:created)
       expect(leave_employee).not_to allow_transition_to(:pending)
-      expect(leave_employee).not_to allow_event(:hire)
-      expect(leave_employee).not_to allow_event(:rehire)
       expect(leave_employee).to have_state(:none).on(:request_status)
 
       expect(leave_employee.status).to eq("active")
@@ -202,12 +187,10 @@ describe Employee, type: :model do
       active_employee.terminate!
 
       expect(active_employee).to have_state(:terminated)
-      expect(active_employee).to allow_event(:rehire)
       expect(active_employee).to allow_transition_to(:pending)
       expect(active_employee).not_to allow_transition_to(:created)
       expect(active_employee).not_to allow_transition_to(:inactive)
       expect(active_employee).not_to allow_transition_to(:active)
-      expect(active_employee).not_to allow_event(:hire)
       expect(active_employee).not_to allow_event(:activate)
       expect(active_employee).not_to allow_event(:terminate)
       expect(active_employee).not_to allow_event(:start_leave)
@@ -215,28 +198,6 @@ describe Employee, type: :model do
 
       expect(active_employee.status).to eq("terminated")
       expect(active_employee.current_profile.profile_status).to eq("terminated")
-    end
-
-    it "employee.rehire! should kick off rehire process" do
-      expect(termed_employee).to receive(:update_active_directory_account).and_return(ad)
-      expect(EmployeeService::Onboard).to receive(:new).with(termed_employee).and_return(onboard_service)
-      expect(onboard_service).to receive(:process!)
-
-      termed_employee.rehire!
-      expect(termed_employee).to have_state(:pending)
-      expect(termed_employee).not_to allow_transition_to(:active)
-      expect(termed_employee).not_to allow_transition_to(:terminated)
-      expect(termed_employee).not_to allow_transition_to(:created)
-      expect(termed_employee).not_to allow_transition_to(:inactive)
-      expect(termed_employee).not_to allow_event(:activate)
-      expect(termed_employee).not_to allow_event(:hire)
-      expect(termed_employee).not_to allow_event(:start_leave)
-      expect(termed_employee).not_to allow_event(:terminate)
-      expect(termed_employee).to have_state(:waiting).on(:request_status)
-
-      expect(termed_employee.status).to eq("pending")
-      expect(termed_employee.profiles.first.profile_status).to eq("terminated")
-      expect(termed_employee.current_profile.profile_status).to eq("pending")
     end
   end
 
