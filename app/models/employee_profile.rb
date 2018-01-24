@@ -39,29 +39,25 @@ class EmployeeProfile
 
   # link accounts takes an employee pk and event pk
   def link_accounts(employee_id, event_id)
-    w_hash = parse_event(AdpEvent.find(event_id))
+    worker_hash = event_worker_hash(event_id)
 
     employee = Employee.find(employee_id).tap do |employee|
-      w_hash.except!(:contract_end_date) if discard_contract_end_date?(w_hash)
+      build_new_profile(employee, worker_hash).save!
 
-      employee.assign_attributes(parse_attributes(Employee, w_hash.except(:status)))
-      employee.assign_attributes(termination_date: nil)
-      new_profile = build_new_profile(employee, w_hash.except(:profile_status))
+      # don't update employee info on workers who are converting
+      assign_employee_attributes(employee, worker_hash) unless employee.active?
 
-      EmpDelta.build_from_profile(new_profile).save!
-
-      new_profile.save!
+      employee.termination_date = nil
       employee.save!
     end
   end
 
   # takes employee object and employee hash from the parser
   def update_employee(employee, employee_hash)
+    employee_hash.except!(:contract_end_date) if contingent_worker_rehire?(employee_hash) || policy(employee).is_conversion?
+    assign_employee_attributes(employee, employee_hash)
+
     profile = employee.current_profile
-
-    employee_hash.except!(:contract_end_date) if discard_contract_end_date?(employee_hash)
-
-    employee.assign_attributes(parse_attributes(Employee, employee_hash))
     profile.assign_attributes(parse_attributes(Profile, employee_hash))
 
     delta = EmpDelta.build_from_profile(profile)
@@ -69,19 +65,8 @@ class EmployeeProfile
     # create new profile for changes to worker type or ADP record
     if needs_new_profile?(profile)
       # reload profile object to discard changes
-      profile = Profile.find(employee.current_profile.id)
       profile.reload
-
-      new_profile = build_new_profile(employee, employee_hash)
-
-      if new_profile.start_date > Date.today
-        new_profile.profile_status = "pending"
-      else
-        profile.profile_status = "terminated"
-        new_profile.profile_status = "active"
-      end
-
-      new_profile.save!
+      new_profile_for_existing_worker(employee, employee_hash)
     end
 
     if delta.present?
@@ -89,7 +74,7 @@ class EmployeeProfile
       EmployeeService::ChangeHandler.new(employee).call
     end
 
-    profile.save! && employee.save!
+    employee.save! && profile.save!
   end
 
   # new employee takes an event object and returns saved employee
@@ -113,8 +98,16 @@ class EmployeeProfile
 
   private
 
+  def policy(employee)
+    EmployeePolicy.new(employee)
+  end
+
   def build_new_profile(employee, employee_hash)
     employee.profiles.build(parse_attributes(Profile, employee_hash))
+  end
+
+  def assign_employee_attributes(employee, employee_hash)
+    employee.assign_attributes(parse_attributes(Employee, employee_hash))
   end
 
   def parse_attributes(klass, worker_hash)
@@ -131,13 +124,48 @@ class EmployeeProfile
     parser.gen_worker_hash(worker_json)
   end
 
-  def discard_contract_end_date?(emp_hash)
-    return false if emp_hash[:contract_end_date].blank?
-    return false if emp_hash[:rehire_date].blank?
-    emp_hash[:contract_end_date] < emp_hash[:rehire_date]
+  # Rehires may include old contract end date that no longer applies
+  def contingent_worker_rehire?(emp_hash)
+    if emp_hash[:contract_end_date].present? && emp_hash[:rehire_date].present?
+      return emp_hash[:contract_end_date] <= emp_hash[:rehire_date]
+    end
+    false
   end
 
   def needs_new_profile?(profile)
     profile.worker_type_id_changed? || profile.adp_employee_id_changed?
+  end
+
+  def rehire_or_conversion_hash(w_hash)
+    future_status = [:profile_status, :status]
+    w_hash.except!(*future_status)
+    w_hash.except!(:contract_end_date) if contingent_worker_rehire?(w_hash)
+    w_hash
+  end
+
+  def event_worker_hash(event_id)
+    worker_hash = parse_event(worker_event(event_id))
+    rehire_or_conversion_hash(worker_hash)
+  end
+
+  def worker_event(event_id)
+    AdpEvent.find(event_id)
+  end
+
+  def new_profile_for_existing_worker(employee, employee_hash)
+    profile = Profile.find(employee.current_profile.id)
+
+    new_profile = build_new_profile(employee, employee_hash)
+
+    if new_profile.start_date > Date.today
+      new_profile.profile_status = "pending"
+    else
+      profile.profile_status = "terminated"
+      profile.end_date = Date.today
+      new_profile.profile_status = "active"
+    end
+
+    profile.save! && new_profile.save!
+    new_profile
   end
 end

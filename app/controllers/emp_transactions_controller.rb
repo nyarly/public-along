@@ -1,5 +1,4 @@
 class EmpTransactionsController < ApplicationController
-
   before_action :set_emp_transaction, only: [:show]
 
   # GET /emp_transactions
@@ -16,11 +15,6 @@ class EmpTransactionsController < ApplicationController
     authorize! :show, EmpTransaction
 
     @employee = @emp_transaction.employee
-
-    if @emp_transaction.kind == "Onboarding"
-      buddy_id = @emp_transaction.onboarding_infos.first.buddy_id
-      @buddy = Employee.find(buddy_id) if buddy_id
-    end
   end
 
   # GET /emp_transactions/new
@@ -44,6 +38,8 @@ class EmpTransactionsController < ApplicationController
 
     set_machine_bundles
 
+    session['submission_token'] = @emp_transaction.token
+
     if !params[:event_id].present?
       authorize! :new, @manager_entry.emp_transaction
     end
@@ -52,23 +48,46 @@ class EmpTransactionsController < ApplicationController
   # POST /emp_transactions
   # POST /emp_transactions.json
   def create
-    @manager_entry = ManagerEntry.new(manager_entry_params)
-    @emp_transaction = @manager_entry.emp_transaction
+    if !double_submit?
+      @manager_entry = ManagerEntry.new(manager_entry_params)
+      @emp_transaction = @manager_entry.emp_transaction
 
-    authorize! :create, @manager_entry.emp_transaction
+      authorize! :create, @manager_entry.emp_transaction
 
-    respond_to do |format|
-      if @manager_entry.save
-        format.html { redirect_to emp_transaction_path(@emp_transaction), notice: 'Success! TechTable will be notified with the details of your request.' }
-        format.json { render :show, status: :created, location: @emp_transaction }
+      respond_to do |format|
+        if @manager_entry.save
+          Sessionable.new(session).change_token
+          EmpTransactionWorker.perform_async(@emp_transaction.id)
+          format.html { redirect_to emp_transaction_path(@emp_transaction), notice: 'Success! TechTable will be notified with the details of your request.' }
+          format.json { render :show, status: :created, location: @emp_transaction }
+        else
+          format.html { redirect_to new_emp_transaction_path(manager_entry_params) }
+          format.json { render json: @emp_transaction.errors, status: :unprocessable_entity }
+        end
+      end
+    else
+      if @emp_transaction.valid?
+        respond_to do |format|
+          format.html { redirect_to emp_transaction_path(@emp_transaction), notice: 'Success! TechTable will be notified with the details of your request.' }
+          format.json { render :show, status: :created, location: @emp_transaction }
+        end
       else
-        format.html { redirect_to new_emp_transaction_path(manager_entry_params) }
-        format.json { render json: @emp_transaction.errors, status: :unprocessable_entity }
+        respond_to do |format|
+          format.html { redirect_to new_emp_transaction_path(manager_entry_params) }
+          format.json { render json: @emp_transaction.errors, status: :unprocessable_entity }
+        end
       end
     end
   end
 
   private
+
+  def double_submit?
+    if (session[:submission_token].present?) && (session[:submission_token] == manager_entry_params[:submission_token])
+      return false
+    end
+    true
+  end
 
   # Use callbacks to share common setup or constraints between actions.
   def set_emp_transaction
@@ -86,6 +105,7 @@ class EmpTransactionsController < ApplicationController
   # Never trust parameters from the scary internet, only allow the white list through.
   def manager_entry_params
     params.require(:manager_entry).permit(
+      :submission_token,
       :kind,
       :user_id,
       :employee_id,

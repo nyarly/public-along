@@ -13,7 +13,7 @@ RSpec.describe ReminderWorker, type: :worker do
   let(:json)       { File.read(Rails.root.to_s+"/spec/fixtures/adp_rehire_event.json") }
   let!(:event)     { FactoryGirl.create(:adp_event,
                      kind: "worker.rehire",
-                     status: "New",
+                     status: "new",
                      json: json) }
   let!(:reg_wt)    { FactoryGirl.create(:worker_type,
                      code: "FTR")}

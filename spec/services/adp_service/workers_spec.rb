@@ -340,6 +340,53 @@ describe AdpService::Workers, type: :service do
         expect(contractor.reload.status).to eq("terminated")
       end
     end
+
+    context "contractor to full-time conversion" do
+      let(:last_day)    { 6.days.from_now }
+      let(:contractor)  { FactoryGirl.create(:employee,
+                          status: "active",
+                          contract_end_date: nil,
+                          termination_date: nil) }
+      let!(:profile)    { FactoryGirl.create(:profile,
+                          profile_status: "active",
+                          employee: contractor,
+                          start_date: 1.year.ago,
+                          end_date: last_day,
+                          adp_employee_id: "101455") }
+      let!(:new_prof)   { FactoryGirl.create(:profile,
+                          profile_status: "pending",
+                          employee: contractor,
+                          start_date: last_day,
+                          adp_employee_id: "newid123") }
+      let(:sorted)      {[{
+                          adp_employee_id: "101455",
+                          status: "active",
+                          profile_status: "active",
+                          contract_end_date: 6.days.from_now
+                        }]}
+
+      it "should only sync changes to current profile" do
+        expect(response).to receive(:body).and_return(json)
+
+        adp = AdpService::Workers.new
+        adp.token = "a-token-value"
+
+        expect(JSON).to receive(:parse).with(json)
+        expect(AdpService::WorkerJsonParser).to receive(:new).and_return(parser)
+        expect(parser).to receive(:sort_workers).and_return(sorted)
+        adp.sync_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
+
+        contractor.reload
+
+        expect(contractor.status).to eq("active")
+        expect(contractor.profiles.count).to eq(2)
+        expect(contractor.profiles.pending).to eq([new_prof])
+        expect(contractor.contract_end_date).to eq(nil)
+        expect(contractor.current_profile.end_date).to eq(last_day)
+        expect(contractor.termination_date).to eq(nil)
+        expect(contractor.emp_deltas.count).to eq(0)
+      end
+    end
   end
 
   describe "check leave return" do

@@ -19,10 +19,10 @@
         <p class="text-center">Manager: <%= @employee.manager.cn %></p>
       <% end %>
     </div>
-
     <%= f.hidden_field :kind, value: @kind %>
     <%= f.hidden_field :employee_id, value: @employee.id %>
     <%= f.hidden_field :user_id, value: @manager_user.id %>
+    <%= f.hidden_field :submission_token, value: @emp_transaction.token %>
 
     <div class="section">
       <% case @kind %>

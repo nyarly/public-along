@@ -442,7 +442,7 @@ describe "employee rake tasks", type: :tasks do
 
     let!(:json)       { File.read(Rails.root.to_s+"/spec/fixtures/adp_rehire_event.json") }
     let!(:nh_evt)     { FactoryGirl.create(:adp_event,
-                        status: "New",
+                        status: "new",
                         json: json,
                         kind: "worker.hire") }
 

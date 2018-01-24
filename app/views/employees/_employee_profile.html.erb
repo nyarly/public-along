@@ -1,0 +1,48 @@
+<div class="section">
+  <p>
+    <strong>Profile Status:</strong>
+    <%= p.profile_status.titleize %>
+  </p>
+  <p>
+    <strong>Position Start Date:</strong>
+    <%= l p.start_date, format: :verbose %>
+  </p>
+ <p>
+    <strong>Position End Date:</strong>
+    <%= l p.end_date, format: :verbose if p.end_date.present? %>
+  </p>
+  <p>
+    <strong>Business Title:</strong>
+    <%= p.job_title.try(:name) %>
+  </p>
+
+  <p>
+    <strong>Department:</strong>
+    <%= p.department.try(:name) %>
+  </p>
+
+  <p>
+    <strong>Location:</strong>
+    <%= p.location.try(:name) %>
+  </p>
+
+  <p>
+    <strong>Manager:</strong>
+    <%= @employee.manager.try(:cn) %>
+  </p>
+
+  <p>
+    <strong>Worker Type:</strong>
+    <%= p.worker_type.try(:name) %>
+  </p>
+  <p>
+    <strong>Employee ID:</strong>
+    <%= p.try(:adp_employee_id) %>
+  </p>
+  <% if can? :manage, Employee %>
+    <div class="callout secondary">
+      <p><strong>Admin Only</strong></p>
+      <p>ADP Assoc. OID: <%= p.try(:adp_assoc_oid) %></p>
+    </div>
+  <% end %>
+</div>
