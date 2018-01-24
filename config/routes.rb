@@ -3,15 +3,12 @@ require 'sidekiq/web'
 Rails.application.routes.draw do
   resources :access_levels
   resources :applications
-  resources :countries, only: [:new, :create, :edit, :update]
-  resources :currencies, only: [:new, :create, :edit, :update]
   resources :departments
   resource :emails, only: :create
   resources :employees, only: [:index, :show] do
     get :autocomplete_name, on: :collection
     get :autocomplete_email, on: :collection
     get :direct_reports, on: :member
-    resources :addresses, only: [:new, :create, :edit, :update]
   end
   resources :emp_transactions, except: [:edit, :update, :destroy]
   resources :locations do

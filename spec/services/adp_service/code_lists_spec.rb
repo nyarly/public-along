@@ -114,18 +114,23 @@ describe AdpService::CodeLists, type: :service do
     end
 
     it "should update changes in existing locations" do
-      existing = FactoryGirl.create(:location, code: "AB", name: "Alberta", status: "Active", country: "CA", kind: "Remote Location", timezone: "(GMT-07:00) Mountain Time (US & Canada)")
+      canada = Country.find_or_create_by(iso_alpha_2_code: "CA")
+      existing = FactoryGirl.create(:location, code: "AB", name: "Alberta", status: "Active", kind: "Remote Location", timezone: "(GMT-07:00) Mountain Time (US & Canada)")
+      address = FactoryGirl.create(:address, addressable_type: "Location", addressable_id: existing.id, country_id: canada.id)
       expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"locations","listItems":[{"valueDescription":"AB - Alberta", "codeValue":"AB", "shortName":"New Alberta"}, {"valueDescription":"AZ - Arizona", "codeValue":"AZ", "shortName":"Arizona"}, {"valueDescription":"BC - British Columbia", "codeValue":"BC", "shortName":"British Columbia"}, {"valueDescription":"BER - Berlin", "codeValue":"BER", "shortName":"Berlin"}, {"valueDescription":"BM - Birmingham", "codeValue":"BM", "shortName":"Birmingham"}]}]}')
 
       adp = AdpService::CodeLists.new
       adp.token = "a-token-value"
 
+
+
       expect{
         adp.sync_locations
       }.to change{Location.find_by(code: "AB").name}.from("Alberta").to("New Alberta")
-      expect(Location.find_by(code: "AB").country).to eq("CA")
+      expect(Location.find_by(code: "AB").address.country.code).to eq("CA")
       expect(Location.find_by(code: "AB").kind).to eq("Remote Location")
       expect(Location.find_by(code: "AB").timezone).to eq("(GMT-07:00) Mountain Time (US & Canada)")
+      puts Location.find_by(code: "AZ").inspect
       expect(Location.find_by(code: "AZ").country).to eq("Pending Assignment")
       expect(Location.find_by(code: "AZ").kind).to eq("Pending Assignment")
       expect(Location.find_by(code: "AZ").timezone).to eq("Pending Assignment")

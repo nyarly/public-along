@@ -92,17 +92,13 @@ FactoryGirl.define do
     end
 
     factory :remote_employee do
-      # home_address_1 { Faker::Address.street_address }
-      # home_city      { Faker::Address.city }
-      # home_state     { Faker::Address.state_abbr }
-      # home_zip       { Faker::Address.zip }
       transient do
         profiles_count 1
         address_count 1
       end
 
       after(:create) do |employee, evaluator|
-        create_list(:address, evaluator.address_count)
+        create_list(:address, evaluator.address_count, addressable_type: 'Employee', addressable_id: employee.id)
       end
 
       after(:create) do |employee, evaluator|

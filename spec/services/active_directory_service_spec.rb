@@ -318,8 +318,12 @@ describe ActiveDirectoryService, type: :service do
 
     it "should update dn if country changes" do
       new_location = FactoryGirl.create(:location,
-        name: location.name,
-        country: "GB")
+        name: location.name)
+      country = Country.find_or_create_by(iso_alpha_2_code: "GB")
+      address = FactoryGirl.create(:address,
+        addressable_type: "Location",
+        addressable_id: new_location.id,
+        country: country)
       employee = FactoryGirl.create(:active_employee,
         first_name: "Jeffrey",
         last_name: "Lebowski",
@@ -432,19 +436,19 @@ describe ActiveDirectoryService, type: :service do
       ldap_entry_2[:employeeID] = rem_to_reg_employee.employee_id
       ldap_entry_2[:mobile] = rem_to_reg_employee.personal_mobile_phone
       ldap_entry_2[:telephoneNumber] = rem_to_reg_employee.office_phone
-      ldap_entry_2[:streetAddress] = rem_to_reg_employee.generated_address
-      ldap_entry_2[:l] = rem_to_reg_employee.home_city
-      ldap_entry_2[:st] = rem_to_reg_employee.home_state
-      ldap_entry_2[:postalCode] = rem_to_reg_employee.home_zip
+      ldap_entry_2[:streetAddress] = rem_to_reg_employee.address.formatted_street
+      ldap_entry_2[:l] = rem_to_reg_employee.address.city
+      ldap_entry_2[:st] = rem_to_reg_employee.address.state_territory
+      ldap_entry_2[:postalCode] = rem_to_reg_employee.address.postal_code
       ldap_entry_2[:thumbnailPhoto] = rem_to_reg_employee.decode_img_code
       ldap_entry_2[:contract_end_date] = rem_to_reg_employee.generated_account_expires
       allow(ldap).to receive(:search).and_return([ldap_entry_2])
 
-      rem_to_reg_employee.home_address_1 = nil
-      rem_to_reg_employee.home_address_2 = nil
-      rem_to_reg_employee.home_city = nil
-      rem_to_reg_employee.home_state = nil
-      rem_to_reg_employee.home_zip = nil
+      rem_to_reg_employee.address.line_1 = nil
+      rem_to_reg_employee.address.line_2 = nil
+      rem_to_reg_employee.address.city = nil
+      rem_to_reg_employee.address.state_territory = nil
+      rem_to_reg_employee.address.postal_code = nil
 
       expect(ldap).to receive(:delete_attribute).once.with(rem_to_reg_employee.dn, :streetAddress)
       expect(ldap).to receive(:delete_attribute).once.with(rem_to_reg_employee.dn, :l)
