@@ -20,8 +20,8 @@ class EmpTransaction < ActiveRecord::Base
   has_many :offboarding_infos
 
   KINDS.each do |transaction_type|
-    method_name = transaction_type.sub(" ","_").downcase + "?"
-    define_method :"#{method_name}" do
+    method_name = transaction_type.gsub(" ","_").downcase + "?"
+    define_method method_name.to_sym do
       transaction_type == kind
     end
   end
