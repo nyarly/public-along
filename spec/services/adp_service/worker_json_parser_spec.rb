@@ -123,11 +123,11 @@ describe AdpService::WorkerJsonParser, type: :service do
       adp = AdpService::WorkerJsonParser.new
 
       expect(adp.gen_worker_hash(w_json)).to include({
-        home_address_1: "Zeukerstrasse 123",
-        home_address_2: nil,
-        home_city: "Frankfurt",
-        home_state: "Hessen",
-        home_zip: "5384980"
+        line_1: "Zeukerstrasse 123",
+        line_2: nil,
+        city: "Frankfurt",
+        state_territory: "Hessen",
+        postal_code: "5384980"
       })
     end
 
@@ -137,11 +137,11 @@ describe AdpService::WorkerJsonParser, type: :service do
       adp = AdpService::WorkerJsonParser.new
 
       expect(adp.gen_worker_hash(w_json)).to_not include({
-        home_address_1: "2890 Beach Blvd",
-        home_address_2: "Apt 222",
-        home_city: "Denver",
-        home_state: "CO",
-        home_zip: "63748"
+        line_1: "2890 Beach Blvd",
+        line_2: "Apt 222",
+        city: "Denver",
+        state_territory: "CO",
+        postal_code: "63748"
       })
     end
   end

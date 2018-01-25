@@ -21,13 +21,15 @@
 </p>
 
 <p>
-  <strong>Country:</strong>
-  <%= @location.country %>
+  <strong>Timezone:</strong>
+  <%= @location.timezone %>
 </p>
 
 <p>
-  <strong>Timezone:</strong>
-  <%= @location.timezone %>
+  <strong>Address:</strong>
+  <div style="margin-left:2em">
+    <%= render partial: "addresses/full", locals: { address: address_for(@location) } %>
+  </div>
 </p>
 
 <%= link_to 'Edit', edit_location_path(@location) %> |

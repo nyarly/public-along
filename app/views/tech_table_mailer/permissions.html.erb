@@ -99,23 +99,12 @@
         </div>
       <% end %>
     </div>
-    <% if @employee.home_address_1.present? %>
-      <p>
-        <strong>Shipping Address:</strong>
-      </p>
-      <p style="margin-left: 2em">Address 1: <%= @employee.home_address_1 %></p>
-      <p style="margin-left: 2em">
-        Address 2: <%= @employee.home_address_2 if @employee.home_address_2.present? %>
-      </p>
-      <p style="margin-left: 2em">
-        City: <%= @employee.home_city if @employee.home_city.present? %>
-      </p>
-      <p style="margin-left: 2em">
-        State: <%= @employee.home_state if @employee.home_state.present? %>
-      </p>
-      <p style="margin-left: 2em">
-        Zip: <%= @employee.home_zip if @employee.home_zip.present? %>
-      </p>
+    <% if @employee.address.present? %>
+      <div style="margin-left: 2em">
+        <p><strong>Shipping Address:</strong>
+          <%= render partial: "addresses/full", locals: { address: address_for(@employee) } %>
+        </p>
+      </div>
     <% end %>
     <% if @employee.personal_mobile_phone.present? %>
       <p>

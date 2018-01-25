@@ -21,19 +21,33 @@
   </div>
   <div class="field">
     <%= f.label :status %><br>
-    <%= f.select :status, Location::STATUS, {include_blank: true} %>
+    <%= f.select :status, Location::STATUS, { include_blank: true } %>
   </div>
   <div class="field">
     <%= f.label "Type" %><br>
-    <%= f.select :kind, Location::KINDS, {include_blank: true} %>
+    <%= f.select :kind, Location::KINDS, { include_blank: true } %>
   </div>
+  <br>
   <div class="field">
-    <%= f.label :country %><br>
-    <%= f.select :country, Location::COUNTRIES, {include_blank: true} %>
+    <h5>Office Address</h5>
+    <%= f.fields_for :address do |address_form| %>
+      <%= address_form.label :line_1 %>
+      <%= address_form.text_field :line_1 %>
+      <%= address_form.label :line_2 %>
+      <%= address_form.text_field :line_2 %>
+      <%= address_form.label :line_3 %>
+      <%= address_form.text_field :line_3 %>
+      <%= address_form.label :city %>
+      <%= address_form.text_field :city %>
+      <%= address_form.label "State or Territory" %>
+      <%= address_form.text_field :state_territory %>
+      <%= address_form.label :country_id %>
+      <%= address_form.collection_select(:country_id, Country.all, :id, :name, { include_blank: true }, required: true) %>
+    <% end %>
   </div>
   <div class="field">
     <%= f.label :timezone %><br>
-    <%= f.select :timezone, Location::TIMEZONES, {include_blank: true} %>
+    <%= f.select :timezone, Location::TIMEZONES, { include_blank: true } %>
   </div>
   <div class="actions">
     <%= link_to 'Back to List', locations_path, :class => "button secondary" %>

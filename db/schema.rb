@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171013235241) do
+ActiveRecord::Schema.define(version: 20180119003829) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -24,6 +24,23 @@ ActiveRecord::Schema.define(version: 20171013235241) do
     t.datetime "updated_at",        null: false
     t.string   "ad_security_group"
   end
+
+  create_table "addresses", force: :cascade do |t|
+    t.string   "line_1"
+    t.string   "line_2"
+    t.string   "line_3"
+    t.string   "city"
+    t.string   "state_territory"
+    t.string   "postal_code"
+    t.integer  "country_id"
+    t.integer  "addressable_id"
+    t.string   "addressable_type"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "addresses", ["addressable_type", "addressable_id"], name: "index_addresses_on_addressable_type_and_addressable_id", using: :btree
+  add_index "addresses", ["country_id"], name: "index_addresses_on_country_id", using: :btree
 
   create_table "adp_events", force: :cascade do |t|
     t.text     "json"
@@ -43,6 +60,23 @@ ActiveRecord::Schema.define(version: 20171013235241) do
     t.datetime "updated_at",                            null: false
     t.text     "offboard_instructions"
     t.boolean  "ad_controls",           default: false, null: false
+  end
+
+  create_table "countries", force: :cascade do |t|
+    t.string   "name"
+    t.string   "iso_alpha_2_code"
+    t.integer  "currency_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "countries", ["currency_id"], name: "index_countries_on_currency_id", using: :btree
+
+  create_table "currencies", force: :cascade do |t|
+    t.string   "name"
+    t.string   "iso_alpha_code"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "departments", force: :cascade do |t|
@@ -121,11 +155,11 @@ ActiveRecord::Schema.define(version: 20171013235241) do
     t.string   "del_manager_id"
     t.string   "personal_mobile_phone"
     t.string   "office_phone"
-    t.string   "home_address_1"
-    t.string   "home_address_2"
-    t.string   "home_city"
-    t.string   "home_state"
-    t.string   "home_zip"
+    t.string   "del_home_address_1"
+    t.string   "del_home_address_2"
+    t.string   "del_home_city"
+    t.string   "del_home_state"
+    t.string   "del_home_zip"
     t.string   "image_code"
     t.datetime "created_at",                             null: false
     t.datetime "updated_at",                             null: false
@@ -222,8 +256,8 @@ ActiveRecord::Schema.define(version: 20171013235241) do
   end
 
   create_table "sec_prof_access_levels", force: :cascade do |t|
-    t.integer  "security_profile_id", null: false
     t.integer  "access_level_id",     null: false
+    t.integer  "security_profile_id", null: false
     t.datetime "created_at",          null: false
     t.datetime "updated_at",          null: false
   end
@@ -305,5 +339,6 @@ ActiveRecord::Schema.define(version: 20171013235241) do
   add_foreign_key "profiles", "job_titles", on_delete: :restrict
   add_foreign_key "profiles", "locations", on_delete: :restrict
   add_foreign_key "profiles", "worker_types", on_delete: :restrict
+  add_foreign_key "sec_prof_access_levels", "access_levels", on_delete: :cascade
   add_foreign_key "sec_prof_access_levels", "security_profiles", on_delete: :cascade
 end

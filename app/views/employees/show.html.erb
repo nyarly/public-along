@@ -109,21 +109,7 @@
         <% if can? :manage, Employee %>
           <div class="callout secondary">
             <p><strong>Admin Only</strong></p>
-            <p>
-              Home Address 1: <%= @employee.home_address_1 %>
-            </p>
-            <p>
-              Home Address 2: <%= @employee.home_address_2 %>
-            </p>
-            <p>
-              Home City: <%= @employee.home_city %>
-            </p>
-            <p>
-              Home State: <%= @employee.home_state %>
-            </p>
-            <p>
-              Home Zip: <%= @employee.home_zip %>
-            </p>
+              <%= render partial: "addresses/full", locals: { address: address_for(@employee) } %>
           </div>
         <% end %>
       </div>

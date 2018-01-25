@@ -180,7 +180,7 @@ class EmpDelta < ActiveRecord::Base
 
   # Don't show home address changes to managers
   def is_address_field?(key)
-    ["home_address_1", "home_address_2", "home_city", "home_state", "home_zip"].include? key
+    ['line_1', 'line_2', 'line_3', 'city', 'state_territory', 'postal_code', 'country_id'].include? key
   end
 
 end

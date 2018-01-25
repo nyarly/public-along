@@ -22,7 +22,7 @@
         <td><%= location.code %></td>
         <td><%= location.status %></td>
         <td><%= location.kind %></td>
-        <td><%= location.country %></td>
+        <td><%= location.address.country.name if location.address.present? && location.address.country.present? %></td>
         <td><%= location.timezone %></td>
         <td><%= link_to 'Show', location %></td>
         <td><%= link_to 'Edit', edit_location_path(location) %></td>

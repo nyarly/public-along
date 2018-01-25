@@ -41,11 +41,6 @@ def create_basic_new_hire(hire_date)
     termination_date: nil,
     personal_mobile_phone: Faker::PhoneNumber.phone_number,
     office_phone: Faker::PhoneNumber.phone_number,
-    home_address_1: nil,
-    home_address_2: nil,
-    home_city: nil,
-    home_state: nil,
-    home_zip: nil,
     image_code: IMAGE
   )
   Profile.create!(

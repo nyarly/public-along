@@ -483,7 +483,7 @@ describe Employee, type: :model do
     end
 
     it "should set the correct address" do
-      expect(employee.generated_address).to be_nil
+      expect(employee.address).to be_nil
     end
 
     it "should create attr hash" do
@@ -509,10 +509,10 @@ describe Employee, type: :model do
           department: employee.department.name,
           employeeID: employee.employee_id,
           telephoneNumber: employee.office_phone,
-          streetAddress: employee.generated_address,
-          l: employee.home_city,
-          st: employee.home_state,
-          postalCode: employee.home_zip,
+          streetAddress: nil,
+          l: nil,
+          st: nil,
+          postalCode: nil,
           # thumbnailPhoto: Base64.decode64(employee.image_code)
           # TODO comment back in when we bring back thumbnail photo
         }
@@ -556,10 +556,10 @@ describe Employee, type: :model do
           department: employee.department.name,
           employeeID: employee.employee_id,
           telephoneNumber: employee.office_phone,
-          streetAddress: employee.generated_address,
-          l: employee.home_city,
-          st: employee.home_state,
-          postalCode: employee.home_zip,
+          streetAddress: nil,
+          l: nil,
+          st: nil,
+          postalCode: nil,
           # thumbnailPhoto: Base64.decode64(employee.image_code)
           # TODO comment back in when we bring back thumbnail photo
         }
@@ -584,7 +584,7 @@ describe Employee, type: :model do
     end
 
     it "should set the correct address" do
-      expect(employee.generated_address).to be_nil
+      expect(employee.address).to be_nil
     end
 
     it "should create attr hash" do
@@ -610,10 +610,10 @@ describe Employee, type: :model do
           department: employee.department.name,
           employeeID: employee.employee_id,
           telephoneNumber: employee.office_phone,
-          streetAddress: employee.generated_address,
-          l: employee.home_city,
-          st: employee.home_state,
-          postalCode: employee.home_zip,
+          streetAddress: nil,
+          l: nil,
+          st: nil,
+          postalCode: nil,
           # thumbnailPhoto: Base64.decode64(employee.image_code)
           # TODO comment back in when we bring back thumbnail photo
         }
@@ -662,10 +662,10 @@ describe Employee, type: :model do
           department: employee.department.name,
           employeeID: employee.employee_id,
           telephoneNumber: employee.office_phone,
-          streetAddress: employee.generated_address,
-          l: employee.home_city,
-          st: employee.home_state,
-          postalCode: employee.home_zip,
+          streetAddress: nil,
+          l: nil,
+          st: nil,
+          postalCode: nil,
           # thumbnailPhoto: Base64.decode64(employee.image_code)
           # TODO comment back in when we bring back thumbnail photo
         }
@@ -674,29 +674,33 @@ describe Employee, type: :model do
   end
 
 
-  context "with a remote worker and one address line" do
+  context 'with a remote worker and one address line' do
     let(:employee) { FactoryGirl.create(:employee, :with_manager,
-                     first_name: "Bob",
-                     last_name: "Barker",
-                     home_address_1: "123 Fake St.",
-                     home_city: "Beverly Hills",
-                     home_state: "CA",
-                     home_zip: "90210") }
+                     first_name: 'Bob',
+                     last_name: 'Barker') }
     let!(:profile) { FactoryGirl.create(:profile, :with_valid_ou, :remote,
                      employee: employee) }
+    let!(:address) { FactoryGirl.create(:address,
+                     line_1: '123 Fake St.',
+                     line_2: nil,
+                     city: 'Beverly Hills',
+                     state_territory: 'CA',
+                     postal_code: '90210',
+                     addressable_type: 'Employee',
+                     addressable_id: employee.id) }
 
-    it "should set the correct address" do
-      expect(employee.generated_address).to eq("123 Fake St.")
+    it 'should set the correct address' do
+      expect(employee.address.complete_street).to eq('123 Fake St.')
     end
 
-    it "should create attr hash" do
+    it 'should create attr hash' do
       expect(employee.ad_attrs).to eq(
         {
-          cn: "Bob Barker",
-          dn: "cn=Bob Barker,ou=Customer Support,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com",
-          objectclass: ["top", "person", "organizationalPerson", "user"],
-          givenName: "Bob",
-          sn: "Barker",
+          cn: 'Bob Barker',
+          dn: 'cn=Bob Barker,ou=Customer Support,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com',
+          objectclass: ['top', 'person', 'organizationalPerson', 'user'],
+          givenName: 'Bob',
+          sn: 'Barker',
           sAMAccountName: employee.sam_account_name,
           displayName: employee.cn,
           userPrincipalName: employee.generated_upn,
@@ -712,10 +716,10 @@ describe Employee, type: :model do
           department: employee.department.name,
           employeeID: employee.employee_id,
           telephoneNumber: employee.office_phone,
-          streetAddress: "123 Fake St.",
-          l: "Beverly Hills",
-          st: "CA",
-          postalCode: "90210",
+          streetAddress: '123 Fake St.',
+          l: 'Beverly Hills',
+          st: 'CA',
+          postalCode: '90210',
           # thumbnailPhoto: Base64.decode64(employee.image_code)
           # TODO comment back in when we bring back thumbnail photo
         }
@@ -723,34 +727,36 @@ describe Employee, type: :model do
     end
   end
 
+  context 'with a remote worker and two address lines' do
+    let(:remote_loc)  { FactoryGirl.create(:location, :remote) }
+    let(:employee)    { FactoryGirl.create(:employee, :with_manager,
+                        first_name: 'Bob',
+                        last_name: 'Barker') }
+    let!(:profile)    { FactoryGirl.create(:profile,
+                        employee: employee,
+                        location: remote_loc,
+                        department: Department.find_by_name('Customer Support')) }
+    let!(:address) { FactoryGirl.create(:address,
+                     line_1: '123 Fake St.',
+                     line_2: 'Apt 3G',
+                     city: 'Beverly Hills',
+                     state_territory: 'CA',
+                     postal_code: '90210',
+                     addressable_type: 'Employee',
+                     addressable_id: employee.id) }
 
-  context "with a remote worker and two address lines" do
-    let(:remote_loc) { FactoryGirl.create(:location, :remote) }
-    let(:employee)   { FactoryGirl.create(:employee, :with_manager,
-                       first_name: "Bob",
-                       last_name: "Barker",
-                       home_address_1: "123 Fake St.",
-                       home_address_2: "Apt 3G",
-                       home_city: "Beverly Hills",
-                       home_state: "CA",
-                       home_zip: "90210") }
-    let!(:profile)   { FactoryGirl.create(:profile,
-                       employee: employee,
-                       location: remote_loc,
-                       department: Department.find_by_name("Customer Support")) }
-
-    it "should set the correct address" do
-      expect(employee.generated_address).to eq("123 Fake St., Apt 3G")
+    it 'should set the correct address' do
+      expect(employee.address.complete_street).to eq('123 Fake St., Apt 3G')
     end
 
-    it "should create attr hash" do
+    it 'should create attr hash' do
       expect(employee.ad_attrs).to eq(
         {
-          cn: "Bob Barker",
-          dn: "cn=Bob Barker,ou=Customer Support,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com",
-          objectclass: ["top", "person", "organizationalPerson", "user"],
-          givenName: "Bob",
-          sn: "Barker",
+          cn: 'Bob Barker',
+          dn: 'cn=Bob Barker,ou=Customer Support,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com',
+          objectclass: ['top', 'person', 'organizationalPerson', 'user'],
+          givenName: 'Bob',
+          sn: 'Barker',
           sAMAccountName: employee.sam_account_name,
           displayName: employee.cn,
           userPrincipalName: employee.generated_upn,
@@ -766,10 +772,10 @@ describe Employee, type: :model do
           department: employee.department.name,
           employeeID: employee.employee_id,
           telephoneNumber: employee.office_phone,
-          streetAddress: "123 Fake St., Apt 3G",
-          l: "Beverly Hills",
-          st: "CA",
-          postalCode: "90210",
+          streetAddress: '123 Fake St., Apt 3G',
+          l: 'Beverly Hills',
+          st: 'CA',
+          postalCode: '90210',
           # thumbnailPhoto: Base64.decode64(employee.image_code)
           # TODO comment back in when we bring back thumbnail photo
         }

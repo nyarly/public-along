@@ -48,11 +48,13 @@ module AdpService
 
       management_position = work_assignment["managementPositionIndicator"]
 
-      home_address_1 = w.dig("person","legalAddress","lineOne")
-      home_address_2 = w.dig("person","legalAddress","lineTwo")
-      home_city = w.dig("person","legalAddress","cityName")
-      home_state = w.dig("person","legalAddress","countrySubdivisionLevel1","codeValue")
-      home_zip = w.dig("person","legalAddress","postalCode")
+      line_1 = w.dig("person","legalAddress","lineOne")
+      line_2 = w.dig("person","legalAddress","lineTwo")
+      city = w.dig("person","legalAddress","cityName")
+      state_territory = w.dig("person","legalAddress","countrySubdivisionLevel1","codeValue")
+      postal_code = w.dig("person","legalAddress","postalCode")
+      country_code = w.dig("person","legalAddress","countryCode")
+      country_id = find_country(country_code)
 
       worker = {
         status: status.downcase!,
@@ -82,11 +84,12 @@ module AdpService
 
       if location.kind == "Remote Location"
         contact_info = {
-          home_address_1: home_address_1,
-          home_address_2: home_address_2,
-          home_city: home_city,
-          home_state: home_state,
-          home_zip: home_zip,
+          line_1: line_1,
+          line_2: line_2,
+          city: city,
+          state_territory: state_territory,
+          postal_code: postal_code,
+          country_id: country_id
         }
 
         worker.merge!(contact_info)
@@ -219,6 +222,13 @@ module AdpService
       manager = Employee.find_by_employee_id(manager_adp_employee_id)
       return nil if manager.blank?
       manager.id
+    end
+
+    def find_country(country_code)
+      return nil if country_code.blank?
+      country = Country.find_by(iso_alpha_2_code: country_code)
+      return nil if country.blank?
+      country.id
     end
   end
 end
