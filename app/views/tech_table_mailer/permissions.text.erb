@@ -79,14 +79,7 @@ Machine Bundle:
 
 <% if @employee.address.present? %>
   Shipping Address:
-
-  Address 1: <%= @employee.address.line_1 if @employee.address.line_1.present? %>
-  Address 2: <%= @employee.address.line_2 if @employee.address.line_2.present? %>
-  Address 2: <%= @employee.address.line_3 if @employee.address.line_3.present? %>
-  City: <%= @employee.address.city if @employee.address.city.present? %>
-  State: <%= @employee.address.state_territory if @employee.address.state_territory.present? %>
-  Zip: <%= @employee.address.postal_code if @employee.address.postal_code.present? %>
-  Country: <%= @employee.address.country.name if @employee.address.country.name.present? %>
+<%= render partial: "addresses/full", locals: { address: address_for(@employee) } %>
 <% end %>
   Personal Mobile: <%= @employee.personal_mobile_phone if @employee.personal_mobile_phone.present? %>
 <% end %>

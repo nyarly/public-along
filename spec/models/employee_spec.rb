@@ -690,7 +690,7 @@ describe Employee, type: :model do
                      addressable_id: employee.id) }
 
     it 'should set the correct address' do
-      expect(employee.address.formatted_street).to eq('123 Fake St.')
+      expect(employee.address.complete_street).to eq('123 Fake St.')
     end
 
     it 'should create attr hash' do
@@ -746,7 +746,7 @@ describe Employee, type: :model do
                      addressable_id: employee.id) }
 
     it 'should set the correct address' do
-      expect(employee.address.formatted_street).to eq('123 Fake St., Apt 3G')
+      expect(employee.address.complete_street).to eq('123 Fake St., Apt 3G')
     end
 
     it 'should create attr hash' do

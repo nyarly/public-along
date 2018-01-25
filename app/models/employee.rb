@@ -170,7 +170,7 @@ class Employee < ActiveRecord::Base
       department: department.name,
       employeeID: employee_id,
       telephoneNumber: office_phone,
-      streetAddress: address.try(:formatted_street),
+      streetAddress: address.try(:complete_street),
       l: address.try(:city),
       st: address.try(:state_territory),
       postalCode: address.try(:postal_code)

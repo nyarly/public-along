@@ -241,16 +241,15 @@ RSpec.describe EmpDelta, type: :model do
       expect(delta_b.format_by_key).to eq([{"name"=>"Manager", "before"=>"#{manager_referenced_by_id_1.cn}", "after"=>"#{manager_referenced_by_id_2.cn}"}])
     end
 
-
     it "should exclude address information" do
       employee = FactoryGirl.create(:employee, :with_profile)
 
       delta = FactoryGirl.create(:emp_delta,
         employee: employee,
-        before: {"home_city"=>"city", "home_address_1"=>"address", "business_title"=>"biztitle"},
-        after: {"home_city"=>"city2", "home_address_1"=>"address2", "business_title"=>"biztitle2"})
+        before: {"city"=>"city", "line_1"=>"address", "business_title"=>"biztitle"},
+        after: {"city"=>"city2", "line_1"=>"address2", "business_title"=>"biztitle2"})
 
-      expect(delta.format_by_key).to eq([{"name"=> "Home City", "before"=>"", "after"=>""}, {"name"=>"Home Address 1", "before"=>"", "after"=>""}, {"name"=>"Business Title", "before"=>"biztitle", "after"=>"biztitle2"}])
+      expect(delta.format_by_key).to eq([{"name"=> "City", "before"=>"", "after"=>""}, {"name"=>"Line 1", "before"=>"", "after"=>""}, {"name"=>"Business Title", "before"=>"biztitle", "after"=>"biztitle2"}])
     end
   end
 

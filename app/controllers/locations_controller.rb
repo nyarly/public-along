@@ -1,5 +1,6 @@
 class LocationsController < ApplicationController
   load_and_authorize_resource
+  helper AddressHelper
 
   before_action :set_location, only: [:show, :edit, :update, :destroy]
 

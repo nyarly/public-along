@@ -436,7 +436,7 @@ describe ActiveDirectoryService, type: :service do
       ldap_entry_2[:employeeID] = rem_to_reg_employee.employee_id
       ldap_entry_2[:mobile] = rem_to_reg_employee.personal_mobile_phone
       ldap_entry_2[:telephoneNumber] = rem_to_reg_employee.office_phone
-      ldap_entry_2[:streetAddress] = rem_to_reg_employee.address.formatted_street
+      ldap_entry_2[:streetAddress] = rem_to_reg_employee.address.complete_street
       ldap_entry_2[:l] = rem_to_reg_employee.address.city
       ldap_entry_2[:st] = rem_to_reg_employee.address.state_territory
       ldap_entry_2[:postalCode] = rem_to_reg_employee.address.postal_code

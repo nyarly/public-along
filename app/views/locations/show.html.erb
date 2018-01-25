@@ -21,11 +21,6 @@
 </p>
 
 <p>
-  <strong>Country:</strong>
-  <%= @location.country %>
-</p>
-
-<p>
   <strong>Timezone:</strong>
   <%= @location.timezone %>
 </p>
@@ -33,23 +28,7 @@
 <p>
   <strong>Address:</strong>
   <div style="margin-left:2em">
-    <p>
-      <strong>Street Address: </strong><%= @location.address.line_1 if @location.address.line_1.present? %><br>
-      <%= @location.address.line_2 if @location.address.line_2.present? %><br>
-      <%= @location.address.line_3 if @location.address.line_3.present? %>
-    </p>
-    <p>
-      <strong>City: </strong><%= @location.address.city if @location.address.city.present? %>
-    </p>
-    <p>
-      <strong>State or Territory: </strong><%= @location.address.state_territory if @location.address.state_territory.present? %>
-    </p>
-    <p>
-      <strong>Postal Code: </strong><%= @location.address.postal_code if @location.address.postal_code.present? %>
-    </p>
-    <p>
-      <strong>Country: </strong><%= @location.address.country.name if @location.address.country.name.present? %>
-    </p>
+    <%= render partial: "addresses/full", locals: { address: address_for(@location) } %>
   </div>
 </p>
 

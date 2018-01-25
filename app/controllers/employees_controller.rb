@@ -1,6 +1,6 @@
 class EmployeesController < ApplicationController
   load_and_authorize_resource
-  helper EmployeeHelper
+  helper EmployeeHelper, AddressHelper
 
   before_action :set_employee, only: [:show, :direct_reports]
 
@@ -54,11 +54,6 @@ class EmployeesController < ApplicationController
       :termination_date,
       :personal_mobile_phone,
       :office_phone,
-      :home_address_1,
-      :home_address_2,
-      :home_city,
-      :home_state,
-      :home_zip,
       :image_code,
       :created_at,
       :updated_at,

@@ -31,7 +31,7 @@ class EmpTransaction < ActiveRecord::Base
   end
 
   def performed_by
-    return "Mezzo" if is_service?
+    return "Mezzo" if service?
     self.user.try(:full_name)
   end
 
