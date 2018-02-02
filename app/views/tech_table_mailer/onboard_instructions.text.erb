@@ -69,7 +69,7 @@ Machine Bundle:
 Shipping Address:
 -----------------
 
-<% if @employee.home_address_1.present? %>
+<% if @employee.address.present? %>
 <%= render partial: "addresses/full", locals: { address: address_for(@employee) } %>
 <% else %>
 Employee will be working from remote location, but does not have an address on record. Please contact People and Culture for the employee's shipping address.

@@ -79,7 +79,7 @@
 
   <% if @employee.location.kind == "Remote Location" %>
     <h2>Shipping Address:</h2>
-    <% if @employee.home_address_1.present? %>
+    <% if @employee.address.present? %>
       <p style="margin-left: 2em">
         <%= render partial: "addresses/full", locals: { address: address_for(@employee) } %>
       </p>
