@@ -44,7 +44,7 @@
   <% if @employee.location.kind == "Remote Location" %>
     <p><strong>Employee location is listed as remote.</strong></p>
     <p><strong>Retrieve equipment from:</strong></p>
-    <% if @employee.home_address_1.present? %>
+    <% if @employee.address.present? %>
       <p style="margin-left: 2em">
         <%= render partial: "addresses/full", locals: { address: address_for(@employee) } %>
       </p>

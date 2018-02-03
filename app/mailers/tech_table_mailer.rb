@@ -1,5 +1,5 @@
 class TechTableMailer < ApplicationMailer
-  helper EmployeeHelper
+  helper EmployeeHelper, AddressHelper
   default to: [Rails.application.secrets.tt_email]
 
   def alert_email(message)
