@@ -48,6 +48,8 @@ class EmployeeProfile
     employee = Employee.find(employee_id).tap do |employee|
       build_new_profile(employee, worker_hash).save!
 
+      # never update hire date for rehires/conversions
+      worker_hash.except!(:hire_date) if employee.terminated?
       # don't update employee info on workers who are converting
       assign_employee_attributes(employee, worker_hash) unless employee.active?
 
