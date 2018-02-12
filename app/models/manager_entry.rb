@@ -6,7 +6,7 @@ class ManagerEntry
   include ActiveModel::Conversion
   include ActiveModel::Validations
 
-  attr_reader :emp_transaction
+  attr_reader :emp_transaction, :employee
 
   attribute :kind, String
   attribute :employee_id, Integer
@@ -117,6 +117,7 @@ class ManagerEntry
           emp_transaction.save!
           revoke_transactions if should_revoke?
           event.process! if event.present?
+          employee.complete! unless emp_transaction.security_access?
           process_transaction
         rescue
           errors.add(:base, :employee_blank, message: 'Something went wrong')
