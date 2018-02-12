@@ -9,4 +9,9 @@ class PeopleAndCultureMailerPreview < ActionMailer::Preview
     e = Employee.where("contract_end_date IS NOT NULL").last
     PeopleAndCultureMailer.terminate_contract(e)
   end
+
+  def upcoming_contract_end
+    e = Employee.where("contract_end_date IS NOT NULL").last
+    PeopleAndCultureMailer.upcoming_contract_end(e)
+  end
 end

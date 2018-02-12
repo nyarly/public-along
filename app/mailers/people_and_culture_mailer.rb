@@ -18,4 +18,10 @@ class PeopleAndCultureMailer < ApplicationMailer
     subject = "Please Terminate Worker #{@worker.cn}"
     mail(subject: subject)
   end
+
+  def upcoming_contract_end(worker)
+    @worker = worker
+    subject = "Contract for #{@worker.cn} will expire in 3 weeks"
+    mail(subject: subject)
+  end
 end
