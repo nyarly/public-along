@@ -34,7 +34,6 @@ RSpec.describe Profile, type: :model do
       expect(profile).to have_state(:active)
       expect(profile).to allow_event(:terminate)
       expect(profile).not_to allow_transition_to(:pending)
-      expect(profile).not_to allow_event(:activate)
     end
 
     it "should receive go on leave" do
@@ -43,7 +42,6 @@ RSpec.describe Profile, type: :model do
       expect(profile).to allow_event(:activate)
       expect(profile).to allow_transition_to(:active)
       expect(profile).not_to allow_transition_to(:pending)
-      expect(profile).not_to allow_event(:terminate)
     end
 
     it "should return from leave" do
@@ -52,7 +50,7 @@ RSpec.describe Profile, type: :model do
       expect(profile).to allow_event(:terminate)
       expect(profile).to allow_event(:start_leave)
       expect(profile).not_to allow_transition_to(:pending)
-      expect(profile).not_to allow_event(:activate)
+      expect(profile).not_to allow_transition_to(:created)
     end
 
     it "should get terminated" do
@@ -61,7 +59,6 @@ RSpec.describe Profile, type: :model do
       expect(profile).not_to allow_transition_to(:pending)
       expect(profile).not_to allow_transition_to(:active)
       expect(profile).not_to allow_event(:activate)
-      expect(profile).not_to allow_event(:terminate)
       expect(profile).not_to allow_event(:start_leave)
     end
   end

@@ -31,15 +31,15 @@ class Profile < ActiveRecord::Base
     state :terminated
 
     event :activate do
-      transitions :from => [:pending, :leave], :to => :active
+      transitions from: [:pending, :leave, :active], to: :active
     end
 
     event :start_leave do
-      transitions :from => :active, :to => :leave
+      transitions from: [:active, :leave], to: :leave
     end
 
     event :terminate do
-      transitions :from => :active, :to => :terminated
+      transitions from: [:terminated, :active, :leave], to: :terminated
     end
   end
 
