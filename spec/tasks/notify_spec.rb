@@ -43,11 +43,11 @@ describe 'notification rake tasks', type: :tasks do
           first_name: 'Fname',
           last_name: 'Lname',
           status: 'active',
-          contract_end_date: Date.new(2018, 2, 5))
+          contract_end_date: Date.new(2018, 2, 28))
       end
 
       before do
-        Timecop.freeze(Time.new(2018, 2, 27, 2, 0, 0, '+00:00'))
+        Timecop.freeze(Time.new(2018, 2, 5, 2, 0, 0, '+00:00'))
         allow(PeopleAndCultureMailer).to receive(:upcoming_contract_end).and_return(mailer)
         allow(mailer).to receive(:deliver_now)
       end
