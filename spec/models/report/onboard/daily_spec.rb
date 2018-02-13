@@ -1,175 +1,247 @@
 require 'rails_helper'
 
 describe Report::Onboard::Daily, type: :model do
-  let!(:start_date)   { DateTime.new(2018, 1, 1, 0, 0, 0) }
   let!(:manager)      { FactoryGirl.create(:employee) }
-  let(:buddy)         { FactoryGirl.create(:employee, email: "buddy@example.com") }
-  let(:parent_org_1)  { FactoryGirl.create(:parent_org, name: "Aaa") }
-  let(:parent_org_2)  { FactoryGirl.create(:parent_org, name: "Bbb") }
-  let(:dept_1)        { FactoryGirl.create(:department,
-                        parent_org: parent_org_1,
-                        name: "Ccc") }
-  let(:dept_2)        { FactoryGirl.create(:department,
-                        parent_org: parent_org_2,
-                        name: "Ddd") }
-  let(:dept_3)        { FactoryGirl.create(:department,
-                        parent_org: parent_org_2,
-                        name: "Eee") }
-  let!(:new_hire_1)   { FactoryGirl.create(:employee,
-                        created_at: 1.month.ago,
-                        email: "new_hire_1@example.com",
-                        status: "pending",
-                        hire_date: start_date,
-                        manager: manager) }
-  let!(:new_hire_p_1) { FactoryGirl.create(:profile,
-                        created_at: 1.month.ago,
-                        start_date: start_date,
-                        profile_status: "pending",
-                        employee: new_hire_1,
-                        department: dept_1) }
-  let!(:onboard)      { FactoryGirl.create(:emp_transaction,
-                        kind: "Onboarding",
-                        created_at: 3.days.ago,
-                        employee: new_hire_1) }
-  let!(:onboard_info) { FactoryGirl.create(:onboarding_info,
-                        created_at: 3.days.ago,
-                        emp_transaction: onboard,
-                        buddy_id: buddy.id) }
-  let!(:new_hire_2)   { FactoryGirl.create(:employee,
-                        email: "new_hire_2@example.com",
-                        status: "pending",
-                        hire_date: start_date,
-                        manager: manager) }
-  let!(:new_hire_p_2) { FactoryGirl.create(:profile,
-                        start_date: start_date,
-                        profile_status: "pending",
-                        employee: new_hire_2,
-                        department: dept_3) }
-  let!(:rehire)       { FactoryGirl.create(:employee,
-                        created_at: 3.years.ago,
-                        status: "pending",
-                        email: "rehire@example.com",
-                        hire_date: 3.years.ago,
-                        request_status: "waiting") }
-  let!(:rehire_new_p) { FactoryGirl.create(:profile,
-                        created_at: 2.weeks.ago,
-                        profile_status: "pending",
-                        employee: rehire,
-                        start_date: start_date,
-                        department: dept_2) }
-  let!(:rehire_old_p) { FactoryGirl.create(:terminated_profile,
-                        created_at: 3.years.ago,
-                        employee: rehire,
-                        start_date: 3.years.ago) }
+  let(:buddy)         { FactoryGirl.create(:employee, email: 'buddy@example.com') }
+  let(:parent_org_1)  { FactoryGirl.create(:parent_org, name: 'Aaa') }
+  let(:parent_org_2)  { FactoryGirl.create(:parent_org, name: 'Bbb') }
 
-  it "should have correct formatting" do
-    expect(Spreadsheet.client_encoding).to eq("UTF-8")
+  let(:dept_1) do
+    FactoryGirl.create(:department,
+      parent_org: parent_org_1,
+      name: 'Ccc')
   end
 
-  it "should create report with correct info" do
+  let(:dept_2) do
+    FactoryGirl.create(:department,
+      parent_org: parent_org_2,
+      name: 'Ddd')
+  end
+
+  let(:dept_3) do
+    FactoryGirl.create(:department,
+      parent_org: parent_org_2,
+      name: 'Eee')
+  end
+
+  let!(:new_hire_1) do
+    FactoryGirl.create(:employee,
+      created_at: Date.new(2018, 1, 1),
+      email: 'new_hire_1@example.com',
+      status: 'pending',
+      hire_date: Date.new(2018, 2, 3),
+      manager: manager)
+  end
+
+  let!(:new_hire_p_1) do
+    FactoryGirl.create(:profile,
+      created_at: Date.new(2018, 1, 1),
+      start_date: Date.new(2018, 2, 3),
+      profile_status: 'pending',
+      employee: new_hire_1,
+      department: dept_1,
+      adp_employee_id: '8642')
+  end
+
+  let!(:onboard) do
+    FactoryGirl.create(:emp_transaction,
+      kind: 'Onboarding',
+      created_at: Time.new(2018, 1, 31, 5, 0, 0, '+00:00'),
+      employee: new_hire_1)
+  end
+
+  let!(:onboard_info) do
+    FactoryGirl.create(:onboarding_info,
+      created_at: Time.new(2018, 1, 31, 5, 0, 0, '+00:00'),
+      emp_transaction: onboard,
+      buddy_id: buddy.id)
+  end
+
+  let!(:new_hire_2)   do
+    FactoryGirl.create(:employee,
+      email: 'new_hire_2@example.com',
+      status: 'pending',
+      hire_date: Date.new(2018, 2, 3),
+      manager: manager)
+  end
+
+  let!(:new_hire_p_2) do
+    FactoryGirl.create(:profile,
+      start_date: Date.new(2018, 2, 3),
+      profile_status: 'pending',
+      employee: new_hire_2,
+      department: dept_3,
+      adp_employee_id: '109988',
+      created_at: Date.new(2018, 2, 1))
+  end
+
+  let!(:rehire)       do
+    FactoryGirl.create(:employee,
+      created_at: Date.new(2016, 1, 1),
+      status: 'pending',
+      email: 'rehire@example.com',
+      hire_date: Date.new(2016, 1, 1),
+      request_status: 'waiting')
+  end
+
+  let!(:rehire_new_p) do
+    FactoryGirl.create(:profile,
+      created_at: Date.new(2018, 1, 1),
+      profile_status: 'pending',
+      employee: rehire,
+      start_date: Date.new(2018, 2, 3),
+      department: dept_2,
+      adp_employee_id: '3579')
+  end
+
+  let!(:rehire_old_p) do
+    FactoryGirl.create(:terminated_profile,
+      created_at: Date.new(2016, 1, 1),
+      employee: rehire,
+      start_date: Date.new(2016, 1, 1))
+  end
+  let(:report) { Report::Onboard::Daily.new }
+
+  before do
+    Timecop.freeze(Time.new(2018, 2, 1, 0, 0, 0, '-08:00'))
+    allow(report).to receive(:date_format)
+    allow(report).to receive(:date_time_format)
+    allow(report).to receive(:highlight)
+    allow(report).to receive(:highlight_short_date)
+    allow(report).to receive(:highlight_long_date)
+    allow(report).to receive(:changed_since_last_sent?)
+    allow(report).to receive(:regular_cell_format)
+    allow(report).to receive(:highlighted_cell_format)
+    allow(report).to receive(:changed_since_last_sent?)
+  end
+
+  after do
+    Timecop.return
+  end
+
+  it 'has right number of cells' do
     Report::Onboard::Daily.new
-    book = Spreadsheet.open "tmp/reports/onboard/daily_" + DateTime.now.strftime('%Y%m%d') + ".xls"
-    sheet = book.worksheet 'daily'
+    book = Roo::Spreadsheet.open('tmp/reports/onboard/daily_' + DateTime.now.strftime('%Y%m%d') + '.xlsx')
+    sheet = book.sheet('daily')
 
-    expect(sheet.rows.count).to eq(4)
-    expect(sheet.rows[0].length).to eq(16)
-    expect(sheet.rows[1].length).to eq(16)
+    expect(sheet.row(2).length).to eq(16)
+  end
 
-    expect(sheet.rows[0]).to eq([
-      "ParentOrg",
-      "Department",
-      "Name",
-      "EmployeeID",
-      "EmployeeType",
-      "Position",
-      "Manager",
-      "WorkLocation",
-      "OnboardingFormDueOn",
-      "OnboardingFormSubmittedOn",
-      "Email",
-      "BuddyName",
-      "BuddyEmail",
-      "StartDate",
-      "ContractEndDate",
-      "LastModifiedAt"
+  it 'has the right headers' do
+    Report::Onboard::Daily.new
+    book = Roo::Spreadsheet.open('tmp/reports/onboard/daily_' + DateTime.now.strftime('%Y%m%d') + '.xlsx')
+    sheet = book.sheet('daily')
+
+    expect(sheet.row(1)).to eq([
+      'Parent Org',
+      'Department',
+      'Name',
+      'Employee ID',
+      'Employee Type',
+      'Position',
+      'Manager',
+      'Location',
+      'Onboarding Form Due',
+      'Onboarding Form Submitted',
+      'Email',
+      'Buddy',
+      'Buddy Email',
+      'Start Date',
+      'Contract End Date',
+      'Last Modified'
     ])
-    expect(sheet.rows[1]).to eq([
-      "Aaa",
-      "Ccc",
+  end
+
+  it 'has rows with correct content and order' do
+    Report::Onboard::Daily.new
+    book = Roo::Spreadsheet.open 'tmp/reports/onboard/daily_' + DateTime.now.strftime('%Y%m%d') + '.xlsx'
+    sheet = book.sheet('daily')
+
+    expect(sheet.row(2)).to eq([
+      'Aaa',
+      'Ccc',
       "#{new_hire_1.cn}",
-      "#{new_hire_1.current_profile.adp_employee_id}",
+      8642,
       "#{new_hire_1.worker_type.name}",
       "#{new_hire_1.job_title.name}",
       "#{manager.cn}",
       "#{new_hire_1.location.name}",
-      (new_hire_1.onboarding_due_date.to_datetime - DateTime.new(1899, 12, 30, 0, 0, 0)).to_f,
-      (onboard.created_at.to_datetime - DateTime.new(1899, 12, 30, 0, 0, 0)).to_f,
-      "new_hire_1@example.com",
+      new_hire_1.onboarding_due_date.to_date,
+      onboard.created_at.to_datetime,
+      'new_hire_1@example.com',
       "#{buddy.cn}",
-      "buddy@example.com",
-      ((start_date) - DateTime.new(1899, 12, 30, 0, 0, 0)).to_f,
+      'buddy@example.com',
+      Date.new(2018, 2, 3),
       nil,
-      (onboard_info.created_at.to_datetime - DateTime.new(1899, 12, 30, 0, 0, 0)).to_f
+      onboard_info.created_at.to_datetime
     ])
-    expect(sheet.rows[2]).to eq([
-      "Bbb",
-      "Ddd",
+    expect(sheet.row(3)).to eq([
+      'Bbb',
+      'Ddd',
       "#{rehire.cn}",
-      "#{rehire.current_profile.adp_employee_id}",
+      3579,
       "#{rehire.worker_type.name}",
       "#{rehire.job_title.name}",
       nil,
       "#{rehire.location.name}",
-      (rehire.onboarding_due_date.to_datetime - DateTime.new(1899, 12, 30, 0, 0, 0)).to_f,
+      rehire.onboarding_due_date.to_date,
       nil,
       "rehire@example.com",
       nil,
       nil,
-      ((start_date) - DateTime.new(1899, 12, 30, 0, 0, 0)).to_f,
+      Date.new(2018, 2, 3),
       nil,
-      (rehire_new_p.created_at.to_datetime - DateTime.new(1899, 12, 30, 0, 0, 0)).to_f
+      rehire_new_p.created_at.to_datetime
     ])
-    expect(sheet.rows[3]).to eq([
-      "Bbb",
-      "Eee",
+    expect(sheet.row(4)).to eq([
+      'Bbb',
+      'Eee',
       "#{new_hire_2.cn}",
-      "#{new_hire_2.current_profile.adp_employee_id}",
+      109988,
       "#{new_hire_2.worker_type.name}",
       "#{new_hire_2.job_title.name}",
       "#{manager.cn}",
       "#{new_hire_2.location.name}",
-      (new_hire_2.onboarding_due_date.to_datetime - DateTime.new(1899, 12, 30, 0, 0, 0)).to_f,
+      new_hire_2.onboarding_due_date.to_date,
       nil,
       "new_hire_2@example.com",
       nil,
       nil,
-      ((start_date) - DateTime.new(1899, 12, 30, 0, 0, 0)).to_f,
+      Date.new(2018, 2, 3),
       nil,
-      (new_hire_p_2.created_at.to_datetime - DateTime.new(1899, 12, 30, 0, 0, 0)).to_f
+      new_hire_p_2.created_at.to_datetime
     ])
   end
 
-  it "format the cells with background color and number format" do
-    Report::Onboard::Daily.new
-    book = Spreadsheet.open "tmp/reports/onboard/daily_" + DateTime.now.strftime('%Y%m%d') + ".xls"
-    sheet = book.worksheet 'daily'
+  # Hacky test of what should be a private method.
+  # There's no way to read styles from an xlsx formatted file.
+  it 'formats short date' do
+    report = Report::Onboard::Daily.new
+    expect(report).to receive(:date_format)
+    report.cell_format(new_hire_1, 8)
+  end
 
-    expect(sheet.row(0).format(8).pattern_fg_color).to eq(:border)
-    expect(sheet.row(0).format(8).number_format).to eq("GENERAL")
-    expect(sheet.row(1).format(8).pattern_fg_color).to eq(:border)
-    expect(sheet.row(1).format(8).number_format).to eq("YYYY-MM-DD")
-    expect(sheet.row(2).format(8).pattern_fg_color).to eq(:border)
-    expect(sheet.row(2).format(8).number_format).to eq("YYYY-MM-DD")
-    expect(sheet.row(3).format(8).pattern_fg_color).to eq(:yellow)
-    expect(sheet.row(3).format(8).number_format).to eq("YYYY-MM-DD")
+  it 'formats long date' do
+    report = Report::Onboard::Daily.new
+    expect(report).to receive(:date_time_format)
+    report.cell_format(new_hire_1, 9)
+  end
 
-    expect(sheet.row(0).format(9).pattern_fg_color).to eq(:border)
-    expect(sheet.row(0).format(9).number_format).to eq("GENERAL")
-    expect(sheet.row(1).format(9).pattern_fg_color).to eq(:border)
-    expect(sheet.row(1).format(9).number_format).to eq("YYYY-MM-DD hh:mm:ss")
-    expect(sheet.row(2).format(9).pattern_fg_color).to eq(:border)
-    expect(sheet.row(2).format(9).number_format).to eq("YYYY-MM-DD hh:mm:ss")
-    expect(sheet.row(3).format(9).pattern_fg_color).to eq(:yellow)
-    expect(sheet.row(3).format(9).number_format).to eq("YYYY-MM-DD hh:mm:ss")
+  it 'formats highlighted cell' do
+    report = Report::Onboard::Daily.new
+    expect(report).to receive(:highlight)
+    report.cell_format(new_hire_2, 0)
+  end
+
+  it 'formats highlighted short date' do
+    report = Report::Onboard::Daily.new
+    expect(report).to receive(:highlight_short_date)
+    report.cell_format(new_hire_2, 8)
+  end
+
+  it 'formats highlighted long date' do
+    report = Report::Onboard::Daily.new
+    expect(report).to receive(:highlight_long_date)
+    report.cell_format(new_hire_2, 9)
   end
 end

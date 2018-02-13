@@ -1,134 +1,167 @@
-require 'spreadsheet'
+require 'axlsx'
 
+# Creates xlsx formatted report of onboards for daily send.
+# Highlights changes since report last sent.
 module Report
   module Onboard
     class Daily
+      attr_reader :dirname
+      attr_reader :filename
+      attr_reader :workbook
+
       def initialize
-        @dirname = "tmp/reports/onboard"
-        @name = "daily"
-        @date = DateTime.now.strftime('%Y%m%d')
+        package = Axlsx::Package.new
+        @dirname = 'tmp/reports/onboard'
+        @filename = 'daily'
+        @workbook = package.workbook
 
-        prepare_directory
+        prepare_files
+        generate_worksheet
+        package.serialize(filepath)
+      end
 
-        @book = Spreadsheet::Workbook.new
-        @sheet = @book.create_worksheet(name: @name)
-
-        call
+      # HACK: Public method for testing cell formats.
+      # Xlsx formatting cannot be read by any known library.
+      def cell_format(worker, idx)
+        return highlighted_cell_format(idx) if changed_since_last_sent?(worker.last_changed_at)
+        regular_cell_format(idx)
       end
 
       private
 
-      def call
-        add_headers
-        populate_rows
-        format_rows
-        write_to_file
+      def prepare_files
+        check_directory
+        clear_reports
       end
 
-      def prepare_directory
-        Dir["#{@dirname}/*"].each do |f|
+      def check_directory
+        return true if File.directory?(dirname)
+        FileUtils.mkdir_p(@dirname)
+      end
+
+      def clear_reports
+        Dir["#{dirname}/*"].each do |f|
           File.delete(f)
         end
-
-        unless File.directory?(@dirname)
-          FileUtils.mkdir_p(@dirname)
-        end
       end
 
-      def filename
-        @dirname + "/" + @name + "_" + @date + ".xls"
+      def filepath
+        "#{dirname}/#{filename}_#{Time.now.strftime('%Y%m%d')}.xlsx"
       end
 
       def onboarding_workers
         OnboardQuery.new.onboarding
       end
 
-      def add_headers
-        @sheet.row(0).concat(%w{ParentOrg Department Name EmployeeID EmployeeType Position Manager WorkLocation OnboardingFormDueOn OnboardingFormSubmittedOn Email BuddyName BuddyEmail StartDate ContractEndDate LastModifiedAt })
-      end
+      def generate_worksheet
+        workbook.add_worksheet(name: 'daily') do |sheet|
+          sheet.add_row([
+                          'Parent Org',
+                          'Department',
+                          'Name',
+                          'Employee ID',
+                          'Employee Type',
+                          'Position',
+                          'Manager',
+                          'Location',
+                          'Onboarding Form Due',
+                          'Onboarding Form Submitted',
+                          'Email',
+                          'Buddy',
+                          'Buddy Email',
+                          'Start Date',
+                          'Contract End Date',
+                          'Last Modified'
+                        ],
+            style: header_format)
 
-      def populate_rows
-        onboarding_workers.each_with_index do |profile, idx|
-          employee = profile.employee
-          row_num = idx + 1
-
-          values = [
-            employee.department.parent_org.try(:name),
-            employee.department.try(:name),
-            employee.cn,
-            employee.current_profile.adp_employee_id,
-            employee.worker_type.try(:name),
-            employee.job_title.try(:name),
-            employee.manager.try(:cn),
-            employee.location.try(:name),
-            employee.onboarding_due_date,        # date field
-            onboard_submitted_on(employee),      # date field
-            employee.email,
-            employee.buddy.try(:cn),
-            employee.buddy.try(:email),
-            employee.current_profile.start_date, # date field
-            employee.contract_end_date,          # date field
-            employee.last_changed_at             # date field
-          ]
-          @sheet.insert_row(row_num, values)
+          onboarding_workers.each do |profile|
+            worker = profile.employee
+            sheet.add_row([
+                            worker.department.parent_org.try(:name),
+                            worker.department.try(:name),
+                            worker.cn,
+                            worker.current_profile.adp_employee_id,
+                            worker.worker_type.try(:name),
+                            worker.job_title.try(:name),
+                            worker.manager.try(:cn),
+                            worker.location.try(:name),
+                            worker.onboarding_due_date,
+                            onboard_submitted_on(worker),
+                            worker.email,
+                            worker.buddy.try(:cn),
+                            worker.buddy.try(:email),
+                            worker.current_profile.start_date,
+                            worker.contract_end_date,
+                            worker.last_changed_at
+                          ],
+              style: [
+                cell_format(worker, 0),
+                cell_format(worker, 1),
+                cell_format(worker, 2),
+                cell_format(worker, 3),
+                cell_format(worker, 4),
+                cell_format(worker, 5),
+                cell_format(worker, 6),
+                cell_format(worker, 7),
+                cell_format(worker, 8),
+                cell_format(worker, 9),
+                cell_format(worker, 10),
+                cell_format(worker, 11),
+                cell_format(worker, 12),
+                cell_format(worker, 13),
+                cell_format(worker, 14),
+                cell_format(worker, 15)
+              ])
+          end
         end
       end
 
-      def write_to_file
-        @book.write(filename)
+      def header_format
+        workbook.styles.add_style(bg_color: '000000', fg_color: 'FFFFFF', b: true)
       end
 
-      def format_rows
-        @sheet.rows.each_with_index do |row, idx|
-          format_row(row) unless is_header?(idx)
-        end
+      def date_format
+        workbook.styles.add_style(format_code: 'yyyy-mm-dd')
       end
 
-      def format_row(row)
-        return assign_highlighted_formats(row) if changed_since_last_sent?(row[15])
-        assign_regular_formats(row)
+      def date_time_format
+        workbook.styles.add_style(format_code: 'yyyy-mm-dd hh:mm')
       end
 
-      def assign_regular_formats(row)
-        row.enum_for(:each_with_index).map { |cell_val, idx| row.set_format(idx, regular_cell_format(idx)) }
+      def highlight
+        workbook.styles.add_style(bg_color: 'FFFF00', pattern: 1)
       end
 
-      def assign_highlighted_formats(row)
-        row.enum_for(:each_with_index).map { |cell_val, idx| row.set_format(idx, highlighted_cell_format(idx)) }
+      def highlight_short_date
+        workbook.styles.add_style(bg_color: 'FFFF00', pattern: 1, format_code: 'yyyy-mm-dd')
+      end
+
+      def highlight_long_date
+        workbook.styles.add_style(bg_color: 'FFFF00', pattern: 1, format_code: 'yyyy-mm-dd hh:mm')
       end
 
       def regular_cell_format(idx)
-        date_time_format = Spreadsheet::Format.new(number_format: 'YYYY-MM-DD hh:mm:ss')
-        date_format = Spreadsheet::Format.new(number_format: 'YYYY-MM-DD')
-
-        return date_format if is_short_date?(idx)
-        return date_time_format if is_long_date?(idx)
+        return date_format if short_date?(idx)
+        return date_time_format if long_date?(idx)
         nil
       end
 
       def highlighted_cell_format(idx)
-        highlight_short_date = Spreadsheet::Format.new(pattern_fg_color: :yellow, pattern: 1, number_format: 'YYYY-MM-DD')
-        highlight_long_date = Spreadsheet::Format.new(pattern_fg_color: :yellow, pattern: 1, number_format: 'YYYY-MM-DD hh:mm:ss')
-        highlight = Spreadsheet::Format.new(pattern_fg_color: :yellow, pattern: 1)
-
-        return highlight_short_date if is_short_date?(idx)
-        return highlight_long_date if is_long_date?(idx)
+        return highlight_short_date if short_date?(idx)
+        return highlight_long_date if long_date?(idx)
         highlight
-      end
-
-      def is_header?(row_idx)
-        row_idx == 0
       end
 
       def changed_since_last_sent?(last_changed_datetime)
         last_changed_datetime >= summary_last_sent_datetime
       end
 
-      def is_short_date?(column_idx)
+      def short_date?(column_idx)
         [8, 13, 14].include? column_idx
       end
 
-      def is_long_date?(column_idx)
+      def long_date?(column_idx)
         [9, 15].include? column_idx
       end
 
@@ -139,8 +172,8 @@ module Report
       end
 
       def onboard_submitted_on(employee)
-        return nil if employee.request_status == "waiting"
-        onboards = employee.emp_transactions.where(kind: "Onboarding")
+        return nil if employee.waiting?
+        onboards = employee.emp_transactions.where(kind: 'Onboarding')
         return nil if onboards.blank?
         onboards.last.created_at.to_datetime
       end
