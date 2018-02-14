@@ -20,11 +20,11 @@ module Report
         package.serialize(filepath)
       end
 
-      # HACK: Public method for testing cell formats.
-      # Xlsx formatting cannot be read by any known library.
-      def cell_format(worker, idx)
-        return highlighted_cell_format(idx) if changed_since_last_sent?(worker.last_changed_at)
-        regular_cell_format(idx)
+      # HACK: Can't inspect styles in tests
+      # Public method so test can access formats
+      def worker_row_styles(worker)
+        return new_onboard_styles if changed_since_last_sent?(worker.last_changed_at)
+        onboard_styles
       end
 
       private
@@ -55,66 +55,73 @@ module Report
 
       def generate_worksheet
         workbook.add_worksheet(name: 'daily') do |sheet|
-          sheet.add_row([
-                          'Parent Org',
-                          'Department',
-                          'Name',
-                          'Employee ID',
-                          'Employee Type',
-                          'Position',
-                          'Manager',
-                          'Location',
-                          'Onboarding Form Due',
-                          'Onboarding Form Submitted',
-                          'Email',
-                          'Buddy',
-                          'Buddy Email',
-                          'Start Date',
-                          'Contract End Date',
-                          'Last Modified'
-                        ],
-            style: header_format)
+          add_headers(sheet)
+          add_worksheet_styles
 
           onboarding_workers.each do |profile|
-            worker = profile.employee
-            sheet.add_row([
-                            worker.department.parent_org.try(:name),
-                            worker.department.try(:name),
-                            worker.cn,
-                            worker.current_profile.adp_employee_id,
-                            worker.worker_type.try(:name),
-                            worker.job_title.try(:name),
-                            worker.manager.try(:cn),
-                            worker.location.try(:name),
-                            worker.onboarding_due_date,
-                            onboard_submitted_on(worker),
-                            worker.email,
-                            worker.buddy.try(:cn),
-                            worker.buddy.try(:email),
-                            worker.current_profile.start_date,
-                            worker.contract_end_date,
-                            worker.last_changed_at
-                          ],
-              style: [
-                cell_format(worker, 0),
-                cell_format(worker, 1),
-                cell_format(worker, 2),
-                cell_format(worker, 3),
-                cell_format(worker, 4),
-                cell_format(worker, 5),
-                cell_format(worker, 6),
-                cell_format(worker, 7),
-                cell_format(worker, 8),
-                cell_format(worker, 9),
-                cell_format(worker, 10),
-                cell_format(worker, 11),
-                cell_format(worker, 12),
-                cell_format(worker, 13),
-                cell_format(worker, 14),
-                cell_format(worker, 15)
-              ])
+            add_worker_row(sheet, profile.employee)
           end
         end
+      end
+
+      def add_worker_row(sheet, worker)
+        sheet.add_row([
+                worker.department.parent_org.try(:name),
+                worker.department.try(:name),
+                worker.cn,
+                worker.current_profile.adp_employee_id,
+                worker.worker_type.try(:name),
+                worker.job_title.try(:name),
+                worker.manager.try(:cn),
+                worker.location.try(:name),
+                worker.onboarding_due_date,
+                onboard_submitted_on(worker),
+                worker.email,
+                worker.buddy.try(:cn),
+                worker.buddy.try(:email),
+                worker.current_profile.start_date,
+                worker.contract_end_date,
+                worker.last_changed_at
+              ],
+          style: worker_row_styles(worker) )
+      end
+
+      def add_headers(sheet)
+        sheet.add_row([
+                'Parent Org',
+                'Department',
+                'Name',
+                'Employee ID',
+                'Employee Type',
+                'Position',
+                'Manager',
+                'Location',
+                'Onboarding Form Due',
+                'Onboarding Form Submitted',
+                'Email',
+                'Buddy',
+                'Buddy Email',
+                'Start Date',
+                'Contract End Date',
+                'Last Modified'
+              ],
+          style: header_format)
+      end
+
+      def add_worksheet_styles
+        highlight_short_date
+        highlight_long_date
+        highlight
+        date_format
+        date_time_format
+      end
+
+      def new_onboard_styles
+        [6, 6, 6, 6, 6, 6, 6, 6, 4, 5, 6, 6, 6, 4, 4, 5]
+      end
+
+      def onboard_styles
+        [nil, nil, nil, nil, nil, nil, nil, nil, 7, 8, nil, nil, nil, 7, 7, 8]
       end
 
       def header_format
@@ -141,28 +148,8 @@ module Report
         workbook.styles.add_style(bg_color: 'FFFF00', pattern: 1, format_code: 'yyyy-mm-dd hh:mm')
       end
 
-      def regular_cell_format(idx)
-        return date_format if short_date?(idx)
-        return date_time_format if long_date?(idx)
-        nil
-      end
-
-      def highlighted_cell_format(idx)
-        return highlight_short_date if short_date?(idx)
-        return highlight_long_date if long_date?(idx)
-        highlight
-      end
-
       def changed_since_last_sent?(last_changed_datetime)
         last_changed_datetime >= summary_last_sent_datetime
-      end
-
-      def short_date?(column_idx)
-        [8, 13, 14].include? column_idx
-      end
-
-      def long_date?(column_idx)
-        [9, 15].include? column_idx
       end
 
       def summary_last_sent_datetime

@@ -75,7 +75,7 @@ describe Report::Onboard::Daily, type: :model do
       created_at: Date.new(2018, 2, 1))
   end
 
-  let!(:rehire)       do
+  let!(:rehire) do
     FactoryGirl.create(:employee,
       created_at: Date.new(2016, 1, 1),
       status: 'pending',
@@ -104,15 +104,6 @@ describe Report::Onboard::Daily, type: :model do
 
   before do
     Timecop.freeze(Time.new(2018, 2, 1, 0, 0, 0, '-08:00'))
-    allow(report).to receive(:date_format)
-    allow(report).to receive(:date_time_format)
-    allow(report).to receive(:highlight)
-    allow(report).to receive(:highlight_short_date)
-    allow(report).to receive(:highlight_long_date)
-    allow(report).to receive(:changed_since_last_sent?)
-    allow(report).to receive(:regular_cell_format)
-    allow(report).to receive(:highlighted_cell_format)
-    allow(report).to receive(:changed_since_last_sent?)
   end
 
   after do
@@ -213,35 +204,11 @@ describe Report::Onboard::Daily, type: :model do
     ])
   end
 
-  # Hacky test of what should be a private method.
-  # There's no way to read styles from an xlsx formatted file.
-  it 'formats short date' do
-    report = Report::Onboard::Daily.new
-    expect(report).to receive(:date_format)
-    report.cell_format(new_hire_1, 8)
+  it 'formats regular worker cells' do
+    expect(report.worker_row_styles(new_hire_1)).to eq([nil, nil, nil, nil, nil, nil, nil, nil, 7, 8, nil, nil, nil, 7, 7, 8])
   end
 
-  it 'formats long date' do
-    report = Report::Onboard::Daily.new
-    expect(report).to receive(:date_time_format)
-    report.cell_format(new_hire_1, 9)
-  end
-
-  it 'formats highlighted cell' do
-    report = Report::Onboard::Daily.new
-    expect(report).to receive(:highlight)
-    report.cell_format(new_hire_2, 0)
-  end
-
-  it 'formats highlighted short date' do
-    report = Report::Onboard::Daily.new
-    expect(report).to receive(:highlight_short_date)
-    report.cell_format(new_hire_2, 8)
-  end
-
-  it 'formats highlighted long date' do
-    report = Report::Onboard::Daily.new
-    expect(report).to receive(:highlight_long_date)
-    report.cell_format(new_hire_2, 9)
+  it 'formats new worker record cells' do
+    expect(report.worker_row_styles(new_hire_2)).to eq([6, 6, 6, 6, 6, 6, 6, 6, 4, 5, 6, 6, 6, 4, 4, 5])
   end
 end
