@@ -70,31 +70,23 @@ module AdpService
     end
 
     def look_ahead(e)
-      if e.status == "pending"
-        check_new_hire_change(e)
-      else
-        # inactive worker status
-        check_leave_return(e)
-      end
+      # the asynchronous nature of the sync means
+      # workers will sometimes have 'active' status when this runs
+      return check_leave_return if e.status == 'inactive'
+      return check_new_hire_change if e.status == 'pending'
+      true
     end
 
     def check_new_hire_change(e)
-      if e.contract_end_date.present?
-        future_date = e.contract_end_date - 1.day
-      else
-        future_date = 1.year.from_now.change(:usec => 0)
-      end
-
-      begin
-      ensure
-        json = get_worker_json(e, future_date)
-      end
+      json = get_worker_json(e, future_date(e))
+      status_code =  json.dig('confirmMessage', 'protocolStatusCode','codeValue')
 
       return false if json.blank?
+      return worker_not_found_alert(e) if status_code == '404'
 
-      adp_status = json.dig("workers", 0, "workerStatus", "statusCode", "codeValue")
+      adp_status = json.dig('workers', 0, 'workerStatus', 'statusCode', 'codeValue')
 
-      if adp_status.present? && adp_status == "Active"
+      if adp_status.present? && adp_status == 'Active'
         parser = WorkerJsonParser.new
         workers = parser.sort_workers(json)
         w_hash = workers[0]
@@ -107,7 +99,6 @@ module AdpService
         end
       else
         return false
-        # TechTableMailer.alert_email("Cannot get updated ADP info for new contract hire #{e.cn}, employee id: #{e.employee_id}.\nPlease contact the developer to help diagnose the problem.").deliver_now
       end
     end
 
@@ -147,9 +138,17 @@ module AdpService
 
     private
 
+    def future_date(e)
+      return e.contract_end_date - 1.day if e.contract_end_date.present?
+      1.year.from_now.change(usec: 0)
+    end
+
     def adp_only_worker_data(w)
       "{ first_name: #{w[:first_name]}, last_name: #{w[:last_name]}, employee_id: #{w[:employee_id]})"
     end
 
+    def worker_not_found_alert(e)
+      TechTableMailer.alert_email("Cannot get updated ADP info for new contract hire #{e.cn}, employee id: #{e.employee_id}.\nPlease contact the developer to help diagnose the problem.").deliver_now
+    end
   end
 end
