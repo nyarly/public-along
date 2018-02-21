@@ -67,8 +67,10 @@ gem 'aasm'
 # https://github.com/kaminari/kaminari
 gem 'kaminari'
 
-# Read/write XLS files
-gem 'spreadsheet'
+# Read/write XLSX files
+gem 'axlsx'
+gem 'zip-zip'
+gem 'roo'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
