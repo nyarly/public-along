@@ -35,6 +35,8 @@ describe AdpService::WorkerJsonParser, type: :service do
     let!(:job_title)     { FactoryGirl.create(:job_title, name: "Sr. People Business Partner", code: "SRBP") }
     let!(:job_title_2)   { FactoryGirl.create(:job_title, name: "Sales Representative, OTC", code: "SROTC") }
     let!(:job_title_3)   { FactoryGirl.create(:job_title, name: "Sales Associate", code: "SADEN") }
+    let!(:country)       { Country.find_or_create_by(iso_alpha_2_code: "US") }
+    let!(:germany)       { Country.find_or_create_by(iso_alpha_2_code: "DE") }
 
     it "should create the hash from json" do
       w_json = json["workers"][2]
@@ -63,7 +65,8 @@ describe AdpService::WorkerJsonParser, type: :service do
         profile_status: "active",
         business_card_title: "Senior Backend Engineer, Restaurant Products",
         management_position: true,
-        manager_id: manager.employee.id
+        manager_id: manager.employee.id,
+        payroll_file_number: "101455"
       })
     end
 
@@ -127,11 +130,12 @@ describe AdpService::WorkerJsonParser, type: :service do
         line_2: nil,
         city: "Frankfurt",
         state_territory: "Hessen",
-        postal_code: "5384980"
+        postal_code: "5384980",
+        country_id: germany.id
       })
     end
 
-    it "should not pull address info if the worker is Remote" do
+    it "should not pull address info if the worker is not remote" do
       w_json = json["workers"][1]
 
       adp = AdpService::WorkerJsonParser.new
@@ -141,7 +145,8 @@ describe AdpService::WorkerJsonParser, type: :service do
         line_2: "Apt 222",
         city: "Denver",
         state_territory: "CO",
-        postal_code: "63748"
+        postal_code: "63748",
+        country_id: country.id
       })
     end
   end
