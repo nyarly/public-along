@@ -35,11 +35,11 @@ class Employee < ActiveRecord::Base
 
   aasm :column => "status" do
     error_on_all_events { |e| Rails.logger.info e.message }
-    state :created, :initial => true
+    state :created, initial: true
     state :pending
-    state :active, :before_enter => :activate_profile
-    state :inactive
-    state :terminated
+    state :active, before_enter: :activate_profile
+    state :inactive, before_enter: :leave_profile
+    state :terminated, before_enter: :terminate_profile
 
     event :hire do
       transitions from: [:created, :terminated], to: :pending
@@ -56,19 +56,15 @@ class Employee < ActiveRecord::Base
     end
 
     event :start_leave do
-      transitions from: :active, to: :inactive, after: [:deactivate_active_directory_account, :deactivate_profile]
+      transitions from: [:active, :inactive], to: :inactive, after: :deactivate_active_directory_account
     end
 
     event :terminate, binding_event: :clear_queue do
-      transitions from: :active, to: :terminated, after: [:terminate_profile, :deactivate_active_directory_account, :offboard]
+      transitions from: :active, to: :terminated, after: :execute_termination
     end
 
     event :terminate_immediately, binding_event: :clear_queue do
-      transitions from: :active, to: :terminated, after: [:deactivate_active_directory_account, :send_techtable_offboard_instructions, :offboard]
-    end
-
-    event :leave_immediately do
-      transitions from: :active, to: :inactive, after: :deactivate_active_directory_account
+      transitions from: :active, to: :terminated, after: [:update_active_directory_account, :send_techtable_offboard_instructions, :execute_termination]
     end
   end
 
@@ -78,19 +74,19 @@ class Employee < ActiveRecord::Base
     state :completed
 
     event :wait do
-      transitions from: [:none, :waiting], to: :waiting
+      transitions from: [:none, :completed, :waiting], to: :waiting
     end
 
     event :complete do
-      transitions from: [:none, :waiting, :completed], to: :completed
+      transitions from: [:none, :completed, :waiting], to: :completed
     end
 
     event :clear_queue do
-      transitions from: [:completed, :waiting, :none], to: :none
+      transitions from: [:none, :completed, :waiting], to: :none
     end
 
     event :start_offboard_process do
-      transitions from: :none, to: :waiting, after: [:update_active_directory_account, :prepare_termination]
+      transitions from: [:none, :completed, :waiting], to: :waiting, after: [:update_active_directory_account, :prepare_termination]
     end
   end
 
@@ -98,10 +94,6 @@ class Employee < ActiveRecord::Base
     define_method :"#{attribute}" do
       current_profile.try(:send, "#{attribute}")
     end
-  end
-
-  def prepare_termination
-    EmployeeService::Offboard.new(self).prepare_termination
   end
 
   def onboard_new_position
@@ -112,6 +104,14 @@ class Employee < ActiveRecord::Base
     ActivationPolicy.new(self).allowed?
   end
 
+  def prepare_termination
+    EmployeeService::Offboard.new(self).prepare_termination
+  end
+
+  def execute_termination
+    EmployeeService::Offboard.new(self).execute_termination
+  end
+
   def activate_profile
     current_profile.activate!
   end
@@ -120,7 +120,7 @@ class Employee < ActiveRecord::Base
     current_profile.try(:send, :adp_employee_id)
   end
 
-  def deactivate_profile
+  def leave_profile
     self.current_profile.start_leave!
   end
 

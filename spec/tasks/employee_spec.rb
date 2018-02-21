@@ -76,12 +76,13 @@ describe "employee rake tasks", type: :tasks do
     let!(:t_us_prof)    { FactoryGirl.create(:active_profile,
                           employee: us_term,
                           location: sf) }
+    let(:off_serv)      { instance_double(EmployeeService::Offboard) }
+
     before :each do
       Rake.application = Rake::Application.new
       Rake.application.rake_require "lib/tasks/employee", [Rails.root.to_s], ''
       Rake::Task.define_task :environment
 
-      @offboarding_service = double(OffboardingService)
       @ldap = double(Net::LDAP)
       @ldap_entry = double(Net::LDAP::Entry)
 
@@ -179,7 +180,7 @@ describe "employee rake tasks", type: :tasks do
         hire_date: 2.years.ago,
         leave_start_date: Date.new(2016, 7, 30),
         manager: manager)
-      t_prof = FactoryGirl.create(:active_profile,
+      l_prof = FactoryGirl.create(:active_profile,
         employee: leave_us,
         location: sf)
 
@@ -213,14 +214,14 @@ describe "employee rake tasks", type: :tasks do
 
       allow(@ldap).to receive(:get_operation_result)
 
-      expect(OffboardingService).to receive(:new).and_return(@offboarding_service).twice
-      expect(@offboarding_service).to receive(:offboard).with([us_term])
-      expect(@offboarding_service).to receive(:offboard).with([contract_end_us])
       Rake::Task["employee:change_status"].invoke
 
       expect(us_term.reload.status).to eq("terminated")
+      expect(t_us_prof.reload.profile_status).to eq('terminated')
       expect(contract_end_us.reload.status).to eq("terminated")
+      expect(t_prof.reload.profile_status).to eq("terminated")
       expect(leave_us.reload.status).to eq("inactive")
+      expect(l_prof.reload.profile_status).to eq("leave")
     end
 
 
@@ -300,9 +301,6 @@ describe "employee rake tasks", type: :tasks do
 
       expect(PeopleAndCultureMailer).to receive(:terminate_contract).with(contract_end).and_return(mailer)
       expect(mailer).to receive(:deliver_now)
-      expect(OffboardingService).to receive(:new).and_return(@offboarding_service).twice
-      expect(@offboarding_service).to receive(:offboard).with([termination])
-      expect(@offboarding_service).to receive(:offboard).with([contract_end])
       Rake::Task["employee:change_status"].invoke
 
       expect(termination.reload.status).to eq("terminated")
@@ -321,13 +319,11 @@ describe "employee rake tasks", type: :tasks do
       # 7/29/ 2017 at 9pm IST/3:30pm UTC
       Timecop.freeze(Time.new(2016, 7, 29, 15, 30, 0, "+00:00"))
 
-      expect(OffboardingService).to receive(:new).and_return(@offboarding_service).once
       ad = double(ActiveDirectoryService)
       allow(ActiveDirectoryService).to receive(:new).and_return(ad)
       allow(ad).to receive(:deactivate)
       allow(ad).to receive(:activate)
       allow(ad).to receive(:terminate)
-      expect(@offboarding_service).to receive(:offboard).once.with([ind_term])
 
       Rake::Task["employee:change_status"].invoke
 

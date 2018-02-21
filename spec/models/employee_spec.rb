@@ -3,12 +3,97 @@ require 'aasm/rspec'
 
 describe Employee, type: :model do
 
-  let!(:manager) { FactoryGirl.create(:employee,
-                   first_name: "Alex",
-                   last_name: "Trebek",
-                   sam_account_name: "atrebek",
-                   hire_date: 5.years.ago,
-                   ad_updated_at: 2.years.ago) }
+  let!(:manager) do
+    FactoryGirl.create(:employee,
+      first_name: 'Alex',
+      last_name: 'Trebek',
+      sam_account_name: 'atrebek',
+      hire_date: 5.years.ago,
+      ad_updated_at: 2.years.ago)
+  end
+
+  describe '#hire' do
+    context 'when created' do
+      subject { FactoryGirl.create(:employee) }
+
+      it { is_expected.to have_state(:created) }
+      it { is_expected.to allow_transition_to(:pending) }
+      it { is_expected.to allow_event(:hire) }
+      it { is_expected.not_to allow_transition_to(:active) }
+      it { is_expected.not_to allow_transition_to(:inactive) }
+      it { is_expected.not_to allow_transition_to(:terminated) }
+      it { is_expected.not_to allow_event(:rehire_from_event) }
+      it { is_expected.not_to allow_event(:activate) }
+      it { is_expected.not_to allow_event(:start_leave) }
+      it { is_expected.not_to allow_event(:terminate) }
+      it { is_expected.not_to allow_event(:terminate_immediately) }
+    end
+
+    context 'when pending' do
+      subject { FactoryGirl.create(:pending_employee) }
+
+      it { is_expected.to have_state(:pending) }
+      it { is_expected.to allow_transition_to(:active) }
+      it { is_expected.to allow_event(:activate) }
+      it { is_expected.not_to allow_transition_to(:created) }
+      it { is_expected.not_to allow_transition_to(:inactive) }
+      it { is_expected.not_to allow_transition_to(:terminated) }
+      it { is_expected.not_to allow_event(:hire) }
+      it { is_expected.not_to allow_event(:rehire_from_event) }
+      it { is_expected.not_to allow_event(:start_leave) }
+      it { is_expected.not_to allow_event(:terminate) }
+      it { is_expected.not_to allow_event(:terminate_immediately) }
+    end
+
+    context 'when active' do
+      subject { FactoryGirl.create(:active_employee) }
+
+      it { is_expected.to have_state(:active) }
+      it { is_expected.to allow_transition_to(:inactive) }
+      it { is_expected.to allow_transition_to(:terminated) }
+      it { is_expected.to allow_event(:activate) }
+      it { is_expected.to allow_event(:start_leave) }
+      it { is_expected.to allow_event(:terminate) }
+      it { is_expected.to allow_event(:terminate_immediately) }
+      it { is_expected.not_to allow_transition_to(:created) }
+      it { is_expected.not_to allow_transition_to(:pending) }
+      it { is_expected.not_to allow_event(:rehire_from_event) }
+    end
+
+    context 'when inactive' do
+      subject { FactoryGirl.create(:leave_employee) }
+
+      it { is_expected.to have_state(:inactive) }
+      it { is_expected.to allow_transition_to(:active) }
+      it { is_expected.to allow_transition_to(:inactive) }
+      it { is_expected.to allow_event(:activate) }
+      it { is_expected.to allow_event(:start_leave) }
+      it { is_expected.not_to allow_transition_to(:created) }
+      it { is_expected.not_to allow_transition_to(:pending) }
+      it { is_expected.not_to allow_transition_to(:terminated) }
+      it { is_expected.not_to allow_event(:hire) }
+      it { is_expected.not_to allow_event(:rehire_from_event) }
+      it { is_expected.not_to allow_event(:terminate) }
+      it { is_expected.not_to allow_event(:terminate_immediately) }
+    end
+
+    context 'when terminated' do
+      subject { FactoryGirl.create(:terminated_employee) }
+
+      it { is_expected.to have_state(:terminated) }
+      it { is_expected.to allow_transition_to(:pending) }
+      it { is_expected.to allow_event(:hire) }
+      it { is_expected.to allow_event(:rehire_from_event) }
+      it { is_expected.not_to allow_transition_to(:created) }
+      it { is_expected.not_to allow_transition_to(:active) }
+      it { is_expected.not_to allow_transition_to(:inactive) }
+      it { is_expected.not_to allow_transition_to(:terminated) }
+      it { is_expected.not_to allow_event(:activate) }
+      it { is_expected.not_to allow_event(:start_leave) }
+      it { is_expected.not_to allow_event(:terminate) }
+      it { is_expected.not_to allow_event(:terminate_immediately) }
+    end
+  end
 
   describe "state machine" do
     let(:pending_onboard) { FactoryGirl.create(:employee,
@@ -40,24 +125,11 @@ describe Employee, type: :model do
                             profile_status: "pending") }
     let(:ad)              { double(ActiveDirectoryService) }
     let(:os)              { double(OffboardingService) }
-    let(:onboard_service) { double(EmployeeService::Onboard) }
+    let(:onboard_service) { instance_double(EmployeeService::Onboard) }
+    let(:app_service)     { instance_double(ApplicationService) }
 
-    it "should initialize as created" do
-      expect(employee).to have_state(:created)
-      expect(employee).to allow_event(:hire)
-      expect(employee).to allow_transition_to(:pending)
-      expect(employee).not_to allow_transition_to(:active)
-      expect(employee).not_to allow_transition_to(:terminated)
-      expect(employee).not_to allow_transition_to(:inactive)
-      expect(employee).not_to allow_event(:rehire)
-      expect(employee).not_to allow_event(:activate)
-      expect(employee).not_to allow_event(:start_leave)
-      expect(employee).not_to allow_event(:end_leave)
-      expect(employee).not_to allow_event(:terminate)
-      expect(employee).to have_state(:none).on(:request_status)
-      expect(employee).to allow_event(:wait).on(:request_status)
-      expect(employee).to allow_transition_to(:waiting).on(:request_status)
-      expect(employee).not_to allow_event(:clear).on(:request_status)
+    after do
+      Timecop.return
     end
 
     it "employee.hire! should create accounts and set as pending" do
@@ -152,7 +224,6 @@ describe Employee, type: :model do
       expect(active_employee).not_to allow_event(:hire)
       expect(active_employee).not_to allow_event(:rehire)
       expect(active_employee).not_to allow_event(:terminate)
-      expect(active_employee).not_to allow_event(:start_leave)
       expect(active_employee).to have_state(:none).on(:request_status)
 
       expect(active_employee.status).to eq("inactive")
@@ -181,8 +252,12 @@ describe Employee, type: :model do
     end
 
     it "employee.terminate! should terminate employee" do
-      expect(active_employee).to receive(:deactivate_active_directory_account).and_return(ad)
-      expect(active_employee).to receive(:offboard).and_return(os)
+      Timecop.freeze(Time.new(2017, 4, 29, 16, 00, 0, "+00:00"))
+
+      expect(ActiveDirectoryService).to receive(:new).and_return(ad)
+      expect(ad).to receive(:deactivate).with([active_employee])
+      expect(ApplicationService).to receive(:new).and_return(app_service)
+      expect(app_service).to receive(:offboard_all_apps)
 
       active_employee.terminate!
 
@@ -196,6 +271,7 @@ describe Employee, type: :model do
       expect(active_employee).not_to allow_event(:start_leave)
       expect(active_employee).to have_state(:none).on(:request_status)
 
+      expect(active_employee.offboarded_at).to eq(Time.new(2017, 4, 29, 16, 00, 0, "+00:00"))
       expect(active_employee.status).to eq("terminated")
       expect(active_employee.current_profile.profile_status).to eq("terminated")
     end
