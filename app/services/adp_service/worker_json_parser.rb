@@ -47,6 +47,7 @@ module AdpService
       dept = find_dept(dept_str)
 
       management_position = work_assignment["managementPositionIndicator"]
+      payroll_file_number = work_assignment["payrollFileNumber"]
 
       line_1 = w.dig("person","legalAddress","lineOne")
       line_2 = w.dig("person","legalAddress","lineTwo")
@@ -79,7 +80,8 @@ module AdpService
         profile_status: work_assignment_status.downcase!,
         worker_type_id: worker_type.id,
         business_card_title: business_card_title,
-        management_position: management_position
+        management_position: management_position,
+        payroll_file_number: payroll_file_number
       }
 
       if location.kind == "Remote Location"

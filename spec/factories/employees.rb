@@ -28,12 +28,17 @@ FactoryGirl.define do
     end
 
     factory :manager do
-      email { "manager@example.com" }
+      email 'manager@example.com'
+      status 'active'
       transient do
         profiles_count 1
       end
       after(:create) do |employee, evaluator|
-        create_list(:profile, evaluator.profiles_count, employee: employee)
+        create_list(:profile,
+          evaluator.profiles_count,
+          employee: employee,
+          profile_status: 'active',
+          management_position: true)
       end
     end
 
@@ -114,6 +119,17 @@ FactoryGirl.define do
 
       after(:create) do |employee, evaluator|
         create_list(:contractor, evaluator.profiles_count, employee: employee)
+      end
+    end
+
+    factory :temp_worker do
+      contract_end_date { 1.month.from_now }
+      transient do
+        profiles_count 1
+      end
+
+      after(:create) do |employee, evaluator|
+        create_list(:temp, evaluator.profiles_count, employee: employee)
       end
     end
   end

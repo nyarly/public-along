@@ -10,21 +10,21 @@ FactoryGirl.define do
     job_title
     start_date      { 1.year.ago }
     end_date        { nil }
-    company         { "OpenTable, Inc." }
+    company         { 'OpenTable, Inc.' }
     adp_assoc_oid   { Faker::Number.number(10) }
     adp_employee_id { Faker::Number.number(6) }
     management_position nil
 
     factory :active_profile do
-      profile_status { "active" }
+      profile_status { 'active' }
     end
 
     factory :leave_profile do
-      profile_status { "leave" }
+      profile_status { 'leave' }
     end
 
     factory :terminated_profile do
-      profile_status { "terminated" }
+      profile_status { 'terminated' }
     end
 
     trait :with_valid_ou do
@@ -42,6 +42,10 @@ FactoryGirl.define do
 
     factory :contractor do
       association :worker_type, :factory => [:worker_type, :contractor]
+    end
+
+    factory :temp do
+      association :worker_type, factory: [:worker_type, :temporary]
     end
   end
 end
