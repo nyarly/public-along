@@ -2,7 +2,6 @@ module ConcurImporter
   # Employee record parser for enhanced employee import
   class EmployeeDetail
     attr_reader :employee
-    attr_reader :info
 
     def initialize(employee)
       @employee = employee
@@ -45,7 +44,7 @@ module ConcurImporter
     end
 
     def location_code
-      work_locaiton.code
+      work_location.code
     end
 
     def group_name
@@ -63,6 +62,10 @@ module ConcurImporter
     end
 
     def request_approver
+      approver_id
+    end
+
+    def invoice_approver
       approver_id
     end
 
@@ -126,7 +129,7 @@ module ConcurImporter
     end
 
     def adp_reimbursed?
-      reimbursement_code == 'ADPPAYR'
+      reimbursement_method_code == 'ADPPAYR'
     end
   end
 end
