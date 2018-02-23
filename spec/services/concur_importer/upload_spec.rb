@@ -1,8 +1,12 @@
 require 'rails_helper'
 
 describe ConcurImporter::Upload, type: :service do
+  let(:sftp) { class_double(Net::SFTP) }
+
   before do
+    allow(Net::SFTP).to receive(:start).and_return(sftp)
     dirname = 'tmp/concur'
+
     FileUtils.mkdir_p(dirname) unless File.directory?(dirname)
 
     Dir["#{dirname}/*"].each do |f|
@@ -14,72 +18,59 @@ describe ConcurImporter::Upload, type: :service do
     Dir['tmp/concur/*'].each do |f|
       File.delete(f)
     end
-    Timecop.return
   end
 
   describe '#all' do
-    let(:list)            { ConcurImporter::List.new }
-    let(:emp_import)      { ConcurImporter::EnhancedEmployee.new }
-    let(:employee)        { FactoryGirl.create(:active_employee) }
-    let(:loc_filepath)    { Rails.root.to_s + '/tmp/concur/list_fake_locations_20180214160000.txt' }
-    let(:dept_filepath)   { Rails.root.to_s + '/tmp/concur/list_fake_departments_20180214160000.txt' }
-    let(:emp_filepath)    { Rails.root.to_s + '/tmp/concur/employees_fake_20180214160000.txt' }
-    let(:loc_crypt_path)  { Rails.root.to_s + '/tmp/concur/list_fake_locations_20180214160000.txt.gpg' }
-    let(:dept_crypt_path) { Rails.root.to_s + '/tmp/concur/list_fake_departments_20180214160000.txt.gpg' }
-    let(:emp_crypt_path)  { Rails.root.to_s + '/tmp/concur/employees_fake_20180214160000.txt.gpg' }
-
-    before do
-      Timecop.freeze(Time.new(2018, 2, 14, 16, 0, 0, '+00:00'))
-      allow(ConcurImporter::List).to receive(:new).and_return(list).twice
-      allow(ConcurImporter::EnhancedEmployee).to receive(:new).and_return(emp_import)
-      allow(list).to receive(:locations)
-      allow(list).to receive(:departments)
-      allow(emp_import).to receive(:generate_csv)
-      allow(upload).to receive(:encrypt)
-      allow(upload).to receive(:upload_files)
-    end
+    let(:query)    { double(EmployeeQuery) }
+    let(:employee) { FactoryGirl.create(:active_employee) }
+    let(:loc_txt)  { Rails.root.to_s + '/tmp/concur/list_fake_locations_20180214140000.txt' }
+    let(:loc_gpg)  { Rails.root.to_s + '/tmp/concur/list_fake_locations_20180214140000.txt.gpg' }
+    let(:dept_txt) { Rails.root.to_s + '/tmp/concur/list_fake_departments_20180214140000.txt' }
+    let(:dept_gpg) { Rails.root.to_s + '/tmp/concur/list_fake_departments_20180214140000.txt.gpg' }
+    let(:emp_txt)  { Rails.root.to_s + '/tmp/concur/employee_fake_20180214140000.txt' }
+    let(:emp_gpg)  { Rails.root.to_s + '/tmp/concur/employee_fake_20180214140000.txt.gpg' }
 
     context 'when there are employee changes' do
       subject(:upload) { ConcurImporter::Upload.new }
 
       before do
-        allow(EmployeeQuery).to receive_message_chain(:new, :concur_upload_group).and_return([employee])
-        allow(upload).to receive(:all_filepaths).and_return([loc_filepath, dept_filepath, emp_filepath, loc_crypt_path, dept_crypt_path, emp_crypt_path])
+        Timecop.freeze(Time.new(2018, 2, 14, 22, 0, 0, '+00:00'))
+        allow(EmployeeQuery).to receive(:new).and_return(query)
+        allow(query).to receive(:concur_upload_group).and_return([employee])
       end
 
-      it 'generates a new location list' do
-        upload.all
-        expect(list).to have_received(:locations)
+      after do
+        Timecop.return
       end
 
-      it 'generates a new department list' do
+      it 'creates a location txt file' do
         upload.all
-        expect(list).to have_received(:departments)
+        expect(File.exist?(loc_txt)).to be(true)
       end
 
-      it 'generates a new employee list' do
+      it 'creates a department txt file' do
         upload.all
-        expect(emp_import).to have_received(:generate_csv).with([employee])
+        expect(File.exist?(dept_txt)).to be(true)
       end
 
-      it 'encrypts the location list' do
+      it 'creates an employee txt file' do
         upload.all
-        expect(upload).to have_received(:encrypt).with(loc_filepath)
+        expect(File.exist?(emp_txt)).to be(true)
       end
 
-      it 'encrypts the department list' do
+      it 'encrypts the location file' do
         upload.all
-        expect(upload).to have_received(:encrypt).with(dept_filepath)
+        expect(File.read(loc_gpg)).to include('BEGIN PGP MESSAGE')
       end
 
-      it 'encrypts the employee list' do
+      it 'encrypts the department file' do
         upload.all
-        expect(upload).to have_received(:encrypt).with(emp_filepath)
+        expect(File.read(dept_gpg)).to include('BEGIN PGP MESSAGE')
       end
 
-      it 'uploads the encrypted files' do
+      it 'encrypts the employee file' do
         upload.all
-        expect(upload).to have_received(:upload_files).with([loc_crypt_path, dept_crypt_path, emp_crypt_path])
+        expect(File.read(emp_gpg)).to include('BEGIN PGP MESSAGE')
       end
     end
 
@@ -87,43 +78,43 @@ describe ConcurImporter::Upload, type: :service do
       subject(:upload) { ConcurImporter::Upload.new }
 
       before do
-        allow(EmployeeQuery).to receive_message_chain(:new, :concur_upload_group).and_return(nil)
-        allow(upload).to receive(:all_filepaths).and_return([loc_filepath, dept_filepath, loc_crypt_path, dept_crypt_path])
+        Timecop.freeze(Time.new(2018, 2, 14, 22, 0, 0, '+00:00'))
+        allow(EmployeeQuery).to receive(:new).and_return(query)
+        allow(query).to receive(:concur_upload_group).and_return([])
       end
 
-      it 'generates a new location list' do
-        upload.all
-        expect(list).to have_received(:locations)
+      after do
+        Timecop.return
       end
 
-      it 'generates a new department list' do
+      it 'creates a location txt file' do
         upload.all
-        expect(list).to have_received(:departments)
+        expect(File.read(loc_txt)).to include('Locations,')
       end
 
-      it 'does not generate a new employee list' do
+      it 'creates a department txt file' do
         upload.all
-        expect(emp_import).not_to have_received(:generate_csv)
+        expect(File.read(dept_txt)).to include('Departments,')
       end
 
-      it 'encrypts the location list' do
+      it 'does not create an employee txt file' do
         upload.all
-        expect(upload).to have_received(:encrypt).with(loc_filepath)
+        expect(File.exist?(emp_txt)).to be(false)
       end
 
-      it 'encrypts the department list' do
+      it 'encrypts the location file' do
         upload.all
-        expect(upload).to have_received(:encrypt).with(dept_filepath)
+        expect(File.read(loc_gpg)).to include('BEGIN PGP MESSAGE')
       end
 
-      it 'does not have the employee list to encrypt' do
+      it 'encrypts the department file' do
         upload.all
-        expect(upload).not_to have_received(:encrypt).with(emp_filepath)
+        expect(File.read(dept_gpg)).to include('BEGIN PGP MESSAGE')
       end
 
-      it 'uploads the encrypted files' do
+      it 'does not have an encrypted employee file' do
         upload.all
-        expect(upload).to have_received(:upload_files).with([loc_crypt_path, dept_crypt_path])
+        expect(File.exist?(emp_gpg)).to be(false)
       end
     end
   end
