@@ -232,8 +232,14 @@ describe EmployeeQuery, type: :query do
   end
 
   describe '#hr_contractor_notices' do
+    let(:contractor) do
+      FactoryGirl.create(:contract_worker,
+        status: 'active',
+        contract_end_date: Date.new(2018, 2, 23))
+    end
+
     before do
-      Timecop.freeze(Time.new(2017, 11, 10, 17, 0, 0, '+00:00'))
+      Timecop.freeze(Time.new(2018, 2, 2, 17, 0, 0, '+00:00'))
     end
 
     after do
