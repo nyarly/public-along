@@ -72,8 +72,8 @@ module AdpService
     def look_ahead(e)
       # the asynchronous nature of the sync means
       # workers will sometimes have 'active' status when this runs
-      return check_leave_return if e.status == 'inactive'
-      return check_new_hire_change if e.status == 'pending'
+      return check_leave_return(e) if e.status == 'inactive'
+      return check_new_hire_change(e) if e.status == 'pending'
       true
     end
 

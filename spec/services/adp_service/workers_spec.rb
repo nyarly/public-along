@@ -389,6 +389,83 @@ describe AdpService::Workers, type: :service do
     end
   end
 
+  describe '#look_ahead' do
+    let(:adp) { AdpService::Workers.new }
+
+    before do
+      check_date = 1.year.from_now.change(usec: 0)
+      allow(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers/G3NGJ6TFKN7ZWHBP?asOfDate=#{check_date.strftime('%m')}%2F#{check_date.strftime('%d')}%2F#{check_date.strftime('%Y')}").and_return(uri)
+      allow(response).to receive(:body).and_return(pend_rehire_json)
+      allow(http).to receive(:get).with(
+        request_uri,
+        { 'Accept' => 'application/json',
+          'Authorization' => 'Bearer a-token-value',
+        }).and_return(response)
+      allow(response).to receive(:code)
+      allow(response).to receive(:message)
+
+      allow(adp).to receive(:check_new_hire_change)
+      allow(adp).to receive(:check_leave_return)
+    end
+
+    context 'when worker is pending' do
+      let(:new_hire) do
+        FactoryGirl.create(:employee,
+          status: 'pending',
+          hire_date: Date.today + 4.days)
+      end
+
+      before do
+        FactoryGirl.create(:profile,
+          employee: new_hire,
+          profile_status: 'pending',
+          adp_employee_id: '123456',
+          adp_assoc_oid: 'TESTOID')
+      end
+
+      it 'checks for new hire changes' do
+        adp.look_ahead(new_hire)
+        expect(adp).to have_received(:check_new_hire_change).with(new_hire)
+      end
+    end
+
+    context 'when worker is on leave' do
+      let(:leave_emp) { FactoryGirl.create(:employee, status: 'inactive') }
+
+      before do
+        FactoryGirl.create(:profile,
+          employee: leave_emp,
+          profile_status: 'leave',
+          adp_employee_id: '123456',
+          adp_assoc_oid: 'TESTOID')
+      end
+
+      it 'checks for leave return date' do
+        adp.look_ahead(leave_emp)
+        expect(adp).to have_received(:check_leave_return).with(leave_emp)
+      end
+    end
+
+    context 'when worker account has been activated' do
+      let(:worker) { FactoryGirl.create(:employee, status: 'active',
+          hire_date: Date.today + 4.days) }
+
+      before do
+        FactoryGirl.create(:profile,
+          employee: worker,
+          profile_status: 'leave',
+          adp_employee_id: '123456',
+          adp_assoc_oid: 'TESTOID')
+      end
+
+      it 'does nothing' do
+        adp.look_ahead(worker)
+        expect(adp).not_to have_received(:check_leave_return).with(worker)
+        expect(adp).not_to have_received(:check_new_hire_change).with(worker)
+      end
+    end
+  end
+
   describe "check leave return" do
     let!(:leave_emp) {FactoryGirl.create(:leave_employee,
       leave_return_date: nil,
@@ -506,31 +583,31 @@ describe AdpService::Workers, type: :service do
     end
   end
 
-  describe 'check_new_hire_change' do
-    let!(:regular_w_type) { FactoryGirl.create(:worker_type, code: "FTR")}
+  describe '#check_new_hire_change' do
+    let!(:regular_w_type) { FactoryGirl.create(:worker_type, code: 'FTR') }
     let!(:new_hire) {FactoryGirl.create(:pending_employee,
-      first_name: "Robert",
+      first_name: 'Robert',
       hire_date: Date.new(2017, 7, 12)) }
     let!(:profile) { FactoryGirl.create(:profile,
       employee: new_hire,
       start_date: Date.new(2017, 7, 12),
-      profile_status: "pending",
-      adp_assoc_oid: "G3NQ5754ETA080N",
-      adp_employee_id: "100015",
+      profile_status: 'pending',
+      adp_assoc_oid: 'G3NQ5754ETA080N',
+      adp_employee_id: '100015',
       worker_type: regular_w_type) }
-    let!(:future_date) { 1.year.from_now.change(:usec => 0) }
+    let!(:future_date) { 1.year.from_now.change(usec: 0) }
 
     it 'creates sidekiq workers' do
       expect(EmployeeChangeWorker).to receive(:perform_async).with(new_hire.id)
       adp = AdpService::Workers.new
-      adp.token = "a-token-value"
+      adp.token = 'a-token-value'
       expect{
         adp.check_future_changes
       }.to_not change{Employee.count}
     end
 
     context 'when worker found' do
-      before :each do
+      before do
         expect(URI).to receive(:parse).with("https://api.adp.com/hr/v2/workers/G3NQ5754ETA080N?asOfDate=#{future_date.strftime('%m')}%2F#{future_date.strftime('%d')}%2F#{future_date.strftime('%Y')}").and_return(uri)
         expect(response).to receive(:body).and_return(pending_hire_json)
         allow(http).to receive(:get).with(
