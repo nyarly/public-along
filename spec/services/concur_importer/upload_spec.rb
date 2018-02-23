@@ -23,6 +23,8 @@ describe ConcurImporter::Upload, type: :service do
   describe '#all' do
     let(:query)    { double(EmployeeQuery) }
     let(:employee) { FactoryGirl.create(:active_employee) }
+    let(:set_txt)  { Rails.root.to_s + '/tmp/concur/import_settings_fake_20180214140000.txt' }
+    let(:set_gpg)  { Rails.root.to_s + '/tmp/concur/import_settings_fake_20180214140000.gpg' }
     let(:loc_txt)  { Rails.root.to_s + '/tmp/concur/list_fake_locations_20180214140000.txt' }
     let(:loc_gpg)  { Rails.root.to_s + '/tmp/concur/list_fake_locations_20180214140000.txt.gpg' }
     let(:dept_txt) { Rails.root.to_s + '/tmp/concur/list_fake_departments_20180214140000.txt' }
@@ -43,6 +45,11 @@ describe ConcurImporter::Upload, type: :service do
         Timecop.return
       end
 
+      it 'creates a settings file' do
+        upload.all
+        expect(File.exist?(set_txt)).to be(true)
+      end
+
       it 'creates a location txt file' do
         upload.all
         expect(File.exist?(loc_txt)).to be(true)
@@ -56,6 +63,11 @@ describe ConcurImporter::Upload, type: :service do
       it 'creates an employee txt file' do
         upload.all
         expect(File.exist?(emp_txt)).to be(true)
+      end
+
+      it 'encrypts the settings file' do
+        upload.all
+        expect(File.exist?(set_gpg)).to be(true)
       end
 
       it 'encrypts the location file' do
@@ -87,6 +99,11 @@ describe ConcurImporter::Upload, type: :service do
         Timecop.return
       end
 
+      it 'creates a settings file' do
+        upload.all
+        expect(File.exist?(set_txt)).to be(true)
+      end
+
       it 'creates a location txt file' do
         upload.all
         expect(File.read(loc_txt)).to include('Locations,')
@@ -100,6 +117,11 @@ describe ConcurImporter::Upload, type: :service do
       it 'does not create an employee txt file' do
         upload.all
         expect(File.exist?(emp_txt)).to be(false)
+      end
+
+      it 'encrypts the settings file' do
+        upload.all
+        expect(File.exist?(set_gpg)).to be(true)
       end
 
       it 'encrypts the location file' do
