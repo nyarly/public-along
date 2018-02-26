@@ -94,6 +94,6 @@ class Location < ActiveRecord::Base
 
   define_method :country do
     return nil if address.blank? || address.country.blank?
-    address.country.try(:send, :code)
+    address.country.iso_alpha_2_code
   end
 end

@@ -177,6 +177,8 @@ ActiveRecord::Schema.define(version: 20180209204918) do
     t.string   "business_card_title",        limit: 150
     t.string   "request_status"
     t.integer  "manager_id"
+    t.string   "payroll_file_number"
+    t.string   "home_country_code"
     t.datetime "offboarded_at"
   end
 
@@ -193,14 +195,14 @@ ActiveRecord::Schema.define(version: 20180209204918) do
   end
 
   create_table "locations", force: :cascade do |t|
-    t.string   "name",                                      null: false
-    t.string   "kind",       default: "Pending Assignment"
-    t.string   "country",    default: "Pending Assignment"
-    t.datetime "created_at",                                null: false
-    t.datetime "updated_at",                                null: false
-    t.string   "status",                                    null: false
-    t.string   "code",                                      null: false
-    t.string   "timezone",   default: "Pending Assignment"
+    t.string   "name",                                       null: false
+    t.string   "kind",        default: "Pending Assignment"
+    t.string   "del_country", default: "Pending Assignment"
+    t.datetime "created_at",                                 null: false
+    t.datetime "updated_at",                                 null: false
+    t.string   "status",                                     null: false
+    t.string   "code",                                       null: false
+    t.string   "timezone",    default: "Pending Assignment"
   end
 
   create_table "machine_bundles", force: :cascade do |t|

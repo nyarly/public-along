@@ -24,7 +24,7 @@ describe ConcurImporter::Upload, type: :service do
     let(:query)    { double(EmployeeQuery) }
     let(:employee) { FactoryGirl.create(:active_employee) }
     let(:set_txt)  { Rails.root.to_s + '/tmp/concur/import_settings_fake_20180214140000.txt' }
-    let(:set_gpg)  { Rails.root.to_s + '/tmp/concur/import_settings_fake_20180214140000.gpg' }
+    let(:set_gpg)  { Rails.root.to_s + '/tmp/concur/import_settings_fake_20180214140000.txt.gpg' }
     let(:loc_txt)  { Rails.root.to_s + '/tmp/concur/list_fake_locations_20180214140000.txt' }
     let(:loc_gpg)  { Rails.root.to_s + '/tmp/concur/list_fake_locations_20180214140000.txt.gpg' }
     let(:dept_txt) { Rails.root.to_s + '/tmp/concur/list_fake_departments_20180214140000.txt' }
