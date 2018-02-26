@@ -26,7 +26,8 @@ RSpec.describe EmployeeProfile do
     office_phone: nil,
     personal_mobile_phone: "(888) 888-8888",
     business_card_title: job_title.name,
-    manager: manager) }
+    manager: manager,
+    payroll_file_number: "123456") }
   let!(:profile) { FactoryGirl.create(:active_profile,
     employee: employee,
     adp_assoc_oid: "AAABBBCCCDDD",

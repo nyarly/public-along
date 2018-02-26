@@ -226,7 +226,7 @@
             }
           ],
           "payrollGroupCode": "",
-          "payrollFileNumber": "",
+          "payrollFileNumber": "123456",
           "managementPositionIndicator": false,
           "payGradeCode": {
             "codeValue": "",
