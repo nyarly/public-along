@@ -8,7 +8,7 @@ module ConcurImporter
   class Upload
 
     def all
-      prepare_import
+      verify_directory
       generate_lists
       generate_employee_import(daily_upload) unless daily_upload.blank?
       encrypt_all
@@ -18,7 +18,7 @@ module ConcurImporter
     # Warning: Updates all active employee records in Concur.
     # Intended for initial upload, not for regular use.
     def initial_concur_sync
-      prepare_import
+      verify_directory
       generate_lists
       generate_employee_import(initial_upload) unless initial_upload.blank?
       encrypt_all
@@ -27,26 +27,17 @@ module ConcurImporter
 
     private
 
-    def prepare_import
-      verify_directory
-      import_settings
-    end
-
-    def import_settings
-      ImportSettings.new.generate_csv
-    end
-
     def generate_lists
       generate_location_list
       generate_department_list
     end
 
     def generate_location_list
-      List.new.locations
+      List.new.location_list
     end
 
     def generate_department_list
-      List.new.departments
+      List.new.department_list
     end
 
     def generate_employee_import(upload_group)

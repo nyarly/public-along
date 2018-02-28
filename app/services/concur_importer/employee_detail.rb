@@ -24,7 +24,7 @@ module ConcurImporter
     end
 
     def status
-      employee.active? ? 'Y' : 'N'
+      employee.active? ? "Y" : "N"
     end
 
     def department_code
@@ -47,10 +47,10 @@ module ConcurImporter
       work_location.code
     end
 
-    def group_name
-      return 'United Kingdom' if work_country_name == 'Great Britain'
-      return work_country_name if CONCUR_GROUP_NAMES.include?(work_country_name)
-      'United States'
+    def group_name_code
+      return "UK" if country_code == "GB"
+      return country_code if CONCUR_GROUP_NAMES.include?(country_code)
+      "US"
     end
 
     def expense_report_approver
@@ -74,21 +74,21 @@ module ConcurImporter
     end
 
     def approver_status
-      profile.management_position ? 'Y' : 'N'
+      profile.management_position ? "Y" : "N"
     end
 
     def reimbursement_method_code
-      return 'ADPPAYR' if work_country_name == 'United States'
-      return 'APCHECK' if work_country_name == 'Canada'
-      'CNQRPAY'
+      return "ADPPAYR" if country_code == "US"
+      return "APCHECK" if country_code == "CA"
+      "CNQRPAY"
     end
 
     def adp_company_code
-      adp_reimbursed? ? 'WP8' : nil
+      adp_reimbursed? ? "WP8" : nil
     end
 
     def adp_deduction_code
-      adp_reimbursed? ? 'E' : nil
+      adp_reimbursed? ? "E" : nil
     end
 
     def adp_file_number
@@ -120,16 +120,12 @@ module ConcurImporter
       work_location.try(:address).country
     end
 
-    def work_country_name
-      work_country.name
-    end
-
     def currency
       work_country.currency
     end
 
     def adp_reimbursed?
-      reimbursement_method_code == 'ADPPAYR'
+      reimbursement_method_code == "ADPPAYR"
     end
   end
 end

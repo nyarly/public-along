@@ -86,7 +86,7 @@ describe ConcurImporter::EmployeeDetail, type: :service do
       end
 
       it 'group name is United States' do
-        expect(detail.group_name).to eq('United States')
+        expect(detail.group_name_code).to eq('US')
       end
 
       it 'expense report approver is manager employee id' do
@@ -156,7 +156,7 @@ describe ConcurImporter::EmployeeDetail, type: :service do
       end
 
       it 'group name is United Kingdom' do
-        expect(detail.group_name).to eq('United Kingdom')
+        expect(detail.group_name_code).to eq('UK')
       end
 
       it 'reimbursed by concur express pay' do
@@ -185,7 +185,7 @@ describe ConcurImporter::EmployeeDetail, type: :service do
       end
 
       it 'group name is Canada' do
-        expect(detail.group_name).to eq('Canada')
+        expect(detail.group_name_code).to eq('CA')
       end
 
       it 'reimbursed by check' do
