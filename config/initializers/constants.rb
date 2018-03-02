@@ -38,7 +38,7 @@ CONCUR_GROUP_NAMES = [
   'FR',
   'DE',
   'IN',
-  'IR',
+  'IE',
   'IT',
   'JP',
   'MX',
@@ -46,6 +46,6 @@ CONCUR_GROUP_NAMES = [
   'ES',
   'CH',
   'AE',
-  'UK',
+  'GB',
   'US'
 ]

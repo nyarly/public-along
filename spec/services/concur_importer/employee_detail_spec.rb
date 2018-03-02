@@ -155,8 +155,8 @@ describe ConcurImporter::EmployeeDetail, type: :service do
         expect(detail.currency_code).to eq('GBP')
       end
 
-      it 'group name is United Kingdom' do
-        expect(detail.group_name_code).to eq('UK')
+      it 'group code is GB' do
+        expect(detail.group_name_code).to eq('GB')
       end
 
       it 'reimbursed by concur express pay' do

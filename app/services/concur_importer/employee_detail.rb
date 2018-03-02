@@ -24,7 +24,7 @@ module ConcurImporter
     end
 
     def status
-      employee.active? ? "Y" : "N"
+      employee.active? ? 'Y' : 'N'
     end
 
     def department_code
@@ -47,10 +47,12 @@ module ConcurImporter
       work_location.code
     end
 
+    # Concur group names are referenced by country code.
+    # This list should never be changed unless requested by finance/Concur.
+    # Note: GB has display name United Kingdom in Concur UI.
     def group_name_code
-      return "UK" if country_code == "GB"
       return country_code if CONCUR_GROUP_NAMES.include?(country_code)
-      "US"
+      'US'
     end
 
     def expense_report_approver
@@ -74,21 +76,21 @@ module ConcurImporter
     end
 
     def approver_status
-      profile.management_position ? "Y" : "N"
+      profile.management_position ? 'Y' : 'N'
     end
 
     def reimbursement_method_code
-      return "ADPPAYR" if country_code == "US"
-      return "APCHECK" if country_code == "CA"
-      "CNQRPAY"
+      return 'ADPPAYR' if country_code == 'US'
+      return 'APCHECK' if country_code == 'CA'
+      'CNQRPAY'
     end
 
     def adp_company_code
-      adp_reimbursed? ? "WP8" : nil
+      adp_reimbursed? ? 'WP8' : nil
     end
 
     def adp_deduction_code
-      adp_reimbursed? ? "E" : nil
+      adp_reimbursed? ? 'E' : nil
     end
 
     def adp_file_number
@@ -125,7 +127,7 @@ module ConcurImporter
     end
 
     def adp_reimbursed?
-      reimbursement_method_code == "ADPPAYR"
+      reimbursement_method_code == 'ADPPAYR'
     end
   end
 end
