@@ -3,14 +3,14 @@
 module ConcurImporter
   class List
 
-    def locations
-      locations = Location.where(status: 'Active').order(:name).all
-      create_csv('Locations', locations)
+    def location_list
+      location = Location.where(status: 'Active').order(:name).all
+      create_csv('Location', location)
     end
 
-    def departments
-      departments = Department.where(status: 'Active').order(:name).all
-      create_csv('Departments', departments)
+    def department_list
+      department = Department.where(status: 'Active').order(:name).all
+      create_csv('Department', department)
     end
 
     private
@@ -30,7 +30,7 @@ module ConcurImporter
           # Fields marked by * are required
           csv << [
             list_name,      # 01: * List Name: Must have been created in admin tool
-            'ConcurLists',  # 02: * List Category Name:
+            list_name,      # 02: * List Category Name:
             level_1_code,   # 03: * Level 1 Code
             nil,            # 04:   Level 2 Code
             nil,            # 05:   Level 3 Code

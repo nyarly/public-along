@@ -44,7 +44,8 @@ describe ConcurImporter::EnhancedEmployee, type: :service do
                         location: location,
                         department: department,
                         worker_type: worker_type,
-                        management_position: true) }
+                        management_position: true,
+                        company: 'OpenTable, Inc.') }
     let(:worker)      { FactoryGirl.create(:employee,
                         first_name: 'John',
                         last_name: 'Keynes',
@@ -59,11 +60,13 @@ describe ConcurImporter::EnhancedEmployee, type: :service do
                         location: location,
                         department: department,
                         worker_type: worker_type,
-                        management_position: false) }
+                        management_position: false,
+                        company: 'OpenTable, Inc.') }
     let(:csv)       {
       <<-EOS.strip_heredoc
-      305,John,,Keynes,222,email2@example.com,,email2@example.com,en_US,US,,DEFAULT,USD,,Y,,,,,,,"OpenTable\, Inc\.",,,,,,,,,deptxx,XX,0,222,,,,,,,,United States,,,,,,,,,,,,,,,,,111,111,111,111,,,,,,,,,,,,,,,111,Y,N,,,,,,,Y,United States,,,ADPPAYR,222,WP8,E,,,,,,
-      305,Adam,,Smith,111,email1@example.com,,email1@example.com,en_US,US,,DEFAULT,USD,,Y,,,,,,,"OpenTable\, Inc\.",,,,,,,,,deptxx,XX,0,111,,,,,,,,United States,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Y,Y,,,,,,,Y,United States,,,ADPPAYR,111,WP8,E,,,,,,
+      100,0,SSO,UPDATE,EN,N,N
+      305,John,,Keynes,222,email2@example.com,,email2@example.com,en_US,US,,DEFAULT,USD,,Y,,,,,,,"OpenTable, Inc.",,,,,,,,,deptxx,XX,0,222,,,,,,,,US,,,,,,,,,,,,,,,,,111,111,111,111,,,,,,,,,,,,,,,111,Y,N,,,,,,,Y,US,,,ADPPAYR,222,WP8,E,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+      305,Adam,,Smith,111,email1@example.com,,email1@example.com,en_US,US,,DEFAULT,USD,,Y,,,,,,,"OpenTable, Inc.",,,,,,,,,deptxx,XX,0,111,,,,,,,,US,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Y,Y,,,,,,,Y,US,,,ADPPAYR,111,WP8,E,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
       EOS
     }
 

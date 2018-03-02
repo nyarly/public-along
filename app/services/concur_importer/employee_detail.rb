@@ -47,10 +47,12 @@ module ConcurImporter
       work_location.code
     end
 
-    def group_name
-      return 'United Kingdom' if work_country_name == 'Great Britain'
-      return work_country_name if CONCUR_GROUP_NAMES.include?(work_country_name)
-      'United States'
+    # Concur group names are referenced by country code.
+    # This list should never be changed unless requested by finance/Concur.
+    # Note: GB has display name United Kingdom in Concur UI.
+    def group_name_code
+      return country_code if CONCUR_GROUP_NAMES.include?(country_code)
+      'US'
     end
 
     def expense_report_approver
@@ -78,8 +80,8 @@ module ConcurImporter
     end
 
     def reimbursement_method_code
-      return 'ADPPAYR' if work_country_name == 'United States'
-      return 'APCHECK' if work_country_name == 'Canada'
+      return 'ADPPAYR' if country_code == 'US'
+      return 'APCHECK' if country_code == 'CA'
       'CNQRPAY'
     end
 
@@ -118,10 +120,6 @@ module ConcurImporter
 
     def work_country
       work_location.try(:address).country
-    end
-
-    def work_country_name
-      work_country.name
     end
 
     def currency
