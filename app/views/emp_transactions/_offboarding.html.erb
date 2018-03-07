@@ -18,6 +18,7 @@
 <%= f.label :replacement_hired, "No" %>
 <p class="section text-center">Please assign yourself if the worker does not have email, Salesforce or Google Doc accounts. No action will be taken.</strong></p>
 <p>Forward Email to: *</p>
+<p>NOTE: If choosing to forward email to someone other than the worker's manager, please be aware this user may receive sensitive, private, or confidential information from distribution lists or other sources.</p>
 <%= f.autocomplete_field :forward_email_id, autocomplete_name_employees_path, :id_element => '#forward_email_id', :update_elements => {}, :placeholder => "Search for Employee", required: true %>
 <p>Reassign Salesforce cases to: *</p>
 <%= f.autocomplete_field :reassign_salesforce_id, autocomplete_name_employees_path, :id_element => '#reassign_salesforce_id', :update_elements => {}, :placeholder => "Search for Employee", required: true %>
