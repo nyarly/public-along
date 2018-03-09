@@ -18,6 +18,7 @@ module AdpService
       status = w["workerStatus"]["statusCode"]["codeValue"]
       adp_assoc_oid = w["associateOID"]
       adp_employee_id = w["workerID"]["idValue"].downcase
+      legal_first_name = w["person"]["legalName"]["givenName"]
       first_name = w["person"]["legalName"]["nickName"].present? ? w["person"]["legalName"]["nickName"] : w["person"]["legalName"]["givenName"]
       last_name = find_last_name(w)
       personal_mobile_phone = find_mobile(w["person"])
@@ -59,6 +60,7 @@ module AdpService
 
       worker = {
         status: status.downcase!,
+        legal_first_name: legal_first_name,
         first_name: first_name,
         last_name: last_name,
         hire_date: hire_date,
