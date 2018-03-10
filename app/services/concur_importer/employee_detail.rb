@@ -8,7 +8,7 @@ module ConcurImporter
     end
 
     def first_name
-      employee.first_name
+      employee.legal_first_name
     end
 
     def last_name
@@ -59,24 +59,12 @@ module ConcurImporter
       approver_id
     end
 
-    def cash_advance_approver
-      approver_id
-    end
-
-    def request_approver
-      approver_id
-    end
-
-    def invoice_approver
-      approver_id
+    def expense_approver_status
+      EmployeePolicy.new(employee).manager? ? 'Y' : 'N'
     end
 
     def bi_manager
       approver_id
-    end
-
-    def approver_status
-      profile.management_position ? 'Y' : 'N'
     end
 
     def reimbursement_method_code
