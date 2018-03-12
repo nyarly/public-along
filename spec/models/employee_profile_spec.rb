@@ -19,6 +19,7 @@ RSpec.describe EmployeeProfile do
     adp_employee_id: "654321") }
   let(:employee) { FactoryGirl.create(:employee,
     status: "active",
+    legal_first_name: 'Jane',
     first_name: "Jane",
     last_name: "Goodall",
     hire_date: Date.new(2014, 6, 1),
