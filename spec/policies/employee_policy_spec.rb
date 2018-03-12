@@ -1,31 +1,65 @@
 require 'rails_helper'
 
 describe EmployeePolicy, type: :policy do
-  context "is conversion" do
-    let(:contractor)  { FactoryGirl.create(:employee,
-                        status: "active",
-                        contract_end_date: nil,
-                        termination_date: nil) }
-    let!(:prof_1)     { FactoryGirl.create(:profile,
-                        profile_status: "active",
-                        employee: contractor) }
-    let!(:prof_2)     { FactoryGirl.create(:profile,
-                        profile_status: "pending",
-                        employee: contractor) }
-    let(:employee)    { FactoryGirl.create(:employee,
-                        status: "active") }
-    let!(:prof_3)     { FactoryGirl.create(:profile,
-                        profile_status: "active",
-                        employee: employee) }
-
-    it "returns true when true" do
-      policy = EmployeePolicy.new(contractor)
-      expect(policy.is_conversion?).to eq(true)
+  describe '.is_conversion?' do
+    let(:employee) { FactoryGirl.create(:employee, status: 'active') }
+    let(:contractor) do
+      FactoryGirl.create(:employee,
+        status: 'active',
+        contract_end_date: nil,
+        termination_date: nil)
     end
 
-    it "returns false when false" do
-      policy = EmployeePolicy.new(employee)
-      expect(policy.is_conversion?).to eq(false)
+    before do
+      FactoryGirl.create(:profile,
+        profile_status: 'active',
+        employee: contractor)
+      FactoryGirl.create(:profile,
+        profile_status: 'pending',
+        employee: contractor)
+      FactoryGirl.create(:profile,
+        profile_status: 'active',
+        employee: employee)
+    end
+
+    context 'when conversion' do
+      let(:policy) { EmployeePolicy.new(contractor) }
+
+      it 'is true' do
+        expect(policy.is_conversion?).to eq(true)
+      end
+    end
+
+    context 'when not conversion' do
+      let(:policy) { EmployeePolicy.new(employee) }
+
+      it 'is false' do
+        expect(policy.is_conversion?).to eq(false)
+      end
+    end
+  end
+
+  describe '.manager?' do
+    let!(:worker) { FactoryGirl.create(:active_employee) }
+    let!(:direct_report) do
+      FactoryGirl.create(:active_employee,
+        manager_id: worker.id)
+    end
+
+    context 'when worker has direct reports' do
+      subject(:policy) { EmployeePolicy.new(worker) }
+
+      it 'is true' do
+        expect(policy.manager?).to eq(true)
+      end
+    end
+
+    context 'when worker does not have direct reports' do
+      subject(:policy) { EmployeePolicy.new(direct_report) }
+
+      it 'is false' do
+        expect(policy.manager?).to eq(false)
+      end
     end
   end
 end

@@ -10,11 +10,11 @@ module ConcurImporter
         csv << [
           100,
           0,
-          "SSO",
-          "UPDATE",
-          "EN",
-          "N",
-          "N"
+          'SSO',
+          'UPDATE',
+          'EN',
+          'N',
+          'N'
         ]
 
         employees.each do |employee|
@@ -30,10 +30,10 @@ module ConcurImporter
             worker_data.email,                      # 06: * Login ID, format like employee@domain
             nil,                                    # 07:   Password
             worker_data.email,                      # 08: * Email address, lowercase
-            "en_US",                                # 09: * Locale code
+            'en_US',                                # 09: * Locale code
             worker_data.country_code,               # 10:   Country code
             nil,                                    # 11:   Country sub code
-            "DEFAULT",                              # 12: * Ledger code
+            'DEFAULT',                              # 12: * Ledger code
             worker_data.currency_code,              # 13: * Reimbursement currency code
             nil,                                    # 14:   Cash advance account code
             worker_data.status,                     # 15: * Active, Y or N
@@ -81,11 +81,11 @@ module ConcurImporter
             nil,                                    # 57:
             nil,                                    # 58:
             worker_data.expense_report_approver,    # 59:   Employee ID of Expense Report Approver
-            worker_data.cash_advance_approver,      # 60:   Employee ID of Cash Advance Approver
-            worker_data.request_approver,           # 61:   Employee ID of Request Approver
-            worker_data.invoice_approver,           # 62:   Employee ID of Invoice Approver
+            nil,                                    # 60:   Employee ID of Cash Advance Approver
+            nil,                                    # 61:   Employee ID of Request Approver
+            nil,                                    # 62:   Employee ID of Invoice Approver
             nil,                                    # 63:   Expense User (default change of value from assigned roles)
-            nil,                                    # 64:   Expense and/or Cash Advance Approver
+            worker_data.expense_approver_status,    # 64:   Expense and/or Cash Advance Approver
             nil,                                    # 65:   Company Card Administrator
             nil,                                    # 66:   --
             nil,                                    # 67:   Receipt Processor
@@ -99,15 +99,15 @@ module ConcurImporter
             nil,                                    # 75:   Invoice Vendor Manager
             nil,                                    # 76:   Expense Audit Required: 'REQ', 'ALW', 'NVR'
             worker_data.bi_manager,                 # 77:   BI Manager Employee ID
-            "Y",                                    # 78:   Request User Y or N
-            worker_data.approver_status,            # 79:   Request Approver y or n
+            nil,                                    # 78:   Request User Y or N
+            nil,                                    # 79:   Request Approver y or n
             nil,                                    # 80:   Expense Report Approver Employee ID 2
             nil,                                    # 81:   A Payment Request has been Assigned
             nil,                                    # 82:   --
             nil,                                    # 83:   --
             nil,                                    # 84:   Tax Administrator
             nil,                                    # 85:   FBT Administrator
-            "Y",                                    # 86:   Travel Wizard User
+            'Y',                                    # 86:   Travel Wizard User
             worker_data.group_name_code,            # 87:   Custom field: Group Name
             nil,                                    # 88:   Request Approver Employee ID 2
             nil,                                    # 89:   Is Non-employee, blank == N

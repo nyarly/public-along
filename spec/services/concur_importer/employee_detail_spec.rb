@@ -4,11 +4,15 @@ describe ConcurImporter::EmployeeDetail, type: :service do
   describe '.new' do
     let(:manager) { FactoryGirl.create(:manager) }
 
+    before do
+      FactoryGirl.create(:active_employee, manager: manager)
+    end
+
     context 'when manager' do
       subject(:detail) { ConcurImporter::EmployeeDetail.new(manager) }
 
       it 'is approver' do
-        expect(detail.approver_status).to eq('Y')
+        expect(detail.expense_approver_status).to eq('Y')
       end
     end
 
@@ -42,6 +46,7 @@ describe ConcurImporter::EmployeeDetail, type: :service do
           company: 'OpenTable, Inc.',
           employee_args:
             {
+              legal_first_name: 'Anne',
               manager: manager,
               email: 'email',
               payroll_file_number: 'num',
@@ -50,7 +55,7 @@ describe ConcurImporter::EmployeeDetail, type: :service do
       end
 
       it 'has first name' do
-        expect(detail.first_name).to eq(us_position.employee.first_name)
+        expect(detail.first_name).to eq(us_position.employee.legal_first_name)
       end
 
       it 'has last name' do
@@ -93,24 +98,12 @@ describe ConcurImporter::EmployeeDetail, type: :service do
         expect(detail.expense_report_approver).to eq(manager.current_profile.adp_employee_id)
       end
 
-      it 'cash advance approver is manager employee id' do
-        expect(detail.cash_advance_approver).to eq(manager.current_profile.adp_employee_id)
-      end
-
-      it 'request approver is manager employee id' do
-        expect(detail.request_approver).to eq(manager.current_profile.adp_employee_id)
-      end
-
-      it 'invoice approver is manager employee id' do
-        expect(detail.invoice_approver).to eq(manager.current_profile.adp_employee_id)
-      end
-
       it 'BI manager is manager employee id' do
         expect(detail.bi_manager).to eq(manager.current_profile.adp_employee_id)
       end
 
       it 'not approver' do
-        expect(detail.approver_status).to eq('N')
+        expect(detail.expense_approver_status).to eq('N')
       end
 
       it 'reimbursed by ADP' do
@@ -127,6 +120,40 @@ describe ConcurImporter::EmployeeDetail, type: :service do
 
       it 'uses adp deduction code' do
         expect(detail.adp_deduction_code).to eq('E')
+      end
+    end
+
+    context 'when worker has nickname' do
+      subject(:detail) { ConcurImporter::EmployeeDetail.new(nicknamed.employee) }
+
+      let(:nicknamed) do
+        FactoryGirl.create(:active_profile,
+          employee_args:
+            {
+              legal_first_name: 'Robert',
+              first_name: 'Bob',
+            })
+      end
+
+      it 'uses the legal first name' do
+        expect(detail.first_name).to eq('Robert')
+      end
+    end
+
+    context 'when worker does not have nickname' do
+      subject(:detail) { ConcurImporter::EmployeeDetail.new(legal_named.employee) }
+
+      let(:legal_named) do
+        FactoryGirl.create(:active_profile,
+          employee_args:
+            {
+              legal_first_name: 'Robert',
+              first_name: 'Robert',
+            })
+      end
+
+      it 'uses the legal first name' do
+        expect(detail.first_name).to eq('Robert')
       end
     end
 
