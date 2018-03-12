@@ -1,14 +1,14 @@
 require 'rails_helper'
 
 describe ConcurImporter::Upload, type: :service do
-  let(:sftp) { class_double(Net::SFTP) }
+  let(:sftp) { double.as_null_object }
+  let(:conn_info) { ['st.fakehost.com', 'fake', { password: 'secret_word', port: 99 }] }
 
   before do
-    allow(Net::SFTP).to receive(:start).and_return(sftp)
+    allow(Net::SFTP).to receive(:start).with(*conn_info).and_yield(sftp)
+
     dirname = 'tmp/concur'
-
     FileUtils.mkdir_p(dirname) unless File.directory?(dirname)
-
     Dir["#{dirname}/*"].each do |f|
       File.delete(f)
     end
@@ -21,7 +21,7 @@ describe ConcurImporter::Upload, type: :service do
   end
 
   describe '#all' do
-    let(:query)    { double(EmployeeQuery) }
+    let(:query)    { instance_double(EmployeeQuery) }
     let(:employee) { FactoryGirl.create(:active_employee) }
     let(:loc_txt)  { Rails.root.to_s + '/tmp/concur/list_fake_location_20180214140000.txt' }
     let(:loc_gpg)  { Rails.root.to_s + '/tmp/concur/list_fake_location_20180214140000.txt.gpg' }
@@ -72,6 +72,27 @@ describe ConcurImporter::Upload, type: :service do
         upload.all
         expect(File.read(emp_gpg)).to include('BEGIN PGP MESSAGE')
       end
+
+      it 'uploads encrypted employee file' do
+        upload.all
+
+        expect(sftp).to have_received(:upload!)
+          .with('tmp/concur/employee_fake_20180214140000.txt.gpg', '/in/employee_fake_20180214140000.txt.gpg')
+      end
+
+      it 'uploads encrypted department file' do
+        upload.all
+
+        expect(sftp).to have_received(:upload!)
+          .with('tmp/concur/list_fake_department_20180214140000.txt.gpg', '/in/list_fake_department_20180214140000.txt.gpg')
+      end
+
+      it 'uploads encrypted location file' do
+        upload.all
+
+        expect(sftp).to have_received(:upload!)
+          .with('tmp/concur/list_fake_location_20180214140000.txt.gpg', '/in/list_fake_location_20180214140000.txt.gpg')
+      end
     end
 
     context 'when there are no employee changes' do
@@ -115,6 +136,20 @@ describe ConcurImporter::Upload, type: :service do
       it 'does not have an encrypted employee file' do
         upload.all
         expect(File.exist?(emp_gpg)).to be(false)
+      end
+
+      it 'uploads encrypted department file' do
+        upload.all
+
+        expect(sftp).to have_received(:upload!)
+          .with('tmp/concur/list_fake_department_20180214140000.txt.gpg', '/in/list_fake_department_20180214140000.txt.gpg')
+      end
+
+      it 'uploads encrypted location file' do
+        upload.all
+
+        expect(sftp).to have_received(:upload!)
+          .with('tmp/concur/list_fake_location_20180214140000.txt.gpg', '/in/list_fake_location_20180214140000.txt.gpg')
       end
     end
   end

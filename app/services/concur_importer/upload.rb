@@ -74,9 +74,16 @@ module ConcurImporter
     def upload_files(files)
       Net::SFTP.start(uri.host, SECRETS.concur_entity_code, password: password, port: port) do |sftp|
         files.each do |file|
-          sftp.upload!(file, '/in')
+          remote = remote_filepath(file)
+          sftp.upload!(file, remote)
         end
       end
+    end
+
+    def remote_filepath(local_filepath)
+      local = Pathname.new(local_filepath)
+      remote = Pathname.new('/in') + local.basename
+      remote.to_s
     end
 
     def password
