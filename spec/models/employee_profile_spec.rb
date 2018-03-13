@@ -1,211 +1,305 @@
 require 'rails_helper'
 
 RSpec.describe EmployeeProfile do
-  let!(:worker_type) { FactoryGirl.create(:worker_type,
-    code: "FTR",
-    name: "Regular Full-Time") }
-  let!(:department) { FactoryGirl.create(:department,
-    code: "125000",
-    name: "Inside Sales") }
-  let(:location) { Location.find_by(
-    code: "LOS",
-    name: "Los Angeles Office") }
-  let(:job_title) { FactoryGirl.create(:job_title,
-    code: "SADEN",
-    name: "Sales Associate") }
-  let(:manager) { FactoryGirl.create(:active_employee) }
-  let!(:manager_profile) { FactoryGirl.create(:active_profile,
-    employee: manager,
-    adp_employee_id: "654321") }
-  let(:employee) { FactoryGirl.create(:employee,
-    status: "active",
-    legal_first_name: 'Jane',
-    first_name: "Jane",
-    last_name: "Goodall",
-    hire_date: Date.new(2014, 6, 1),
-    contract_end_date: nil,
-    office_phone: nil,
-    personal_mobile_phone: "(888) 888-8888",
-    business_card_title: job_title.name,
-    manager: manager,
-    payroll_file_number: "123456") }
-  let!(:profile) { FactoryGirl.create(:active_profile,
-    employee: employee,
-    adp_assoc_oid: "AAABBBCCCDDD",
-    adp_employee_id: "123456",
-    company: "OpenTable, Inc.",
-    department: department,
-    job_title: job_title,
-    location: location,
-    start_date: Date.new(2017, 01, 01),
-    worker_type: worker_type,
-    management_position: false,
-    manager_adp_employee_id: "654321") }
-  let(:json) { JSON.parse(File.read(Rails.root.to_s+"/spec/fixtures/adp_worker.json"))}
-  let(:rehire_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_rehire_event.json") }
-  let(:parser) { AdpService::WorkerJsonParser.new }
-  let(:employee_profile) { EmployeeProfile.new }
+  let(:parser)        { AdpService::WorkerJsonParser.new }
+  let!(:worker_type)  { FactoryGirl.create(:worker_type, code: 'FTR') }
+  let!(:department)   { FactoryGirl.create(:department, code: '125000') }
+  let(:location)      { Location.find_by(code: 'LOS') }
+  let(:job_title)     { FactoryGirl.create(:job_title, code: 'SADEN') }
+  let(:manager)       { FactoryGirl.create(:active_employee) }
 
-  context "link existing employee to new adp profile" do
-    let(:terminated_employee) { FactoryGirl.create(:terminated_employee) }
-    let(:event) { FactoryGirl.create(:adp_event, json: rehire_json, status: "new") }
+  before do
+    FactoryGirl.create(:active_profile, employee: manager, adp_employee_id: '654321')
+  end
 
-    it "should create a new profile on a terminated employee" do
-      employee = employee_profile.link_accounts(terminated_employee.id, event.id)
-      expect(employee.profiles.count).to eq(2)
-      expect(employee.profiles.terminated.count).to eq(1)
-      expect(employee.profiles.pending.count).to eq(1)
-      expect(employee.profiles.pending.last.profile_status).to eq("pending")
+  describe '#link_accounts' do
+    context 'when rehiring terminated worker' do
+      let(:rehire_json) { File.read(Rails.root.to_s + '/spec/fixtures/adp_rehire_event.json') }
+      let(:terminated)  { FactoryGirl.create(:terminated_employee) }
+      let(:event)       { FactoryGirl.create(:adp_event, json: rehire_json, status: 'new') }
+
+      before do
+        EmployeeProfile.new.link_accounts(terminated.id, event.id)
+      end
+
+      it 'creates a new employee profile on terminated employee' do
+        expect(terminated.profiles.count).to eq(2)
+      end
+
+      it 'has a pending profile' do
+        expect(terminated.profiles.pending.count).to eq(1)
+      end
+
+      it 'has a terminated profile' do
+        expect(terminated.profiles.terminated.count).to eq(1)
+      end
+
+      it 'clears the termination date' do
+        expect(terminated.termination_date).to eq(nil)
+      end
     end
   end
 
-  context "sync existing employee with updated employee info" do
-    it "should update the info" do
-      employee.last_name = "Good All"
-      employee.save
-      w_hash = parser.gen_worker_hash(json["workers"][0])
-      profiler = EmployeeProfile.new
-      profiler.update_employee(employee, w_hash)
+  describe '#update_employee' do
+    let(:json) { JSON.parse(File.read(Rails.root.to_s + '/spec/fixtures/adp_worker.json')) }
 
-      expect(employee.reload.last_name).to eq("Goodall")
-      expect(employee.emp_deltas.last.before).to eq({"last_name"=>"Good All"})
-      expect(employee.emp_deltas.last.after).to eq({"last_name"=>"Goodall"})
+    let(:employee) do
+      FactoryGirl.create(:employee,
+        status: 'active',
+        legal_first_name: 'Jane',
+        first_name: 'Jane',
+        last_name: 'Goodall',
+        hire_date: Date.new(2014, 6, 1),
+        contract_end_date: nil,
+        office_phone: nil,
+        personal_mobile_phone: '(888) 888-8888',
+        business_card_title: job_title.name,
+        manager: manager,
+        payroll_file_number: '123456')
     end
 
-    it "should not create a new profile" do
-      employee.last_name = "Good All"
-      employee.save
-      w_hash = parser.gen_worker_hash(json["workers"][0])
-      profiler = EmployeeProfile.new
-      profiler.update_employee(employee, w_hash)
-
-      expect(employee.profiles.count).to eq(1)
+    let!(:profile) do
+      FactoryGirl.create(:active_profile,
+        employee: employee,
+        adp_assoc_oid: 'AAABBBCCCDDD',
+        adp_employee_id: '123456',
+        company: 'OpenTable, Inc.',
+        department: department,
+        job_title: job_title,
+        location: location,
+        start_date: Date.new(2017, 01, 01),
+        worker_type: worker_type,
+        management_position: false,
+        manager_adp_employee_id: '654321')
     end
-  end
 
-  context "sync existing employee with no change to profile" do
-    it "should not make any changes" do
-      w_hash = parser.gen_worker_hash(json["workers"][0])
-      profiler = EmployeeProfile.new
-      profiler.update_employee(employee, w_hash)
+    context 'when employee has no changes' do
+      before do
+        w_hash = parser.gen_worker_hash(json['workers'][0])
 
-      expect(employee.worker_type).to eq(worker_type)
-      expect(employee.profiles.count).to eq(1)
-      expect(employee.profiles.active.reorder(:created_at).last).to eq(profile)
+        EmployeeProfile.new.update_employee(employee, w_hash)
+      end
+
+      it 'does not create an emp delta' do
+        expect(employee.emp_deltas.count).to eq(0)
+      end
+
+      it 'does not create a new profile' do
+        expect(employee.profiles.count).to eq(1)
+      end
+
+      it 'does not update information' do
+        expect(employee.current_profile).to eq(profile)
+      end
     end
-  end
 
-  context "sync existing employee with updated profile" do
-    let!(:old_worker_type) { FactoryGirl.create(:worker_type,
-      code: "OLD",
-      name: "Contractor")}
-    let!(:profile) { FactoryGirl.create(:profile,
-      employee: employee,
-      adp_assoc_oid: "AAABBBCCCDDD",
-      adp_employee_id: "123456",
-      company: "OpenTable, Inc.",
-      department: department,
-      job_title: job_title,
-      location: location,
-      profile_status: "active",
-      management_position: false,
-      manager_adp_employee_id: "654321",
-      start_date: Date.new(2016, 6, 1),
-      worker_type: old_worker_type )}
+    context 'when employee info is updated' do
+      before do
+        employee.last_name = 'Good All'
+        employee.save
+        w_hash = parser.gen_worker_hash(json['workers'][0])
 
-    it "should create a new profile when going from contract to full-time" do
-      expect(EmployeeWorker).not_to receive(:perform_async)
-      w_hash = parser.gen_worker_hash(json["workers"][0])
-      profiler = EmployeeProfile.new
-      profiler.update_employee(employee, w_hash)
-      employee = Employee.find_by_employee_id("123456")
+        EmployeeProfile.new.update_employee(employee, w_hash)
+      end
 
-      employee.reload
+      it 'updates the info' do
+        expect(employee.reload.last_name).to eq('Goodall')
+      end
 
-      expect(employee.profiles.count).to eq(2)
-      expect(employee.status).to eq("active")
-      expect(employee.current_profile.profile_status).to eq("active")
-      expect(employee.worker_type).to eq(worker_type)
-      expect(employee.profiles.terminated.reorder(:created_at).last).to eq(profile)
-      expect(employee.profiles.terminated.reorder(:created_at).last.profile_status).to eq("terminated")
-      expect(employee.profiles.terminated.reorder(:created_at).last.worker_type).to eq(old_worker_type)
-      expect(employee.emp_deltas.last.before).to eq({"start_date"=>"2016-06-01 00:00:00 UTC", "worker_type_id"=>"#{old_worker_type.id}"})
-      expect(employee.emp_deltas.last.after).to eq({"start_date"=>"2017-01-01 00:00:00 UTC", "worker_type_id"=>"#{worker_type.id}"})
+      it 'creates an emp delta with the change' do
+        expect(employee.emp_deltas.last.after).to eq({ 'last_name' => 'Goodall' })
+        expect(employee.emp_deltas.last.before).to eq({ 'last_name' => 'Good All' })
+      end
+
+      it 'does not create a new profile' do
+        expect(employee.profiles.count).to eq(1)
+      end
     end
-  end
 
-  context "sync existing employee with employee info and worker type profile change" do
-    let!(:old_worker_type) { FactoryGirl.create(:worker_type,
-      code: "OLD",
-      name: "Contractor")}
-    let!(:profile) { FactoryGirl.create(:profile,
-      employee: employee,
-      adp_assoc_oid: "AAABBBCCCDDD",
-      adp_employee_id: "123456",
-      company: "OpenTable, Inc.",
-      department: department,
-      job_title: job_title,
-      location: location,
-      profile_status: "active",
-      management_position: false,
-      manager_adp_employee_id: "654321",
-      start_date: Date.new(2016, 6, 1),
-      worker_type: old_worker_type )}
-
-    it "should update employee info" do
-      expect(EmployeeWorker).not_to receive(:perform_async)
-
-      employee.last_name = "Good All"
-      employee.save
-      w_hash = parser.gen_worker_hash(json["workers"][0])
-      profiler = EmployeeProfile.new
-      profiler.update_employee(employee, w_hash)
-
-      employee = Employee.find_by_employee_id("123456")
-
-      expect(employee.profiles.count).to eq(2)
-      expect(employee.reload.last_name).to eq("Goodall")
-      expect(employee.hire_date).to eq(Date.new(2014, 6, 1))
-      expect(employee.emp_deltas.count).to eq(1)
-      expect(employee.emp_deltas.last.before).to eq({"last_name"=>"Good All", "start_date"=>"2016-06-01 00:00:00 UTC", "worker_type_id"=>"#{old_worker_type.id}"})
-      expect(employee.emp_deltas.last.after).to eq({"last_name"=>"Goodall", "start_date"=>"2017-01-01 00:00:00 UTC", "worker_type_id"=>"#{worker_type.id}"})
-      expect(employee.profiles.active.last.profile_status).to eq("active")
-      expect(employee.worker_type).to eq(worker_type)
-      expect(employee.profiles.terminated.reorder(:created_at).last).to eq(profile)
-      expect(employee.profiles.terminated.reorder(:created_at).last.profile_status).to eq("terminated")
-      expect(employee.profiles.terminated.reorder(:created_at).last.worker_type).to eq(old_worker_type)
+    context 'when address changes' do
     end
-  end
 
-  context "sync existing employee with department profile change" do
-    let!(:old_department) { FactoryGirl.create(:department) }
-    let!(:profile) { FactoryGirl.create(:profile,
-      employee: employee,
-      adp_assoc_oid: "AAABBBCCCDDD",
-      adp_employee_id: "123456",
-      company: "OpenTable, Inc.",
-      department: old_department,
-      job_title: job_title,
-      location: location,
-      profile_status: "active",
-      management_position: false,
-      manager_adp_employee_id: "654321",
-      start_date: Date.new(2017, 01, 01),
-      worker_type: worker_type )}
+    context 'when employee department is updated' do
+      let!(:old_department) { FactoryGirl.create(:department) }
+      let!(:profile) { FactoryGirl.create(:profile,
+        employee: employee,
+        adp_assoc_oid: 'AAABBBCCCDDD',
+        adp_employee_id: '123456',
+        company: 'OpenTable, Inc.',
+        department: old_department,
+        job_title: job_title,
+        location: location,
+        profile_status: 'active',
+        management_position: false,
+        manager_adp_employee_id: '654321',
+        start_date: Date.new(2017, 01, 01),
+        worker_type: worker_type )}
 
-    it "should update current profile and send email" do
-      expect(EmployeeWorker).to receive(:perform_async)
+      before do
+        w_hash = parser.gen_worker_hash(json['workers'][0])
+        EmployeeProfile.new.update_employee(employee, w_hash)
+      end
 
-      w_hash = parser.gen_worker_hash(json["workers"][0])
-      profiler = EmployeeProfile.new
-      profiler.update_employee(employee, w_hash)
+      it 'updates the current profile' do
+        expect(employee.department).to eq(department)
+      end
 
-      expect(employee.profiles.count).to eq(1)
-      expect(employee.emp_deltas.count).to eq(1)
-      expect(employee.emp_deltas.last.before).to eq({"department_id"=>"#{old_department.id}"})
-      expect(employee.emp_deltas.last.after).to eq({"department_id"=>"#{department.id}"})
-      expect(employee.profiles.active.reorder(:created_at).last.profile_status).to eq("active")
-      expect(employee.department).to eq(department)
+      it 'has one profile' do
+        expect(employee.profiles.count).to eq(1)
+      end
+
+      it 'creates an emp delta with the change' do
+        expect(employee.emp_deltas.count).to eq(1)
+        expect(employee.emp_deltas.last.before).to eq({"department_id"=>"#{old_department.id}"})
+        expect(employee.emp_deltas.last.after).to eq({"department_id"=>"#{department.id}"})
+      end
+    end
+
+    context 'when employee basic info and profile info changes' do
+      let!(:old_location) { FactoryGirl.create(:location) }
+      let!(:profile) do
+        FactoryGirl.create(:profile,
+          employee: employee,
+          adp_assoc_oid: 'AAABBBCCCDDD',
+          adp_employee_id: '123456',
+          company: 'OpenTable, Inc.',
+          department: department,
+          job_title: job_title,
+          location: old_location,
+          profile_status: 'active',
+          management_position: false,
+          manager_adp_employee_id: '654321',
+          start_date: Date.new(2017, 1, 1),
+          worker_type: worker_type )
+      end
+
+      before do
+        employee.last_name = 'Good All'
+        employee.save
+        w_hash = parser.gen_worker_hash(json['workers'][0])
+        profiler = EmployeeProfile.new
+        profiler.update_employee(employee, w_hash)
+      end
+
+      it 'has one profile' do
+        expect(employee.profiles.count).to eq(1)
+      end
+
+      it 'updates the employee info' do
+        expect(employee.last_name).to eq('Goodall')
+      end
+
+      it 'updates the profile info' do
+        expect(employee.location).to eq(location)
+      end
+
+      it 'creates an emp delta' do
+        expect(employee.emp_deltas.count).to eq(1)
+        expect(employee.emp_deltas.last.before).to eq(
+          { 'last_name' => 'Good All', 'location_id' => "#{old_location.id}" })
+        expect(employee.emp_deltas.last.after).to eq(
+          { 'last_name' => 'Goodall', 'location_id' => "#{location.id}" })
+      end
+    end
+
+    context 'when address changes' do
+      let(:remote_json) { JSON.parse(File.read(Rails.root.to_s + '/spec/fixtures/adp_remote_worker.json')) }
+
+      let(:remote) { FactoryGirl.create(:location, kind: 'Remote Location')}
+      let(:remote_worker) do
+        FactoryGirl.create(:employee,
+          status: 'active',
+          first_name: 'Shirley',
+          last_name: 'Allansberg')
+      end
+
+      let!(:active_profile) do
+        FactoryGirl.create(:profile,
+          employee: remote_worker,
+          profile_status: 'active',
+          adp_employee_id: '100015',
+          location: remote)
+      end
+
+      let!(:address) do
+        FactoryGirl.create(:address,
+          addressable_type: 'Employee',
+          addressable_id: remote_worker.id,
+          line_1: 'ff 123',
+          city: 'Los Angeles',
+          state_territory: 'CA',
+          postal_code: '90028',
+          country_id: Country.find_by(iso_alpha_2_code: 'US'))
+      end
+
+      before do
+        FactoryGirl.create(:location, kind: 'Remote Location', code: 'GERMA')
+        FactoryGirl.create(:worker_type, code: 'TVOL')
+
+        w_hash = parser.gen_worker_hash(remote_json['workers'][0])
+        EmployeeProfile.new.update_employee(remote_worker, w_hash)
+      end
+
+      it 'updates street address' do
+        expect(remote_worker.address.line_1).to eq('Zeukerstrasse 123')
+      end
+
+      it 'updates line 2' do
+        expect(remote_worker.address.line_2).to eq(nil)
+      end
+
+      it 'updates city' do
+        expect(remote_worker.address.city).to eq('Frankfurt')
+      end
+
+      it 'updates country' do
+        expect(remote_worker.address.country.iso_alpha_2_code).to eq('DE')
+      end
+    end
+
+    context 'when worker type changes' do
+      let!(:old_worker_type) { FactoryGirl.create(:worker_type, code: 'OLD') }
+      let!(:profile) do
+        FactoryGirl.create(:profile,
+          employee: employee,
+          adp_assoc_oid: 'AAABBBCCCDDD',
+          adp_employee_id: '123456',
+          company: 'OpenTable, Inc.',
+          department: department,
+          job_title: job_title,
+          location: location,
+          profile_status: 'active',
+          management_position: false,
+          manager_adp_employee_id: '654321',
+          start_date: Date.new(2017, 01, 01),
+          worker_type: old_worker_type )
+      end
+
+      before do
+        w_hash = parser.gen_worker_hash(json["workers"][0])
+        EmployeeProfile.new.update_employee(employee, w_hash)
+      end
+
+      it 'creates a new profile' do
+        expect(employee.profiles.count).to eq(2)
+      end
+
+      it 'has the same worker status' do
+        expect(employee.status).to eq('active')
+      end
+
+      it 'terminates the old profile' do
+        expect(employee.profiles.terminated.reorder(:created_at).last).to eq(profile)
+      end
+
+      it 'has an active profile' do
+        expect(employee.current_profile.profile_status).to eq('active')
+      end
+
+      it 'creates an emp delta with the changes' do
+        expect(employee.emp_deltas.last.before).to eq({ "worker_type_id" => "#{old_worker_type.id}" })
+        expect(employee.emp_deltas.last.after).to eq({ "worker_type_id" => "#{worker_type.id}" })
+      end
     end
   end
 

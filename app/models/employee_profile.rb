@@ -112,7 +112,7 @@ class EmployeeProfile
     worker_hash[:line_1].present?
   end
 
-  def handle_address(employee, worker_hash)
+  def handle_address(employee, employee_hash)
     address = employee.address
     if address.present?
       address.assign_attributes(parse_attributes(Address, employee_hash))
