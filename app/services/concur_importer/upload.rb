@@ -63,11 +63,13 @@ module ConcurImporter
     def encrypt(file_path)
       input = File.read(file_path)
       output = File.open(file_path + '.gpg', 'w+')
-      gpg_encrypter.encrypt input, recipients: SECRETS.concur_receipient, output: output, always_trust: true
+      gpg_encrypter.encrypt input, recipients: SECRETS.concur_recipient, output: output, always_trust: true
     end
 
     def gpg_encrypter
-      GPGME::Key.import(SECRETS.concur_pub_key_path)
+      pub_key_path = Pathname.new(SECRETS.concur_public_key_path)
+      pub_key = File.open(pub_key_path)
+      GPGME::Key.import(pub_key)
       GPGME::Crypto.new armor: true
     end
 
