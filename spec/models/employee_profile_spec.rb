@@ -67,7 +67,7 @@ RSpec.describe EmployeeProfile do
         department: department,
         job_title: job_title,
         location: location,
-        start_date: Date.new(2017, 01, 01),
+        start_date: Date.new(2017, 1, 1),
         worker_type: worker_type,
         management_position: false,
         manager_adp_employee_id: '654321')
@@ -225,7 +225,7 @@ RSpec.describe EmployeeProfile do
         FactoryGirl.create(:address,
           addressable_type: 'Employee',
           addressable_id: remote_worker.id,
-          line_1: 'ff 123',
+          line_1: '123 Main St.',
           city: 'Los Angeles',
           state_territory: 'CA',
           postal_code: '90028',
@@ -253,6 +253,58 @@ RSpec.describe EmployeeProfile do
       end
 
       it 'updates country' do
+        expect(remote_worker.address.country.iso_alpha_2_code).to eq('DE')
+      end
+    end
+
+    context 'when worker address is added' do
+      let(:remote_json) { JSON.parse(File.read(Rails.root.to_s + '/spec/fixtures/adp_remote_worker.json')) }
+
+      let(:remote) { FactoryGirl.create(:location, kind: 'Remote Location')}
+      let(:remote_worker) do
+        FactoryGirl.create(:employee,
+          status: 'active',
+          first_name: 'Shirley',
+          last_name: 'Allansberg')
+      end
+
+      let!(:active_profile) do
+        FactoryGirl.create(:profile,
+          employee: remote_worker,
+          profile_status: 'active',
+          adp_employee_id: '100015',
+          location: remote)
+      end
+
+      before do
+        FactoryGirl.create(:location, kind: 'Remote Location', code: 'GERMA')
+        FactoryGirl.create(:worker_type, code: 'TVOL')
+
+        w_hash = parser.gen_worker_hash(remote_json['workers'][0])
+        EmployeeProfile.new.update_employee(remote_worker, w_hash)
+      end
+
+      it 'creates an address for worker' do
+        expect(remote_worker.address.present?).to be(true)
+      end
+
+      it 'has the right street address' do
+        expect(remote_worker.address.line_1).to eq('Zeukerstrasse 123')
+      end
+
+      it 'has the right city' do
+        expect(remote_worker.address.city).to eq('Frankfurt')
+      end
+
+      it 'has the right territory' do
+        expect(remote_worker.address.state_territory).to eq('Hessen')
+      end
+
+      it 'has the right postal code' do
+        expect(remote_worker.address.postal_code).to eq('5384980')
+      end
+
+      it 'has the right country' do
         expect(remote_worker.address.country.iso_alpha_2_code).to eq('DE')
       end
     end
@@ -303,53 +355,103 @@ RSpec.describe EmployeeProfile do
     end
   end
 
-  context "create from new employee event" do
-    let(:hire_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_hire_event.json") }
-    let!(:new_hire_wt) { FactoryGirl.create(:worker_type, code: "OLFR")}
+  describe '#new_employee' do
+    subject(:new_employee) { Employee.reorder(:created_at).last }
 
-    it "should create a new employee record" do
-      event = FactoryGirl.create(:adp_event,
-        status: "new",
+    let(:hire_json) { File.read(Rails.root.to_s + '/spec/fixtures/adp_hire_event.json') }
+    let(:event) do
+      FactoryGirl.create(:adp_event,
+        status: 'new',
         json: hire_json)
-      profiler = EmployeeProfile.new
-      profiler.new_employee(event)
-      new_employee = Employee.reorder(:created_at).last
+    end
 
-      expect(new_employee.first_name).to eq("Hire")
-      expect(new_employee.last_name).to eq("Testone")
-      expect(new_employee.status).to eq("created")
+    before do
+      FactoryGirl.create(:worker_type, code: 'OLFR')
+      EmployeeProfile.new.new_employee(event)
+    end
+
+    it 'creates an employee record with the right name' do
+      expect(new_employee.first_name).to eq('Hire')
+      expect(new_employee.last_name).to eq('Testone')
+    end
+
+    it 'has the right status' do
+      expect(new_employee.status).to eq('created')
+    end
+
+    it 'has the right hire date' do
       expect(new_employee.hire_date).to eq(Date.new(2017, 1, 23))
+    end
+
+    it 'has the right contract end date' do
       expect(new_employee.contract_end_date).to eq(nil)
+    end
+
+    it 'has an address' do
       expect(new_employee.addresses.count).to eq(1)
-      expect(new_employee.address.state_territory).to eq("MA")
-      expect(new_employee.address.country.iso_alpha_2_code).to eq("US")
-      expect(new_employee.worker_type.code).to eq("OLFR")
-      expect(new_employee.business_card_title).to eq("Account Executive")
+    end
+
+    it 'has the right address information' do
+      expect(new_employee.address.state_territory).to eq('MA')
+    end
+
+    it 'has the right address country' do
+      expect(new_employee.address.country.iso_alpha_2_code).to eq('US')
+    end
+
+    it 'creates an employee profile' do
       expect(new_employee.profiles.count).to eq(1)
-      expect(new_employee.profiles.last.adp_employee_id).to eq("if0rcdig4")
-      expect(new_employee.profiles.last.worker_type.code).to eq("OLFR")
-      expect(new_employee.profiles.last.profile_status).to eq("pending")
+    end
+
+    it 'gives the profile the correct status' do
+      expect(new_employee.profiles.last.profile_status).to eq('pending')
+    end
+
+    it 'assigns the employee id to the profile' do
+      expect(new_employee.profiles.last.adp_employee_id).to eq('if0rcdig4')
+    end
+
+    it 'has the right worker type' do
+      expect(new_employee.worker_type.code).to eq('OLFR')
+    end
+
+    it 'has the right business title' do
+      expect(new_employee.business_card_title).to eq('Account Executive')
+    end
+
+    it 'assigns the correct start date' do
       expect(new_employee.profiles.last.start_date).to eq(Date.new(2017, 1, 23))
-      expect(new_employee.profiles.last.end_date).to eq(nil)
     end
   end
 
-  context "build employee helper" do
-    let(:hire_json) { File.read(Rails.root.to_s+"/spec/fixtures/adp_hire_event.json") }
-    let!(:new_hire_wt) { FactoryGirl.create(:worker_type, code: "OLFR")}
+  describe '#build_employee' do
+    subject(:employee) { EmployeeProfile.new.build_employee(event) }
 
-    it "should build but not persist employee and profile" do
-      event = FactoryGirl.create(:adp_event,
-        status: "new",
+    let(:hire_json) { File.read(Rails.root.to_s + '/spec/fixtures/adp_hire_event.json') }
+    let(:event) do
+      FactoryGirl.create(:adp_event,
+        status: 'new',
         json: hire_json)
-      profiler = EmployeeProfile.new
-      employee = profiler.build_employee(event)
+    end
 
+    before do
+      FactoryGirl.create(:worker_type, code: 'OLFR')
+    end
+
+    it 'does not persist the employee' do
       expect(employee.persisted?).to eq(false)
-      expect(employee.first_name).to eq("Hire")
-      expect(employee.last_name).to eq("Testone")
-      expect(employee.status).to eq("active")
+    end
+
+    it 'builds an employee object with a name' do
+      expect(employee.first_name).to eq('Hire')
+      expect(employee.last_name).to eq('Testone')
+    end
+
+    it 'has the right hire date' do
       expect(employee.hire_date).to eq(Date.new(2017, 1, 23))
+    end
+
+    it 'builds a profile for the employee with the right info' do
       expect(employee.worker_type.code).to eq("OLFR")
     end
   end

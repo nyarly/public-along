@@ -43,15 +43,15 @@ class EmployeeProfile
 
   # link accounts takes an employee pk and event pk
   def link_accounts(employee_id, event_id)
-    worker_hash = event_worker_hash(event_id)
+    employee_hash = event_employee_hash(event_id)
 
-    employee = Employee.find(employee_id).tap do |employee|
-      build_new_profile(employee, worker_hash).save!
+    Employee.find(employee_id).tap do |employee|
+      build_new_profile(employee, employee_hash).save!
 
       # never update hire date for rehires/conversions
-      worker_hash.except!(:hire_date) if employee.terminated?
+      employee_hash.except!(:hire_date) if employee.terminated?
       # don't update employee info on workers who are converting
-      assign_employee_attributes(employee, worker_hash) unless employee.active?
+      assign_employee_attributes(employee, employee_hash) unless employee.active?
 
       employee.termination_date = nil
       employee.save!
@@ -87,29 +87,29 @@ class EmployeeProfile
 
   # new employee takes an event object and returns saved employee
   def new_employee(event)
-    worker_hash = parse_event(event)
-    employee = Employee.new(parse_attributes(Employee, worker_hash).except(:status)).tap do |employee|
+    employee_hash = parse_event(event)
+    Employee.new(parse_attributes(Employee, employee_hash).except(:status)).tap do |employee|
       employee.save!
-      profile = build_new_profile(employee, worker_hash)
-      profile.profile_status = "pending"
+      profile = build_new_profile(employee, employee_hash)
+      profile.profile_status = 'pending'
       profile.save!
-      address = build_new_address(employee, worker_hash)
+      address = build_new_address(employee, employee_hash)
       address.save!
     end
   end
 
   # takes json attribute from event object and returns unsaved employee
   def build_employee(event)
-    worker_hash = parse_event(event)
-    employee = Employee.new(parse_attributes(Employee, worker_hash)).tap do |employee|
-      build_new_profile(employee, worker_hash)
+    employee_hash = parse_event(event)
+    Employee.new(parse_attributes(Employee, employee_hash)).tap do |employee|
+      build_new_profile(employee, employee_hash)
     end
   end
 
   private
 
-  def address_hash?(worker_hash)
-    worker_hash[:line_1].present?
+  def address_hash?(employee_hash)
+    employee_hash[:line_1].present?
   end
 
   def handle_address(employee, employee_hash)
@@ -123,8 +123,8 @@ class EmployeeProfile
     end
   end
 
-  def build_new_address(employee, worker_hash)
-    employee.addresses.build(parse_attributes(Address, worker_hash))
+  def build_new_address(employee, employee_hash)
+    employee.addresses.build(parse_attributes(Address, employee_hash))
   end
 
   def policy(employee)
@@ -139,8 +139,8 @@ class EmployeeProfile
     employee.assign_attributes(parse_attributes(Employee, employee_hash))
   end
 
-  def parse_attributes(klass, worker_hash)
-    class_attrs, discard = worker_hash.partition{ |k, v| klass.column_names.include?(k.to_s) }
+  def parse_attributes(klass, employee_hash)
+    class_attrs = employee_hash.select { |k, _v| klass.column_names.include?(k.to_s) }
     class_attrs.to_h
   end
 
@@ -148,7 +148,7 @@ class EmployeeProfile
   def parse_event(event)
     data = event.json
     json = JSON.parse(data)
-    worker_json = json.dig("events", 0, "data", "output", "worker")
+    worker_json = json.dig('events', 0, 'data', 'output', 'worker')
     parser = AdpService::WorkerJsonParser.new
     parser.gen_worker_hash(worker_json)
   end
@@ -172,9 +172,9 @@ class EmployeeProfile
     w_hash
   end
 
-  def event_worker_hash(event_id)
-    worker_hash = parse_event(worker_event(event_id))
-    rehire_or_conversion_hash(worker_hash)
+  def event_employee_hash(event_id)
+    employee_hash = parse_event(worker_event(event_id))
+    rehire_or_conversion_hash(employee_hash)
   end
 
   def worker_event(event_id)
@@ -187,11 +187,11 @@ class EmployeeProfile
     new_profile = build_new_profile(employee, employee_hash)
 
     if new_profile.start_date > Date.today
-      new_profile.profile_status = "pending"
+      new_profile.profile_status = 'pending'
     else
-      profile.profile_status = "terminated"
+      profile.profile_status = 'terminated'
       profile.end_date = Date.today
-      new_profile.profile_status = "active"
+      new_profile.profile_status = 'active'
     end
 
     profile.save! && new_profile.save!
