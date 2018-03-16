@@ -61,7 +61,7 @@ module ConcurImporter
     end
 
     def file(path)
-      Pathname.new(path).to_s
+      Pathname.new(path).to_path
     end
 
     def file_name

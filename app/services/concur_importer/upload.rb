@@ -15,6 +15,11 @@ module ConcurImporter
       upload_files(encrypted_files)
     end
 
+    def encrypt_and_upload_single_file(filepath)
+      encrypt(filepath)
+      upload_files([encrypted_filepath(filepath)])
+    end
+
     # Warning: Updates all active employee records in Concur.
     # Intended for initial upload, not for regular use.
     def initial_concur_sync
@@ -26,6 +31,21 @@ module ConcurImporter
     end
 
     private
+
+    def upload_files(files)
+      Net::SFTP.start(uri.host, SECRETS.concur_entity_code, password: password, port: port) do |sftp|
+        files.each do |file|
+          remote = remote_filepath(file)
+          sftp.upload!(file, remote)
+        end
+      end
+    end
+
+    def encrypt(filepath)
+      input = File.read(filepath)
+      output = File.open(encrypted_filepath(filepath), 'w+')
+      gpg_encrypter.encrypt input, recipients: SECRETS.concur_recipient, output: output, always_trust: true
+    end
 
     def generate_lists
       generate_location_list
@@ -44,6 +64,10 @@ module ConcurImporter
       EnhancedEmployee.new.generate_csv(upload_group)
     end
 
+    def encrypted_filepath(filepath)
+      Pathname.new(filepath).to_path + '.gpg'
+    end
+
     def encrypted_files
       encrypted = []
       all_filepaths.map { |file| encrypted << file if file.include? '.gpg' }
@@ -51,19 +75,13 @@ module ConcurImporter
     end
 
     def encrypt_all
-      all_filepaths.each do |file_path|
-        encrypt(file_path)
+      all_filepaths.each do |filepath|
+        encrypt(filepath)
       end
     end
 
     def all_filepaths
-      Dir['tmp/concur/*'].map { |file_path| file_path }
-    end
-
-    def encrypt(file_path)
-      input = File.read(file_path)
-      output = File.open(file_path + '.gpg', 'w+')
-      gpg_encrypter.encrypt input, recipients: SECRETS.concur_recipient, output: output, always_trust: true
+      Dir['tmp/concur/*'].map { |filepath| filepath }
     end
 
     def gpg_encrypter
@@ -73,19 +91,10 @@ module ConcurImporter
       GPGME::Crypto.new armor: true
     end
 
-    def upload_files(files)
-      Net::SFTP.start(uri.host, SECRETS.concur_entity_code, password: password, port: port) do |sftp|
-        files.each do |file|
-          remote = remote_filepath(file)
-          sftp.upload!(file, remote)
-        end
-      end
-    end
-
     def remote_filepath(local_filepath)
       local = Pathname.new(local_filepath)
       remote = Pathname.new('/in') + local.basename
-      remote.to_s
+      remote.to_path
     end
 
     def password
