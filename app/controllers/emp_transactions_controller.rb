@@ -57,7 +57,6 @@ class EmpTransactionsController < ApplicationController
       respond_to do |format|
         if @manager_entry.save
           Sessionable.new(session).change_token
-          EmpTransactionWorker.perform_async(@emp_transaction.id)
           format.html { redirect_to emp_transaction_path(@emp_transaction), notice: 'Success! TechTable will be notified with the details of your request.' }
           format.json { render :show, status: :created, location: @emp_transaction }
         else

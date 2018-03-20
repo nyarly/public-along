@@ -93,11 +93,6 @@ RSpec.describe EmpTransactionsController, type: :controller do
         expect(response).to redirect_to(emp_transaction_path(EmpTransaction.last))
       end
 
-      it "calls the emp transaction worker" do
-        expect(EmpTransactionWorker).to receive(:perform_async)
-        post :create, { :manager_entry => valid_attributes }
-      end
-
       it "only sends the data once" do
         expect {
           post :create, {:manager_entry => valid_attributes}
