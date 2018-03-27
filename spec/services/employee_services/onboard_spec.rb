@@ -1,42 +1,76 @@
 require 'rails_helper'
 
 describe EmployeeService::Onboard, type: :service do
-  let(:manager)   { FactoryGirl.create(:active_employee) }
-  let!(:employee) { FactoryGirl.create(:pending_employee,
-                    status: 'pending',
-                    manager: manager) }
-  let!(:profile)  { FactoryGirl.create(:profile, :with_valid_ou,
-                    employee: employee) }
-  let(:gma)       { double(EmployeeService::GrantManagerAccess) }
-  let(:bsps)      { double(EmployeeService::GrantBasicSecProfile) }
   let(:ads)       { double(ActiveDirectoryService) }
+  let(:bsps)      { double(EmployeeService::GrantBasicSecProfile) }
+  let(:gma)       { double(EmployeeService::GrantManagerAccess) }
+  let(:manager)   { FactoryGirl.create(:active_employee) }
+  let(:employee) do
+    FactoryGirl.create(:pending_employee, manager: manager)
+  end
 
-  context '#new_worker' do
-    it 'prepares new hire' do
-      expect(ActiveDirectoryService).to receive(:new).and_return(ads)
-      expect(ads).to receive(:create_disabled_accounts).with([employee])
+  before do
+    FactoryGirl.create(:profile, :with_valid_ou, employee: employee)
+
+    allow(ActiveDirectoryService).to receive(:new).and_return(ads)
+    allow(ads).to receive(:create_disabled_accounts)
+    allow(ads).to receive(:update)
+    allow(UpdateEmailWorker).to receive(:perform_async)
+    allow(EmployeeService::GrantManagerAccess).to receive(:new).and_return(gma)
+    allow(gma).to receive(:process!)
+    allow(EmployeeService::GrantBasicSecProfile).to receive(:new).and_return(bsps)
+    allow(bsps).to receive(:process!)
+  end
+
+  describe '#new_worker' do
+    before do
       EmployeeService::Onboard.new(employee).new_worker
     end
-  end
 
-  context '#re_onboard' do
-    it 'prepares rehire' do
-      expect(ActiveDirectoryService).to receive(:new).and_return(ads)
-      expect(ads).to receive(:update).with([employee])
-      EmployeeService::Onboard.new(employee).re_onboard
+    it 'creates an active directory account for the new worker' do
+      expect(ads).to have_received(:create_disabled_accounts).with([employee])
+    end
+
+    it 'updates worker email in ADP' do
+      expect(UpdateEmailWorker).to have_received(:perform_async).with(employee.id)
+    end
+
+    it 'checks access for new worker manager' do
+      expect(EmployeeService::GrantManagerAccess).to have_received(:new).with(manager)
+    end
+
+    it 'checks worker manager access' do
+      expect(EmployeeService::GrantManagerAccess).to have_received(:new).with(employee)
+    end
+
+    it 'grants basic access' do
+      expect(EmployeeService::GrantBasicSecProfile).to have_received(:new).with(employee)
     end
   end
 
-  context '#process_security_profiles' do
-    it 'grants security access' do
-      expect(EmployeeService::GrantManagerAccess).to receive(:new).with(employee.manager).and_return(gma)
-      expect(gma).to receive(:process!)
-      expect(EmployeeService::GrantManagerAccess).to receive(:new).with(employee).and_return(gma)
-      expect(gma).to receive(:process!)
-      expect(EmployeeService::GrantBasicSecProfile).to receive(:new).with(employee).and_return(bsps)
-      expect(bsps).to receive(:process!)
+  describe '#re_onboard' do
+    before do
+      EmployeeService::Onboard.new(employee).re_onboard
+    end
 
-      EmployeeService::Onboard.new(employee).process_security_profiles
+    it 'creates an active directory account for the new worker' do
+      expect(ads).to have_received(:update).with([employee])
+    end
+
+    it 'updates worker email in ADP' do
+      expect(UpdateEmailWorker).to have_received(:perform_async).with(employee.id)
+    end
+
+    it 'checks access for new worker manager' do
+      expect(EmployeeService::GrantManagerAccess).to have_received(:new).with(manager)
+    end
+
+    it 'checks worker manager access' do
+      expect(EmployeeService::GrantManagerAccess).to have_received(:new).with(employee)
+    end
+
+    it 'grants basic access' do
+      expect(EmployeeService::GrantBasicSecProfile).to have_received(:new).with(employee)
     end
   end
 end

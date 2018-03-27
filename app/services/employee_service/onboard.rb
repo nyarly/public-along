@@ -4,19 +4,14 @@ module EmployeeService
 
     def new_worker
       new_worker_ad_account
+      UpdateEmailWorker.perform_async(employee.id)
       process_security_profiles
     end
 
     def re_onboard
       update_ad_account
+      UpdateEmailWorker.perform_async(employee.id)
       process_security_profiles
-    end
-
-    def process_security_profiles
-      GrantManagerAccess.new(employee.manager).process! if employee.manager.present?
-      GrantManagerAccess.new(employee).process!
-      GrantBasicSecProfile.new(employee).process!
-      employee.security_profiles
     end
 
     def send_manager_form
@@ -25,6 +20,13 @@ module EmployeeService
     end
 
     private
+
+    def process_security_profiles
+      GrantManagerAccess.new(employee.manager).process! if employee.manager.present?
+      GrantManagerAccess.new(employee).process!
+      GrantBasicSecProfile.new(employee).process!
+      employee.security_profiles
+    end
 
     def new_worker_ad_account
       ad = ActiveDirectoryService.new
