@@ -33,6 +33,7 @@
         <th>Worker FName</th>
         <th>Worker LName</th>
         <th>Worker OT Email</th>
+        <th>Worker OT Username</th>
         <th>Worker Category Type</th>
         <th>Location</th>
         <th>Start Date</th>
@@ -48,6 +49,7 @@
           <td><%= onboard.employee.first_name %></td>
           <td><%= onboard.employee.last_name %></td>
           <td><%= onboard.employee.email %></td>
+          <td><%= onboard.employee.sam_account_name %></td>
           <td><%= onboard.employee.worker_type.try(:name) %></td>
           <td><%= onboard.employee.location.try(:name) %></td>
           <td><%= onboard.employee.current_profile.start_date.try(:strftime, "%b %e, %Y") %></td>

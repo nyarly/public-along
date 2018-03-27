@@ -77,6 +77,7 @@ module Report
                 worker.onboarding_due_date,
                 onboard_submitted_on(worker),
                 worker.email,
+                worker.sam_account_name,
                 worker.buddy.try(:cn),
                 worker.buddy.try(:email),
                 worker.current_profile.start_date,
@@ -99,6 +100,7 @@ module Report
                 'Onboarding Form Due',
                 'Onboarding Form Submitted',
                 'Email',
+                'Username',
                 'Buddy',
                 'Buddy Email',
                 'Start Date',
@@ -117,11 +119,11 @@ module Report
       end
 
       def new_onboard_styles
-        [6, 6, 6, 6, 6, 6, 6, 6, 4, 5, 6, 6, 6, 4, 4, 5]
+        [6, 6, 6, 6, 6, 6, 6, 6, 4, 5, 6, 6, 6, 6, 4, 4, 5]
       end
 
       def onboard_styles
-        [nil, nil, nil, nil, nil, nil, nil, nil, 7, 8, nil, nil, nil, 7, 7, 8]
+        [nil, nil, nil, nil, nil, nil, nil, nil, 7, 8, nil, nil, nil, nil, 7, 7, 8]
       end
 
       def header_format
