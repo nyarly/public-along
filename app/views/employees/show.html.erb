@@ -129,6 +129,9 @@
           <%= l @employee.contract_end_date, format: :verbose if @employee.contract_end_date.present? %>
         </p>
         <p>
+          <strong>Offboarded Date:</strong>
+          <%= l @employee.offboarded_at, format: :verbose if @employee.offboarded_at.present? %>
+        </p>
           <strong>Leave Start Date:</strong>
           <%= l @employee.leave_start_date, format: :verbose if @employee.leave_start_date.present? %>
         </p>
