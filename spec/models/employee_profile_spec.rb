@@ -46,6 +46,7 @@ RSpec.describe EmployeeProfile do
     let(:employee) do
       FactoryGirl.create(:employee,
         status: 'active',
+        adp_status: 'Active',
         legal_first_name: 'Jane',
         first_name: 'Jane',
         last_name: 'Goodall',

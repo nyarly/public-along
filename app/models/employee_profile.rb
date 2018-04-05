@@ -7,6 +7,7 @@ class EmployeeProfile
 
   # attributes for employee model
   attribute :status, String
+  attribute :adp_status, String
   attribute :first_name, String
   attribute :last_name, String
   attribute :hire_date, DateTime
@@ -61,9 +62,9 @@ class EmployeeProfile
   # takes employee object and employee hash from the parser
   def update_employee(employee, employee_hash)
     employee_hash.except!(:contract_end_date) if contingent_worker_rehire?(employee_hash) || policy(employee).is_conversion?
-    assign_employee_attributes(employee, employee_hash)
-
     profile = employee.current_profile
+
+    assign_employee_attributes(employee, employee_hash)
     profile.assign_attributes(parse_attributes(Profile, employee_hash))
 
     handle_address(employee, employee_hash) if address_hash?(employee_hash)
@@ -88,7 +89,7 @@ class EmployeeProfile
   # new employee takes an event object and returns saved employee
   def new_employee(event)
     employee_hash = parse_event(event)
-    Employee.new(parse_attributes(Employee, employee_hash).except(:status)).tap do |employee|
+    Employee.new(parse_attributes(Employee, employee_hash)).tap do |employee|
       employee.save!
       profile = build_new_profile(employee, employee_hash)
       profile.profile_status = 'pending'

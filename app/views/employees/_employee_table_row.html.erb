@@ -1,7 +1,7 @@
 <tr>
   <td><%= link_to e.cn, employee_path(e) %></td>
   <td><%= e.status.titleize %></td>
-  <td><%= e.status.titleize %></td>
+  <td><%= e.adp_status %></td>
   <td>
     <% if can? :create, EmpTransaction %>
       <% if e.request_status == "waiting" && e.manager.present? %>

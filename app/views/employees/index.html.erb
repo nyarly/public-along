@@ -5,12 +5,12 @@
     </div>
   <% end %>
 
-  <%# if can? :create, ManagerEntry %>
-    <%#= render partial: "simple_employees_table", locals: { employees: @employees } %>
-  <%# else %>
+  <% if can? :create, ManagerEntry %>
+    <%= render partial: "simple_employees_table", locals: { employees: @employees } %>
+  <% else %>
     <!-- Admin/helpdesk/hr only view -->
     <%= render partial: "employees_table", locals: { employees: @employees } %>
-  <%# end %>
+  <% end %>
 </div>
 
 <div id="employee-pagination">
