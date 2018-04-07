@@ -45,8 +45,11 @@ class EmployeeQuery
     @relation.joins(:profiles)
              .merge(Profile.regular_worker_type)
              .where('termination_date = ?
-                    OR profiles.start_date = ?',
+                    OR profiles.start_date = ?
+                    OR offboarded_at BETWEEN ? AND ?',
                yesterday.beginning_of_day,
-               today.beginning_of_day)
+               today.beginning_of_day,
+               yesterday.beginning_of_day,
+               today.end_of_day)
   end
 end

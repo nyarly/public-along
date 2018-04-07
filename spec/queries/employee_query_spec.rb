@@ -93,7 +93,7 @@ describe EmployeeQuery, type: :query do
 
   describe '#concur_upload_group' do
     before do
-      Timecop.freeze(Time.new(2018, 2, 14, 16, 0, 0, '+00:00'))
+      Timecop.freeze(Time.new(2018, 2, 14, 23, 30, 0, '+00:00'))
     end
 
     after do
@@ -103,7 +103,7 @@ describe EmployeeQuery, type: :query do
     context 'when employee started today' do
       subject(:upload_group) { EmployeeQuery.new.concur_upload_group }
 
-      let(:new_employee) { FactoryGirl.create(:employee, status: 'active') }
+      let(:new_employee) { FactoryGirl.create(:employee, status: 'active', hire_date: Date.new(2018, 2, 14)) }
 
       before do
         FactoryGirl.create(:profile,
@@ -112,20 +112,20 @@ describe EmployeeQuery, type: :query do
           start_date: Date.new(2018, 2, 14))
       end
 
-      it 'they are included' do
-        expect(upload_group).to include(new_employee)
+      it 'includes worker' do
+        expect(upload_group).to eq([new_employee])
       end
     end
 
     context 'when employee starts tomorrow' do
       subject(:upload_group) { EmployeeQuery.new.concur_upload_group }
 
-      let(:new_employee) { FactoryGirl.create(:employee, status: 'active') }
+      let(:new_employee) { FactoryGirl.create(:employee, status: 'pending') }
 
       before do
         FactoryGirl.create(:profile,
           employee: new_employee,
-          profile_status: 'active',
+          profile_status: 'pending',
           start_date: Date.new(2018, 2, 15))
       end
 
@@ -150,8 +150,8 @@ describe EmployeeQuery, type: :query do
           after: { 'business_title' => 'business title' })
       end
 
-      it 'they are included' do
-        expect(upload_group).to include(changed_employee)
+      it 'includes worker' do
+        expect(upload_group).to eq([changed_employee])
       end
     end
 
@@ -185,7 +185,7 @@ describe EmployeeQuery, type: :query do
           termination_date: Date.new(2018, 2, 13))
       end
 
-      it 'they are included' do
+      it 'includes worker' do
         expect(upload_group).to eq([terminated_employee])
       end
     end
@@ -199,14 +199,37 @@ describe EmployeeQuery, type: :query do
       end
 
       it 'they are not included' do
-        expect(upload_group).not_to eq([term_today])
+        expect(upload_group).not_to include(term_today)
+      end
+    end
+
+    context 'when worker offboarded yesterday' do
+      subject(:upload_group) { EmployeeQuery.new.concur_upload_group }
+
+      let(:worker_type) { FactoryGirl.create(:worker_type, kind: 'Regular') }
+
+      let(:offboarded) do
+        FactoryGirl.create(:terminated_employee,
+          termination_date: Date.new(2018, 2, 11),
+          offboarded_at: Time.new(2018, 2, 13, 12, 0, 0, '+00:00'))
+      end
+
+      before do
+        FactoryGirl.create(:profile,
+          employee: offboarded,
+          profile_status: 'terminated',
+          worker_type: worker_type)
+      end
+
+      it 'includes worker' do
+        expect(upload_group).to eq([offboarded])
       end
     end
 
     context 'when worker is not regular worker' do
       subject(:upload_group) { EmployeeQuery.new.concur_upload_group }
 
-      let(:temp) { FactoryGirl.create(:employee, status: 'active') }
+      let(:temp) { FactoryGirl.create(:temp_worker, status: 'active') }
       let(:contractor) { FactoryGirl.create(:contract_worker, status: 'active') }
 
       before do
