@@ -251,9 +251,7 @@ class Employee < ActiveRecord::Base
     where('termination_date BETWEEN ? AND ?', 8.days.ago, 7.days.ago)
   end
 
-  def self.offboarding_report_group
-    where('employees.termination_date BETWEEN ? AND ?', Date.today - 2.weeks, Date.today)
-  end
+
 
   def self.onboarding_reminder_group
     missing_onboards = Employee.where(status: "pending", request_status: "waiting")

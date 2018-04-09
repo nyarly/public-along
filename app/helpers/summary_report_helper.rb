@@ -22,7 +22,9 @@ module SummaryReportHelper
       CSV.generate(headers: true) do |csv|
         csv << attrs
 
-        Employee.offboarding_report_group.each do |employee|
+        OffboardQuery.offboard_report_group.each do |profile|
+          employee = profile.employee
+
           csv << [
             employee.cn,
             employee.employee_id,

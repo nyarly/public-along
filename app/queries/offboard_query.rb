@@ -3,9 +3,24 @@ class OffboardQuery
     @relation = relation
   end
 
+  def offboard_report_group
+    @relation.where("employees.termination_date BETWEEN ? AND ?
+                     OR employees.offboarded_at BETWEEN ? AND ?
+                     OR employees.contract_end_date BETWEEN ? AND ?",
+                     Date.today - 2.weeks,
+                     Date.today,
+                     Date.today - 2.weeks,
+                     Date.today,
+                     Date.today - 2.weeks,
+                     Date.today).compact
+  end
+
   def added_and_updated_offboards
     @relation.where("employees.termination_date BETWEEN ? AND ?
+                     OR employees.offboarded_at BETWEEN ? AND ?
                      OR employees.contract_end_date BETWEEN ? AND ?",
+                     summary_last_sent,
+                     Date.today,
                      summary_last_sent,
                      Date.today,
                      summary_last_sent,

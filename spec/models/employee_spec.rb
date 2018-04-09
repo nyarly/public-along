@@ -350,23 +350,6 @@ describe Employee, type: :model do
       expect(Employee.deactivation_group).to_not include(non_deactivation_group)
     end
 
-    it "should scope the offboarding groups" do
-      offboarding_group = [
-        FactoryGirl.create(:employee, :termination_date => Date.today),
-        FactoryGirl.create(:employee, :termination_date => Date.today - 1.day),
-        FactoryGirl.create(:employee, :termination_date => Date.today - 1.week)
-      ]
-      non_offboarding_group = [
-        FactoryGirl.create(:employee, :termination_date => Date.today + 1.day),
-        FactoryGirl.create(:employee, :termination_date => Date.today + 5.days),
-        FactoryGirl.create(:employee, :termination_date => Date.today + 1.week),
-        FactoryGirl.create(:employee, :termination_date => Date.today - 3.weeks)
-      ]
-
-      expect(Employee.offboarding_report_group).to match_array(offboarding_group)
-      expect(Employee.offboarding_report_group).to_not include(non_offboarding_group)
-    end
-
     it "should find active/revoked security profiles" do
       emp = FactoryGirl.create(:regular_employee)
       sec_prof_1 = FactoryGirl.create(:security_profile)
