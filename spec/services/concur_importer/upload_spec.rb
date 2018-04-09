@@ -53,7 +53,7 @@ describe ConcurImporter::Upload, type: :service do
   end
 
   describe '#all' do
-    let(:query)    { instance_double(EmployeeQuery) }
+    let(:query)    { instance_double(ConcurUploadQuery) }
     let(:employee) { FactoryGirl.create(:active_employee, legal_first_name: 'Fname') }
     let(:loc_txt)  { Rails.root.to_s + '/tmp/concur/list_fake_location_20180214140000.txt' }
     let(:loc_gpg)  { Rails.root.to_s + '/tmp/concur/list_fake_location_20180214140000.txt.gpg' }
@@ -66,8 +66,8 @@ describe ConcurImporter::Upload, type: :service do
       subject(:upload) { ConcurImporter::Upload.new }
 
       before do
-        allow(EmployeeQuery).to receive(:new).and_return(query)
-        allow(query).to receive(:concur_upload_group).and_return([employee])
+        allow(ConcurUploadQuery).to receive(:new).and_return(query)
+        allow(query).to receive(:daily_sync_group).and_return([employee])
       end
 
       it 'creates a location txt file' do
@@ -126,8 +126,8 @@ describe ConcurImporter::Upload, type: :service do
       subject(:upload) { ConcurImporter::Upload.new }
 
       before do
-        allow(EmployeeQuery).to receive(:new).and_return(query)
-        allow(query).to receive(:concur_upload_group).and_return([])
+        allow(ConcurUploadQuery).to receive(:new).and_return(query)
+        allow(query).to receive(:daily_sync_group).and_return([])
       end
 
       it 'creates a location txt file' do
