@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180309223812) do
+ActiveRecord::Schema.define(version: 20180404175212) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -181,6 +181,7 @@ ActiveRecord::Schema.define(version: 20180309223812) do
     t.string   "home_country_code"
     t.datetime "offboarded_at"
     t.string   "legal_first_name"
+    t.string   "adp_status"
   end
 
   add_index "employees", ["del_employee_id"], name: "index_employees_on_del_employee_id", unique: true, using: :btree

@@ -1,0 +1,24 @@
+<tr>
+  <td>
+    <%= link_to e.cn, employee_path(e) %>
+  </td>
+  <td>
+    <% if (can? :direct_reports, e) && (e.direct_reports.count > 0) %>
+      <%= link_to "Roster", direct_reports_employee_path(e.id), class: "button small direct-report-btn" %>
+    <% end %>
+  </td>
+  <td>
+    <% if can? :direct_reports, e %>
+      <%= render partial: "employee_form_link", locals: { e: e } %>
+    <% else %>
+      <%= render partial: "employee_form_status", locals: { e: e } %>
+    <% end %>
+  </td>
+  <td><%= e.job_title.try(:name) %></td>
+  <td><%= e.location.try(:name) %></td>
+  <td><%= e.worker_type.try(:name) %></td>
+  <td><%= e.manager.try(:cn) %></td>
+  <td><%= l e.current_profile.start_date, format: :mdy if e.current_profile.start_date.present? %></td>
+  <td><%= l e.contract_end_date, format: :mdy if e.contract_end_date.present? %></td>
+  <td><%= l e.termination_date, format: :mdy if e.termination_date.present? %></td>
+</tr>

@@ -52,7 +52,7 @@ every :day, at: '11:30am' do
 end
 
 # 6am UTC / 11pm PT
-every :weekday, at: '6:00am' do
+every :day, at: '6:00am' do
   rake "report:missed_terminations"
 end
 

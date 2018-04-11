@@ -44,7 +44,7 @@ module AdpService
         workers.each do |w|
           e = Employee.find_by_employee_id(w[:adp_employee_id])
 
-          if e.present? && e.status != "terminated"
+          if e.present?
             profiler = EmployeeProfile.new
             profiler.update_employee(e, w)
 
@@ -91,7 +91,7 @@ module AdpService
         workers = parser.sort_workers(json)
         w_hash = workers[0]
         profiler = EmployeeProfile.new
-        profiler.update_employee(e, w_hash.except(:status, :profile_status))
+        profiler.update_employee(e, w_hash.except(:adp_status, :profile_status))
 
         if e.updated_at >= 1.minute.ago
           ad = ActiveDirectoryService.new

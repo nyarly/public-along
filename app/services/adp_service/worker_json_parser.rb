@@ -15,7 +15,7 @@ module AdpService
     end
 
     def gen_worker_hash(w)
-      status = w["workerStatus"]["statusCode"]["codeValue"]
+      adp_status = w["workerStatus"]["statusCode"]["codeValue"]
       adp_assoc_oid = w["associateOID"]
       adp_employee_id = w["workerID"]["idValue"].downcase
       legal_first_name = w["person"]["legalName"]["givenName"]
@@ -59,7 +59,7 @@ module AdpService
       country_id = find_country(country_code)
 
       worker = {
-        status: status.downcase!,
+        adp_status: adp_status,
         legal_first_name: legal_first_name,
         first_name: first_name,
         last_name: last_name,

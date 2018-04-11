@@ -6,7 +6,7 @@
   <% end %>
 
   <% if can? :create, ManagerEntry %>
-    <%= render partial: "manager_employees_table", locals: { employees: @employees } %>
+    <%= render partial: "simple_employees_table", locals: { employees: @employees } %>
   <% else %>
     <!-- Admin/helpdesk/hr only view -->
     <%= render partial: "employees_table", locals: { employees: @employees } %>

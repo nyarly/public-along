@@ -1,33 +1,87 @@
 require 'rails_helper'
 
 describe SummaryReportHelper, type: :helper do
-  let!(:employee) { FactoryGirl.create(:employee, :with_profile, :with_manager,
-                    hire_date: Date.today,
-                    termination_date: Date.today + 1.week) }
-  let(:sec_prof)  { FactoryGirl.create(:security_profile) }
   let(:helper)    { SummaryReportHelper::Csv.new }
+  let(:manager) { FactoryGirl.create(:active_employee) }
 
-  context "offboarding" do
-    it "should have the correct content and queue to send" do
-      expect(Employee).to receive(:offboarding_report_group).and_return([employee])
-      helper.offboarding_data
+  describe '#offboarding_data' do
+    context 'with offboard form' do
+      subject(:data) { helper.offboarding_data }
+
+      let(:transferred_to) { FactoryGirl.create(:regular_employee) }
+      let!(:employee) do
+        FactoryGirl.create(:active_employee,
+          manager: manager,
+          termination_date: Date.today)
+      end
+      let(:transaction) do
+        FactoryGirl.create(:offboarding_emp_transaction,
+        employee_id: employee.id)
+      end
+      let!(:info) do
+        FactoryGirl.create(:offboarding_info,
+          emp_transaction: transaction,
+          reassign_salesforce_id: transferred_to.id)
+      end
+
+      let(:csv) do
+        <<-EOS.strip_heredoc
+        Name,Employee ID,Worker Type,Position,Department,Manager,Work Location,Email,Transfer Salesforce Cases,Start Date,Termination Date,Contract End Date,Offboarding Form Submitted,Offboarded At,Worker Info Last Modified
+        #{employee.cn},#{employee.employee_id},#{employee.worker_type.name},#{employee.job_title.name},#{employee.department.name},#{employee.manager.cn},#{employee.location.name},#{employee.email},#{transferred_to.cn},#{employee.hire_date.strftime('%Y-%b-%e')},#{Date.today.strftime('%Y-%b-%e')},,#{transaction.created_at.strftime('%Y-%m-%d %H:%M:%S')},,#{employee.created_at.strftime('%Y-%m-%d %H:%M:%S')}
+        EOS
+      end
+
+      it 'has the correct content' do
+        expect(data).to eq(csv)
+      end
     end
 
-    it "should find employee assigned to take over salesforce cases" do
-      salesforce = FactoryGirl.create(:regular_employee)
-      emp_trans = FactoryGirl.create(:offboarding_emp_transaction,
-        employee_id: employee.id,)
-      emp_sec_prof = FactoryGirl.create(:emp_sec_profile,
-        emp_transaction_id: emp_trans.id,
-        security_profile_id: sec_prof.id)
-      offboarding_info = FactoryGirl.create(:offboarding_info,
-        reassign_salesforce_id: salesforce.id,
-        emp_transaction: emp_trans)
-      expect(helper.salesforce(employee)).to eq(salesforce)
+    context 'without offboard form' do
+      subject(:data) { helper.offboarding_data }
+
+      let!(:employee) do
+        FactoryGirl.create(:terminated_employee,
+          termination_date: Date.yesterday,
+          offboarded_at: Date.yesterday,
+          manager: manager)
+      end
+
+      let(:csv) do
+        <<-EOS.strip_heredoc
+        Name,Employee ID,Worker Type,Position,Department,Manager,Work Location,Email,Transfer Salesforce Cases,Start Date,Termination Date,Contract End Date,Offboarding Form Submitted,Offboarded At,Worker Info Last Modified
+        #{employee.cn},#{employee.employee_id},#{employee.worker_type.name},#{employee.job_title.name},#{employee.department.name},#{employee.manager.cn},#{employee.location.name},#{employee.email},,#{employee.hire_date.strftime('%Y-%b-%e')},#{Date.yesterday.strftime('%Y-%b-%e')},,none,#{Date.yesterday.strftime('%Y-%b-%e')},#{employee.created_at.strftime('%Y-%m-%d %H:%M:%S')}
+        EOS
+      end
+
+      it 'has the correct content' do
+        expect(data).to eq(csv)
+      end
+    end
+
+    context 'when terminated contractor' do
+      subject(:data) { helper.offboarding_data }
+
+      let!(:worker) do
+        FactoryGirl.create(:contract_worker,
+          offboarded_at: Date.yesterday,
+          contract_end_date: Date.yesterday,
+          manager: manager)
+      end
+
+      let(:csv) do
+        <<-EOS.strip_heredoc
+        Name,Employee ID,Worker Type,Position,Department,Manager,Work Location,Email,Transfer Salesforce Cases,Start Date,Termination Date,Contract End Date,Offboarding Form Submitted,Offboarded At,Worker Info Last Modified
+        #{worker.cn},#{worker.employee_id},#{worker.worker_type.name},#{worker.job_title.name},#{worker.department.name},#{worker.manager.cn},#{worker.location.name},#{worker.email},,#{worker.hire_date.strftime('%Y-%b-%e')},,#{Date.yesterday.strftime('%Y-%b-%e')},none,#{Date.yesterday.strftime('%Y-%b-%e')},#{worker.created_at.strftime('%Y-%m-%d %H:%M:%S')}
+        EOS
+      end
+
+      it 'has the correct content' do
+        expect(data).to eq(csv)
+      end
     end
   end
 
-  context "job change" do
+  describe '#job_change_data' do
     let(:parent_org_1)    { FactoryGirl.create(:parent_org, name: "A_org") }
     let(:parent_org_2)    { FactoryGirl.create(:parent_org, name: "B_org") }
     let(:dept_1)          { FactoryGirl.create(:department,
