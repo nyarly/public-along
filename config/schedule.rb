@@ -45,9 +45,9 @@ every :day, at: '5:00am' do
   rake "betterworks:sftp_drop"
 end
 
-# 12:30am UTC / 4:30 pm PST
-# 12:30am UTC / 5:30 pm PDT
-every :day, at: '12:30am' do
+# 11:30am UTC / 3:30 pm PST
+# 11:30am UTC / 4:30 pm PDT
+every :day, at: '11:30am' do
   rake 'concur:daily_upload'
 end
 

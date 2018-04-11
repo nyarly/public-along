@@ -10,7 +10,7 @@ module ConcurImporter
         csv << [
           100,
           0,
-          'SSO',
+          'WELCOME',
           'UPDATE',
           'EN',
           'N',
