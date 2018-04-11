@@ -2,10 +2,6 @@ require 'csv'
 
 class AuditService
 
-  def initialize
-    @ad_service ||= ad_service
-  end
-
   # scenario: worker has termination date in past but is still active
   # scenario: worker has not been updated in adp sync recently and is active
   # scenario: worker's contract has ended and they were not given a termination date

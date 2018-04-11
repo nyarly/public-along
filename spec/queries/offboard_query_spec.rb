@@ -94,8 +94,8 @@ describe OffboardQuery, type: :query do
     Timecop.return
   end
 
-  describe '#offboard_report_group' do
-    subject(:query) { OffboardQuery.new.offboard_report_group }
+  describe '#report_group' do
+    subject(:query) { OffboardQuery.new.report_group }
 
     it 'has the correct workers in order' do
       expect(query).to eq([terminated, offboarded, old_offboard, contract_ending, offboarding, terminating])

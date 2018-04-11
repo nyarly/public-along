@@ -3,7 +3,7 @@ class OffboardQuery
     @relation = relation
   end
 
-  def offboard_report_group
+  def report_group
     @relation.where("employees.termination_date BETWEEN ? AND ?
                      OR employees.offboarded_at BETWEEN ? AND ?
                      OR employees.contract_end_date BETWEEN ? AND ?",
