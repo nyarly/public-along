@@ -18,7 +18,7 @@ OUS = {
   "ou=People and Culture,ou=Users," => { :department => ["People & Culture-HR & Total Rewards", "People & Culture-Talent Acquisition", "Facilities"], :country => ["US", "CA", "MX", "AU"] },
   "ou=HR,ou=EU,ou=Users," => { :department => ["People & Culture-HR & Total Rewards", "People & Culture-Talent Acquisition", "Facilities"], :country => ["GB", "DE", "IE"] },
   "ou=Legal,ou=Users," => { :department => ["Legal", "Risk Management", "Internal Audit"], :country => ["US"] },
-  "ou=Product,ou=Users," => { :department => ["Consumer Product Management", "Product Design", "Restaurant Product Management", "Business Development"], :country => ["US", "GB", "DE", "AU", "IN"] },
+  "ou=Product,ou=Users," => { :department => ["Consumer Product Management", "Design", "Restaurant Product Management", "Business Development"], :country => ["US", "GB", "DE", "AU", "IN"] },
   "ou=SRP,ou=Users," => { :department => ["Tier 1 Support - SRP"], :country => ["US", "CA", "MX"] },
   "ou=Apollo Blake,ou=Users," => { :department => ["Tier 1 Support - Apollo Blake"], :country => ["US", "DE", "IE"] },
   "ou=Customer Support,ou=Users," => { :department => ["Customer Support", "Customer Support - Contact Center"], :country => ["US", "CA", "MX", "AU"] },
