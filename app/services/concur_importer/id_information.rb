@@ -13,20 +13,29 @@ module ConcurImporter
     end
 
     # Record type requires the current employee id from Concur for user to update.
-    # Takes arg like: [[old_id, new_id]]
     def generate_csv(id_pairs)
       CSV.open(file_name, 'w+:bom|utf-8') do |csv|
-        id_pairs.each do |old_id, new_id|
+        csv << [
+          100,
+          0,
+          'SSO',
+          'UPDATE',
+          'EN',
+          'N',
+          'N'
+        ]
+        id_pairs.each do |pair|
+          split = pair.split(',')
           csv << [
-            320,    # 01: * Transaction Type
-            old_id, # 02: * Current employee ID in Concur
-            new_id, # 03: * New employee ID
-            nil,    # 04:   New Login ID, if replacing Login ID
-            nil,    # 05:   Fields 5-9 reserved for future use
-            nil,    # 06:
-            nil,    # 07:
-            nil,    # 08:
-            nil,    # 09:
+            320,            # 01: * Transaction Type
+            split[0].strip, # 02: * Current employee ID in Concur
+            split[1].strip, # 03: * New employee ID
+            nil,            # 04:   New Login ID, if replacing Login ID
+            nil,            # 05:   Fields 5-9 reserved for future use
+            nil,            # 06:
+            nil,            # 07:
+            nil,            # 08:
+            nil,            # 09:
           ]
         end
       end

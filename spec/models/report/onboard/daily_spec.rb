@@ -28,6 +28,7 @@ describe Report::Onboard::Daily, type: :model do
     FactoryGirl.create(:employee,
       created_at: Date.new(2018, 1, 1),
       email: 'new_hire_1@example.com',
+      sam_account_name: 'test1',
       status: 'pending',
       hire_date: Date.new(2018, 2, 3),
       manager: manager)
@@ -60,6 +61,7 @@ describe Report::Onboard::Daily, type: :model do
   let!(:new_hire_2)   do
     FactoryGirl.create(:employee,
       email: 'new_hire_2@example.com',
+      sam_account_name: 'test2',
       status: 'pending',
       hire_date: Date.new(2018, 2, 3),
       manager: manager)
@@ -80,6 +82,7 @@ describe Report::Onboard::Daily, type: :model do
       created_at: Date.new(2016, 1, 1),
       status: 'pending',
       email: 'rehire@example.com',
+      sam_account_name: 'test3',
       hire_date: Date.new(2016, 1, 1),
       request_status: 'waiting')
   end
@@ -115,7 +118,7 @@ describe Report::Onboard::Daily, type: :model do
     book = Roo::Spreadsheet.open('tmp/reports/onboard/daily_' + DateTime.now.strftime('%Y%m%d') + '.xlsx')
     sheet = book.sheet('daily')
 
-    expect(sheet.row(2).length).to eq(16)
+    expect(sheet.row(2).length).to eq(17)
   end
 
   it 'has the right headers' do
@@ -135,6 +138,7 @@ describe Report::Onboard::Daily, type: :model do
       'Onboarding Form Due',
       'Onboarding Form Submitted',
       'Email',
+      'Username',
       'Buddy',
       'Buddy Email',
       'Start Date',
@@ -160,6 +164,7 @@ describe Report::Onboard::Daily, type: :model do
       new_hire_1.onboarding_due_date.to_date,
       onboard.created_at.to_datetime,
       'new_hire_1@example.com',
+      "#{new_hire_1.sam_account_name}",
       "#{buddy.cn}",
       'buddy@example.com',
       Date.new(2018, 2, 3),
@@ -178,6 +183,7 @@ describe Report::Onboard::Daily, type: :model do
       rehire.onboarding_due_date.to_date,
       nil,
       "rehire@example.com",
+      "#{rehire.sam_account_name}",
       nil,
       nil,
       Date.new(2018, 2, 3),
@@ -196,6 +202,7 @@ describe Report::Onboard::Daily, type: :model do
       new_hire_2.onboarding_due_date.to_date,
       nil,
       "new_hire_2@example.com",
+      "#{new_hire_2.sam_account_name}",
       nil,
       nil,
       Date.new(2018, 2, 3),
@@ -205,10 +212,10 @@ describe Report::Onboard::Daily, type: :model do
   end
 
   it 'formats regular worker cells' do
-    expect(report.worker_row_styles(new_hire_1)).to eq([nil, nil, nil, nil, nil, nil, nil, nil, 7, 8, nil, nil, nil, 7, 7, 8])
+    expect(report.worker_row_styles(new_hire_1)).to eq([nil, nil, nil, nil, nil, nil, nil, nil, 7, 8, nil, nil, nil, nil, 7, 7, 8])
   end
 
   it 'formats new worker record cells' do
-    expect(report.worker_row_styles(new_hire_2)).to eq([6, 6, 6, 6, 6, 6, 6, 6, 4, 5, 6, 6, 6, 4, 4, 5])
+    expect(report.worker_row_styles(new_hire_2)).to eq([6, 6, 6, 6, 6, 6, 6, 6, 4, 5, 6, 6, 6, 6, 4, 4, 5])
   end
 end

@@ -108,29 +108,26 @@ describe ConcurImporter::IdInformation, type: :service do
   describe '#generate_csv' do
     subject(:id_info) { ConcurImporter::IdInformation.new }
 
-    let(:entries)   { id_info.sort_entries('fakepath') }
     let(:filepath)  { Rails.root.to_s + '/tmp/concur/employee_fake_idinformation_20180214140000.txt' }
     let(:final_csv) do
       <<-CSV.strip_heredoc
-      320,oldid1,112233,,,,,,
-      320,oldid2,332211,,,,,,
+      100,0,SSO,UPDATE,EN,N,N
+      320,old_id_1,new_id_1,,,,,,
+      320,old_id_2,new_id_2,,,,,,
+      320,old_id_3,new_id_3,,,,,,
+      320,old_id_4,new_id_4,,,,,,
       CSV
     end
 
     before do
       Timecop.freeze(Time.new(2018, 2, 14, 22, 0, 0, '+00:00'))
-
-      FactoryGirl.create(:profile,
-        adp_employee_id: '332211',
-        profile_status: 'active',
-        employee_args: {
-          status: 'active',
-          email: '2@example.com',
-          first_name: 'Fname2',
-          last_name: 'Lname2'
-        })
-
-      id_info.generate_csv(entries[0])
+      CSV.open('tmp/concur/test.csv', 'w+:bom|utf-8') do |csv|
+        csv << ['old_id_1','new_id_1']
+        csv << ['old_id_2','new_id_2']
+        csv << ['old_id_3','new_id_3']
+        csv << ['old_id_4','new_id_4']
+      end
+      id_info.generate_csv(IO.readlines('tmp/concur/test.csv'))
     end
 
     after do

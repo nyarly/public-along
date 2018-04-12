@@ -43,7 +43,7 @@ describe AdpService::WorkerJsonParser, type: :service do
       adp = AdpService::WorkerJsonParser.new
 
       expect(adp.gen_worker_hash(w_json)).to eq({
-        status: 'active',
+        adp_status: 'Active',
         adp_assoc_oid: 'G32B8JAXA1W398Z8',
         adp_employee_id: '101455',
         legal_first_name: 'Shirley',

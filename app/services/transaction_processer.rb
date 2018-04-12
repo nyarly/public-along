@@ -29,11 +29,13 @@ class TransactionProcesser
   def new_record_onboard
     employee.hire!
     EmployeeService::Onboard.new(employee).new_worker
+    TechTableWorker.perform_async(:onboard_instructions, emp_transaction.id)
   end
 
   def re_onboard
     employee.hire!
     EmployeeService::Onboard.new(employee).re_onboard
+    TechTableWorker.perform_async(:onboard_instructions, emp_transaction.id)
   end
 
   def standard_onboard

@@ -57,6 +57,10 @@ class EmpDelta < ActiveRecord::Base
     }
   end
 
+  def self.manager_changes
+    where("before ? :key", key: "manager_id")
+  end
+
   def format(attr)
     keys = [
       'hire_date',

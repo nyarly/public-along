@@ -38,13 +38,13 @@ class SecAccessService
   end
 
   def add_or_remove_employee_from_groups
-    @add_sec_groups.each do |sg|
-      @results << @ads.modify_sec_group("add", sg, @employee) unless sg.blank?
-    end unless @add_sec_groups.blank?
-
     @revoke_sec_groups.each do |sg|
       @results << @ads.modify_sec_group("delete", sg, @employee) unless sg.blank?
     end unless @revoke_sec_groups.blank?
+
+    @add_sec_groups.each do |sg|
+      @results << @ads.modify_sec_group("add", sg, @employee) unless sg.blank?
+    end unless @add_sec_groups.blank?
     @results
   end
 

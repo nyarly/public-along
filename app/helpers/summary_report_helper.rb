@@ -5,24 +5,28 @@ module SummaryReportHelper
 
     def offboarding_data
       attrs = [
-        "Name",
-        "Employee ID",
-        "Employee Type",
-        "Position",
-        "Department",
-        "Manager",
-        "Work Location",
-        "Email",
-        "Transfer SalesForces Cases to",
-        "Start Date",
-        "Termination Date",
-        "Offboarding Form Submitted",
-        "Employee Info Last Modified"
+        'Name',
+        'Employee ID',
+        'Worker Type',
+        'Position',
+        'Department',
+        'Manager',
+        'Work Location',
+        'Email',
+        'Transfer Salesforce Cases',
+        'Start Date',
+        'Termination Date',
+        'Contract End Date',
+        'Offboarding Form Submitted',
+        'Offboarded At',
+        'Worker Info Last Modified'
       ]
       CSV.generate(headers: true) do |csv|
         csv << attrs
 
-        Employee.offboarding_report_group.each do |employee|
+        OffboardQuery.new.report_group.each do |profile|
+          employee = profile.employee
+
           csv << [
             employee.cn,
             employee.employee_id,
@@ -33,14 +37,17 @@ module SummaryReportHelper
             employee.location.name,
             employee.email,
             salesforce(employee).try(:cn),
-            employee.hire_date.strftime("%Y-%b-%e"),
-            employee.offboard_date.strftime("%Y-%b-%e"),
-            employee.request_status,
-            employee.last_changed_at.try(:strftime, "%Y-%m-%d %H:%M:%S")
+            employee.hire_date.strftime('%Y-%b-%e'),
+            employee.termination_date.try(:strftime, '%Y-%b-%e'),
+            employee.contract_end_date.try(:strftime, '%Y-%b-%e'),
+            offboard_form_status(employee),
+            employee.offboarded_at.try(:strftime, '%Y-%b-%e'),
+            employee.last_changed_at.try(:strftime, '%Y-%m-%d %H:%M:%S')
           ]
         end
       end
     end
+
 
     def job_change_data
       attrs = [
@@ -48,6 +55,7 @@ module SummaryReportHelper
         "Department",
         "First Name",
         "Last Name",
+        "Employee ID",
         "ADP Job Title",
         "Manager Full Name",
         "Location",
@@ -70,6 +78,7 @@ module SummaryReportHelper
               employee.department.try(:name),
               employee.first_name,
               employee.last_name,
+              employee.current_profile.adp_employee_id,
               employee.job_title.try(:name),
               employee.manager.try(:cn),
               employee.location.try(:name),
@@ -84,13 +93,23 @@ module SummaryReportHelper
       end
     end
 
+    private
+
+    def offboard_form_status(employee)
+      info = offboarding_info(employee)
+      info.present? ? info.created_at.strftime('%Y-%m-%d %H:%M:%S') : employee.request_status
+    end
+
     def salesforce(employee)
-      if employee.offboarding_infos.count > 0
-        emp_id =  employee.offboarding_infos.last.reassign_salesforce_id
-        Employee.find(emp_id)
-      else
-        nil
-      end
+      return nil if employee.offboarding_infos.empty?
+      emp_id =  offboarding_info(employee).try(:reassign_salesforce_id)
+      transfer_to = Employee.find(emp_id)
+      return nil if transfer_to.blank?
+      transfer_to
+    end
+
+    def offboarding_info(employee)
+      employee.offboarding_infos.present? ? employee.offboarding_infos.last : nil
     end
   end
 end

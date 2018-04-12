@@ -114,7 +114,7 @@ module ConcurImporter
     # - info changed in last 24 hours
     # - terminated yesterday
     def daily_upload
-      EmployeeQuery.new.concur_upload_group
+      ConcurUploadQuery.new.daily_sync_group
     end
 
     # Mezzo only uploads regular employees to Concur.

@@ -73,7 +73,7 @@ describe ConcurImporter::EnhancedEmployee, type: :service do
     end
     let(:csv) do
       <<-EOS.strip_heredoc
-      100,0,SSO,UPDATE,EN,N,N
+      100,0,WELCOME,UPDATE,EN,N,N
       305,John,,Keynes,222,email2@example.com,,email2@example.com,en_US,US,,DEFAULT,USD,,Y,,,,,,,"OpenTable, Inc.",,,,,,,,,deptxx,XX,0,222,,,,,,,,US,,,,,,,,,,,,,,,,,111,,,,,N,,,,,,,,,,,,,111,,,,,,,,,Y,US,,,ADPPAYR,222,WP8,E,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
       305,Brandon,,Smith,111,email1@example.com,,email1@example.com,en_US,US,,DEFAULT,USD,,Y,,,,,,,"OpenTable, Inc.",,,,,,,,,deptxx,XX,0,111,,,,,,,,US,,,,,,,,,,,,,,,,,,,,,,Y,,,,,,,,,,,,,,,,,,,,,,Y,US,,,ADPPAYR,111,WP8,E,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
       EOS
