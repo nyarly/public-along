@@ -16,7 +16,7 @@ namespace :db do
         email: 'jlebowski@opentable.com',
         hire_date: 10.years.ago
       )
-      Profile.create!(
+      employee.build_current_profile(
         employee: employee,
         start_date: Date.today,
         profile_status: "active",
@@ -27,6 +27,7 @@ namespace :db do
         job_title: JobTitle.find_or_create_by!(id: 1, name: "Test", code: "TEST", status: "Active"),
         worker_type: WorkerType.find_or_create_by!(id: 1, name: "Test", code: "TEST1", status: "Active")
       )
+      employee.save!
     end
   end
 end

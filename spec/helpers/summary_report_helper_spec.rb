@@ -49,7 +49,7 @@ describe SummaryReportHelper, type: :helper do
       let(:csv) do
         <<-EOS.strip_heredoc
         Name,Employee ID,Worker Type,Position,Department,Manager,Work Location,Email,Transfer Salesforce Cases,Start Date,Termination Date,Contract End Date,Offboarding Form Submitted,Offboarded At,Worker Info Last Modified
-        #{employee.cn},#{employee.employee_id},#{employee.worker_type.name},#{employee.job_title.name},#{employee.department.name},#{employee.manager.cn},#{employee.location.name},#{employee.email},,#{employee.hire_date.strftime('%Y-%b-%e')},#{Date.yesterday.strftime('%Y-%b-%e')},,none,#{Date.yesterday.strftime('%Y-%b-%e')},#{employee.created_at.strftime('%Y-%m-%d %H:%M:%S')}
+        #{employee.cn},#{employee.employee_id},#{employee.worker_type.name},#{employee.job_title.name},#{employee.department.name},#{employee.manager.cn},#{employee.location.name},#{employee.email},,#{employee.hire_date.strftime('%Y-%b-%e')},#{Date.yesterday.strftime('%Y-%b-%e')},,none,#{Date.yesterday.strftime('%Y-%b-%e')},#{employee.current_profile.created_at.strftime('%Y-%m-%d %H:%M:%S')}
         EOS
       end
 

@@ -10,6 +10,8 @@ class Employee < ActiveRecord::Base
 
   attr_accessor :nearest_time_zone
 
+  has_one :current_profile, -> { where(profiles: { primary: true }) }, class_name: 'Profile', autosave: true
+  has_many :profiles, autosave: true
   has_many :emp_transactions # on delete, cascade in db
   has_many :onboarding_infos, through: :emp_transactions
   has_many :offboarding_infos, through: :emp_transactions
@@ -18,10 +20,10 @@ class Employee < ActiveRecord::Base
   has_many :emp_sec_profiles, through: :emp_transactions
   has_many :security_profiles, through: :emp_sec_profiles
   has_many :emp_deltas # on delete, cascade in db
-  has_many :profiles # on delete, cascade in db
   has_many :direct_reports, class_name: "Employee", foreign_key: "manager_id"
   has_many :addresses, as: :addressable
   belongs_to :manager, class_name: "Employee"
+  accepts_nested_attributes_for :current_profile
 
   validates :first_name,
             presence: true
@@ -93,6 +95,36 @@ class Employee < ActiveRecord::Base
   [:department, :worker_type, :location, :job_title, :company, :adp_assoc_oid].each do |attribute|
     define_method :"#{attribute}" do
       current_profile.try(:send, "#{attribute}")
+    end
+  end
+
+  def current_profile
+    @current_profile || profiles.detect{ |p| p.primary? }
+  end
+
+  def build_current_profile(attributes = {})
+    handle_existing_current_profile
+    @current_profile = self.profiles.build(attributes.merge({ primary: true }))
+  end
+
+  def current_profile=(profile_or_id)
+    if profile_or_id
+      new_current_profile = profile_or_id.is_a?(Profile) ? profile_or_id : self.profiles.find(profile_or_id)
+      new_current_profile.try(:assign_attributes, primary: true, employee: self)
+    end
+
+    handle_existing_current_profile
+
+    self.profiles.target << new_current_profile if new_current_profile && new_current_profile.new_record?
+    @current_profile = new_current_profile
+  end
+
+  def handle_existing_current_profile
+    if self.current_profile
+      if self.current_profile.new_record?
+        self.profiles.detect{ |p| p.primary? }.mark_for_destruction
+      end
+      self.profiles.detect{ |p| p.primary? }.try(:assign_attributes, { primary: false })
     end
   end
 
@@ -251,30 +283,9 @@ class Employee < ActiveRecord::Base
     where('termination_date BETWEEN ? AND ?', 8.days.ago, 7.days.ago)
   end
 
-
-
   def self.onboarding_reminder_group
     missing_onboards = Employee.where(status: "pending", request_status: "waiting")
     missing_onboards.select { |e| e if (e.onboarding_due_date.to_date - 1.day).between?(Date.yesterday, Date.tomorrow) }
-  end
-
-  def current_profile
-    # if employee data is not persisted, like when previewing employee data from an event
-    # scope on profiles is not available, so must access by method last
-    @current_profile ||= self.profiles.last if !self.persisted?
-
-    case self.status
-    when "active"
-      @current_profile ||= self.profiles.active.last
-    when "inactive"
-      @current_profile ||= self.profiles.leave.last
-    when "pending"
-      @current_profile ||= self.profiles.pending.last
-    when "terminated"
-      @current_profile ||= self.profiles.terminated.last
-    else
-      self.profiles.last
-    end
   end
 
   def start_date

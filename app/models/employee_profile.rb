@@ -32,6 +32,7 @@ class EmployeeProfile
   attribute :end_date, DateTime
   attribute :management_position, Boolean
   attribute :manager_adp_employee_id, String
+  attribute :primary
 
   # attributes for address model
   attribute :line_1, String
@@ -47,26 +48,24 @@ class EmployeeProfile
     employee_hash = event_employee_hash(event_id)
 
     Employee.find(employee_id).tap do |employee|
-      build_new_profile(employee, employee_hash).save!
+      new_profile = build_new_profile(employee, employee_hash)
 
-      # never update hire date for rehires/conversions
-      employee_hash.except!(:hire_date) if employee.terminated?
-      # don't update employee info on workers who are converting
-      assign_employee_attributes(employee, employee_hash) unless employee.active?
+      if employee.terminated?
+        employee.current_profile = new_profile
+        assign_employee_attributes(employee, employee_hash.except!(:hire_date))
+      end
 
-      employee.termination_date = nil
       employee.save!
+      clear_dates(employee)
     end
   end
 
-  # takes employee object and employee hash from the parser
   def update_employee(employee, employee_hash)
     employee_hash.except!(:contract_end_date) if contingent_worker_rehire?(employee_hash) || policy(employee).is_conversion?
     profile = employee.current_profile
 
     assign_employee_attributes(employee, employee_hash)
     profile.assign_attributes(parse_attributes(Profile, employee_hash))
-
     handle_address(employee, employee_hash) if address_hash?(employee_hash)
 
     delta = EmpDelta.build_from_profile(profile)
@@ -89,13 +88,17 @@ class EmployeeProfile
   # new employee takes an event object and returns saved employee
   def new_employee(event)
     employee_hash = parse_event(event)
+    employee = create_employee(employee_hash)
+
+    build_initial_profile(employee, employee_hash)
+    build_new_address(employee, employee_hash)
+    employee.save!
+    employee
+  end
+
+  def create_employee(employee_hash)
     Employee.new(parse_attributes(Employee, employee_hash)).tap do |employee|
       employee.save!
-      profile = build_new_profile(employee, employee_hash)
-      profile.profile_status = 'pending'
-      profile.save!
-      address = build_new_address(employee, employee_hash)
-      address.save!
     end
   end
 
@@ -103,7 +106,7 @@ class EmployeeProfile
   def build_employee(event)
     employee_hash = parse_event(event)
     Employee.new(parse_attributes(Employee, employee_hash)).tap do |employee|
-      build_new_profile(employee, employee_hash)
+      build_initial_profile(employee, employee_hash)
     end
   end
 
@@ -130,6 +133,10 @@ class EmployeeProfile
 
   def policy(employee)
     EmployeePolicy.new(employee)
+  end
+
+  def build_initial_profile(employee, employee_hash)
+    employee.build_current_profile(parse_attributes(Profile, employee_hash.except!(:profile_status)))
   end
 
   def build_new_profile(employee, employee_hash)
@@ -192,10 +199,21 @@ class EmployeeProfile
     else
       profile.profile_status = 'terminated'
       profile.end_date = Date.today
-      new_profile.profile_status = 'active'
+      employee.current_profile = new_profile
     end
 
     profile.save! && new_profile.save!
     new_profile
+  end
+
+  def clear_dates(employee)
+    employee.termination_date = nil
+    employee.contract_end_date = nil if contingent_to_fulltime?(employee)
+    employee.save!
+  end
+
+  def contingent_to_fulltime?(employee)
+    employee.worker_type.kind != 'Regular' &&
+    employee.profiles.pending.last.worker_type.kind == 'Regular'
   end
 end
