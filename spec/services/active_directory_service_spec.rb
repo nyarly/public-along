@@ -4,10 +4,7 @@ describe ActiveDirectoryService, type: :service do
   let(:ldap)  { double(Net::LDAP) }
   let(:ads)   { ActiveDirectoryService.new }
 
-  let(:department)        { Department.find_or_create_by(name: 'People & Culture-HR & Total Rewards') }
-  let(:location)          { Location.find_or_create_by(name: 'San Francisco Headquarters') }
-  let!(:job_title)        { FactoryGirl.create(:job_title) }
-  let!(:new_job_title)    { FactoryGirl.create(:job_title) }
+
   let(:manager)           { FactoryGirl.create(:employee) }
   let!(:manager_profile)  { FactoryGirl.create(:profile, :with_valid_ou, employee: manager) }
 
@@ -262,26 +259,30 @@ describe ActiveDirectoryService, type: :service do
   end
 
   describe '#update' do
+    let(:ldap_entry)    { Net::LDAP::Entry.new(employee.dn) }
+    let(:mailer)        { double(TechTableMailer) }
+    let(:ldap_err)      { OpenStruct.new(code: '99') }
     let!(:worker_type)  { FactoryGirl.create(:worker_type) }
-    let(:employee)      { FactoryGirl.create(:active_employee,
-                          first_name: "Jeffrey",
-                          last_name: "Lebowski",
-                          office_phone: "123-456-7890",
-                          sam_account_name: "jlebowski",
-                          manager: manager) }
-    let!(:profile)      { FactoryGirl.create(:active_profile,
-                          employee: employee,
-                          department: department,
-                          location: location,
-                          job_title: job_title,
-                          adp_employee_id: "12345678") }
-    let(:country)       { Country.find_or_create_by(iso_alpha_2_code: "GB") }
+    let!(:job_title)    { FactoryGirl.create(:job_title) }
+    let(:location)      { Location.find_or_create_by(name: 'San Francisco Headquarters') }
+    let(:department)    { Department.find_or_create_by(name: 'People & Culture-HR & Total Rewards') }
+    let(:employee) do
+      FactoryGirl.create(:employee,
+        first_name: "Jeffrey",
+        last_name: "Lebowski",
+        office_phone: "123-456-7890",
+        sam_account_name: "jlebowski",
+        manager: manager)
+    end
 
-
-    let(:ldap_entry)  { Net::LDAP::Entry.new(employee.dn) }
-    let(:ldap_err)    { OpenStruct.new(message: "message", code: "67") }
-    let(:ldap_ok)     { OpenStruct.new(message: "message", code: "0") }
-    let(:mailer)      { double(TechTableMailer) }
+    let!(:profile) do
+      FactoryGirl.create(:profile,
+        employee: employee,
+        department: department,
+        location: location,
+        job_title: job_title,
+        adp_employee_id: "12345678")
+    end
 
     before :each do
       ldap_entry[:cn] = "Jeffrey Lebowski"
@@ -297,133 +298,119 @@ describe ActiveDirectoryService, type: :service do
       ldap_entry[:description] = job_title.name,
       ldap_entry[:employeeType] = worker_type.name,
       ldap_entry[:physicalDeliveryOfficeName] = "San Francisco Headquarters"
-      ldap_entry[:department] = "People & Culture-HR & Total Rewards"
+      ldap_entry[:department] = department.name
       ldap_entry[:employeeID] = "12345678"
       ldap_entry[:mobile] = "123-456-7890"
       ldap_entry[:telephoneNumber] = "123-456-7890"
       ldap_entry[:thumbnailPhoto] = employee.decode_img_code
-    end
 
-    it "should update changed attributes" do
-      employee = FactoryGirl.create(:active_employee,
-        first_name: "The Dude",
-        last_name: "Lebowski",
-        office_phone: "555-555-5555",
-        sam_account_name: "jlebowski",
-        manager: manager)
-      profile = FactoryGirl.create(:active_profile,
-        employee: employee,
-        department: department,
-        location: location,
-        job_title: new_job_title,
-        adp_employee_id: "12345678")
 
       allow(ldap).to receive(:search).and_return([ldap_entry])
       allow(ldap).to receive_message_chain(:get_operation_result, :message).and_return("message")
       allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
-
-      expect(ldap).to_not receive(:replace_attribute).with(employee.dn, :cn, "The Dude Lebowski")
-      expect(ldap).to receive(:replace_attribute).once.with(employee.dn, :givenName, "The Dude")
-      expect(ldap).to receive(:replace_attribute).once.with(employee.dn, :title, new_job_title.name)
-      expect(ldap).to receive(:replace_attribute).once.with(employee.dn, :description, new_job_title.name)
-      expect(ldap).to receive(:replace_attribute).once.with(employee.dn, :telephoneNumber, "555-555-5555")
-      expect(ldap).to receive(:rename).once.with(
-        :olddn => "cn=Jeffrey Lebowski,ou=People and Culture,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com",
-        :newrdn => "cn=The Dude Lebowski",
-        :delete_attributes => true,
-        :new_superior => "ou=People and Culture,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com"
-      )
-
-      ads.update([employee])
-      expect(employee.ad_updated_at).to eq(DateTime.now)
+      allow(ldap).to receive(:replace_attribute)
+      allow(ldap).to receive(:rename)
     end
 
-    it "should handle changed attributes with special characters" do
-      employee.last_name = "Ordoñez"
-      dn = "CN=Jeffrey Ordo\xC3\xB1ez,OU=Peopel and Culture,OU=Users,OU=OT,DC=ottest,DC=opentable,DC=com"
-      ldap_entry[:dn] = dn
-      allow(ldap).to receive(:search).and_return([ldap_entry])
-      allow(ldap_entry).to receive(:dn).and_return(dn.force_encoding(Encoding::ASCII_8BIT))
+    context 'when attributes changed' do
+      let(:new_job_title) { FactoryGirl.create(:job_title) }
 
-      expect(ldap).to receive(:rename).once.with(
-        :olddn => "#{dn.force_encoding(Encoding::ASCII_8BIT)}",
-        :newrdn => "cn=Jeffrey Ordoñez".force_encoding(Encoding::ASCII_8BIT),
-        :delete_attributes => true,
-        :new_superior => "ou=People and Culture,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com"
-      )
-      expect(ldap).to receive(:replace_attribute).once.with(employee.dn.force_encoding(Encoding::ASCII_8BIT), :displayName, "Jeffrey Ordo\xC3\xB1ez".force_encoding(Encoding::ASCII_8BIT))
-      expect(ldap).to receive(:replace_attribute).once.with(employee.dn.force_encoding(Encoding::ASCII_8BIT), :sn, "Ordo\xC3\xB1ez".force_encoding(Encoding::ASCII_8BIT))
+      before do
+        ldap_entry[:title] = 'Old title'
+        ldap_entry[:description] = 'Old title'
+        employee.first_name = 'The Dude'
+        employee.office_phone = '555-555-5555'
 
-      allow(ldap).to receive_message_chain(:get_operation_result, :message).and_return("message")
-      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
+        ads.update([employee])
+      end
 
-      ads.update([employee])
-      expect(employee.ad_updated_at).to eq(DateTime.now)
+      it 'updates ldap with new values' do
+        expect(ldap).to have_received(:replace_attribute).once.with(employee.dn, :givenName, "The Dude")
+        expect(ldap).to have_received(:replace_attribute).once.with(employee.dn, :telephoneNumber, "555-555-5555")
+        expect(ldap).to have_received(:replace_attribute).once.with(employee.dn, :description, job_title.name)
+        expect(ldap).to have_received(:replace_attribute).once.with(employee.dn, :title, job_title.name)
+        expect(employee.ad_updated_at).to eq(DateTime.now)
+      end
     end
 
-    it "should update dn if country changes" do
-      new_location = FactoryGirl.create(:location,
-        name: location.name)
-      address = FactoryGirl.create(:address,
-        addressable_type: "Location",
-        addressable_id: new_location.id,
-        country: country)
-      employee = FactoryGirl.create(:active_employee,
-        first_name: "Jeffrey",
-        last_name: "Lebowski",
-        office_phone: "123-456-7890",
-        sam_account_name: "jlebowski",
-        manager: manager)
-      profile = FactoryGirl.create(:active_profile,
-        employee: employee,
-        department: department,
-        location: new_location,
-        job_title: job_title,
-        adp_employee_id: "12345678")
+    context 'when worker name has special character' do
+      let(:dn) { "CN=Jeffrey Ordo\xC3\xB1ez,OU=Peopel and Culture,OU=Users,OU=OT,DC=ottest,DC=opentable,DC=com" }
 
-      allow(ldap).to receive(:search).and_return([ldap_entry])
-      allow(ldap).to receive_message_chain(:get_operation_result, :message).and_return("message")
-      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
+      before do
+        employee.last_name = "Ordoñez"
+        allow(ldap_entry).to receive(:dn).and_return(dn.force_encoding(Encoding::ASCII_8BIT))
 
-      expect(ldap).to receive(:replace_attribute).once.with(employee.dn, :co, "GB")
-      expect(ldap).to receive(:rename).once.with(
-        :olddn => "cn=Jeffrey Lebowski,ou=People and Culture,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com",
-        :newrdn => "cn=Jeffrey Lebowski",
-        :delete_attributes => true,
-        :new_superior => "ou=HR,ou=EU,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com"
-      )
-      ads.update([employee])
-      expect(employee.ad_updated_at).to eq(DateTime.now)
+        ads.update([employee])
+      end
+
+      it 'encodes name correctly' do
+        expect(ldap).to have_received(:rename).once.with(
+          :olddn => "#{dn.force_encoding(Encoding::ASCII_8BIT)}",
+          :newrdn => "cn=Jeffrey Ordoñez".force_encoding(Encoding::ASCII_8BIT),
+          :delete_attributes => true,
+          :new_superior => "ou=People and Culture,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com"
+        )
+        expect(ldap).to have_received(:replace_attribute).once
+          .with(
+            employee.dn.force_encoding(Encoding::ASCII_8BIT),
+            :displayName, "Jeffrey Ordo\xC3\xB1ez".force_encoding(Encoding::ASCII_8BIT)
+            )
+        expect(ldap).to have_received(:replace_attribute).once
+          .with(
+            employee.dn.force_encoding(Encoding::ASCII_8BIT),
+            :sn, "Ordo\xC3\xB1ez".force_encoding(Encoding::ASCII_8BIT)
+            )
+
+        expect(employee.ad_updated_at).to eq(DateTime.now)
+      end
     end
 
-    it "should update dn if department changes" do
-      new_department = Department.find_by(:name => "Customer Support")
-      employee = FactoryGirl.create(:active_employee,
-        first_name: "Jeffrey",
-        last_name: "Lebowski",
-        office_phone: "123-456-7890",
-        sam_account_name: "jlebowski",
-        manager: manager)
-      profile = FactoryGirl.create(:active_profile,
-        employee: employee,
-        department: new_department,
-        job_title: job_title,
-        adp_employee_id: "12345678",
-        location: location)
+    context 'when country changes' do
+      before do
+        ldap_entry[:dn] = 'old dn'
+        ldap_entry[:co] = 'co'
 
-      allow(ldap).to receive(:search).and_return([ldap_entry])
-      allow(ldap).to receive_message_chain(:get_operation_result, :message).and_return("message")
-      allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
+        allow(ldap).to receive(:search).and_return([ldap_entry])
 
-      expect(ldap).to receive(:replace_attribute).once.with(employee.dn, :department, "Customer Support")
-      expect(ldap).to receive(:rename).once.with(
-        :olddn => "cn=Jeffrey Lebowski,ou=People and Culture,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com",
-        :newrdn => "cn=Jeffrey Lebowski",
-        :delete_attributes => true,
-        :new_superior => "ou=Customer Support,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com"
-      )
-      ads.update([employee])
-      expect(employee.ad_updated_at).to eq(DateTime.now)
+        ads.update([employee])
+      end
+
+      it 'updates worker dn' do
+        expect(ldap).to have_received(:replace_attribute).once.with(employee.dn, :co, 'US')
+        expect(ldap).to have_received(:rename).once.with(
+          :olddn => 'old dn',
+          :newrdn => "cn=Jeffrey Lebowski",
+          :delete_attributes => true,
+          :new_superior => "ou=People and Culture,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com"
+        )
+        expect(employee.ad_updated_at).to eq(DateTime.now)
+      end
+    end
+
+    context 'when department changes' do
+      let(:new_department) { Department.find_by(name: "Customer Support") }
+
+      before do
+        ldap_entry[:dn] = 'old dn'
+        ldap_entry[:department] = 'old dept'
+
+        allow(ldap).to receive(:search).and_return([ldap_entry])
+
+        ads.update([employee])
+      end
+
+      it "should update dn if department changes" do
+          expect(ldap).to have_received(:replace_attribute).once
+            .with(employee.dn, :department, 'People & Culture-HR & Total Rewards')
+          expect(ldap).to have_received(:rename).once.with(
+            :olddn => 'old dn',
+            :newrdn => 'cn=Jeffrey Lebowski',
+            :delete_attributes => true,
+            :new_superior => "ou=People and Culture,ou=Users,ou=OT,dc=ottest,dc=opentable,dc=com"
+          )
+
+        expect(employee.ad_updated_at).to eq(DateTime.now)
+      end
     end
 
     it "should not update unchanged attributes" do

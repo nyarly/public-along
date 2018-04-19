@@ -14,6 +14,7 @@ FactoryGirl.define do
     adp_assoc_oid   { Faker::Number.number(10) }
     adp_employee_id { Faker::Number.number(6) }
     management_position nil
+    primary { true }
 
     factory :active_profile do
       profile_status { 'active' }

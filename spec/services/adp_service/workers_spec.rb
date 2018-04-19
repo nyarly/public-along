@@ -117,7 +117,7 @@ describe AdpService::Workers, type: :service do
     let(:parser)      { double(AdpService::WorkerJsonParser) }
     let(:worker_type) { FactoryGirl.create(:worker_type) }
     let(:manager)     { FactoryGirl.create(:active_employee)}
-    let(:employee)    { FactoryGirl.create(:active_employee, first_name: 'BOB') }
+    let(:employee)    { FactoryGirl.create(:employee, status: 'active', first_name: 'BOB') }
 
     let(:sorted) do
       [{
@@ -143,7 +143,8 @@ describe AdpService::Workers, type: :service do
     end
 
     before do
-      FactoryGirl.create(:active_profile,
+      FactoryGirl.create(:profile,
+        profile_status: 'active',
         employee: manager,
         adp_employee_id: '101734',
         management_position: true)
@@ -167,7 +168,8 @@ describe AdpService::Workers, type: :service do
 
     context 'when worker info changes' do
       before do
-        FactoryGirl.create(:active_profile,
+        FactoryGirl.create(:profile,
+          profile_status: 'active',
           employee: employee,
           adp_employee_id: '101455',
           adp_assoc_oid: 'G32B8JAXA1W398Z8',
@@ -225,7 +227,8 @@ describe AdpService::Workers, type: :service do
       end
 
       before do
-        FactoryGirl.create(:active_profile,
+        FactoryGirl.create(:profile,
+          profile_status: 'active',
           employee: employee,
           adp_employee_id: '101455',
           adp_assoc_oid: 'G32B8JAXA1W398Z8',
@@ -249,6 +252,7 @@ describe AdpService::Workers, type: :service do
     end
 
     context 'when manager recently got a security access form email' do
+      let(:worker_type) { FactoryGirl.create(:worker_type) }
       let(:new_job_title) { FactoryGirl.create(:job_title) }
       let(:sorted) do
         [{
@@ -265,7 +269,7 @@ describe AdpService::Workers, type: :service do
           personal_mobile_phone: '(212) 555-4411',
           department_id: FactoryGirl.create(:department).id,
           location_id: FactoryGirl.create(:location).id,
-          worker_type_id: FactoryGirl.create(:worker_type).id,
+          worker_type_id: worker_type.id,
           job_title_id: new_job_title.id,
           start_date: Date.today,
           profile_status: 'active'
@@ -273,11 +277,13 @@ describe AdpService::Workers, type: :service do
       end
 
       before do
-        FactoryGirl.create(:active_profile,
+        FactoryGirl.create(:profile,
+          profile_status: 'active',
           employee: employee,
           adp_employee_id: '101455',
           adp_assoc_oid: 'G32B8JAXA1W398Z8',
           worker_type: worker_type)
+
         FactoryGirl.create(:emp_delta,
           employee_id: employee.id,
           before: { 'location_id' => 1 },
@@ -462,21 +468,24 @@ describe AdpService::Workers, type: :service do
   end
 
   describe "check leave return" do
-    let!(:leave_emp) {FactoryGirl.create(:leave_employee,
+    let!(:leave_emp) {FactoryGirl.create(:employee,
+      status: 'inactive',
       leave_return_date: nil,
       updated_at: 1.day.ago) }
     let!(:profile) { FactoryGirl.create(:profile,
       employee: leave_emp,
       profile_status: "leave",
       adp_assoc_oid: "123456") }
-    let!(:leave_cancel_emp) {FactoryGirl.create(:leave_employee,
+    let!(:leave_cancel_emp) {FactoryGirl.create(:employee,
+      status: 'inactive',
       leave_return_date: Date.today + 2.days,
       updated_at: 1.day.ago) }
     let!(:lce_profile) {FactoryGirl.create(:profile,
       employee: leave_cancel_emp,
       profile_status: "leave",
       adp_assoc_oid: "123457") }
-    let!(:do_nothing_emp) {FactoryGirl.create(:leave_employee,
+    let!(:do_nothing_emp) {FactoryGirl.create(:employee,
+      status: 'inactive',
       leave_return_date: nil,
       updated_at: 1.day.ago) }
     let!(:dn_profile) { FactoryGirl.create(:profile,
@@ -584,7 +593,8 @@ describe AdpService::Workers, type: :service do
     let!(:future_date)    { 1.year.from_now.change(usec: 0) }
     let!(:regular_w_type) { FactoryGirl.create(:worker_type, code: 'FTR') }
     let!(:new_hire) do
-      FactoryGirl.create(:pending_employee,
+      FactoryGirl.create(:employee,
+        status: 'pending',
         adp_status:  nil,
         first_name: 'Robert',
         hire_date: Date.new(2017, 7, 12))
@@ -594,7 +604,6 @@ describe AdpService::Workers, type: :service do
       FactoryGirl.create(:profile,
         employee: new_hire,
         start_date: Date.new(2017, 7, 12),
-        profile_status: 'pending',
         adp_assoc_oid: 'G3NQ5754ETA080N',
         adp_employee_id: '100015',
         worker_type: regular_w_type)
@@ -761,14 +770,17 @@ describe AdpService::Workers, type: :service do
 
       before do
         adp.token = "a-token-value"
-        FactoryGirl.create(:terminated_profile,
+        FactoryGirl.create(:profile,
+          profile_status: 'terminated',
           employee: rehire,
           start_date: Date.new(2016, 10, 26),
           end_date: Date.new(2016, 12, 9),
           adp_assoc_oid: 'G3NGJ6TFKN7ZWHBP',
           adp_employee_id: '102058',
-          worker_type: ptt_wt)
+          worker_type: ptt_wt,
+          primary: false)
         FactoryGirl.create(:profile,
+          profile_status: 'pending',
           employee: rehire,
           start_date: Date.new(2017, 11, 1),
           adp_assoc_oid: 'G3NGJ6TFKN7ZWHBP',
@@ -807,6 +819,10 @@ describe AdpService::Workers, type: :service do
 
       it 'has the correct adp status' do
         expect(rehire.adp_status).to eq(nil)
+      end
+
+      it 'has the right current profile' do
+        expect(rehire.current_profile.profile_status).to eq('pending')
       end
 
       it 'has the correct profile start and end dates' do

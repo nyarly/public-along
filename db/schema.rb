@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180404175212) do
+ActiveRecord::Schema.define(version: 20180416185830) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -242,22 +242,23 @@ ActiveRecord::Schema.define(version: 20180404175212) do
   end
 
   create_table "profiles", force: :cascade do |t|
-    t.integer  "employee_id",             null: false
+    t.integer  "employee_id",                             null: false
     t.string   "profile_status"
-    t.datetime "start_date",              null: false
+    t.datetime "start_date",                              null: false
     t.datetime "end_date"
     t.string   "business_title"
     t.string   "manager_adp_employee_id"
-    t.integer  "department_id",           null: false
-    t.integer  "location_id",             null: false
-    t.integer  "worker_type_id",          null: false
-    t.integer  "job_title_id",            null: false
+    t.integer  "department_id",                           null: false
+    t.integer  "location_id",                             null: false
+    t.integer  "worker_type_id",                          null: false
+    t.integer  "job_title_id",                            null: false
     t.string   "company"
     t.string   "adp_assoc_oid"
-    t.string   "adp_employee_id",         null: false
-    t.datetime "created_at",              null: false
-    t.datetime "updated_at",              null: false
+    t.string   "adp_employee_id",                         null: false
+    t.datetime "created_at",                              null: false
+    t.datetime "updated_at",                              null: false
     t.boolean  "management_position"
+    t.boolean  "primary",                 default: false, null: false
   end
 
   create_table "sec_prof_access_levels", force: :cascade do |t|

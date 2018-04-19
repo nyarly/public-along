@@ -69,9 +69,9 @@ describe ConcurUploadQuery, type: :query do
       subject(:upload_group) { ConcurUploadQuery.new.daily_sync_group }
 
       let(:old_manager) { FactoryGirl.create(:active_employee) }
-      let(:manager)     { FactoryGirl.create(:active_employee) }
-      let(:employee)    { FactoryGirl.create(:active_employee, manager: manager) }
-      let(:employee_2)  { FactoryGirl.create(:active_employee, manager: manager) }
+      let(:manager)     { FactoryGirl.create(:active_employee, last_name: 'A') }
+      let(:employee)    { FactoryGirl.create(:active_employee, last_name: 'B', manager: manager) }
+      let(:employee_2)  { FactoryGirl.create(:active_employee, last_name: 'C', manager: manager) }
 
       before do
         FactoryGirl.create(:emp_delta,
@@ -89,7 +89,7 @@ describe ConcurUploadQuery, type: :query do
       end
 
       it 'includes the manager' do
-        expect(upload_group).to eq([manager, employee_2, employee])
+        expect(upload_group).to eq([manager, employee, employee_2])
       end
     end
 

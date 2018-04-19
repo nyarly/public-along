@@ -15,10 +15,11 @@ RSpec.describe EmployeeProfile do
   describe '#link_accounts' do
     context 'when rehiring terminated worker' do
       let(:rehire_json) { File.read(Rails.root.to_s + '/spec/fixtures/adp_rehire_event.json') }
-      let(:terminated)  { FactoryGirl.create(:terminated_employee) }
+      let(:terminated)  { FactoryGirl.create(:employee, status: 'terminated') }
       let(:event)       { FactoryGirl.create(:adp_event, json: rehire_json, status: 'new') }
 
       before do
+        FactoryGirl.create(:profile, employee: terminated, profile_status: 'terminated')
         EmployeeProfile.new.link_accounts(terminated.id, event.id)
       end
 
@@ -34,8 +35,56 @@ RSpec.describe EmployeeProfile do
         expect(terminated.profiles.terminated.count).to eq(1)
       end
 
+      it 'assigns the new role as the current profile' do
+        expect(terminated.current_profile.profile_status).to eq('pending')
+        expect(terminated.current_profile.primary).to be(true)
+      end
+
       it 'clears the termination date' do
         expect(terminated.termination_date).to eq(nil)
+      end
+    end
+
+    context 'when onboarding conversion' do
+      let(:hire_event) { File.read(Rails.root.to_s + '/spec/fixtures/adp_hire_event.json') }
+      let(:event)      { FactoryGirl.create(:adp_event, json: hire_event, status: 'new') }
+      let(:cont)       { FactoryGirl.create(:worker_type, kind: 'Contractor') }
+      let(:contractor) do
+        FactoryGirl.create(:employee,
+          status: 'active',
+          contract_end_date: 1.week.from_now.end_of_day,
+          hire_date: Date.new(2018, 1, 1))
+      end
+
+      before do
+        FactoryGirl.create(:worker_type, code: 'OLFR', kind: 'Regular')
+        FactoryGirl.create(:profile, employee: contractor, profile_status: 'active', worker_type: cont)
+        EmployeeProfile.new.link_accounts(contractor.id, event.id)
+      end
+
+      it 'creates a new employee profile' do
+        expect(contractor.reload.profiles.count).to eq(2)
+      end
+
+      it 'has a pending profile' do
+        expect(contractor.reload.profiles.pending.count).to eq(1)
+      end
+
+      it 'has an active profile' do
+        expect(contractor.reload.profiles.active.count).to eq(1)
+      end
+
+      it 'retains the active profile as the current profile' do
+        expect(contractor.reload.current_profile.profile_status).to eq('active')
+        expect(contractor.reload.current_profile.primary).to be(true)
+      end
+
+      it 'clears the contract end date' do
+        expect(contractor.reload.contract_end_date).to eq(nil)
+      end
+
+      it 'does not change the hire date' do
+        expect(contractor.hire_date).to eq(Date.new(2018, 1, 1))
       end
     end
   end
@@ -342,11 +391,16 @@ RSpec.describe EmployeeProfile do
       end
 
       it 'terminates the old profile' do
-        expect(employee.profiles.terminated.reorder(:created_at).last).to eq(profile)
+        expect(employee.reload.profiles.terminated.reorder(:created_at).last).to eq(profile)
+        expect(employee.reload.profiles.terminated.reorder(:created_at).last.primary).to eq(false)
       end
 
       it 'has an active profile' do
         expect(employee.current_profile.profile_status).to eq('active')
+      end
+
+      it 'has the right primary profile' do
+        expect(employee.reload.current_profile.primary).to be(true)
       end
 
       it 'creates an emp delta with the changes' do
@@ -422,6 +476,10 @@ RSpec.describe EmployeeProfile do
 
     it 'assigns the correct start date' do
       expect(new_employee.profiles.last.start_date).to eq(Date.new(2017, 1, 23))
+    end
+
+    it 'assigns a current profile' do
+      expect(new_employee.current_profile.primary).to be(true)
     end
   end
 

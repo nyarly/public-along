@@ -3,7 +3,7 @@ require 'rails_helper'
 describe BetterworksService, type: :service do
 
   before :each do
-    Dir["tmp/betterworks/*"].each do |f|
+    Dir['tmp/betterworks/*'].each do |f|
       File.delete(f)
     end
 
@@ -14,49 +14,54 @@ describe BetterworksService, type: :service do
   end
 
   after :each do
-    Dir["tmp/betterworks/*"].each do |f|
+    Dir['tmp/betterworks/*'].each do |f|
       File.delete(f)
     end
     Timecop.return
   end
 
-  describe "get betterworks users" do
+  describe '#betterworks_users' do
     let(:service) { BetterworksService.new }
     let(:ftr_worker_type) { FactoryGirl.create(:worker_type,
-      code: "FTR",
-      kind: "Regular") }
+      code: 'FTR',
+      kind: 'Regular') }
     let(:ptr_worker_type) { FactoryGirl.create(:worker_type,
-      code: "PTR",
-      kind: "Regular") }
+      code: 'PTR',
+      kind: 'Regular') }
     let!(:temp_worker_type) { FactoryGirl.create(:worker_type,
-      code: "FTT",
-      kind: "Temporary") }
+      code: 'FTT',
+      kind: 'Temporary') }
     let(:contractor_worker_type) { FactoryGirl.create(:worker_type,
-      code: "CONT",
-      kind: "Contractor") }
+      code: 'CONT',
+      kind: 'Contractor') }
 
-    it "should scope only regular employees" do
+    it 'scopes only regular employees' do
       ftr_emp = FactoryGirl.create(:employee,
         hire_date: 1.year.ago)
-      ftr_prof = FactoryGirl.create(:active_profile,
+      ftr_prof = FactoryGirl.create(:profile,
+        profile_status: 'active',
         employee: ftr_emp,
         worker_type: ftr_worker_type)
       ptr_emp = FactoryGirl.create(:employee,
         hire_date: 1.year.ago)
-      ptr_prf = FactoryGirl.create(:active_profile,
+      ptr_prf = FactoryGirl.create(:profile,
+        profile_status: 'active',
         employee: ptr_emp,
         worker_type: ptr_worker_type)
       temp = FactoryGirl.create(:employee,
         hire_date: 1.year.ago)
-      temp_prf = FactoryGirl.create(:active_profile,
+      temp_prf = FactoryGirl.create(:profile,
+        profile_status: 'active',
         employee: temp,
         worker_type: temp_worker_type)
-      rehired_worker = FactoryGirl.create(:pending_employee,
+      rehired_worker = FactoryGirl.create(:employee,
+        status: 'pending',
         hire_date: 2.years.ago)
       rehired_profile = FactoryGirl.create(:profile,
         employee: rehired_worker,
         worker_type: ftr_worker_type)
-      rehired_old_prof = FactoryGirl.create(:terminated_profile,
+      rehired_old_prof = FactoryGirl.create(:profile,
+        profile_status: 'pending',
         worker_type: ftr_worker_type,
         employee: rehired_worker)
 
@@ -67,7 +72,7 @@ describe BetterworksService, type: :service do
       expect(service.betterworks_users).not_to include(temp)
     end
 
-    it "should not include employees who have not started" do
+    it 'does not include employees who have not started' do
       ftr_emp = FactoryGirl.create(:employee,
         hire_date: 1.year.ago)
       ftr_prof = FactoryGirl.create(:profile,
@@ -84,16 +89,20 @@ describe BetterworksService, type: :service do
       expect(service.betterworks_users).not_to include(ftr_new_emp)
     end
 
-    it "should not include old terminated employees" do
-      ftr_emp = FactoryGirl.create(:active_employee,
+    it 'does not include workers terminated before service start' do
+      ftr_emp = FactoryGirl.create(:employee,
+        status: 'active',
         hire_date: 1.year.ago)
-      ftr_prof = FactoryGirl.create(:active_profile,
+      ftr_prof = FactoryGirl.create(:profile,
+        profile_status: 'active',
         employee: ftr_emp,
         worker_type: ftr_worker_type)
-      ftr_termed_emp = FactoryGirl.create(:terminated_employee,
+      ftr_termed_emp = FactoryGirl.create(:employee,
+        status: 'terminated',
         hire_date: 1.year.ago,
         termination_date: Date.new(2017, 5, 4))
-      ftr_termed_prof = FactoryGirl.create(:terminated_profile,
+      ftr_termed_prof = FactoryGirl.create(:profile,
+        profile_status: 'terminated',
         employee: ftr_termed_emp,
         end_date: Date.new(2017, 5, 1))
 
@@ -102,7 +111,7 @@ describe BetterworksService, type: :service do
       expect(service.betterworks_users).not_to include(ftr_termed_emp)
     end
 
-    it "should include terminated workers after the product launch" do
+    it 'includes workers terminated since service start' do
       scoped_term = FactoryGirl.create(:employee,
         status: "terminated",
         hire_date: 1.year.ago,
@@ -117,8 +126,9 @@ describe BetterworksService, type: :service do
       expect(service.betterworks_users).to include(scoped_term)
     end
 
-    it "should include workers on leave" do
-      leave = FactoryGirl.create(:leave_employee,
+    it 'includes workers on leave' do
+      leave = FactoryGirl.create(:employee,
+        status: 'inactive',
         hire_date: 1.year.ago,
         leave_start_date: 1.month.ago)
       leave_prof = FactoryGirl.create(:profile,
@@ -130,7 +140,7 @@ describe BetterworksService, type: :service do
     end
   end
 
-  describe "generate betterworks user csv" do
+  describe '#generate_employee_csv' do
     let(:service) { BetterworksService.new }
     let(:ftr_worker_type) { FactoryGirl.create(:worker_type,
       code: "FTR",
@@ -152,14 +162,16 @@ describe BetterworksService, type: :service do
       last_name: "Golightly",
       termination_date: nil,
       hire_date: Date.new(2016, 1, 1)) }
-    let!(:emp_prof) { FactoryGirl.create(:active_profile,
+    let!(:emp_prof) { FactoryGirl.create(:profile,
+      profile_status: 'active',
       employee: emp,
       adp_employee_id: "123A",
       start_date: 1.month.ago,
       department: department,
       job_title: job_title,
       worker_type: ftr_worker_type) }
-    let!(:old_emp_prof) { FactoryGirl.create(:terminated_profile,
+    let!(:old_emp_prof) { FactoryGirl.create(:profile,
+      profile_status: 'terminated',
       employee: emp,
       adp_employee_id: "123A",
       department: department,
@@ -175,7 +187,8 @@ describe BetterworksService, type: :service do
       manager: emp,
       hire_date: 1.year.ago,
       termination_date: Date.new(2017, 7, 24)) }
-    let!(:term_emp_prof) { FactoryGirl.create(:terminated_profile,
+    let!(:term_emp_prof) { FactoryGirl.create(:profile,
+      profile_status: 'terminated',
       employee: term_emp,
       profile_status: "terminated",
       adp_employee_id: "123B",
@@ -205,19 +218,21 @@ describe BetterworksService, type: :service do
       first_name: "Calvin",
       last_name: "Klein",
       hire_date: 2.years.ago) }
-    let!(:rehired_old_prof) { FactoryGirl.create(:terminated_profile,
+    let!(:rehired_old_prof) { FactoryGirl.create(:profile,
+      profile_status: 'terminated',
       start_date: 2.years.ago,
       end_date: Date.new(2017, 7, 24),
       worker_type: ftr_worker_type,
       employee: rehired_worker,
-      adp_employee_id: "222bbb") }
+      adp_employee_id: "222bbb",
+      primary: false) }
     let!(:rehired_profile) { FactoryGirl.create(:profile,
       start_date: Date.new(2017, 9, 1),
       employee: rehired_worker,
       worker_type: ftr_worker_type,
       adp_employee_id: "111aaa") }
 
-    let(:filepath) { Rails.root.to_s+"/tmp/betterworks/OT_Betterworks_users_#{DateTime.now.strftime('%Y%m%d')}.csv" }
+    let(:filepath) { Rails.root.to_s + "/tmp/betterworks/OT_Betterworks_users_#{DateTime.now.strftime('%Y%m%d')}.csv" }
     let(:csv) {
       <<-EOS.strip_heredoc
       email,employee_id,first_name,last_name,department_name,title,location,deactivation_date,on_leave,manager_id,manager_email

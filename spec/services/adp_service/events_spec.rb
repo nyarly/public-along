@@ -241,6 +241,8 @@ describe AdpService::Events, type: :service do
         }.to change { Employee.count }.by(1)
         expect(Employee.reorder(:created_at).last.employee_id).to eq('if0rcdig4')
         expect(Employee.reorder(:created_at).last.status).to eq('pending')
+        expect(Employee.reorder(:created_at).last.current_profile.present?).to be(true)
+        expect(Employee.reorder(:created_at).last.worker_type).to eq(worker_type)
       end
     end
 
@@ -324,10 +326,12 @@ describe AdpService::Events, type: :service do
 
     context 'when standard termination' do
       let(:manager)     { FactoryGirl.create(:active_employee) }
-      let!(:term_emp)   { FactoryGirl.create(:active_employee,
+      let!(:term_emp)   { FactoryGirl.create(:employee,
+                          status: 'active',
                           termination_date: nil,
                           manager: manager) }
-      let!(:profile)    { FactoryGirl.create(:active_profile,
+      let!(:profile)    { FactoryGirl.create(:profile,
+                          profile_status: 'active',
                           employee: term_emp,
                           adp_employee_id: '101652') }
 
@@ -570,9 +574,10 @@ describe AdpService::Events, type: :service do
 
     context 'when termination date in past' do
       let(:mailer)    { double(TechTableMailer) }
-      let!(:term_emp) { FactoryGirl.create(:active_employee, termination_date: nil) }
+      let!(:term_emp) { FactoryGirl.create(:employee, status: 'active', termination_date: nil) }
       let!(:profile) do
-        FactoryGirl.create(:active_profile,
+        FactoryGirl.create(:profile,
+          profile_status: 'active',
           employee: term_emp,
           adp_employee_id: '101652')
       end
@@ -662,11 +667,14 @@ describe AdpService::Events, type: :service do
 
     context 'when worker found' do
       let!(:leave_emp) do
-        FactoryGirl.create(:active_employee, leave_start_date: nil)
+        FactoryGirl.create(:employee,
+          status: 'active',
+          leave_start_date: nil)
       end
 
       before do
-        FactoryGirl.create(:active_profile,
+        FactoryGirl.create(:profile,
+          profile_status: 'active',
           employee: leave_emp,
           adp_employee_id: '100344')
       end
@@ -779,7 +787,8 @@ describe AdpService::Events, type: :service do
         FactoryGirl.create(:worker_type,
           code: 'FTR',
           kind: 'Regular')
-        FactoryGirl.create(:terminated_profile,
+        FactoryGirl.create(:profile,
+          profile_status: 'terminated',
           start_date: Date.new(2010, 9, 1),
           end_date: Date.new(2017, 1, 1),
           employee: rehired_emp,
