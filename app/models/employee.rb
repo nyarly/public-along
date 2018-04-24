@@ -180,39 +180,6 @@ class Employee < ActiveRecord::Base
     self.security_profiles.references(:emp_sec_profiles).where("emp_sec_profiles.revoking_transaction_id IS NOT NULL")
   end
 
-  def ad_attrs
-    {
-      cn: cn,
-      dn: dn,
-      objectclass: ["top", "person", "organizationalPerson", "user"],
-      givenName: first_name,
-      sn: last_name,
-      displayName: cn,
-      userPrincipalName: generated_upn,
-      sAMAccountName: sam_account_name,
-      manager: manager.try(:dn),
-      mail: generated_email,
-      unicodePwd: encode_password,
-      co: location.country,
-      accountExpires: generated_account_expires,
-      title: job_title.name,
-      description: job_title.name,
-      employeeType: worker_type.try(:name),
-      physicalDeliveryOfficeName: location.name,
-      department: department.name,
-      employeeID: employee_id,
-      telephoneNumber: office_phone,
-      streetAddress: address.try(:complete_street),
-      l: address.try(:city),
-      st: address.try(:state_territory),
-      postalCode: address.try(:postal_code)
-    }
-  end
-
-  def generated_upn
-    sam_account_name + "@opentable.com" if sam_account_name
-  end
-
   def decode_img_code
     image_code ? Base64.decode64(image_code) : nil
   end
@@ -221,46 +188,16 @@ class Employee < ActiveRecord::Base
     addresses.last if addresses.present?
   end
 
-  def generated_account_expires
-    # The expiration date needs to be set a day after term date
-    # AD expires the account at midnight of the day before the expiry date
-
-    if offboard_date.present?
-      expiration_date = offboard_date + 1.day
-      time_conversion = ActiveSupport::TimeZone.new(nearest_time_zone).local_to_utc(expiration_date)
-      DateTimeHelper::FileTime.wtime(time_conversion)
-    else
-      NEVER_EXPIRES
-    end
+  def display_name
+    first_name + ' ' + last_name
   end
 
   def generated_email
-    return nil if email.blank? && sam_account_name.blank?
     return email if email.present?
-    gen_email = sam_account_name + "@opentable.com"
+    return nil if sam_account_name.blank?
+    gen_email = sam_account_name + '@opentable.com'
     update_attribute(:email, gen_email)
     gen_email
-  end
-
-  def dn
-    "cn=#{cn}," + ou + SECRETS.ad_ou_base
-  end
-
-  def encode_password
-    "\"JoeSevenPack#007#\"".encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT)
-  end
-
-  def ou
-    return "ou=Disabled Users," if status == "terminated"
-
-    match = OUS.select { |k,v|
-      v[:department].include?(department.name) && v[:country].include?(location.country)
-    }
-    return match.keys[0] if match.length == 1
-
-    # put worker in provisional OU if it cannot find another one
-    TechTableMailer.alert_email("WARNING: could not find an exact ou match for #{first_name} #{last_name}; placed in default ou. To remedy, assign appropriate department and country values in Mezzo or contact your developer to create an OU mapping for this department and location combination.").deliver_now
-    "ou=Provisional,ou=Users,"
   end
 
   def self.search(term)
@@ -345,10 +282,6 @@ class Employee < ActiveRecord::Base
 
   def fn
     last_name + ", " + first_name
-  end
-
-  def cn
-    first_name + " " + last_name
   end
 
   def nearest_time_zone
