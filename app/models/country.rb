@@ -5,6 +5,8 @@ class Country < ActiveRecord::Base
   validates :name, presence: true
   validates :iso_alpha_2_code, presence: true, uniqueness: true
 
+  scope :name_collection, -> { all.pluck(:name) }
+
   def code
     iso_alpha_2_code if iso_alpha_2_code.present?
   end

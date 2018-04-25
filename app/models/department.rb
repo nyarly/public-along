@@ -14,4 +14,6 @@ class Department < ActiveRecord::Base
   has_many :machine_bundles, through: :dept_mach_bundles
 
   default_scope { order('name ASC') }
+
+  scope :name_collection, -> { where(status: 'Active').pluck(:name) }
 end
