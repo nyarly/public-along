@@ -8,5 +8,5 @@ class ParentOrg < ActiveRecord::Base
 
   has_many :departments
 
-  scope :name_collection, -> { all.pluck(:name) }
+  scope :code_collection, -> { all.pluck(:code) }
 end

@@ -15,5 +15,5 @@ class Department < ActiveRecord::Base
 
   default_scope { order('name ASC') }
 
-  scope :name_collection, -> { where(status: 'Active').pluck(:name) }
+  scope :code_collection, -> { where(status: 'Active').pluck(:code) }
 end

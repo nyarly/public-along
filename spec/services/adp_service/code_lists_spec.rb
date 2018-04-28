@@ -8,6 +8,7 @@ describe AdpService::CodeLists, type: :service do
   let(:request_uri) { "/auth/oauth/v2/token?grant_type=client_credentials" }
   let(:http)        { double(Net::HTTP) }
   let(:response)    { double(Net::HTTPResponse) }
+  let(:service) { double(ActiveDirectory::GlobalGroups::Generator) }
 
   before :each do
     allow(uri).to receive(:host).and_return(host)
@@ -30,13 +31,15 @@ describe AdpService::CodeLists, type: :service do
         "Authorization"=>"Basic #{SECRETS.adp_creds}",
       }).and_return(response)
     expect(response).to receive(:body).and_return('{"access_token": "7890f85c-43ef-4ebc-acb7-f98f2c0581d0"}')
+    allow(ActiveDirectory::GlobalGroups::Generator).to receive(:new).and_return(service)
+    allow(service).to receive(:new_group)
   end
 
   it "should get a bearer token from ADP" do
     expect(AdpService::CodeLists.new.token).to eq("7890f85c-43ef-4ebc-acb7-f98f2c0581d0")
   end
 
-  describe "sync job titles table" do
+  describe '#sync_job_titles' do
     let!(:existing) { FactoryGirl.create(:job_title, code: "ACCNASST", name: "Accounting Assistant", status: "Active")}
 
     before :each do
@@ -88,139 +91,204 @@ describe AdpService::CodeLists, type: :service do
     end
   end
 
-  describe "sync locations table" do
-
-    before :each do
+  describe '#sync_locations' do
+    before do
       Location.destroy_all
-      allow(URI).to receive(:parse).with("https://api.adp.com/codelists/hr/v3/worker-management/locations/WFN/1").and_return(uri)
-      allow(http).to receive(:get).with(
-        request_uri,
+      allow(URI).to receive(:parse)
+        .with('https://api.adp.com/codelists/hr/v3/worker-management/locations/WFN/1')
+        .and_return(uri)
+      allow(http).to receive(:get)
+        .with(request_uri,
         { "Accept"=>"application/json",
           "Authorization"=>"Bearer a-token-value",
         }).and_return(response)
-      expect(response).to receive(:code)
-      expect(response).to receive(:message)
+      allow(response).to receive(:code)
+      allow(response).to receive(:message)
     end
 
-    it "should find or create locations" do
-      expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"locations","listItems":[{"valueDescription":"AB - Alberta", "codeValue":"AB", "shortName":"Alberta"}, {"valueDescription":"AZ - Arizona", "codeValue":"AZ", "shortName":"Arizona"}, {"valueDescription":"BC - British Columbia", "codeValue":"BC", "shortName":"British Columbia"}, {"valueDescription":"BER - Berlin", "codeValue":"BER", "shortName":"Berlin"}, {"valueDescription":"BM - Birmingham", "codeValue":"BM", "shortName":"Birmingham"}]}]}')
+    context 'with new locations' do
+      let(:adp) { AdpService::CodeLists.new }
 
-      adp = AdpService::CodeLists.new
-      adp.token = "a-token-value"
+      before do
+        adp.token = "a-token-value"
+        allow(PeopleAndCultureMailer).to receive_message_chain(:code_list_alert, :deliver_now)
+        allow(response).to receive(:body)
+          .and_return('{"codeLists":[{"codeListTitle":"locations","listItems":[{"valueDescription":"AB - Alberta", "codeValue":"AB", "shortName":"Alberta"}, {"valueDescription":"AZ - Arizona", "codeValue":"AZ", "shortName":"Arizona"}, {"valueDescription":"BC - British Columbia", "codeValue":"BC", "shortName":"British Columbia"}, {"valueDescription":"BER - Berlin", "codeValue":"BER", "shortName":"Berlin"}, {"valueDescription":"BM - Birmingham", "codeValue":"BM", "shortName":"Birmingham"}]}]}')
+      end
 
-      expect{
+      it 'creates new location records' do
+        expect{
+          adp.sync_locations
+        }.to change{ Location.count }.from(0).to(5)
+      end
+
+      it 'assigns pending assignment for country' do
         adp.sync_locations
-      }.to change{Location.count}.from(0).to(5)
-    end
+        expect(Location.find_by(code: 'AB').country).to eq('Pending Assignment')
+      end
 
-    it "should update changes in existing locations" do
-      canada = Country.find_or_create_by(iso_alpha_2_code: "CA")
-      existing = FactoryGirl.create(:location, code: "AB", name: "Alberta", status: "Active", kind: "Remote Location", timezone: "(GMT-07:00) Mountain Time (US & Canada)")
-      address = FactoryGirl.create(:address, addressable_type: "Location", addressable_id: existing.id, country_id: canada.id)
-      expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"locations","listItems":[{"valueDescription":"AB - Alberta", "codeValue":"AB", "shortName":"New Alberta"}, {"valueDescription":"AZ - Arizona", "codeValue":"AZ", "shortName":"Arizona"}, {"valueDescription":"BC - British Columbia", "codeValue":"BC", "shortName":"British Columbia"}, {"valueDescription":"BER - Berlin", "codeValue":"BER", "shortName":"Berlin"}, {"valueDescription":"BM - Birmingham", "codeValue":"BM", "shortName":"Birmingham"}]}]}')
-
-      adp = AdpService::CodeLists.new
-      adp.token = "a-token-value"
-
-      expect{
+      it 'assigns pending assignment for kind' do
         adp.sync_locations
-      }.to change{Location.find_by(code: "AB").name}.from("Alberta").to("New Alberta")
-      expect(Location.find_by(code: "AB").address.country.code).to eq("CA")
-      expect(Location.find_by(code: "AB").kind).to eq("Remote Location")
-      expect(Location.find_by(code: "AB").timezone).to eq("(GMT-07:00) Mountain Time (US & Canada)")
-      expect(Location.find_by(code: "AZ").country).to eq("Pending Assignment")
-      expect(Location.find_by(code: "AZ").kind).to eq("Pending Assignment")
-      expect(Location.find_by(code: "AZ").timezone).to eq("Pending Assignment")
-    end
+        expect(Location.find_by(code: 'AB').kind).to eq('Pending Assignment')
+      end
 
-    it "should assign status dependent on presence in response body" do
-      inactive = FactoryGirl.create(:location, code: "CHA", name: "Chattanooga", status: "Active")
-
-      expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"locations","listItems":[{"valueDescription":"AB - Alberta", "codeValue":"AB", "shortName":"New Alberta"}, {"valueDescription":"AZ - Arizona", "codeValue":"AZ", "shortName":"Arizona"}, {"valueDescription":"BC - British Columbia", "codeValue":"BC", "shortName":"British Columbia"}, {"valueDescription":"BER - Berlin", "codeValue":"BER", "shortName":"Berlin"}, {"valueDescription":"BM - Birmingham", "codeValue":"BM", "shortName":"Birmingham"}]}]}')
-
-      adp = AdpService::CodeLists.new
-      adp.token = "a-token-value"
-
-      expect{
+      it 'assigns pending assignment for timezone' do
         adp.sync_locations
-      }.to change{Location.find_by(code: "CHA").status}.from("Active").to("Inactive")
-      expect(Location.find_by(code: "AB").status).to eq("Active")
-      expect(Location.find_by(code: "AZ").status).to eq("Active")
+        expect(Location.find_by(code: 'AB').timezone).to eq('Pending Assignment')
+      end
+
+      it 'sends P&C an email with new items to update' do
+        adp.sync_locations
+        expect(PeopleAndCultureMailer).to have_received(:code_list_alert)
+      end
+
+      it 'creates the global groups in AD' do
+        adp.sync_locations
+        expect(service).to have_received(:new_group).with('AB', 'Geographic')
+      end
     end
 
-    it "should send p&c an email to update new items" do
-      expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"locations","listItems":[{"valueDescription":"AB - Alberta", "codeValue":"AB", "shortName":"Alberta"}]}]}')
+    context 'with existing locations' do
+      let(:adp) { AdpService::CodeLists.new }
+      let!(:location) do
+        FactoryGirl.create(:location,
+          code: 'AB',
+          name: 'Alberta',
+          status: 'Active',
+          kind: 'Remote Location',
+          timezone: '(GMT-07:00) Mountain Time (US & Canada)')
+      end
 
-      adp = AdpService::CodeLists.new
-      adp.token = "a-token-value"
+      before do
+        adp.token = 'a-token-value'
+        allow(response).to receive(:body)
+          .and_return('{"codeLists":[{"codeListTitle":"locations","listItems":[{"valueDescription":"AB - Alberta", "codeValue":"AB", "shortName":"New Alberta"}, {"valueDescription":"AZ - Arizona", "codeValue":"AZ", "shortName":"Arizona"}, {"valueDescription":"BC - British Columbia", "codeValue":"BC", "shortName":"British Columbia"}, {"valueDescription":"BER - Berlin", "codeValue":"BER", "shortName":"Berlin"}, {"valueDescription":"BM - Birmingham", "codeValue":"BM", "shortName":"Birmingham"}]}]}')
+        adp.sync_locations
+      end
 
-      expect(PeopleAndCultureMailer).to receive_message_chain(:code_list_alert, :deliver_now)
-      adp.sync_locations
-      expect(Location.find_by(code: "AB").kind).to eq("Pending Assignment")
+      it 'updates location name' do
+        expect(location.reload.name).to eq('New Alberta')
+      end
+
+      it 'does not update country' do
+        expect(location.reload.address.country.iso_alpha_2).to eq('US')
+      end
+
+      it 'does not update timezone' do
+        expect(location.timezone).to eq('(GMT-07:00) Mountain Time (US & Canada)')
+      end
     end
+
+    context 'when location is deactivated in adp' do
+      let(:adp) { AdpService::CodeLists.new }
+      let!(:chattanooga) do
+        Location.find_or_create_by(code: 'CHA',
+          name: 'Chattanooga',
+          status: 'Active')
+      end
+      let!(:alberta) do
+        Location.find_or_create_by(code: 'AB',
+          name: 'Alberta',
+          status: 'Active')
+      end
+
+      before do
+        adp.token = 'a-token-value'
+        allow(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"locations","listItems":[{"valueDescription":"AB - Alberta", "codeValue":"AB", "shortName":"New Alberta"}, {"valueDescription":"AZ - Arizona", "codeValue":"AZ", "shortName":"Arizona"}, {"valueDescription":"BC - British Columbia", "codeValue":"BC", "shortName":"British Columbia"}, {"valueDescription":"BER - Berlin", "codeValue":"BER", "shortName":"Berlin"}, {"valueDescription":"BM - Birmingham", "codeValue":"BM", "shortName":"Birmingham"}]}]}')
+        adp.sync_locations
+      end
+
+      it 'assigns status inactive for deactivated location' do
+        expect(chattanooga.reload.status).to eq('Inactive')
+      end
+
+      it 'assigns status active for active locations' do
+        expect(alberta.reload.status).to eq('Active')
+      end
+    end
+
   end
 
-  describe "sync departments table" do
+  describe '#sync_departments' do
+    let(:adp)     { AdpService::CodeLists.new }
 
-    before :each do
+    before do
       Department.destroy_all
+      adp.token = "a-token-value"
       allow(URI).to receive(:parse).with("https://api.adp.com/codelists/hr/v3/worker-management/departments/WFN/1").and_return(uri)
       allow(http).to receive(:get).with(
         request_uri,
         { "Accept"=>"application/json",
           "Authorization"=>"Bearer a-token-value",
         }).and_return(response)
-      expect(response).to receive(:code)
-      expect(response).to receive(:message)
+      allow(response).to receive(:code)
+      allow(response).to receive(:message)
+      allow(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"departments","listItems":[{"valueDescription":"010000 - Facilities", "foreignKey":"WP8", "codeValue":"010000", "shortName":"Facilities"},{"valueDescription":"011000 - People & Culture-HR & Total Rewards", "foreignKey":"WP8", "codeValue":"011000", "longName":"People & Culture-HR & Total Rewards"},{"valueDescription":"012000 - Legal", "foreignKey":"WP8", "codeValue":"012000", "shortName":"Legal"},{"valueDescription":"013000 - Finance", "foreignKey":"WP8", "codeValue":"013000", "shortName":"Finance"},{"valueDescription":"014000 - Risk Management", "foreignKey":"WP8", "codeValue":"014000", "shortName":"Risk Management"}]}]}')
+      allow(PeopleAndCultureMailer).to receive_message_chain(:code_list_alert, :deliver_now)
     end
 
-    it "should find or create departments" do
-      expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"departments","listItems":[{"valueDescription":"010000 - Facilities", "foreignKey":"WP8", "codeValue":"010000", "shortName":"Facilities"},{"valueDescription":"011000 - People & Culture-HR & Total Rewards", "foreignKey":"WP8", "codeValue":"011000", "longName":"People & Culture-HR & Total Rewards"},{"valueDescription":"012000 - Legal", "foreignKey":"WP8", "codeValue":"012000", "shortName":"Legal"},{"valueDescription":"013000 - Finance", "foreignKey":"WP8", "codeValue":"013000", "shortName":"Finance"},{"valueDescription":"014000 - Risk Management", "foreignKey":"WP8", "codeValue":"014000", "shortName":"Risk Management"}]}]}')
+    context 'with new department' do
+      it 'creates new department records' do
+        expect{
+          adp.sync_departments
+        }.to change{ Department.count }.from(0).to(5)
+      end
 
-      adp = AdpService::CodeLists.new
-      adp.token = "a-token-value"
-
-      expect{
+      it 'does not assign a parent org' do
         adp.sync_departments
-      }.to change{Department.count}.from(0).to(5)
-    end
+        expect(Department.find_by(code: '010000').parent_org_id).to eq(nil)
+      end
 
-    it "should update changes in existing departments" do
-      existing = FactoryGirl.create(:department, code: "010000", name: "Facilities")
-      expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"departments","listItems":[{"valueDescription":"010000 - Facilities", "foreignKey":"WP8", "codeValue":"010000", "shortName":"New Facilities"},{"valueDescription":"011000 - People & Culture-HR & Total Rewards", "foreignKey":"WP8", "codeValue":"011000", "longName":"People & Culture-HR & Total Rewards"},{"valueDescription":"012000 - Legal", "foreignKey":"WP8", "codeValue":"012000", "shortName":"Legal"},{"valueDescription":"013000 - Finance", "foreignKey":"WP8", "codeValue":"013000", "shortName":"Finance"},{"valueDescription":"014000 - Risk Management", "foreignKey":"WP8", "codeValue":"014000", "shortName":"Risk Management"}]}]}')
-
-      adp = AdpService::CodeLists.new
-      adp.token = "a-token-value"
-
-      expect{
+      it 'sends p&c an email alert' do
         adp.sync_departments
-      }.to change{Department.find_by(code: "010000").name}.from("Facilities").to("New Facilities")
-    end
+        expect(PeopleAndCultureMailer).to have_received(:code_list_alert)
+      end
 
-    it "should assign status dependent on presence in response body" do
-      inactive = FactoryGirl.create(:department, code:"014000", name:"Risk Management", status: "Active")
-
-      expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"departments","listItems":[{"valueDescription":"010000 - Facilities", "foreignKey":"WP8", "codeValue":"010000", "shortName":"New Facilities"},{"valueDescription":"011000 - People & Culture-HR & Total Rewards", "foreignKey":"WP8", "codeValue":"011000", "longName":"People & Culture-HR & Total Rewards"},{"valueDescription":"012000 - Legal", "foreignKey":"WP8", "codeValue":"012000", "shortName":"Legal"},{"valueDescription":"013000 - Finance", "foreignKey":"WP8", "codeValue":"013000", "shortName":"Finance"}]}]}')
-
-      adp = AdpService::CodeLists.new
-      adp.token = "a-token-value"
-
-      expect{
+      it 'creates the global groups in AD' do
         adp.sync_departments
-      }.to change{Department.find_by(code: "014000").status}.from("Active").to("Inactive")
-      expect(Department.find_by(code: "010000").status).to eq("Active")
-      expect(Department.find_by(code: "011000").status).to eq("Active")
+        expect(service).to have_received(:new_group).with('010000', 'Department')
+      end
     end
 
-    it "should send p&c an email to update new items" do
-      expect(response).to receive(:body).and_return('{"codeLists":[{"codeListTitle":"departments","listItems":[{"valueDescription":"007 - Engineering", "foreignKey":"WP8", "codeValue":"007", "shortName":"Engineering"}]}]}')
+    context 'with existing departments' do
+      let(:parent_org) { FactoryGirl.create(:parent_org, code: 'xx') }
+      let!(:department) do
+        Department.find_or_create_by(
+          code: '010000',
+          name: 'Facilities',
+          status: 'Active',
+          parent_org: parent_org)
+      end
+      let!(:old_department) do
+        Department.find_or_create_by(
+          code: 'xxx',
+          name: 'old',
+          status: 'Active',
+          parent_org: parent_org)
+      end
 
-      adp = AdpService::CodeLists.new
-      adp.token = "a-token-value"
+      before do
+        adp.token = 'a-token-value'
+        allow(response).to receive(:body)
+          .and_return('{"codeLists":[{"codeListTitle":"departments","listItems":[{"valueDescription":"010000 - Facilities", "foreignKey":"WP8", "codeValue":"010000", "shortName":"New Facilities"},{"valueDescription":"011000 - People & Culture-HR & Total Rewards", "foreignKey":"WP8", "codeValue":"011000", "longName":"People & Culture-HR & Total Rewards"},{"valueDescription":"012000 - Legal", "foreignKey":"WP8", "codeValue":"012000", "shortName":"Legal"},{"valueDescription":"013000 - Finance", "foreignKey":"WP8", "codeValue":"013000", "shortName":"Finance"},{"valueDescription":"014000 - Risk Management", "foreignKey":"WP8", "codeValue":"014000", "shortName":"Risk Management"}]}]}')
+        adp.sync_departments
+      end
 
-      expect(PeopleAndCultureMailer).to receive_message_chain(:code_list_alert, :deliver_now)
-      adp.sync_departments
-      expect(Department.find_by(code: "007").parent_org_id).to eq(nil)
+      it 'updates department name' do
+        expect(department.reload.name).to eq('New Facilities')
+      end
+
+      it 'does not update parent org' do
+        expect(department.parent_org_id).to eq(parent_org.id)
+      end
+
+      it 'assigns status as active' do
+        expect(department.status).to eq('Active')
+      end
+
+      it 'leaves status as inactive for deactivated department' do
+        expect(old_department.reload.status).to eq('Inactive')
+      end
     end
   end
 

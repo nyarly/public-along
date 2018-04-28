@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180416185830) do
+ActiveRecord::Schema.define(version: 20180426191214) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -64,10 +64,11 @@ ActiveRecord::Schema.define(version: 20180416185830) do
 
   create_table "countries", force: :cascade do |t|
     t.string   "name"
-    t.string   "iso_alpha_2_code"
+    t.string   "iso_alpha_2"
     t.integer  "currency_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "iso_alpha_3"
   end
 
   add_index "countries", ["currency_id"], name: "index_countries_on_currency_id", using: :btree

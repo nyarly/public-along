@@ -1,6 +1,6 @@
 require 'i18n'
 
-module ActiveDirectoryManager
+module ActiveDirectory
   class LdapConnection
     attr_accessor :ldap, :errors
 

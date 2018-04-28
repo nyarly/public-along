@@ -1,7 +1,7 @@
 class Users::SessionsController < Devise::SessionsController
   def create
     super do |user|
-      user.update_attributes(role_names: roles(user))
+      user.update_attributes(role_names: ["Manager"])
     end
   end
 

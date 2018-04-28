@@ -28,10 +28,12 @@ module AdpService
           loc.update_attributes({name: name, status: "Active"})
         else
           new_location = Location.create({code: code, name: name, status: "Active"})
-          default_country = Country.find_or_create_by(iso_alpha_2_code: "Pending Assignment", name: "Pending Assignment")
+          default_country = Country.find_or_create_by(iso_alpha_2: "Pending Assignment", name: "Pending Assignment")
           new_location.build_address(country_id: default_country.id)
           new_location.save
           new_locations << new_location
+
+          ActiveDirectory::GlobalGroups::Generator.new_group(new_location.code, 'Geographic')
         end
       end
       if new_locations.present?
@@ -54,6 +56,8 @@ module AdpService
         else
           new_department = Department.create({code: code, name: name, status: "Active"})
           new_departments << new_department
+
+          ActiveDirectory::GlobalGroups::Generator.new_group(new_department.code, 'Department')
         end
       end
       if new_departments.present?

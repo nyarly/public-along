@@ -32,7 +32,7 @@ module ConcurImporter
     end
 
     def country_code
-      work_country.iso_alpha_2_code
+      work_country.iso_alpha_2
     end
 
     def currency_code
