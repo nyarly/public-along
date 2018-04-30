@@ -3,12 +3,12 @@ SECRETS = Rails.application.secrets
 OUS = {
   "ou=Accounting,ou=Users," => { :department => ["Finance", "Finance Operations"], :country => ["US", "CA", "MX", "AU", "IN"] },
   "ou=Finance,ou=EU,ou=Users," => { :department => ["Finance", "Finance Operations"], :country => ["GB", "DE"] },
-  "ou=Sales,ou=Users," => { :department => ["Sales", "Sales Operations", "Inside Sales", "Restaurant Relations Management"], :country => ["US", "CA", "MX", "AU"] },
-  "ou=UK Sales,ou=EU,ou=Users," => { :department => ["Sales", "Sales Operations", "Inside Sales", "Restaurant Relations Management"], :country => ["GB", "IE"] },
-  "ou=DE Sales,ou=EU,ou=Users," => { :department => ["Sales", "Sales Operations", "Inside Sales", "Restaurant Relations Management"], :country => ["DE"] },
-  "ou=Field OPS,ou=Users," => { :department => ["Field Operations"], :country => ["US", "CA", "MX", "AU"] },
-  "ou=Field OPS,ou=EU,ou=Users," => { :department => ["Field Operations"], :country => ["GB", "DE", "IE"] },
-  "ou=Executive,ou=Users," => { :department => ["Executive"], :country => ["US", "JP"]},
+  "ou=Sales,ou=Users," => { :department => ["Sales", "Sales Operations", "Sales & Services Management", "Global Sales Operations & Training", "Inside Sales", "Restaurant Relations Management", "Enterprise Sales & Services"], :country => ["US", "CA", "MX", "AU"] },
+  "ou=UK Sales,ou=EU,ou=Users," => { :department => ["Sales", "Sales Operations", "Sales & Services Management", "Global Sales Operations & Training", "Inside Sales", "Restaurant Relations Management", "Enterprise Sales & Services"], :country => ["GB", "IE"] },
+  "ou=DE Sales,ou=EU,ou=Users," => { :department => ["Sales", "Sales Operations", "Sales & Services Management", "Global Sales Operations & Training", "Inside Sales", "Restaurant Relations Management", "Enterprise Sales & Services"], :country => ["DE"] },
+  "ou=Field OPS,ou=Users," => { :department => ["Field Operations", "Customer Success"], :country => ["US", "CA", "MX", "AU"] },
+  "ou=Field OPS,ou=EU,ou=Users," => { :department => ["Field Operations", "Customer Success"], :country => ["GB", "DE", "IE"] },
+  "ou=Executive,ou=Users," => { :department => ["Executive", "Exec Admin"], :country => ["US", "JP"]},
   "ou=IT,ou=Users," => { :department => ["Tech Table", "Infrastructure Engineering"], :country => ["US", "IN"] },
   "ou=IT,ou=EU,ou=Users," => { :department => ["Tech Table", "Infrastructure Engineering"], :country => ["GB"] },
   "ou=Marketing,ou=Users," => { :department => ["Brand/General Marketing", "Consumer Marketing", "Restaurant Marketing", "Public Relations", "Product Marketing"], :country => ["US", "CA", "MX", "AU"] },
@@ -23,7 +23,7 @@ OUS = {
   "ou=Apollo Blake,ou=Users," => { :department => ["Tier 1 Support - Apollo Blake"], :country => ["US", "DE", "IE"] },
   "ou=Customer Support,ou=Users," => { :department => ["Customer Support", "Customer Support - Contact Center"], :country => ["US", "CA", "MX", "AU"] },
   "ou=Operations,ou=EU,ou=Users," => { :department => ["Customer Support", "Customer Support - Contact Center"], :country => ["GB", "DE", "IE"] },
-  "ou=Japan,ou=Users," => { :department => ["Finance", "Finance Operations", "Sales", "Sales Operations", "Inside Sales", "Restaurant Relations Management", "Field Operations", "Brand/General Marketing", "Consumer Marketing", "Restaurant Marketing", "Public Relations", "Product Marketing", "Customer Support", "Customer Support - Contact Center", "Tech Table"], :country => ["JP"] }
+  "ou=Japan,ou=Users," => { :department => ["Finance", "Finance Operations", "Sales", "Sales Operations", "Sales & Services Management", "Global Sales Operations & Training", "Inside Sales", "Restaurant Relations Management", "Enterprise Sales & Services", "Field Operations", "Customer Success", "Brand/General Marketing", "Consumer Marketing", "Restaurant Marketing", "Public Relations", "Product Marketing", "Customer Support", "Customer Support - Contact Center", "Tech Table"], :country => ["JP"] }
 }
 
 # In AD, this value indicates that the account never expires
