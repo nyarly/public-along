@@ -1,7 +1,7 @@
 class Employee < ActiveRecord::Base
   include AASM
 
-  default_scope { order('last_name ASC') }
+  # default_scope { order('last_name ASC') }
 
   before_validation :downcase_unique_attrs
   before_validation :strip_whitespace

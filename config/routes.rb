@@ -15,6 +15,7 @@ Rails.application.routes.draw do
     resources :addresses, only: [:new, :create, :edit, :update]
   end
   resources :machine_bundles
+  resources :new_hires
   resources :parent_orgs
   resources :security_profiles
   devise_for :users, controllers: {
@@ -25,11 +26,6 @@ Rails.application.routes.draw do
   get '/app_access_levels' => "security_profiles#app_access_levels", as: 'app_access_levels'
   get '/sp_access_level' => "security_profiles#sp_access_level", as: 'sp_access_level'
 
-  # The priority is based upon order of creation: first created -> highest priority.
-  # See how all your routes lay out with "rake routes".
-
-  # You can have the root of your site routed with "root"
-  # root 'welcome#index'
   devise_scope :user do
     root to: "employees#index"
     get  '/login' => "users/sessions#new", :as => :login
@@ -42,3 +38,17 @@ Rails.application.routes.draw do
   end
 
 end
+
+
+
+# # new hires (onboards)
+# - sort by start date
+# - filter by location
+# - filter by department
+
+# # offboards
+# - sort by termination date
+# - sort by contract end date
+# - show link to offboard form (if available)
+
+# # leave
