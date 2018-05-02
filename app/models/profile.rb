@@ -24,6 +24,10 @@ class Profile < ActiveRecord::Base
   belongs_to :location
   belongs_to :worker_type
 
+  scope :regular_worker_type, -> { joins(:worker_type).where(:worker_types => {:kind => "Regular"}) }
+  scope :with_department_id, lambda { |department_ids| where(department_id: [*department_ids]) }
+  scope :with_location_id, lambda { |location_ids| where(location_id: [*location_ids]) }
+
   aasm :column => 'profile_status' do
     state :pending, :initial => true
     state :active
@@ -43,7 +47,12 @@ class Profile < ActiveRecord::Base
     end
   end
 
-  scope :regular_worker_type, -> { joins(:worker_type).where(:worker_types => {:kind => "Regular"}) }
+  filterrific(
+    available_filters: [
+      :with_department_id,
+      :with_location_id
+    ]
+  )
 
   def downcase_unique_attrs
     self.adp_employee_id = adp_employee_id.downcase if adp_employee_id.present?

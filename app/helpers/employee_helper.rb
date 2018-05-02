@@ -30,12 +30,4 @@ module EmployeeHelper
     return nil if employee.waiting? || onboards.blank?
     onboards.last.created_at
   end
-
-  def sort_link(table_name, column, title = nil)
-    title ||= column.titleize
-    direction = column == sort_column && sort_direction == "asc" ? "desc" : "asc"
-    icon = sort_direction == "asc" ? "ui-icon-caret-1-n" : "ui-icon-caret-1-s"
-    icon = column == sort_column ? icon : ""
-    link_to "#{title} <span class='#{icon}'></span>".html_safe, {table_name: table_name, column: column, direction: direction}
-  end
 end

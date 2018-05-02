@@ -5,6 +5,11 @@ Rails.application.routes.draw do
   resources :applications
   resources :departments
   resource :emails, only: :create
+  namespace :employees, as: :employee do
+    resources :new_hires, only: :index
+    resources :inactives, only: :index
+    resources :offboards, only: :index
+  end
   resources :employees, only: [:index, :show] do
     get :autocomplete_name, on: :collection
     get :autocomplete_email, on: :collection
@@ -15,7 +20,6 @@ Rails.application.routes.draw do
     resources :addresses, only: [:new, :create, :edit, :update]
   end
   resources :machine_bundles
-  resources :new_hires
   resources :parent_orgs
   resources :security_profiles
   devise_for :users, controllers: {
@@ -36,19 +40,4 @@ Rails.application.routes.draw do
     Sidekiq::Web.session_secret = Rails.application.secrets[:secret_key_base]
     mount Sidekiq::Web => '/sidekiq'
   end
-
 end
-
-
-
-# # new hires (onboards)
-# - sort by start date
-# - filter by location
-# - filter by department
-
-# # offboards
-# - sort by termination date
-# - sort by contract end date
-# - show link to offboard form (if available)
-
-# # leave
