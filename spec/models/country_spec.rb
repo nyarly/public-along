@@ -6,6 +6,6 @@ RSpec.describe Country, type: :model do
   it "meets validations" do
     expect(country).to be_valid
     expect(country).to_not allow_value(nil).for(:name)
-    expect(country).to_not allow_value(nil).for(:iso_alpha_2_code)
+    expect(country).to_not allow_value(nil).for(:iso_alpha_2)
   end
 end

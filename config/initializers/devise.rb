@@ -10,7 +10,7 @@ Devise.setup do |config|
   # config.ldap_check_group_membership_without_admin = false
   # config.ldap_check_attributes = true
   config.ldap_use_admin_to_bind = true
-  config.ldap_ad_group_check = true
+  # config.ldap_ad_group_check = false
 
   # The secret key used by Devise. Devise uses this key to generate
   # random tokens. Changing this key will render invalid all existing

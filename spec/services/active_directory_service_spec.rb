@@ -37,32 +37,32 @@ describe ActiveDirectoryService, type: :service do
 
     context 'regular worker' do
       context 'with valid attributes' do
-        # it 'uses a newly generated sAMAccountName' do
-        #   allow(ldap).to receive(:search).and_return('entry', 'entry', 'entry', []) # Mock search finding conflicting sAMAccountNames
-        #   allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
-        #   allow(ldap).to receive(:add)
+        it 'uses a newly generated sAMAccountName' do
+          allow(ldap).to receive(:search).and_return('entry', 'entry', 'entry', []) # Mock search finding conflicting sAMAccountNames
+          allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
+          allow(ldap).to receive(:add)
 
-        #   ads.create_disabled_accounts([employee])
-        #   expect(employee.sam_account_name).to eq('dkerabatsos1')
-        # end
+          ads.create_disabled_accounts([employee])
+          expect(employee.sam_account_name).to eq('dkerabatsos1')
+        end
 
-        # it 'adds account via ldap' do
-        #   allow(ldap).to receive(:search).and_return([]) # Mock search not finding conflicting existing sAMAccountName
-        #   allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
+        it 'adds account via ldap' do
+          allow(ldap).to receive(:search).and_return([]) # Mock search not finding conflicting existing sAMAccountName
+          allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
 
-        #   expect(ldap).to receive(:add).once.with(
-        #     hash_including(
-        #       :dn => employee.dn,
-        #       attributes: employee.ad_attrs.merge({
-        #         :sAMAccountName => 'dkerabatsos',
-        #         :mail => 'dkerabatsos@opentable.com',
-        #         :userPrincipalName => 'dkerabatsos@opentable.com'
-        #       }).delete_if { |k,v| v.blank? || k == :dn}
-        #     )
-        #   )
+          expect(ldap).to receive(:add).once.with(
+            hash_including(
+              :dn => employee.dn,
+              attributes: employee.ad_attrs.merge({
+                :sAMAccountName => 'dkerabatsos',
+                :mail => 'dkerabatsos@opentable.com',
+                :userPrincipalName => 'dkerabatsos@opentable.com'
+              }).delete_if { |k,v| v.blank? || k == :dn}
+            )
+          )
 
-        #   ads.create_disabled_accounts([employee])
-        # end
+          ads.create_disabled_accounts([employee])
+        end
       end
 
       context 'with generic ldap error' do
@@ -113,21 +113,21 @@ describe ActiveDirectoryService, type: :service do
       end
     end
 
-    # context 'contingent worker' do
-    #   context 'with no worker end date' do
-    #     it 'sends p&c a missing worker end date notice' do
-    #       allow(ldap).to receive(:search).and_return("entry", "entry", [])
-    #       expect(PeopleAndCultureMailer).to receive(:alert).with("Missing Worker End Date for #{contractor.cn}", "#{contractor.cn} is a contingent worker and needs a worker end date in ADP. A disabled Active Directory user has been created, but will not be enabled until a contract end date is provided.", []).and_return(pcmailer)
-    #       expect(pcmailer).to receive(:deliver_now)
-    #       expect(ldap).to receive(:add)
-    #       allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
+    context 'contingent worker' do
+      context 'with no worker end date' do
+        it 'sends p&c a missing worker end date notice' do
+          allow(ldap).to receive(:search).and_return("entry", "entry", [])
+          expect(PeopleAndCultureMailer).to receive(:alert).with("Missing Worker End Date for #{contractor.cn}", "#{contractor.cn} is a contingent worker and needs a worker end date in ADP. A disabled Active Directory user has been created, but will not be enabled until a contract end date is provided.", []).and_return(pcmailer)
+          expect(pcmailer).to receive(:deliver_now)
+          expect(ldap).to receive(:add)
+          allow(ldap).to receive_message_chain(:get_operation_result, :code).and_return(0)
 
-    #       ads.create_disabled_accounts([contractor])
+          ads.create_disabled_accounts([contractor])
 
-    #       expect(contractor.sam_account_name).not_to be(nil)
-    #     end
-    #   end
-    # end
+          expect(contractor.sam_account_name).not_to be(nil)
+        end
+      end
+    end
   end
 
   describe '#activate' do
@@ -497,24 +497,7 @@ describe ActiveDirectoryService, type: :service do
 
   describe '#terminate' do
     let(:ldap_entry) { Net::LDAP::Entry.new(employee.dn) }
-    let(:employee) { FactoryGirl.create(:regular_employee,
-      termination_date: Date.today - 30.days) }
-    let!(:emp_transaction) { FactoryGirl.create(:onboarding_emp_transaction,
-      employee_id: employee.id) }
-    let!(:security_profile) { FactoryGirl.create(:security_profile)}
-    let!(:access_level) { FactoryGirl.create(:access_level,
-      ad_security_group: "cn=test")}
-    let!(:access_level_2) { FactoryGirl.create(:access_level,
-      ad_security_group: nil)}
-    let!(:sec_prof_access_level) { FactoryGirl.create(:sec_prof_access_level,
-      security_profile_id: security_profile.id,
-      access_level_id: access_level.id)}
-    let!(:sec_prof_access_level_2) { FactoryGirl.create(:sec_prof_access_level,
-      security_profile_id: security_profile.id,
-      access_level_id: access_level_2.id)}
-    let!(:emp_sec_profile) { FactoryGirl.create(:emp_sec_profile,
-      emp_transaction_id: emp_transaction.id,
-      security_profile_id: security_profile.id)}
+    let(:employee) { FactoryGirl.create(:regular_employee, termination_date: Date.today - 30.days) }
     let(:ldap_response) { OpenStruct.new(code: 0, message: "message") }
 
     before :each do
@@ -536,21 +519,20 @@ describe ActiveDirectoryService, type: :service do
       ldap_entry[:mobile] = employee.personal_mobile_phone
       ldap_entry[:telephoneNumber] = employee.office_phone
       ldap_entry[:thumbnailPhoto] = employee.decode_img_code
+      ldap_entry[:memberOf] = ['sec_group', 'dist_list']
 
+      allow(ldap).to receive(:search).and_return([ldap_entry])
       allow(ldap).to receive_message_chain(:get_operation_result).and_return(ldap_response)
       allow(ldap).to receive(:message)
       allow(ldap).to receive(:code)
+      allow(ldap).to receive(:modify)
+
+      ads.terminate([employee])
     end
 
     it "should remove the user from security groups and distribution lists" do
-      expect(ldap).to receive(:modify).with({:dn=>access_level.ad_security_group, :operations=>[[:delete, :member, "#{employee.dn}"]]})
-      ads.terminate([employee])
-    end
-
-    it "should not attempt to remove the user if the security group does not have an AD group" do
-      expect(ldap).not_to receive(:modify).with({:dn=>access_level_2.ad_security_group, :operations=>[[:delete, :member, "#{employee.dn}"]]})
-      ads.terminate([employee])
+      expect(ldap).to have_received(:modify).with({:dn=>'sec_group', :operations=>[[:delete, :member, "#{employee.dn}"]]})
+      expect(ldap).to have_received(:modify).with({:dn=>'dist_list', :operations=>[[:delete, :member, "#{employee.dn}"]]})
     end
   end
-
 end

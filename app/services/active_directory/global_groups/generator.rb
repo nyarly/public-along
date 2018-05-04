@@ -1,12 +1,14 @@
 module ActiveDirectory
   module GlobalGroups
-    # Creates all Mezzo managed global groups
+    # Creates Mezzo managed global groups
     class Generator < Base
 
+      # Creates all global groups
       def self.call
         new.call
       end
 
+      # Creates single global group
       def self.new_group(code, kind)
         new.new_group(code, kind)
       end
@@ -62,7 +64,7 @@ module ActiveDirectory
       end
     end
 
-    # colelction of active country and location names
+    # Collection of active country and location names
     class GeographicCollection
       def self.all
         Country.code_collection + Location.code_collection

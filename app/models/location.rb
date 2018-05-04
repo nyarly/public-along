@@ -92,7 +92,7 @@ class Location < ActiveRecord::Base
   has_many :profiles
   has_many :employees, through: :profiles
 
-  scope :code_collection, -> { where(status: 'Active').pluck(:code) }
+  scope :code_collection, -> { where(status: 'Active', kind: 'Office').pluck(:code) }
 
   define_method :country do
     return nil if address.blank? || address.country.blank?

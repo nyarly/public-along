@@ -58,7 +58,7 @@ class ActiveDirectoryService
     end
   end
 
-  def remove_all_memberships(employees)
+  def terminate(employees)
     employees.each do |employee|
       ldap_entry = find_entry('sAMAccountName', employee.sam_account_name).first
 

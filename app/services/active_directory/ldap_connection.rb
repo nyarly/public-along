@@ -16,14 +16,5 @@ module ActiveDirectory
       end
       @errors = {}
     end
-
-    def find_entry(attr, value)
-      ldap.search(
-        :base => SECRETS.ad_ou_base,
-        :filter => Net::LDAP::Filter.eq(attr, value)
-      ) do |entry|
-        entry
-      end
-    end
   end
 end
