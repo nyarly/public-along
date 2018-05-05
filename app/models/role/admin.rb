@@ -17,5 +17,8 @@ class Role::Admin < Role
     ability.can :manage, WorkerType
     ability.can :create, Email
     ability.can :manage, Profile
+    ability.can :read, :new_hire
+    ability.can :read, :offboard
+    ability.can :read, :inactive
   end
 end

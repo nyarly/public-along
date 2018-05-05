@@ -1,12 +1,13 @@
 class Employees::OffboardsController < ApplicationController
   helper EmployeeHelper
+  authorize_resource class: false
 
   def index
     @filterrific = initialize_filterrific(
       Employee.offboards,
       params[:filterrific],
       select_options: {
-        sorted_by: Employee.options_for_sorted_by
+        sorted_by: Employee.options_for_offboard_sort
       },
       persistence_id: 'shared_key',
       default_filter_params: {},

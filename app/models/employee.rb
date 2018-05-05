@@ -1,8 +1,6 @@
 class Employee < ActiveRecord::Base
   include AASM
 
-  # default_scope { order('last_name ASC') }
-
   before_validation :downcase_unique_attrs
   before_validation :strip_whitespace
 
@@ -33,19 +31,22 @@ class Employee < ActiveRecord::Base
             presence: true
 
   scope :active_or_inactive, -> { where('status IN (?)', ["active", "inactive"]) }
+  scope :inactives, -> { where(status: 'inactive') }
   scope :managers, -> { where(management_position: true) }
   scope :offboards, -> { where('termination_date BETWEEN ? AND ? OR offboarded_at BETWEEN ? AND ? OR contract_end_date BETWEEN ? AND ?', 2.weeks.ago, Date.today, 2.weeks.ago, Date.today, 2.weeks.ago, Date.today) }
   scope :sorted_by, lambda { |sort_key|
     direction = (sort_key =~ /desc$/) ? 'DESC' : 'ASC'
     case sort_key.to_s
     when /^name/
-      order("LOWER(last_name) #{direction}",)
+      order("LOWER(last_name) #{direction}")
     when /^termination_date/
-      order("termination_date #{direction}",)
+      order("termination_date #{direction}")
     when /^contract_end_date/
-      order("contract_end_date #{direction}",)
+      order("contract_end_date #{direction}")
     when /^offboarded_at/
-      order("offboarded_at #{direction}",)
+      order("offboarded_at #{direction}")
+    when /^leave_start_date/
+      order("leave_start_date #{direction}")
     end
   }
 
@@ -107,11 +108,11 @@ class Employee < ActiveRecord::Base
   end
 
   filterrific(
-    default_filter_params: { sorted_by: 'termination_date_desc' },
+    default_filter_params: { sorted_by: 'name_asc' },
     available_filters: [:sorted_by]
   )
 
-  def self.options_for_sorted_by
+  def self.options_for_offboard_sort
     [
       ['Name (a-z)', 'name_asc'],
       ['Termination date (newest first)', 'termination_date_desc'],
@@ -120,6 +121,13 @@ class Employee < ActiveRecord::Base
       ['Contract end date (oldest first)', 'contract_end_date_asc'],
       ['Offboarded date (newest first)', 'offboarded_at_desc'],
       ['Offboarded date (oldest first)', 'offboarded_at_asc'],
+    ]
+  end
+
+  def self.options_for_inactive_sort
+    [
+      ['Name (a-z)', 'name_asc'],
+      ['Leave start date (newest first)', 'leave_start_date']
     ]
   end
 

@@ -27,6 +27,13 @@ class Profile < ActiveRecord::Base
   scope :regular_worker_type, -> { joins(:worker_type).where(:worker_types => {:kind => "Regular"}) }
   scope :with_department_id, lambda { |department_ids| where(department_id: [*department_ids]) }
   scope :with_location_id, lambda { |location_ids| where(location_id: [*location_ids]) }
+  scope :sorted_by, lambda { |sort_key|
+    direction = (sort_key =~ /desc$/) ? 'DESC' : 'ASC'
+    case sort_key.to_s
+    when /^start_date/
+      order("start_date #{direction}")
+    end
+  }
 
   aasm :column => 'profile_status' do
     state :pending, :initial => true
@@ -48,11 +55,20 @@ class Profile < ActiveRecord::Base
   end
 
   filterrific(
+    default_filter_params: { sorted_by: 'start_date_asc' },
     available_filters: [
+      :sorted_by,
       :with_department_id,
       :with_location_id
     ]
   )
+
+  def self.options_for_sort
+    [
+      ['Start date (newest first)', 'start_date_desc'],
+      ['Start date (oldest first)', 'start_date_asc']
+    ]
+  end
 
   def downcase_unique_attrs
     self.adp_employee_id = adp_employee_id.downcase if adp_employee_id.present?

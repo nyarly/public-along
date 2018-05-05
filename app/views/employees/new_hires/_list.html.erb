@@ -3,7 +3,7 @@
     <thead>
       <tr>
         <th>Name</th>
-        <th><%= sort_link 'profiles', 'start_date' %></th>
+        <th><%= filterrific_sorting_link(@filterrific, :start_date) %></th>
         <th>Onboard Form</th>
         <th>Manager</th>
         <th>Title</th>
@@ -16,7 +16,7 @@
     <tbody>
       <% new_hires.each do |new_hire| %>
         <tr>
-          <td><%= new_hire.employee.cn %></td>
+          <td><%= link_to "#{new_hire.employee.cn}", employee_path(new_hire.employee) %></td>
           <td><%= l new_hire.start_date, format: :mdy %></td>
           <td><%= onboard_link(new_hire.employee) %></td>
           <td><%= new_hire.employee.manager.try(:cn) %></td>
