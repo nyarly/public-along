@@ -19,5 +19,16 @@ RSpec.describe EmployeesController, type: :routing do
       expect(:get => "employees/1/direct_reports").to route_to("employees#direct_reports", :id => "1")
     end
 
+    it 'routes to #new_hires' do
+      expect(get: 'employees/new_hires').to route_to('employees/new_hires#index')
+    end
+
+    it 'routes to #inactives' do
+      expect(get: 'employees/inactives').to route_to('employees/inactives#index')
+    end
+
+    it 'routes to #offboards' do
+      expect(get: 'employees/offboards').to route_to('employees/offboards#index')
+    end
   end
 end

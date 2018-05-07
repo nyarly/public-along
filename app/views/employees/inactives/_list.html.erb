@@ -1,0 +1,36 @@
+<div id='filterrific_results'>
+  <table>
+    <thead>
+      <tr>
+        <th><%= filterrific_sorting_link(@filterrific, :name) %></th>
+        <th><%= filterrific_sorting_link(@filterrific, :leave_start_date) %></th>
+        <th>Leave Return Date</th>
+        <th>Manager</th>
+        <th>Title</th>
+        <th>Department</th>
+        <th>Location</th>
+        <th>Username</th>
+        <th>Employee ID</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% inactives.each do |inactive| %>
+        <tr>
+          <td><%= link_to "#{inactive.cn}", employee_path(inactive) %></td>
+          <td><%= inactive.leave_start_date.try(:strftime, '%B %e, %Y') %></td>
+          <td><%= inactive.leave_return_date.try(:strftime, '%B %e, %Y') %></td>
+          <td><%= inactive.manager.try(:cn) %></td>
+          <td><%= inactive.job_title.name %></td>
+          <td><%= inactive.department.name %></td>
+          <td><%= inactive.location.name %></td>
+          <td><%= inactive.sam_account_name %></td>
+          <td><%= inactive.current_profile.adp_employee_id %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <div id='new-hire-pagination'>
+    <%= paginate @inactives %>
+    <%= page_entries_info @inactives %>
+  </div>
+</div>

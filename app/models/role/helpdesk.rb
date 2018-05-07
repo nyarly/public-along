@@ -16,5 +16,8 @@ class Role::Helpdesk < Role
     ability.can :autocomplete_name, Employee
     ability.can :autocomplete_email, Employee
     ability.can :create, Email
+    ability.can :read, :new_hire
+    ability.can :read, :offboard
+    ability.can :read, :inactive
   end
 end
