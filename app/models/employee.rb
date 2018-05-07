@@ -1,8 +1,6 @@
 class Employee < ActiveRecord::Base
   include AASM
 
-  default_scope { order('last_name ASC') }
-
   before_validation :downcase_unique_attrs
   before_validation :strip_whitespace
 
@@ -33,7 +31,24 @@ class Employee < ActiveRecord::Base
             presence: true
 
   scope :active_or_inactive, -> { where('status IN (?)', ["active", "inactive"]) }
+  scope :inactives, -> { where(status: 'inactive') }
   scope :managers, -> { where(management_position: true) }
+  scope :offboards, -> { where('termination_date BETWEEN ? AND ? OR offboarded_at BETWEEN ? AND ? OR contract_end_date BETWEEN ? AND ?', 2.weeks.ago, Date.today, 2.weeks.ago, Date.today, 2.weeks.ago, Date.today) }
+  scope :sorted_by, lambda { |sort_key|
+    direction = (sort_key =~ /desc$/) ? 'DESC' : 'ASC'
+    case sort_key.to_s
+    when /^name/
+      order("LOWER(last_name) #{direction}")
+    when /^termination_date/
+      order("termination_date #{direction}")
+    when /^contract_end_date/
+      order("contract_end_date #{direction}")
+    when /^offboarded_at/
+      order("offboarded_at #{direction}")
+    when /^leave_start_date/
+      order("leave_start_date #{direction}")
+    end
+  }
 
   aasm :column => "status" do
     error_on_all_events { |e| Rails.logger.info e.message }
@@ -90,6 +105,30 @@ class Employee < ActiveRecord::Base
     event :start_offboard_process do
       transitions from: [:none, :completed, :waiting], to: :waiting, after: [:update_active_directory_account, :prepare_termination]
     end
+  end
+
+  filterrific(
+    default_filter_params: { sorted_by: 'name_asc' },
+    available_filters: [:sorted_by]
+  )
+
+  def self.options_for_offboard_sort
+    [
+      ['Name (a-z)', 'name_asc'],
+      ['Termination date (newest first)', 'termination_date_desc'],
+      ['Termination date (oldest first)', 'termination_date_asc'],
+      ['Contract end date (newest first)', 'contract_end_date_desc'],
+      ['Contract end date (oldest first)', 'contract_end_date_asc'],
+      ['Offboarded date (newest first)', 'offboarded_at_desc'],
+      ['Offboarded date (oldest first)', 'offboarded_at_asc'],
+    ]
+  end
+
+  def self.options_for_inactive_sort
+    [
+      ['Name (a-z)', 'name_asc'],
+      ['Leave start date (newest first)', 'leave_start_date']
+    ]
   end
 
   [:department, :worker_type, :location, :job_title, :company, :adp_assoc_oid].each do |attribute|

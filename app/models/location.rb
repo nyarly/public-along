@@ -96,4 +96,8 @@ class Location < ActiveRecord::Base
     return nil if address.blank? || address.country.blank?
     address.country.iso_alpha_2_code
   end
+
+  def self.options_for_select
+    order('LOWER(name)').map { |e| [e.name, e.id] }
+  end
 end

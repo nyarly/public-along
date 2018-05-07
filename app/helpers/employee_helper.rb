@@ -24,4 +24,10 @@ module EmployeeHelper
     return true if employee.termination_date.present?
     employee.contract_end_date.present? && employee.contract_end_date.between?(Date.today, 2.weeks.from_now)
   end
+
+  def onboard_submitted(employee)
+    onboards = employee.onboarding_infos
+    return nil if employee.waiting? || onboards.blank?
+    onboards.last.created_at
+  end
 end

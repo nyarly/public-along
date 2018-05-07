@@ -142,6 +142,7 @@ GEM
     faraday (0.12.1)
       multipart-post (>= 1.2, < 3)
     ffi (1.9.10)
+    filterrific (4.0.1)
     foundation-rails (6.2.3.0)
       railties (>= 3.1.0)
       sass (>= 3.3.0, < 3.5)
@@ -405,6 +406,7 @@ DEPENDENCIES
   devise_ldap_authenticatable
   factory_girl_rails
   faker
+  filterrific (~> 4.x)
   foundation-rails
   google-api-client (~> 0.11.1)
   gpgme

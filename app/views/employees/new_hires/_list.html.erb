@@ -1,0 +1,36 @@
+<div id='filterrific_results'>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th><%= filterrific_sorting_link(@filterrific, :start_date) %></th>
+        <th>Onboard Form</th>
+        <th>Manager</th>
+        <th>Title</th>
+        <th>Department</th>
+        <th>Location</th>
+        <th>Username</th>
+        <th>Employee ID</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% new_hires.each do |new_hire| %>
+        <tr>
+          <td><%= link_to "#{new_hire.employee.cn}", employee_path(new_hire.employee) %></td>
+          <td><%= l new_hire.start_date, format: :mdy %></td>
+          <td><%= onboard_link(new_hire.employee) %></td>
+          <td><%= new_hire.employee.manager.try(:cn) %></td>
+          <td><%= new_hire.job_title.name %></td>
+          <td><%= new_hire.department.name %></td>
+          <td><%= new_hire.location.name %></td>
+          <td><%= new_hire.employee.sam_account_name %></td>
+          <td><%= new_hire.adp_employee_id %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <div id='new-hire-pagination'>
+    <%= paginate @new_hires %>
+    <%= page_entries_info @new_hires %>
+  </div>
+</div>

@@ -15,6 +15,7 @@
 //= require jquery-ui
 //= require foundation
 //= require autocomplete-rails
+//= require filterrific/filterrific-jquery
 //= require_tree .
 
 $(function(){ $(document).foundation(); });

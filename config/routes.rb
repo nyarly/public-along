@@ -5,6 +5,11 @@ Rails.application.routes.draw do
   resources :applications
   resources :departments
   resource :emails, only: :create
+  namespace :employees, as: :employee do
+    resources :new_hires, only: :index
+    resources :inactives, only: :index
+    resources :offboards, only: :index
+  end
   resources :employees, only: [:index, :show] do
     get :autocomplete_name, on: :collection
     get :autocomplete_email, on: :collection
@@ -25,11 +30,6 @@ Rails.application.routes.draw do
   get '/app_access_levels' => "security_profiles#app_access_levels", as: 'app_access_levels'
   get '/sp_access_level' => "security_profiles#sp_access_level", as: 'sp_access_level'
 
-  # The priority is based upon order of creation: first created -> highest priority.
-  # See how all your routes lay out with "rake routes".
-
-  # You can have the root of your site routed with "root"
-  # root 'welcome#index'
   devise_scope :user do
     root to: "employees#index"
     get  '/login' => "users/sessions#new", :as => :login
@@ -40,5 +40,4 @@ Rails.application.routes.draw do
     Sidekiq::Web.session_secret = Rails.application.secrets[:secret_key_base]
     mount Sidekiq::Web => '/sidekiq'
   end
-
 end
