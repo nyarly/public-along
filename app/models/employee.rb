@@ -49,6 +49,33 @@ class Employee < ActiveRecord::Base
       order("leave_start_date #{direction}")
     end
   }
+  scope :with_location_id, lambda { |location_ids|
+    joins(:profiles, profiles: :location)
+    .where('profiles.location_id IN (?)', [*location_ids])
+  }
+  scope :with_department_id, lambda { |department_ids|
+    joins(:profiles, profiles: :department)
+    .where('profiles.department_id IN (?)', [*department_ids])
+  }
+  scope :with_worker_type_id, lambda { |worker_type_ids|
+    joins(:profiles, profiles: :worker_type)
+    .where('profiles.worker_type_id IN (?)', [*worker_type_ids])
+  }
+  scope :with_status, lambda { |statuses|
+    where(status: [*statuses])
+  }
+  scope :search_query, lambda { |query|
+    return nil if query.blank?
+    terms = query.downcase.split(/\s+/)
+    terms = terms.map { |e| (e.gsub('*', '%') + '%').gsub(/%+/, '%') }
+    num_or_conds = 2
+    where(
+      terms.map { |term|
+        "(LOWER(employees.first_name) LIKE ? OR LOWER(employees.last_name) LIKE ?)"
+      }.join(' AND '),
+    *terms.map { |e| [e] * num_or_conds }.flatten
+  )
+  }
 
   aasm :column => "status" do
     error_on_all_events { |e| Rails.logger.info e.message }
@@ -109,8 +136,31 @@ class Employee < ActiveRecord::Base
 
   filterrific(
     default_filter_params: { sorted_by: 'name_asc' },
-    available_filters: [:sorted_by]
+    available_filters: [
+      :search_query,
+      :with_status,
+      :with_location_id,
+      :with_department_id,
+      :with_worker_type_id,
+      :sorted_by
+    ]
   )
+
+  def self.status_options
+    ['active', 'inactive', 'terminated', 'pending']
+  end
+
+  def self.options_for_sort
+    [
+      ['Name (a-z)', 'name_asc'],
+      ['Hire date (newest first)', 'hire_date_desc'],
+      ['Hire date (oldest first)', 'hire_date_asc'],
+      ['Contract end date (newest first)', 'contract_end_date_dec'],
+      ['Contract end date (oldest first)', 'contract_end_date_asc'],
+      ['Termination date (newest first)', 'termination_date_desc'],
+      ['Termination date (oldest first)', 'termination_date_asc']
+    ]
+  end
 
   def self.options_for_offboard_sort
     [

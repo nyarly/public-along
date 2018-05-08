@@ -1,4 +1,4 @@
-<%= link_to 'Previous Page', :back, class: "back-link" %>
-<h1><%= "#{@employee.cn}'s Direct Reports" %></h1>
+<%= link_to 'Previous Page', :back, class: 'back-link' %>
+<h2><%= "#{@employee.cn}'s Direct Reports" %></h2>
 <br>
-<%= render partial: "manager_employees_table", locals: {employees: @employees} %>
+<%= render partial: 'simple_employees_table', locals: { employees: @employees } %>

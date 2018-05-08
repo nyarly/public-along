@@ -1,16 +1,53 @@
 <div id="index-employee">
-  <%= form_tag(employees_path, :method => "get", id: "search-form") do %>
-    <div class="search-input-wrapper">
-      <%= autocomplete_field_tag :search, params[:search], autocomplete_name_employees_path, placeholder: "Search for Employee" %>
+  <%= form_for_filterrific @filterrific do |f| %>
+    <h3>Employees</h3>
+      <div id='employee-search-grp' class='employee-select-grp'>
+        Search Names
+        <%= f.text_field(
+          :search_query,
+          class: 'filterrific-periodically-observed'
+        ) %>
+      </div>
+    <div class='employee-select-grp'>
+      Department
+      <%= f.select(
+        :with_department_id,
+        @filterrific.select_options[:with_department_id],
+        { include_blank: 'All' }
+      ) %>
     </div>
+    <div class='employee-select-grp'>
+      Location
+      <%= f.select(
+        :with_location_id,
+        @filterrific.select_options[:with_location_id],
+        { include_blank: 'All' }
+        ) %>
+    </div>
+    <div class='employee-select-grp'>
+      Worker Type
+      <%= f.select(
+        :with_worker_type_id,
+        @filterrific.select_options[:with_worker_type_id],
+        { include_blank: 'All' }
+      ) %>
+    </div>
+    <div class='employee-select-grp'>
+      Status
+      <%= f.select(:with_status,
+        @filterrific.select_options[:with_status],
+        { include_blank: 'All' }
+      ) %>
+    </div>
+    <div class='employee-select-grp'>
+      <%= link_to(
+        'Reset filters',
+        reset_filterrific_url
+      ) %>
+    </div>
+    <%= render_filterrific_spinner %>
   <% end %>
-
-  <% if can? :create, ManagerEntry %>
-    <%= render partial: "simple_employees_table", locals: { employees: @employees } %>
-  <% else %>
-    <!-- Admin/helpdesk/hr only view -->
-    <%= render partial: "employees_table", locals: { employees: @employees } %>
-  <% end %>
+  <%= render partial: "employees_table", locals: { employees: @employees } %>
 </div>
 
 <div id="employee-pagination">

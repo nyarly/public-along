@@ -16,4 +16,9 @@ class WorkerType < ActiveRecord::Base
 
   has_many :profiles
   has_many :employees, through: :profiles
+
+  def self.options_for_select
+   where(status: 'Active')
+   .order('LOWER(name)').map { |e| [e.name, e.id] }
+  end
 end

@@ -1,34 +1,10 @@
 <tr>
   <td><%= link_to e.cn, employee_path(e) %></td>
-  <td><%= e.status.titleize %></td>
-  <td><%= e.adp_status %></td>
   <td>
-    <% if can? :create, EmpTransaction %>
-      <% if e.request_status == "waiting" && e.manager.present? %>
-        <%= link_to "#{manager_form_type(e)} Form Due #{manager_form_due(e)}", new_emp_transaction_url({
-          :user_emp_id => e.manager.employee_id,
-          :employee_id => e.id,
-          :kind => manager_form_type(e)}), class: "needs-manager-action" %>
-      <% elsif e.request_status == "completed" %>
-        <%= "#{manager_form_type(e)}" + " " + e.request_status.titleize %>
-      <% elsif needs_security_profile_update?(e) && e.status == "active" && e.manager.present? %>
-        <%= link_to "Update Security Access", new_emp_transaction_url({
-          :user_emp_id => e.manager.employee_id,
-          :employee_id => e.id,
-          :kind => "Security Access"}), class: "needs-manager-action" %>
-      <% else %>
-        <%= e.request_status.titleize %>
-      <% end %>
+    <% if can? :direct_reports, e %>
+      <%= render partial: "employee_form_link", locals: { e: e } %>
     <% else %>
-      <% if e.request_status == "waiting" && e.manager.present? %>
-        <%= "#{manager_form_type(e)} Form Due #{manager_form_due(e)}" %>
-      <% elsif e.request_status == "completed" %>
-        <%= "#{manager_form_type(e)}" + " " + e.request_status.titleize %>
-      <% elsif needs_security_profile_update?(e) && e.status == "active" && e.manager.present? %>
-        <%= "Update Security Access" %>
-      <% else %>
-        <%= e.request_status.titleize %>
-      <% end %>
+      <%= render partial: "employee_form_status", locals: { e: e } %>
     <% end %>
   </td>
   <td><%= e.job_title.try(:name) %></td>
@@ -39,7 +15,10 @@
   <td><%= l e.hire_date, format: :mdy if e.hire_date.present? %></td>
   <td><%= l e.contract_end_date, format: :mdy if e.contract_end_date.present? %></td>
   <td><%= l e.termination_date, format: :mdy if e.termination_date.present? %></td>
-  <td><%= l e.offboarded_at, format: :mdy if e.offboarded_at.present? %></td>
-  <td><%= l e.leave_start_date, format: :mdy if e.leave_start_date.present? %></td>
-  <td><%= l e.leave_return_date, format: :mdy if e.leave_return_date.present? %></td>
+  <% if can? :read, :offboard %>
+    <td><%= e.adp_status %></td>
+    <td><%= l e.offboarded_at, format: :mdy if e.offboarded_at.present? %></td>
+    <td><%= l e.leave_start_date, format: :mdy if e.leave_start_date.present? %></td>
+    <td><%= l e.leave_return_date, format: :mdy if e.leave_return_date.present? %></td>
+  <% end %>
 </tr>

@@ -1,0 +1,116 @@
+<div class='title-bar' data-responsive-toggle='mezzo-menu' data-hide-for='medium'>
+  <button class='menu-icon' type='button' data-toggle></button>
+  <div class='title-bar-title'>Menu</div>
+</div>
+
+<div class='top-bar' id='mezzo-menu'>
+  <div class='top-bar-left'>
+    <ul class='dropdown menu' data-dropdown-menu>
+      <li class='menu-text'><img id='nav-logo' alt='Rails' src='/assets/ot_logo.png' /> | Mezzo</li>
+      <% if can? :read, Employee %>
+        <li>
+          <%= link_to 'Workers', employees_path %>
+          <ul class='menu vertical'>
+            <% if current_user.has_dual_manager_role? %>
+              <li><%= link_to 'My Direct Reports', direct_reports_employee_path(current_user.employee) %></li>
+              <li><%= link_to 'All Workers', employees_path %></li>
+            <% end %>
+            <% if can? :read, :new_hire %>
+              <li><%= link_to 'New Hires', employee_new_hires_path %></li>
+            <% end %>
+            <% if can? :read, :offboard %>
+              <li><%= link_to 'Offboards', employee_offboards_path %></li>
+            <% end %>
+            <% if can? :read, :inactive %>
+              <li><%= link_to 'On Leave', employee_inactives_path %></li>
+            <% end %>
+          </ul>
+        </li>
+      <% end %>
+      <% if can? :read, WorkerType %>
+        <li>
+          <%= link_to 'Worker Types', worker_types_path %>
+          <% if can? :create, WorkerType %>
+            <ul class='menu vertical'>
+              <li><%= link_to 'New Worker Type', new_worker_type_path %></li>
+            </ul>
+          <% end %>
+        </li>
+      <% end %>
+      <% if can? :read, Department %>
+        <li>
+          <%= link_to 'Departments', departments_path %>
+          <% if can? :create, Department %>
+            <ul class='menu vertical'>
+              <li><%= link_to 'New Department', new_department_path %></li>
+            </ul>
+          <% end %>
+        </li>
+      <% end %>
+      <% if can? :read, ParentOrg %>
+        <li>
+          <%= link_to 'Parent Orgs', parent_orgs_path %>
+          <ul class='menu vertical'>
+            <li><%= link_to 'New Parent Org', new_parent_org_path %></li>
+          </ul>
+        </li>
+      <% end %>
+      <% if can? :read, Location %>
+        <li>
+          <%= link_to 'Locations', locations_path %>
+          <ul class='menu vertical'>
+            <li><%= link_to 'New Location', new_location_path %></li>
+          </ul>
+        </li>
+      <% end %>
+      <% if can? :read, MachineBundle %>
+        <li>
+          <%= link_to 'Machine Bundles', machine_bundles_path %>
+          <ul class='menu vertical'>
+            <li><%= link_to 'New Machine Bundle', new_machine_bundle_path %></li>
+          </ul>
+        </li>
+      <% end %>
+      <% if can? :read, SecurityProfile %>
+        <li>
+          <%= link_to 'Security Profiles', security_profiles_path %>
+          <ul class='menu vertical'>
+            <li><%= link_to 'New Security Profile', new_security_profile_path %></li>
+          </ul>
+        </li>
+      <% end %>
+      <% if can? :read, AccessLevel %>
+        <li>
+          <%= link_to 'Access Levels', access_levels_path %>
+          <ul class='menu vertical'>
+            <li><%= link_to 'New Access Level', new_access_level_path %></li>
+          </ul>
+        </li>
+      <% end %>
+      <% if can? :read, Application %>
+        <li>
+          <%= link_to 'Applications', applications_path %>
+          <ul class='menu vertical'>
+            <li><%= link_to 'New Application', new_application_path %></li>
+          </ul>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+  <div class='top-bar-right'>
+    <ul class='menu'>
+      <% if user_signed_in? %>
+        <li>
+          <%= "Hi, #{current_user.first_name} #{current_user.last_name} |" %>
+        </li>
+        <li>
+          <%= link_to 'Logout', logout_path %>
+        </li>
+      <% else %>
+        <li>
+          <%= link_to 'Login', login_path %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</div>
