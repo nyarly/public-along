@@ -7,6 +7,11 @@
       <%= render partial: "employee_form_status", locals: { e: e } %>
     <% end %>
   </td>
+  <td>
+    <% if (can? :direct_reports, e) && (e.direct_reports.present?) %>
+      <%= button_to 'Direct reports', direct_reports_employee_path(e), class: 'direct-report-btn button', method: 'get' %>
+    <% end %>
+  </td>
   <td><%= e.job_title.try(:name) %></td>
   <td><%= e.department.try(:name) %></td>
   <td><%= e.location.try(:name) %></td>

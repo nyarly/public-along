@@ -14,6 +14,40 @@ class EmployeesController < ApplicationController
                            .order(:last_name)
     end
 
+    filter_and_search
+  end
+
+  def show
+    if current_user.manager_role_only? && !ManagementTreeQuery.new(@employee).up.include?(current_user.employee_id)
+      @employee = nil
+      redirect_to :back, alert: 'You are not authorized to view this page.'
+    end
+    if @employee.present?
+      @email = Email.new
+      @activities = ActivityFeedQuery.new(@employee).all
+    end
+  end
+
+  def direct_reports
+    @employees = @employee.direct_reports.includes([:manager, :emp_transactions, :profiles])
+                          .order(:last_name)
+
+    filter_and_search
+  end
+
+  def autocomplete_name
+    @employees = @employees.search(params[:term])
+    render json: json_for_autocomplete(@employees, :fn, [:employee_id])
+  end
+
+  def autocomplete_email
+    @employees = Employee.search_email(params[:term])
+    render json: json_for_autocomplete(@employees, :email, [:first_name, :last_name, :hire_date])
+  end
+
+  private
+
+  def filter_and_search
     @filterrific = initialize_filterrific(
       @employees,
       params[:filterrific],
@@ -41,34 +75,6 @@ class EmployeesController < ApplicationController
       format.js
     end
   end
-
-  def show
-    if current_user.manager_role_only? && !ManagementTreeQuery.new(@employee).up.include?(current_user.employee_id)
-      @employee = nil
-      redirect_to :back, alert: 'You are not authorized to view this page.'
-    end
-    if @employee.present?
-      @email = Email.new
-      @activities = ActivityFeedQuery.new(@employee).all
-    end
-  end
-
-  def direct_reports
-    @employees = @employee.direct_reports.includes([:manager, :emp_transactions, :profiles])
-                          .order(:last_name)
-  end
-
-  def autocomplete_name
-    @employees = @employees.search(params[:term])
-    render json: json_for_autocomplete(@employees, :fn, [:employee_id])
-  end
-
-  def autocomplete_email
-    @employees = Employee.search_email(params[:term])
-    render json: json_for_autocomplete(@employees, :email, [:first_name, :last_name, :hire_date])
-  end
-
-  private
 
   def set_employee
     @employee = Employee.find(params[:id])
