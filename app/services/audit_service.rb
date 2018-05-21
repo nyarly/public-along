@@ -16,8 +16,7 @@ class AuditService
   end
 
   def audit_list
-    Employee.where('(status LIKE ?
-                    OR offboarded_at IS NULL)
+    Employee.where('status LIKE ?
                     AND (termination_date < ?
                     OR adp_status LIKE ?
                     OR updated_at < ?
