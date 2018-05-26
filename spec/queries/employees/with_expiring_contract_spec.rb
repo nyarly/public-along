@@ -3,7 +3,7 @@ require 'rails_helper'
 describe Employees::WithExpiringContract, type: :query do
   describe '.call' do
     before do
-      Timecop.freeze(Time.new(2018, 5, 25, 9, 0, 0, '+07:00'))
+      Timecop.freeze(Time.new(2018, 5, 25, 9, 0, 0, '-07:00'))
     end
 
     after do
@@ -26,6 +26,7 @@ describe Employees::WithExpiringContract, type: :query do
 
     context 'when expiring contract has termination date' do
       subject(:query) { Employees::WithExpiringContract.call }
+
 
       let!(:termination_pending) do
         FactoryGirl.create(:contract_worker,
@@ -67,7 +68,7 @@ describe Employees::WithExpiringContract, type: :query do
     end
 
     context 'when provided time range' do
-      subject(:query) { Employees::WithExpiringContract.call(time_range: 3.weeks.from_now) }
+      subject(:query) { Employees::WithExpiringContract.call(time_range: 3.weeks) }
 
       let!(:contractor) do
         FactoryGirl.create(:contract_worker,

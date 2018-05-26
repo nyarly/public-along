@@ -12,7 +12,8 @@ end
 # 4pm UTC / 9am PT
 every :day, at: TZInfo::Timezone.get("America/Los_Angeles").local_to_utc(Time.parse("9:00")) do
   rake "employee:send_contract_end_notifications"
-  rake "notify:hr_contract_end"
+  rake "notify:hr_temp_expiration"
+  rake "notify:manager_contract_expiration"
 end
 
 # 4pm UTC / 9am PT

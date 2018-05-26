@@ -598,44 +598,4 @@ describe 'employee rake tasks', type: :tasks do
      expect(ReminderWorker).to have_received(:perform_async).with({:event_id=>nh_evt. id})
     end
   end
-
-  describe '#employee:send_contract_end_notifications' do
-    let!(:manager) { FactoryGirl.create(:employee) }
-
-    let!(:contractor) do
-      FactoryGirl.create(:contract_worker,
-        status: 'active',
-        request_status: 'none',
-        contract_end_date: Date.new(2017, 12, 1),
-        termination_date: nil,
-        manager: manager)
-    end
-
-    let!(:cont_2) do
-      FactoryGirl.create(:contract_worker,
-        status: 'active',
-        contract_end_date: Date.new(2017, 11, 11),
-        termination_date: Date.new(2017, 12, 1),
-        manager: manager)
-    end
-
-    before do
-      allow(ContractorWorker).to receive(:perform_async)
-
-      Timecop.freeze(Time.new(2017, 11, 17, 17, 0, 0, '+00:00'))
-      Rake::Task['employee:send_contract_end_notifications'].invoke
-    end
-
-    after do
-      Timecop.return
-    end
-
-    it 'reminds manager of worker with contract end date in two weeks' do
-      expect(ContractorWorker).to have_received(:perform_async).with(contractor.id)
-    end
-
-    it 'updates contractor request status' do
-      expect(contractor.reload.request_status).to eq('waiting')
-    end
-  end
 end

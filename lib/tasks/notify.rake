@@ -1,10 +1,22 @@
 namespace :notify do
-  desc 'send p&c upcoming contract end notifications'
-  task :hr_contract_end => :environment do
-    contractors = EmployeeQuery.new.hr_contractor_notices
+  desc 'Send HR notice for temporary worker contract expiring in three weeks'
+  task hr_temp_expiration: :environment do
+    time_range = 3.weeks
+    worker_type_kind = 'Temporary'
+
+    temps = Employees::WithExpiringContract.call(time_range: time_range, worker_type_kind: worker_type_kind)
+
+    temps.each do |temp|
+      SendHrTempExpirationNotice.perform_async(temp.id)
+    end
+  end
+
+  desc 'Send manager offboarding forms for contracts expiring in two weeks'
+  task manager_contract_expiration: :environment do
+    contractors = Employees::WithExpiringContract.call
 
     contractors.each do |contractor|
-      PeopleAndCultureMailer.upcoming_contract_end(contractor).deliver_now
-    end unless contractors.empty?
+      SendManagerOffboardForm.perform_async(contractor.id)
+    end
   end
 end
