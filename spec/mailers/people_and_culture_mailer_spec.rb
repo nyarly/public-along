@@ -2,10 +2,11 @@ require 'rails_helper'
 
 RSpec.describe PeopleAndCultureMailer, type: :mailer do
   describe '#code_list_alert' do
-    let(:new_location) do FactoryGirl.create(:location,
-      code: '123ABV',
-      name: 'Paris',
-      status: 'Active')
+    let(:new_location) do
+      FactoryGirl.create(:location,
+        code: '123ABV',
+        name: 'Paris',
+        status: 'Active')
     end
 
     let!(:email) { PeopleAndCultureMailer.code_list_alert([new_location]).deliver_now}

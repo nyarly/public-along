@@ -5,9 +5,12 @@ namespace :notify do
     worker_type_kind = 'Temporary'
 
     temps = Employees::WithExpiringContract.call(time_range: time_range, worker_type_kind: worker_type_kind)
+    contractors = Employees::WithExpiringContract.call(time_range: time_range)
 
-    temps.each do |temp|
-      SendHrTempExpirationNotice.perform_async(temp.id)
+    employees = temps + contractors
+
+    employees.each do |employee|
+      SendHrTempExpirationNotice.perform_async(employee.id)
     end
   end
 
