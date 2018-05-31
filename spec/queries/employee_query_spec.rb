@@ -1,32 +1,6 @@
 require 'rails_helper'
 
 describe EmployeeQuery, type: :query do
-  describe '#contract_end_reminder_group' do
-    let!(:contractor) do
-      FactoryGirl.create(:contract_worker,
-        status: 'active',
-        request_status: 'none',
-        contract_end_date: Date.new(2017, 12, 1),
-        termination_date: nil)
-    end
-
-    before do
-      Timecop.freeze(Time.new(2017, 11, 17, 17, 0, 0, '+00:00'))
-      FactoryGirl.create(:contract_worker,
-        status: 'active',
-        contract_end_date: Date.new(2017, 11, 11),
-        termination_date: Date.new(2017, 12, 1))
-    end
-
-    after do
-      Timecop.return
-    end
-
-    it 'has correct contractors' do
-      expect(EmployeeQuery.new.contract_end_reminder_group).to eq([contractor])
-    end
-  end
-
   describe '#active_regular_workers' do
     context 'when regular worker' do
       subject(:workers) { EmployeeQuery.new.active_regular_workers }
@@ -88,26 +62,6 @@ describe EmployeeQuery, type: :query do
       it 'never included' do
         expect(workers).to eq([])
       end
-    end
-  end
-
-  describe '#hr_contractor_notices' do
-    let(:contractor) do
-      FactoryGirl.create(:contract_worker,
-        status: 'active',
-        contract_end_date: Date.new(2018, 2, 23))
-    end
-
-    before do
-      Timecop.freeze(Time.new(2018, 2, 2, 17, 0, 0, '+00:00'))
-    end
-
-    after do
-      Timecop.return
-    end
-
-    it 'includes correct contractors' do
-      expect(EmployeeQuery.new.hr_contractor_notices).to eq([contractor])
     end
   end
 end

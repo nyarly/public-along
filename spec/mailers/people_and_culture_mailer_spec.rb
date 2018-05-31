@@ -2,10 +2,13 @@ require 'rails_helper'
 
 RSpec.describe PeopleAndCultureMailer, type: :mailer do
   describe '#code_list_alert' do
-    let(:new_location) { FactoryGirl.create(:location,
-      code: '123ABV',
-      name: 'Paris',
-      status: 'Active')}
+    let(:new_location) do
+      FactoryGirl.create(:location,
+        code: '123ABV',
+        name: 'Paris',
+        status: 'Active')
+    end
+
     let!(:email) { PeopleAndCultureMailer.code_list_alert([new_location]).deliver_now}
 
     it 'queues to send' do
@@ -14,7 +17,7 @@ RSpec.describe PeopleAndCultureMailer, type: :mailer do
 
     it 'has the right content' do
       expect(email.from).to eq(['mezzo-no-reply@opentable.com'])
-      expect(email.to).to include('pcemail@opentable.com')
+      expect(email.to).to include('peopleandculture@opentable.com')
       expect(email.subject).to eq('Mezzo Request for Code List Updates')
       expect(email.parts.first.body.raw_source).to include('The following items must be updated in Mezzo:')
       expect(email.parts.first.body.raw_source).to include('New Location:')
