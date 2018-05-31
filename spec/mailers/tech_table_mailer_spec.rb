@@ -22,7 +22,7 @@ RSpec.describe TechTableMailer, type: :mailer do
     let(:et)   { FactoryGirl.create(:emp_transaction,
                  employee: emp,
                  user_id: user.id,
-                 kind: "Security Access") }
+                 kind: 'security_access') }
     let!(:email) { TechTableMailer.permissions(et).deliver_now }
 
     it "should queue to send" do

@@ -6,6 +6,7 @@ class Role::Manager < Role
     ability.can :direct_reports, Employee.all do |e|
       e.id == user.employee_id || ManagementTreeQuery.new(e).up.include?(user.employee_id)
     end
+    ability.can :create, ManagerEntry
     ability.can :new, EmpTransaction, Employee.all do |e|
       ManagementTreeQuery.new(e.employee).up.include? user.employee_id
     end

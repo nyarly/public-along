@@ -29,11 +29,11 @@
   <br>
 
   <div class="row">
-  <% SecurityProfile.find_profiles_for(@employee.department.id).each do |sp| %>
+  <% SecurityProfile.find_profiles_for(@manager_entry.employee.department.id).each do |sp| %>
     <div class="column large-4 medium-6 small-12">
 
       <% if sp.name == "Default OpenTable" || sp.name == "Basic Regular Worker Profile" %>
-        <% if !is_contingent_worker?(@employee) %>
+        <% if !is_contingent_worker?(employee) %>
           <%= check_box_tag 'security_profile_ids[]', sp.id, true, disabled: true %>
           <%= check_box_tag 'security_profile_ids[]', sp.id, true, style: 'visibility: hidden' %>
         <% else %>
@@ -41,7 +41,7 @@
         <% end %>
 
       <% elsif sp.name == "Basic Contract Worker Profile" %>
-        <% if @employee.worker_type.kind == "Contractor" %>
+        <% if @manager_entry.employee.worker_type.kind == "Contractor" %>
           <%= check_box_tag 'security_profile_ids[]', sp.id, true, disabled: true %>
           <%= check_box_tag 'security_profile_ids[]', sp.id, true, style: 'visibility: hidden' %>
         <% else %>
@@ -49,14 +49,14 @@
         <% end %>
 
       <% elsif sp.name == "Basic Temp Worker Profile" %>
-        <% if @employee.worker_type.kind == "Temporary" %>
+        <% if @manager_entry.employee.worker_type.kind == "Temporary" %>
           <%= check_box_tag 'security_profile_ids[]', sp.id, true, disabled: true %>
           <%= check_box_tag 'security_profile_ids[]', sp.id, true, style: 'visibility: hidden' %>
         <% else %>
           <%= check_box_tag 'security_profile_ids[]', sp.id, false, disabled: true %>
         <% end %>
       <% else %>
-        <%= check_box_tag 'security_profile_ids[]', sp.id, @employee.active_security_profiles.include?(sp) %>
+        <%= check_box_tag 'security_profile_ids[]', sp.id, @manager_entry.employee.active_security_profiles.include?(sp) %>
       <% end %>
 
       <%= f.label 'security_profile_ids[]', "#{sp.name}" %><br>
@@ -70,7 +70,7 @@
   </div>
 </div>
 
-<% if @employee.security_profiles_to_revoke.count > 0 %>
+<% if @manager_entry.employee.security_profiles_to_revoke.count > 0 %>
   <div class="callout large warning">
     <div class="row">
       <h4 class="">Revoked Security Profile Alert</h4>
@@ -80,7 +80,7 @@
       <p class="help-text">Please note: because the worker's department has changed, the following access levels are no longer able to be assigned to this worker and will be revoked on submission of this form. This will be effective immedately. Please note that if revoked access includes Wi-Fi or VPN access, you should make sure the worker is assigned a security group that includes necessary Wi-Fi and VPN groups.</p>
     </div>
     <div class="row">
-      <% @employee.security_profiles_to_revoke.each do |sp| %>
+      <% @manager_entry.employee.security_profiles_to_revoke.each do |sp| %>
         <div class="column large-4 medium-6 small-12">
           <p><%= sp.name %></p>
           <% sp.access_levels.includes(:application).find_each do |al| %>

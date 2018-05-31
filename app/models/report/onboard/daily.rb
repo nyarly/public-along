@@ -162,7 +162,7 @@ module Report
 
       def onboard_submitted_on(employee)
         return nil if employee.waiting?
-        onboards = employee.emp_transactions.where(kind: 'Onboarding')
+        onboards = employee.emp_transactions.where(kind: 'onboarding')
         return nil if onboards.blank?
         onboards.last.created_at.to_datetime
       end

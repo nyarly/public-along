@@ -490,7 +490,7 @@ describe 'employee rake tasks', type: :tasks do
       # Add security profile for termination worker
       emp_trans_1 = FactoryGirl.create(:emp_transaction,
         employee_id: termination.id,
-        kind: 'Onboarding')
+        kind: 'onboarding')
       emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile,
         emp_transaction_id: emp_trans_1.id,
         security_profile_id: sec_prof.id)
@@ -498,7 +498,7 @@ describe 'employee rake tasks', type: :tasks do
       # Add security profile for recent_termination worker
       emp_trans_2 = FactoryGirl.create(:emp_transaction,
         employee_id: recent_termination.id,
-        kind: 'Onboarding')
+        kind: 'onboarding')
       emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile,
         emp_transaction_id: emp_trans_2.id,
         security_profile_id: sec_prof.id)

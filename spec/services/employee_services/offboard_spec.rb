@@ -9,7 +9,7 @@ describe EmployeeService::Offboard, type: :service do
     it "should send techtable and manager mailers" do
       expect(TechTableMailer).to receive(:offboard_notice).with(employee).and_return(mailer)
       expect(mailer).to receive(:deliver_now)
-      expect(EmployeeWorker).to receive(:perform_async).with("Offboarding", employee_id: employee.id)
+      expect(EmployeeWorker).to receive(:perform_async).with("offboarding", employee: employee.id)
 
       EmployeeService::Offboard.new(employee).prepare_termination
     end

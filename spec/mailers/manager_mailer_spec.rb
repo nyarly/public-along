@@ -55,8 +55,8 @@ RSpec.describe ManagerMailer, type: :mailer do
       end
 
       it 'includes a mezzo link for the manager' do
-        expect(reminder_email.text_part.body).to include('user_emp_id=654321')
-        expect(reminder_email.html_part.body).to include('user_emp_id=654321')
+        expect(reminder_email.text_part.body).to include("employee=#{employee.id}&amp;kind=onboarding")
+        expect(reminder_email.html_part.body).to include("employee=#{employee.id}&amp;kind=onboarding")
       end
     end
 
@@ -95,15 +95,15 @@ RSpec.describe ManagerMailer, type: :mailer do
       end
 
       it "includes a mezzo link for the manager's manager" do
-        expect(escalation_email.text_part.body).to include('user_emp_id=111111')
-        expect(escalation_email.html_part.body).to include('user_emp_id=111111')
+        expect(escalation_email.text_part.body).to include("employee=#{employee.id}&amp;kind=onboarding")
+        expect(escalation_email.html_part.body).to include("employee=#{employee.id}&amp;kind=onboarding")
       end
     end
   end
 
   describe '#permissions' do
     context 'when security access form' do
-      subject(:email) { ManagerMailer.permissions('Security Access', manager, employee) }
+      subject(:email) { ManagerMailer.permissions('security_access', manager, employee) }
 
       before do
         email.deliver_now
@@ -129,16 +129,18 @@ RSpec.describe ManagerMailer, type: :mailer do
       it 'has the correct txt body' do
         expect(email.text_part.body)
           .to include('Follow the link below to complete the employee event form')
+        expect(email.text_part.body).to include("employee=#{employee.id}&kind=security_access")
       end
 
       it 'has the correct html body' do
         expect(email.html_part.body)
           .to include('Follow the link below to complete the employee event form')
+        expect(email.html_part.body).to include("employee=#{employee.id}&amp;kind=security_access")
       end
     end
 
     context 'when onboarding form' do
-      subject(:email) { ManagerMailer.permissions('Onboarding', manager, employee) }
+      subject(:email) { ManagerMailer.permissions('onboarding', manager, employee) }
 
       before do
         email.deliver_now
@@ -164,19 +166,21 @@ RSpec.describe ManagerMailer, type: :mailer do
       it 'has the correct due date in the txt body' do
         expect(email.text_part.body)
           .to include("You must complete this form by #{employee.onboarding_due_date.try(:strftime, "%B %e, %Y")}")
+        expect(email.text_part.body).to include("employee=#{employee.id}&kind=onboarding")
       end
 
       it 'has the correct due date in the html body' do
         expect(email.html_part.body)
           .to include("You must complete this form by #{employee.onboarding_due_date.try(:strftime, "%B %e, %Y")}")
+        expect(email.html_part.body).to include("employee=#{employee.id}&amp;kind=onboarding")
       end
     end
 
     context 'when onboarding form from event' do
-      subject(:email) { ManagerMailer.permissions('Onboarding', worker.manager, worker, event: event) }
+      subject(:email)   { ManagerMailer.permissions('job_change', worker.manager, worker, event_id: event.id) }
 
       let(:rehire_json) { File.read(Rails.root.to_s + '/spec/fixtures/adp_rehire_event.json') }
-      let(:event)       { AdpEvent.new(status: 'New', json: rehire_json) }
+      let!(:event)      { FactoryGirl.create(:adp_event, status: 'new', json: rehire_json) }
       let(:worker)      { EmployeeProfile.new.build_employee(event) }
 
       before do
@@ -205,16 +209,18 @@ RSpec.describe ManagerMailer, type: :mailer do
       it 'has the correct due date in the txt body' do
         expect(email.text_part.body)
           .to include('You must complete this form by August 24, 2018')
+        expect(email.text_part.body).to include("event_id=#{event.id}&amp;kind=job_change")
       end
 
       it 'has the correct due date in the html body' do
         expect(email.html_part.body)
           .to include('You must complete this form by August 24, 2018')
+        expect(email.html_part.body).to include("event_id=#{event.id}&amp;kind=job_change")
       end
     end
 
     context 'when offboarding form' do
-      subject(:email) { ManagerMailer.permissions('Offboarding', manager, worker) }
+      subject(:email) { ManagerMailer.permissions('offboarding', manager, worker) }
 
       let(:worker) do
         FactoryGirl.create(:active_employee,
@@ -244,8 +250,8 @@ RSpec.describe ManagerMailer, type: :mailer do
       end
 
       it 'includes a link for the manager' do
-        expect(email.text_part.body).to include('user_emp_id=654321')
-        expect(email.html_part.body).to include('user_emp_id=654321')
+        expect(email.text_part.body).to include("employee=#{worker.id}&kind=offboarding")
+        expect(email.html_part.body).to include("employee=#{worker.id}&amp;kind=offboarding")
       end
 
       it 'has the correct due date in the txt body' do
@@ -260,7 +266,7 @@ RSpec.describe ManagerMailer, type: :mailer do
     end
 
     context 'when offboarding contractor' do
-      subject(:email) { ManagerMailer.permissions('Offboarding', manager, worker) }
+      subject(:email) { ManagerMailer.permissions('offboarding', manager, worker) }
 
       let(:worker) do
         FactoryGirl.create(:contract_worker,
@@ -290,8 +296,8 @@ RSpec.describe ManagerMailer, type: :mailer do
       end
 
       it 'includes a link for the manager' do
-        expect(email.text_part.body).to include('user_emp_id=654321')
-        expect(email.html_part.body).to include('user_emp_id=654321')
+        expect(email.text_part.body).to include("employee=#{worker.id}&kind=offboarding")
+        expect(email.html_part.body).to include("employee=#{worker.id}&amp;kind=offboarding")
       end
 
       it 'has the correct due date in the txt body' do

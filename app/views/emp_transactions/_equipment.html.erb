@@ -2,7 +2,7 @@
   <h4>Machine Bundles *</h4>
   <p class="help-text">Select a machine bundle for the worker. To change the equipment bundles for your department, email <%= mail_to "techtable@opentable.com" %></p>
   <div class="row">
-    <% @machine_bundles.each do |mb| %>
+    <% @manager_entry.machine_bundles.each do |mb| %>
         <div class="column large-6 medium-12 small-12">
           <%= radio_button_tag 'machine_bundle_id', mb.id, false, required: true %>
           <%= f.label "#{mb.name}" %><br>

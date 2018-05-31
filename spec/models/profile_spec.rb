@@ -13,8 +13,7 @@ RSpec.describe Profile, type: :model do
     expect(profile).to_not allow_value(nil).for(:location_id)
     expect(profile).to_not allow_value(nil).for(:worker_type_id)
     expect(profile).to_not allow_value(nil).for(:job_title_id)
-    expect(profile).to_not allow_value(nil).for(:employee_id)
-    expect(profile).to_not allow_value(nil).for(:adp_employee_id)
+    expect(profile).to_not allow_value(nil).for(:employee)
   end
 
   describe "state machine" do

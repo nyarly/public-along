@@ -1,7 +1,8 @@
 module EmployeeHelper
   def manager_form_type(employee)
-    return "Onboarding" if employee.status == "pending"
-    return "Offboarding" if offboard_in_progress?(employee)
+    return "onboarding" if employee.status == "pending"
+    return "offboarding" if offboard_in_progress?(employee)
+    'job_change'
   end
 
   def manager_form_due(employee)

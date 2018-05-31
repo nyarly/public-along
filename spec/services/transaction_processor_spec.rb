@@ -21,7 +21,7 @@ describe TransactionProcesser, type: :service do
       let(:transaction) do
         FactoryGirl.create(:emp_transaction,
           employee: employee,
-          kind: 'Offboarding')
+          kind: 'offboarding')
       end
 
       before do
@@ -42,7 +42,7 @@ describe TransactionProcesser, type: :service do
         let(:transaction) do
           FactoryGirl.create(:emp_transaction,
             employee: employee,
-            kind: "Onboarding")
+            kind: "onboarding")
         end
 
         before do
@@ -76,7 +76,7 @@ describe TransactionProcesser, type: :service do
           let(:transaction) do
             FactoryGirl.create(:emp_transaction,
               employee: profile.employee,
-              kind: "Onboarding")
+              kind: "job_change")
           end
 
           before do
@@ -111,7 +111,7 @@ describe TransactionProcesser, type: :service do
           let(:transaction) do
             FactoryGirl.create(:emp_transaction,
               employee: profile.employee,
-              kind: "Onboarding")
+              kind: "job_change")
           end
 
           before do
@@ -149,7 +149,7 @@ describe TransactionProcesser, type: :service do
         let(:transaction) do
           FactoryGirl.create(:emp_transaction,
             employee: profile.employee,
-            kind: "Onboarding")
+            kind: "job_change")
         end
 
         before do
@@ -181,7 +181,7 @@ describe TransactionProcesser, type: :service do
       let(:transaction) do
         FactoryGirl.create(:emp_transaction,
           employee: employee,
-          kind: 'Security Access')
+          kind: 'security_access')
       end
 
       before do

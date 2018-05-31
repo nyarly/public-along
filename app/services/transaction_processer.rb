@@ -10,11 +10,16 @@ class TransactionProcesser
   def call
     return true if emp_transaction.offboarding?
     return onboard if emp_transaction.onboarding?
+    return job_change if emp_transaction.job_change?
     update_security_profiles
     send_email
   end
 
   private
+
+  def job_change
+    alternative_onboard
+  end
 
   def onboard
     return standard_onboard if employee.pending?

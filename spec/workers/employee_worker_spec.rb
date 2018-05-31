@@ -16,16 +16,16 @@ RSpec.describe EmployeeWorker, type: :worker do
   let(:potential_employee) { profiler.build_employee(event) }
 
   it "should perform right away" do
-    EmployeeWorker.perform_async("Onboarding", employee_id: employee.id)
+    EmployeeWorker.perform_async("onboarding", employee_id: employee.id)
 
     expect(EmployeeWorker.jobs.size).to eq(1)
   end
 
-  it "should send the right Mailer for Onboarding action" do
-    expect(ManagerMailer).to receive(:permissions).with("Onboarding", manager, employee).and_return(mailer)
+  it "should send the right Mailer for onboarding action" do
+    expect(ManagerMailer).to receive(:permissions).with("onboarding", manager, employee).and_return(mailer)
     expect(mailer).to receive(:deliver_now)
 
-    worker.perform("Onboarding", {"employee_id"=>employee.id})
+    worker.perform("onboarding", {"employee_id"=>employee.id})
   end
 
   it "should send the right Mailer for job change" do
@@ -36,7 +36,7 @@ RSpec.describe EmployeeWorker, type: :worker do
   end
 
   it "should send the right mailer for rehire" do
-    expect(ManagerMailer).to receive(:permissions).with("Onboarding", manager, potential_employee, event: event).and_return(mailer)
+    expect(ManagerMailer).to receive(:permissions).with("onboarding", manager, potential_employee, event_id: event.id).and_return(mailer)
     expect(mailer).to receive(:deliver_now)
 
     expect(EmployeeProfile).to receive(:new).and_return(profiler)
@@ -44,7 +44,7 @@ RSpec.describe EmployeeWorker, type: :worker do
     expect(profiler).to receive(:build_employee).with(event).and_return(potential_employee)
     expect(potential_employee).to receive(:manager).and_return(manager)
 
-    worker.perform("Onboarding", {"event_id"=>event.id})
+    worker.perform("onboarding", {"event_id"=>event.id})
   end
 
 end

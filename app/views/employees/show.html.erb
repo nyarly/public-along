@@ -166,7 +166,7 @@
             <%= link_to "Update Security Profile",
                   { controller: "emp_transactions",
                   action: "new",
-                  kind: "Security Access",
+                  kind: 'security_access',
                   employee_id: @employee.id,
                   user_id: current_user.id,
                   reason: "manager" },
@@ -210,7 +210,7 @@
         <!-- Employee Transaction Box -->
         <% elsif activity.class == EmpTransaction %>
           <p>
-            <strong><%= activity.kind %></strong><br>
+            <strong><%= activity.kind.titleize %></strong><br>
             Submitted on <%= l activity.created_at, format: :verbose %> by <%= activity.performed_by %>
           </p>
           <% if activity.security_profiles.present? %>

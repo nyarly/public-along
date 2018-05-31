@@ -55,7 +55,7 @@ module EmployeeService
 
     def send_security_access_form
       return false if @employee.status != "active"
-      EmployeeWorker.perform_async("Security Access", employee_id: @employee.id)
+      EmployeeWorker.perform_async('security_access', employee_id: @employee.id)
     end
   end
 end

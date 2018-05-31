@@ -489,7 +489,7 @@ describe Employee, type: :model do
       let(:employee) { FactoryGirl.create(:employee) }
 
       before do
-        employee.assign_attributes(current_profile_attributes: profile_attrs)
+        employee.build_current_profile(profile_attrs)
         employee.save
       end
 
@@ -503,7 +503,7 @@ describe Employee, type: :model do
       let!(:profile) { FactoryGirl.create(:profile, employee: employee) }
 
       before do
-        employee.assign_attributes(current_profile_attributes: profile_attrs)
+        employee.build_current_profile(profile_attrs)
         employee.save
       end
 
@@ -655,7 +655,7 @@ describe Employee, type: :model do
       revoking_transaction = FactoryGirl.create(:emp_transaction,
         employee_id: emp.id,
         user_id: user.id,
-        kind: "Security Access")
+        kind: 'security_access')
       emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile,
         security_profile_id: sec_prof_1.id,
         emp_transaction_id: emp_transaction.id,
@@ -844,7 +844,7 @@ describe Employee, type: :model do
 
     let!(:emp_transaction) do
       FactoryGirl.create(:emp_transaction,
-        kind: "Onboarding",
+        kind: "onboarding",
         employee: due_tomorrow_w_onboard)
     end
 

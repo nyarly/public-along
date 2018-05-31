@@ -14,7 +14,7 @@ class MezzoTransactionService
 
   def create_emp_transaction
     @emp_transaction = EmpTransaction.new(
-      kind: "Service",
+      kind: 'service',
       notes: "Service transaction performed by Mezzo",
       employee_id: @employee_id
     ).tap do |emp_transaction|
