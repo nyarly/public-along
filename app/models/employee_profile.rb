@@ -21,7 +21,7 @@ class EmployeeProfile
   # attributes for profile model
   attribute :adp_assoc_oid, String
   attribute :adp_employee_id, String
-  attribute :company, String
+  attribute :business_unit_id, Integer
   attribute :department_id, Integer
   attribute :job_title_id, Integer
   attribute :location_id, Integer

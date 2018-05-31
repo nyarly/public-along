@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180416185830) do
+ActiveRecord::Schema.define(version: 20180531190234) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -60,6 +60,14 @@ ActiveRecord::Schema.define(version: 20180416185830) do
     t.datetime "updated_at",                            null: false
     t.text     "offboard_instructions"
     t.boolean  "ad_controls",           default: false, null: false
+  end
+
+  create_table "business_units", force: :cascade do |t|
+    t.string   "name",                       null: false
+    t.string   "code",                       null: false
+    t.boolean  "active",     default: false, null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "countries", force: :cascade do |t|
@@ -252,13 +260,13 @@ ActiveRecord::Schema.define(version: 20180416185830) do
     t.integer  "location_id",                             null: false
     t.integer  "worker_type_id",                          null: false
     t.integer  "job_title_id",                            null: false
-    t.string   "company"
     t.string   "adp_assoc_oid"
     t.string   "adp_employee_id",                         null: false
     t.datetime "created_at",                              null: false
     t.datetime "updated_at",                              null: false
     t.boolean  "management_position"
     t.boolean  "primary",                 default: false, null: false
+    t.integer  "business_unit_id"
   end
 
   create_table "sec_prof_access_levels", force: :cascade do |t|

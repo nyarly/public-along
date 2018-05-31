@@ -181,7 +181,7 @@ class Employee < ActiveRecord::Base
     ]
   end
 
-  [:department, :worker_type, :location, :job_title, :company, :adp_assoc_oid].each do |attribute|
+  [:department, :worker_type, :location, :job_title, :business_unit, :adp_assoc_oid].each do |attribute|
     define_method :"#{attribute}" do
       current_profile.try(:send, "#{attribute}")
     end

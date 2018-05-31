@@ -8,9 +8,9 @@ FactoryGirl.define do
     department
     worker_type
     job_title
+    business_unit
     start_date      { 1.year.ago }
     end_date        { nil }
-    company         { 'OpenTable, Inc.' }
     adp_assoc_oid   { Faker::Number.number(10) }
     adp_employee_id { Faker::Number.number(6) }
     management_position nil

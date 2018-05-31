@@ -39,11 +39,12 @@ describe ConcurImporter::EmployeeDetail, type: :service do
     context 'when us office worker' do
       subject(:detail) { ConcurImporter::EmployeeDetail.new(us_position.employee) }
 
-      let(:location) { FactoryGirl.create(:location, :sf) }
+      let(:location)      { FactoryGirl.create(:location, :sf) }
+      let(:business_unit) { FactoryGirl.create(:business_unit, name: 'OpenTable, Inc.') }
       let(:us_position) do
         FactoryGirl.create(:active_profile,
           location: location,
-          company: 'OpenTable, Inc.',
+          business_unit: business_unit,
           employee_args:
             {
               legal_first_name: 'Anne',
@@ -79,7 +80,7 @@ describe ConcurImporter::EmployeeDetail, type: :service do
       end
 
       it 'has company name' do
-        expect(detail.company).to eq(us_position.company)
+        expect(detail.company).to eq(business_unit.name)
       end
 
       it 'has department code' do
@@ -160,11 +161,12 @@ describe ConcurImporter::EmployeeDetail, type: :service do
     context 'when uk worker' do
       subject(:detail) { ConcurImporter::EmployeeDetail.new(uk_position.employee) }
 
-      let(:location) { FactoryGirl.create(:location, :eu) }
+      let(:location)      { FactoryGirl.create(:location, :eu) }
+      let(:business_unit) { FactoryGirl.create(:business_unit, name: 'OpenTable Europe, Inc') }
       let(:uk_position) do
         FactoryGirl.create(:active_profile,
           location: location,
-          company: 'OpenTable International, Inc.',
+          business_unit: business_unit,
           employee_args:
             {
               manager: manager,
@@ -198,11 +200,12 @@ describe ConcurImporter::EmployeeDetail, type: :service do
     context 'when canadian worker' do
       subject(:detail) { ConcurImporter::EmployeeDetail.new(canadian.employee) }
 
-      let(:canada) { FactoryGirl.create(:location, :can) }
+      let(:canada)        { FactoryGirl.create(:location, :can) }
+      let(:business_unit) { FactoryGirl.create(:business_unit, name: 'Canada OT') }
       let(:canadian) do
         FactoryGirl.create(:active_profile,
           location: canada,
-          company: 'OpenTable International, Inc.',
+          business_unit: business_unit,
           employee_args:
             {
               email: 'email',
@@ -228,10 +231,11 @@ describe ConcurImporter::EmployeeDetail, type: :service do
       subject(:detail) { ConcurImporter::EmployeeDetail.new(intl_position.employee) }
 
       let(:intl_location) { FactoryGirl.create(:location, :mex) }
+      let(:business_unit) { FactoryGirl.create(:business_unit, name: 'OT Mexico') }
       let(:intl_position) do
         FactoryGirl.create(:active_profile,
           location: intl_location,
-          company: 'OpenTable International, Inc.',
+          business_unit: business_unit,
           employee_args:
             {
               manager: manager,

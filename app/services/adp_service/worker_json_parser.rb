@@ -32,8 +32,8 @@ module AdpService
       start_date = work_assignment["actualStartDate"].present? ? work_assignment["actualStartDate"] : hire_date
       end_date = work_assignment["terminationDate"].present? if work_assignment["terminationDate"].present?
 
-      biz_unit = work_assignment["homeOrganizationalUnits"].find { |ou| ou["typeCode"]["codeValue"] == "Business Unit"}
-      company = find_biz_unit(biz_unit)
+      business_unit_str = work_assignment["homeOrganizationalUnits"].find { |ou| ou["typeCode"]["codeValue"] == "Business Unit"}
+      business_unit = find_business_unit(business_unit_str)
 
       job_title = find_job_title(work_assignment["jobCode"])
       business_card_title = business_card_title(w).present? ? business_card_title(w) : job_title.name
@@ -73,7 +73,7 @@ module AdpService
         end_date: end_date,
         adp_assoc_oid: adp_assoc_oid,
         adp_employee_id: adp_employee_id,
-        company: company,
+        business_unit_id: business_unit.id,
         department_id: dept.id,
         job_title_id: job_title.id,
         location_id: location.id,
@@ -141,10 +141,16 @@ module AdpService
       end
     end
 
-    def find_biz_unit(json)
+    def find_business_unit(json)
       if json
-        biz_unit = json["nameCode"]
-        biz_unit["shortName"].present? ? biz_unit["shortName"] : biz_unit["longName"]
+        code = json['nameCode']['codeValue']
+        biz_unit = BusinessUnit.find_by(code: code)
+        unless biz_unit.present?
+          short_name = json['nameCode']['shortName']
+          name = short_name.present? ? short_name : json['nameCode']['longName']
+          biz_unit = BusinessUnit.create(code: code, name: name, active: true)
+        end
+        biz_unit
       end
     end
 
