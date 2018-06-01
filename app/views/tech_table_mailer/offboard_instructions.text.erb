@@ -3,8 +3,14 @@ Offboarding Worker Request
 
 Name: <%= @employee.cn %>
 
+<% if @employee.termination_date.present? %>
 Termination Date: <%= l @employee.termination_date, format: :verbose %>
 
+<% end %>
+<% if @employee.contract_end_date.present? %>
+Contract End Date: <% l @employee.contract_end_date, format: :verbose %>
+
+<% end %>
 EmployeeID: <%= @employee.employee_id %>
 
 Title: <%= @employee.job_title.try(:name) %>
