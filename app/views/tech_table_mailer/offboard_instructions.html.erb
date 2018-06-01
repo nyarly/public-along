@@ -3,7 +3,12 @@
   <div>
     <h1 style="font-size: 1.5em;">Offboarding Worker Request</h1>
     <p><strong>Name: </strong><%= @employee.cn %></p>
-    <p><strong>Termination Date: </strong><%= l @employee.termination_date, format: :verbose %></p>
+    <% if @employee.termination_date.present? %>
+      <p><strong>Termination Date: </strong><%= l @employee.termination_date, format: :verbose %></p>
+    <% end %>
+    <% if @employee.contract_end_date.present? %>
+      <p><strong>Contract End Date: </strong><%= l @employee.contract_end_date, format: :verbose %></p>
+    <% end %>
     <p><strong>EmployeeID: </strong><%= @employee.employee_id %></p>
     <p><strong>Title: </strong><%= @employee.job_title.try(:name) %></p>
     <p><strong>Department: </strong><%= @employee.department.name %></p>
