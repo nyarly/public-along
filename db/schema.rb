@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180531190234) do
+ActiveRecord::Schema.define(version: 20180612231457) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -145,11 +145,11 @@ ActiveRecord::Schema.define(version: 20180531190234) do
 
   create_table "employees", force: :cascade do |t|
     t.string   "email"
-    t.string   "first_name",                             null: false
-    t.string   "last_name",                              null: false
+    t.string   "first_name",                                         null: false
+    t.string   "last_name",                                          null: false
     t.string   "del_workday_username"
     t.string   "del_employee_id"
-    t.datetime "hire_date",                              null: false
+    t.datetime "hire_date",                                          null: false
     t.datetime "contract_end_date"
     t.datetime "termination_date"
     t.string   "del_job_family_id"
@@ -169,8 +169,8 @@ ActiveRecord::Schema.define(version: 20180531190234) do
     t.string   "del_home_state"
     t.string   "del_home_zip"
     t.string   "image_code"
-    t.datetime "created_at",                             null: false
-    t.datetime "updated_at",                             null: false
+    t.datetime "created_at",                                         null: false
+    t.datetime "updated_at",                                         null: false
     t.datetime "ad_updated_at"
     t.datetime "leave_start_date"
     t.datetime "leave_return_date"
@@ -190,6 +190,8 @@ ActiveRecord::Schema.define(version: 20180531190234) do
     t.datetime "offboarded_at"
     t.string   "legal_first_name"
     t.string   "adp_status"
+    t.integer  "lft",                                    default: 0, null: false
+    t.integer  "rgt",                                    default: 0, null: false
   end
 
   add_index "employees", ["del_employee_id"], name: "index_employees_on_del_employee_id", unique: true, using: :btree
@@ -261,7 +263,7 @@ ActiveRecord::Schema.define(version: 20180531190234) do
     t.integer  "worker_type_id",                          null: false
     t.integer  "job_title_id",                            null: false
     t.string   "adp_assoc_oid"
-    t.string   "adp_employee_id",                         null: false
+    t.string   "adp_employee_id",         default: ""
     t.datetime "created_at",                              null: false
     t.datetime "updated_at",                              null: false
     t.boolean  "management_position"

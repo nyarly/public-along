@@ -1,5 +1,6 @@
 class Employee < ActiveRecord::Base
   include AASM
+  acts_as_nested_set parent_column: :manager_id
 
   before_validation :downcase_unique_attrs
   before_validation :strip_whitespace
