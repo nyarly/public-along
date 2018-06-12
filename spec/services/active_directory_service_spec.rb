@@ -418,6 +418,7 @@ describe ActiveDirectoryService, type: :service do
       let(:employee)  { FactoryGirl.create(:regular_employee, manager: manager) }
 
       before do
+        # The difference being tested is the capitalization of CN=, OU=, AND DC=
         ldap_entry[:manager] = "CN=#{manager.cn},OU=Provisional,OU=Users,OU=OT,DC=ottest,DC=opentable,DC=com"
 
         allow(ldap).to receive(:search).and_return([ldap_entry])
@@ -425,7 +426,7 @@ describe ActiveDirectoryService, type: :service do
       end
 
       it 'does not detect changes from case sensitivity' do
-        expect(ldap).not_to have_received(:replace_attribute).with(employee.dn, :manager, manager.dn)
+        expect(ldap).not_to have_received(:replace_attribute).with(employee.dn, :manager, anything)
       end
     end
 
