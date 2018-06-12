@@ -413,6 +413,22 @@ describe ActiveDirectoryService, type: :service do
       end
     end
 
+    context 'when manager is unchanged' do
+      let(:manager)   { FactoryGirl.create(:regular_employee) }
+      let(:employee)  { FactoryGirl.create(:regular_employee, manager: manager) }
+
+      before do
+        ldap_entry[:manager] = "CN=#{manager.cn},OU=Provisional,OU=Users,OU=OT,DC=ottest,DC=opentable,DC=com"
+
+        allow(ldap).to receive(:search).and_return([ldap_entry])
+        ads.update([employee])
+      end
+
+      it 'does not detect changes from case sensitivity' do
+        expect(ldap).not_to have_received(:replace_attribute).with(employee.dn, :manager, manager.dn)
+      end
+    end
+
     it "should not update unchanged attributes" do
       allow(ldap).to receive(:search).and_return([ldap_entry])
 
