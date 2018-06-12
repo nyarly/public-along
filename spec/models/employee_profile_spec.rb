@@ -6,6 +6,7 @@ RSpec.describe EmployeeProfile do
   let!(:department)   { FactoryGirl.create(:department, code: '125000') }
   let(:location)      { Location.find_by(code: 'LOS') }
   let(:job_title)     { FactoryGirl.create(:job_title, code: 'SADEN') }
+  let(:business_unit) { FactoryGirl.create(:business_unit, code: 'OTUS') }
   let(:manager)       { FactoryGirl.create(:active_employee) }
 
   before do
@@ -113,14 +114,14 @@ RSpec.describe EmployeeProfile do
         employee: employee,
         adp_assoc_oid: 'AAABBBCCCDDD',
         adp_employee_id: '123456',
-        company: 'OpenTable, Inc.',
         department: department,
         job_title: job_title,
         location: location,
         start_date: Date.new(2017, 1, 1),
         worker_type: worker_type,
         management_position: false,
-        manager_adp_employee_id: '654321')
+        manager_adp_employee_id: '654321',
+        business_unit: business_unit)
     end
 
     context 'when employee has no changes' do
@@ -166,16 +167,12 @@ RSpec.describe EmployeeProfile do
       end
     end
 
-    context 'when address changes' do
-    end
-
     context 'when employee department is updated' do
       let!(:old_department) { FactoryGirl.create(:department) }
       let!(:profile) { FactoryGirl.create(:profile,
         employee: employee,
         adp_assoc_oid: 'AAABBBCCCDDD',
         adp_employee_id: '123456',
-        company: 'OpenTable, Inc.',
         department: old_department,
         job_title: job_title,
         location: location,
@@ -183,7 +180,8 @@ RSpec.describe EmployeeProfile do
         management_position: false,
         manager_adp_employee_id: '654321',
         start_date: Date.new(2017, 01, 01),
-        worker_type: worker_type )}
+        worker_type: worker_type,
+        business_unit: business_unit )}
 
       before do
         w_hash = parser.gen_worker_hash(json['workers'][0])
@@ -212,7 +210,6 @@ RSpec.describe EmployeeProfile do
           employee: employee,
           adp_assoc_oid: 'AAABBBCCCDDD',
           adp_employee_id: '123456',
-          company: 'OpenTable, Inc.',
           department: department,
           job_title: job_title,
           location: old_location,
@@ -220,7 +217,8 @@ RSpec.describe EmployeeProfile do
           management_position: false,
           manager_adp_employee_id: '654321',
           start_date: Date.new(2017, 1, 1),
-          worker_type: worker_type )
+          worker_type: worker_type,
+          business_unit: business_unit )
       end
 
       before do
@@ -366,7 +364,6 @@ RSpec.describe EmployeeProfile do
           employee: employee,
           adp_assoc_oid: 'AAABBBCCCDDD',
           adp_employee_id: '123456',
-          company: 'OpenTable, Inc.',
           department: department,
           job_title: job_title,
           location: location,
@@ -374,7 +371,8 @@ RSpec.describe EmployeeProfile do
           management_position: false,
           manager_adp_employee_id: '654321',
           start_date: Date.new(2017, 01, 01),
-          worker_type: old_worker_type )
+          worker_type: old_worker_type,
+          business_unit: business_unit )
       end
 
       before do
@@ -406,6 +404,34 @@ RSpec.describe EmployeeProfile do
       it 'creates an emp delta with the changes' do
         expect(employee.emp_deltas.last.before).to eq({ "worker_type_id" => "#{old_worker_type.id}" })
         expect(employee.emp_deltas.last.after).to eq({ "worker_type_id" => "#{worker_type.id}" })
+      end
+    end
+
+    context 'when business unit changes' do
+      let!(:old_business_unit) { FactoryGirl.create(:business_unit, code: 'OLD') }
+      let!(:profile) do
+        FactoryGirl.create(:profile,
+          employee: employee,
+          adp_assoc_oid: 'AAABBBCCCDDD',
+          adp_employee_id: '123456',
+          department: department,
+          job_title: job_title,
+          location: location,
+          profile_status: 'active',
+          management_position: false,
+          manager_adp_employee_id: '654321',
+          start_date: Date.new(2017, 01, 01),
+          worker_type: worker_type,
+          business_unit: old_business_unit )
+      end
+
+      before do
+        w_hash = parser.gen_worker_hash(json["workers"][0])
+        EmployeeProfile.new.update_employee(employee, w_hash)
+      end
+
+      it 'has the right business unit' do
+        expect(employee.reload.current_profile.business_unit.code).to eq('OTUS')
       end
     end
   end

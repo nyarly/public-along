@@ -23,6 +23,7 @@ class Profile < ActiveRecord::Base
   belongs_to :job_title
   belongs_to :location
   belongs_to :worker_type
+  belongs_to :business_unit
 
   scope :regular_worker_type, -> { joins(:worker_type).where(:worker_types => {:kind => "Regular"}) }
   scope :with_department_id, lambda { |department_ids| where(department_id: [*department_ids]) }

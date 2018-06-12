@@ -26,6 +26,7 @@ describe ConcurImporter::EnhancedEmployee, type: :service do
     let(:country)     { FactoryGirl.create(:country, :us, currency: currency) }
     let(:address)     { FactoryGirl.create(:address, country: country) }
     let(:location)    { FactoryGirl.create(:location, code: 'XX', address: address) }
+    let(:biz_unit)    { FactoryGirl.create(:business_unit, name: 'biz unit x') }
     let(:department)  { FactoryGirl.create(:department, code: 'deptxx', name: 'dname') }
     let(:worker_type) do
       FactoryGirl.create(:worker_type,
@@ -50,7 +51,7 @@ describe ConcurImporter::EnhancedEmployee, type: :service do
         location: location,
         department: department,
         worker_type: worker_type,
-        company: 'OpenTable, Inc.')
+        business_unit: biz_unit)
     end
     let(:worker) do
       FactoryGirl.create(:employee,
@@ -70,13 +71,13 @@ describe ConcurImporter::EnhancedEmployee, type: :service do
         location: location,
         department: department,
         worker_type: worker_type,
-        company: 'OpenTable, Inc.')
+        business_unit: biz_unit)
     end
     let(:csv) do
       <<-EOS.strip_heredoc
       100,0,WELCOME,UPDATE,EN,N,N
-      305,John,,Keynes,222,email2@example.com,,email2@example.com,en_US,US,,DEFAULT,USD,,Y,,,,,,,"OpenTable, Inc.",,,,,,,,,deptxx,XX,0,222,,,,,,,,US,,,,,,,,,,,,,,,,,111,,,,,N,,,,,,,,,,,,,111,,,,,,,,,Y,US,,,ADPPAYR,222,WP8,E,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-      305,Brandon,,Smith,111,email1@example.com,,email1@example.com,en_US,US,,DEFAULT,USD,,Y,,,,,,,"OpenTable, Inc.",,,,,,,,,deptxx,XX,0,111,,,,,,,,US,,,,,,,,,,,,,,,,,,,,,,Y,,,,,,,,,,,,,,,,,,,,,,Y,US,,,ADPPAYR,111,WP8,E,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+      305,John,,Keynes,222,email2@example.com,,email2@example.com,en_US,US,,DEFAULT,USD,,Y,,,,,,,biz unit x,,,,,,,,,deptxx,XX,0,222,,,,,,,,US,,,,,,,,,,,,,,,,,111,,,,,N,,,,,,,,,,,,,111,,,,,,,,,Y,US,,,ADPPAYR,222,WP8,E,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+      305,Brandon,,Smith,111,email1@example.com,,email1@example.com,en_US,US,,DEFAULT,USD,,Y,,,,,,,biz unit x,,,,,,,,,deptxx,XX,0,111,,,,,,,,US,,,,,,,,,,,,,,,,,,,,,,Y,,,,,,,,,,,,,,,,,,,,,,Y,US,,,ADPPAYR,111,WP8,E,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
       EOS
     end
 

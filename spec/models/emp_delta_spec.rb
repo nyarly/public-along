@@ -254,18 +254,17 @@ RSpec.describe EmpDelta, type: :model do
   end
 
   context "build from profile" do
-    let(:employee) { FactoryGirl.create(:employee,
-      first_name: "Meg") }
-    let(:profile) { FactoryGirl.create(:profile,
-      employee: employee) }
+    let(:employee)    { FactoryGirl.create(:employee, first_name: 'Meg') }
+    let(:profile)     { FactoryGirl.create(:profile, employee: employee, business_title: 'Old Title') }
+
 
     it "should take a dirty activerecord profile model and create an employee delta" do
       employee.assign_attributes(first_name: "Meghan")
-      profile.assign_attributes(company: "OpenTable Mars Colony, Inc")
+      profile.assign_attributes(business_title: 'New Title')
       new_delta = EmpDelta.build_from_profile(profile)
       expect(EmpDelta.count).to eq(0)
-      expect(new_delta.before).to eq({"first_name"=>"Meg","company"=>"OpenTable, Inc."})
-      expect(new_delta.after).to eq({"first_name"=>"Meghan","company"=>"OpenTable Mars Colony, Inc"})
+      expect(new_delta.before).to eq({ "first_name"=>"Meg","business_title"=>"Old Title" })
+      expect(new_delta.after).to eq({ "first_name"=>"Meghan","business_title"=>"New Title" })
       expect(new_delta.employee_id).to eq(employee.id)
     end
   end

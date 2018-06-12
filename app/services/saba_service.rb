@@ -200,7 +200,7 @@ class SabaService
           e.email,
           e.job_title.try(:name),
           e.department.try(:code),
-          e.company
+          e.business_unit.try(:name)
         ]
       end
     end

@@ -464,10 +464,11 @@ describe Employee, type: :model do
   end
 
   describe '#current_profile=' do
-    let(:worker_type) { FactoryGirl.create(:worker_type) }
-    let(:department)  { FactoryGirl.create(:department) }
-    let(:location)    { FactoryGirl.create(:location) }
-    let(:job_title)   { FactoryGirl.create(:job_title) }
+    let(:worker_type)   { FactoryGirl.create(:worker_type) }
+    let(:department)    { FactoryGirl.create(:department) }
+    let(:location)      { FactoryGirl.create(:location) }
+    let(:job_title)     { FactoryGirl.create(:job_title) }
+    let(:business_unit) { FactoryGirl.create(:business_unit) }
 
     let(:profile_attrs) do
       {
@@ -478,9 +479,9 @@ describe Employee, type: :model do
         location_id: location.id,
         worker_type_id: worker_type.id,
         job_title_id: job_title.id,
-        company: 'co name',
         adp_assoc_oid: 'xxii',
-        adp_employee_id: '332211'
+        adp_employee_id: '332211',
+        business_unit: business_unit
       }
     end
 
@@ -582,7 +583,6 @@ describe Employee, type: :model do
         location_id: location.id,
         worker_type_id: worker_type.id,
         job_title_id: job_title.id,
-        company: 'co name',
         adp_assoc_oid: 'xxii',
         adp_employee_id: '332211'
       }

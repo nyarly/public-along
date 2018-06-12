@@ -40,7 +40,7 @@ module ConcurImporter
     end
 
     def company
-      profile.company
+      profile.business_unit.name
     end
 
     def location_code
