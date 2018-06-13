@@ -203,11 +203,6 @@ RSpec.describe EmployeesController, type: :controller do
         get :direct_reports, {:id => "#{employee_4.id}"}
         expect(response).to be_success
       end
-
-      it "does not authorize other workers" do
-        get :direct_reports, {:id => "#{manager.id}"}
-        expect(response).to redirect_to("http://test.hostwhere_i_came_from")
-      end
     end
 
     context "manager" do
