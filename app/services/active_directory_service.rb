@@ -97,10 +97,9 @@ class ActiveDirectoryService
     # objectClass, sAMAccountName, mail, userPrincipalName, and unicodePwd should not be updated via Mezzo
     [:objectclass, :sAMAccountName, :mail, :userPrincipalName, :unicodePwd].each { |k| attrs.delete(k) }
     # Only update attrs that differ
-    attrs.each { |k,v|
-      # LDAP returns ASCII-8BIT, coerce Mezzo data to this format for compare
-      val = v.present? ? v.force_encoding(Encoding::ASCII_8BIT) : v
-      if (ldap_entry.try(k).present? && ldap_entry.try(k).include?(val)) || (ldap_entry.try(k).blank? && val.blank?)
+    attrs.each { |k, v|
+      val = encoded_value(v)
+      if unchanged_attr?(ldap_entry, k, val) || blank_attr?(ldap_entry, k, val)
         attrs.delete(k)
       end
     }
@@ -252,5 +251,28 @@ class ActiveDirectoryService
     subject = "Failed Security Access Change for #{e.cn}"
     message = "Mezzo received a request to add and/or remove #{e.cn} from security groups in Active Directory. One or more of these transactions have failed."
     Errors::Handler.new(TechTableMailer, subject, message, failures).process!
+  end
+
+  def encoded_value(v)
+    # LDAP returns ASCII-8BIT, coerce Mezzo data to this format for compare
+    v.present? ? v.force_encoding(Encoding::ASCII_8BIT) : v
+  end
+
+  def unchanged_attr?(ldap_entry, k, val)
+    ldap_value = ldap_entry.try(k)
+    return false if ldap_value.blank?
+
+    if k == :manager
+      # LDAP compares are case sensitive by default
+      # but manager is an exception here for unknown reason.
+      values = ldap_value.map { |lv| lv.downcase }
+      values.include?(val.downcase)
+    else
+      ldap_value.include?(val)
+    end
+  end
+
+  def blank_attr?(ldap_entry, k, val)
+    ldap_entry.try(k).blank? && val.blank?
   end
 end
