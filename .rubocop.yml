@@ -31,3 +31,5 @@ Style/BlockLength:
     - 'Rakefile'
     - '**/*.rake'
     - 'spec/**/*.rb'
+Rails:
+  Enabled: true

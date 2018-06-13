@@ -42,9 +42,9 @@ GEM
       public_suffix (~> 2.0, >= 2.0.2)
     airbrussh (1.0.1)
       sshkit (>= 1.6.1, != 1.7.0)
+    ancestry (3.0.2)
+      activerecord (>= 3.2.0)
     arel (6.0.3)
-    awesome_nested_set (3.1.4)
-      activerecord (>= 4.0.0, < 5.3)
     axiom-types (0.1.1)
       descendants_tracker (~> 0.0.4)
       ice_nine (~> 0.11.0)
@@ -389,7 +389,7 @@ PLATFORMS
 
 DEPENDENCIES
   aasm
-  awesome_nested_set
+  ancestry
   axlsx
   bullet
   business_time

@@ -78,7 +78,7 @@ gem 'gpgme'
 # Search and filter
 gem 'filterrific', '~> 4.x'
 
-gem 'awesome_nested_set'
+gem 'ancestry'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
