@@ -263,7 +263,7 @@ ActiveRecord::Schema.define(version: 20180614190251) do
     t.integer  "worker_type_id",                          null: false
     t.integer  "job_title_id",                            null: false
     t.string   "adp_assoc_oid"
-    t.string   "adp_employee_id",         default: "",    null: false
+    t.string   "adp_employee_id",                         null: false
     t.datetime "created_at",                              null: false
     t.datetime "updated_at",                              null: false
     t.boolean  "management_position"
