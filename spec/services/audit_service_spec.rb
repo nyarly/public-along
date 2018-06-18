@@ -7,7 +7,7 @@ describe AuditService, type: :service do
   let(:adp_service)   { double(AdpService::Base) }
   let(:ad)            { double(ActiveDirectoryService) }
   let!(:manager)      { FactoryGirl.create(:employee) }
-  let!(:employee)     { FactoryGirl.create(:active_employee, manager: manager) }
+  let(:employee)      { FactoryGirl.create(:active_employee, manager: manager, first_name: 'fff') }
 
   let!(:regular_termination) do
     FactoryGirl.create(:terminated_employee,
@@ -58,6 +58,14 @@ describe AuditService, type: :service do
       manager: manager)
   end
 
+  before do
+    Timecop.freeze(Time.new(2018, 7, 1, 0, 0, 0, '-07:00'))
+  end
+
+  after do
+    Timecop.return
+  end
+
   describe '#missed_terminations' do
     subject(:audit) { audit_service.missed_terminations }
 
@@ -91,7 +99,7 @@ describe AuditService, type: :service do
       expect(audit.any? { |hash| hash[:adp_status] == 'Terminated' }).to eq(true)
     end
 
-    it "should output csv string for missed offboards" do
+    it 'outputs csv string for missed offboards' do
       expect(csv).to eq(term_csv)
     end
   end
@@ -102,18 +110,18 @@ describe AuditService, type: :service do
     let(:csv) { audit_service.generate_csv(audit) }
 
     let(:disabled_ldap_entry) do
-      [{ :dn=>["CN=Diane Sawyer,OU=Disabled Users,OU=OT,DC=ottest,DC=opentable,DC=com"],
-         :useraccountcontrol=>["514"]}]
+      [{ dn: ['CN=Diane Sawyer,OU=Disabled Users,OU=OT,DC=ottest,DC=opentable,DC=com'],
+         useraccountcontrol: ['514'] }]
     end
 
     let(:disabled_ldap_entry_2) do
-      [{ :dn=>["CN=#{missed_offboard_3.cn},OU=IT,OU=Users,OU=OT,DC=ottest,DC=opentable,DC=com"],
-         :useraccountcontrol=>["514"]}]
+      [{ dn: ["CN=#{missed_offboard_3.cn},OU=IT,OU=Users,OU=OT,DC=ottest,DC=opentable,DC=com"],
+         useraccountcontrol: ['514'] }]
     end
 
     let(:enabled_ldap_entry) do
-      [{ :dn=>["CN=Tom Browkaw,OU=IT,OU=Users,OU=OT,DC=ottest,DC=opentable,DC=com"],
-         :useraccountcontrol=>["512"]}]
+      [{ dn: ['CN=Tom Browkaw,OU=IT,OU=Users,OU=OT,DC=ottest,DC=opentable,DC=com'],
+         useraccountcontrol: ['512'] }]
     end
 
     let(:ad_csv) do
@@ -125,14 +133,14 @@ describe AuditService, type: :service do
 
     before do
       allow(ActiveDirectoryService).to receive(:new).and_return(ad)
-      allow(ad).to receive(:find_entry).with("sAMAccountName", regular_termination.sam_account_name).and_return(disabled_ldap_entry)
-      allow(ad).to receive(:find_entry).with("sAMAccountName", missed_deactivation.sam_account_name).and_return(enabled_ldap_entry)
+      allow(ad).to receive(:find_entry).with('sAMAccountName', regular_termination.sam_account_name).and_return(disabled_ldap_entry)
+      allow(ad).to receive(:find_entry).with('sAMAccountName', missed_deactivation.sam_account_name).and_return(enabled_ldap_entry)
       audit_service.missed_deactivations
     end
 
     it 'checks AD deactivation for each terminated worker' do
-      expect(ad).to have_received(:find_entry).with("sAMAccountName", regular_termination.sam_account_name)
-      expect(ad).to have_received(:find_entry).with("sAMAccountName", missed_deactivation.sam_account_name)
+      expect(ad).to have_received(:find_entry).with('sAMAccountName', regular_termination.sam_account_name)
+      expect(ad).to have_received(:find_entry).with('sAMAccountName', missed_deactivation.sam_account_name)
     end
 
     it 'outputs csv with missed deactivation' do

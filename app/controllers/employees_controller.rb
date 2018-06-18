@@ -2,34 +2,26 @@ class EmployeesController < ApplicationController
   load_and_authorize_resource
   helper EmployeeHelper, AddressHelper
 
-  before_action :set_employee, only: [:show, :direct_reports]
-
   def index
-    if current_user.manager_role_only?
-      @employees = current_user.employee.direct_reports
-                               .includes([:manager, :emp_transactions, :profiles])
+    @employees = if current_user.manager_role_only?
+                   current_user.employee.direct_reports
+                               .includes(%i[manager emp_transactions profiles])
                                .order(:last_name)
-    else
-      @employees = Employee.all.includes([:manager, :emp_transactions, :profiles])
+                 else
+                   Employee.all.includes(%i[manager emp_transactions profiles])
                            .order(:last_name)
-    end
+                 end
 
     filter_and_search
   end
 
   def show
-    if current_user.manager_role_only? && !ManagementTreeQuery.new(@employee).up.include?(current_user.employee_id)
-      @employee = nil
-      redirect_to :back, alert: 'You are not authorized to view this page.'
-    end
-    if @employee.present?
-      @email = Email.new
-      @activities = ActivityFeedQuery.new(@employee).all
-    end
+    @email = Email.new
+    @activities = ActivityFeedQuery.new(@employee).all
   end
 
   def direct_reports
-    @employees = @employee.direct_reports.includes([:manager, :emp_transactions, :profiles])
+    @employees = @employee.direct_reports.includes(%i[manager emp_transactions profiles])
                           .order(:last_name)
 
     filter_and_search
@@ -42,13 +34,13 @@ class EmployeesController < ApplicationController
 
   def autocomplete_email
     @employees = Employee.search_email(params[:term])
-    render json: json_for_autocomplete(@employees, :email, [:first_name, :last_name, :hire_date])
+    render json: json_for_autocomplete(@employees, :email, %i[first_name last_name hire_date])
   end
 
   private
 
   def filter_and_search
-    @filterrific = initialize_filterrific(
+    (@filterrific = initialize_filterrific(
       @employees,
       params[:filterrific],
       select_options: {
@@ -59,14 +51,15 @@ class EmployeesController < ApplicationController
       },
       persistence_id: 'shared_key',
       default_filter_params: {},
-      available_filters: [
-        :search_query,
-        :with_status,
-        :with_location_id,
-        :with_department_id,
-        :with_worker_type_id,
-        :sorted_by],
-    ) or return
+      available_filters: %i[
+        search_query
+        with_status
+        with_location_id
+        with_department_id
+        with_worker_type_id
+        sorted_by
+      ]
+    )) || return
 
     @employees = @filterrific.find.page(params[:page])
 
@@ -74,10 +67,6 @@ class EmployeesController < ApplicationController
       format.html
       format.js
     end
-  end
-
-  def set_employee
-    @employee = Employee.find(params[:id])
   end
 
   def employee_params
