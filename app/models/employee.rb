@@ -10,6 +10,7 @@ class Employee < ActiveRecord::Base
 
   attr_accessor :nearest_time_zone
 
+  has_many :approver_designations, inverse_of: :employee, dependent: :destroy
   has_one :current_profile, -> { where(profiles: { primary: true }) }, class_name: 'Profile', autosave: true
   has_many :profiles, autosave: true
   has_many :emp_transactions # on delete, cascade in db
