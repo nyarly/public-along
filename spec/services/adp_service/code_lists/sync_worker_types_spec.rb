@@ -26,9 +26,9 @@ describe AdpService::CodeLists::SyncWorkerTypes, type: :service do
     allow(http).to receive(:post).with(
       request_uri,
       '',
-      { "Accept"=>"application/json",
-        "Authorization"=>"Basic #{SECRETS.adp_creds}",
-      }).and_return(response)
+      'Accept' => 'application/json',
+      'Authorization' => "Basic #{SECRETS.adp_creds}"
+    ).and_return(response)
     expect(response).to receive(:body).and_return('{"access_token": "a-token-value"}')
   end
 
@@ -53,7 +53,7 @@ describe AdpService::CodeLists::SyncWorkerTypes, type: :service do
         .with('https://api.adp.com/hr/v2/workers/meta')
         .and_return(uri)
       allow(http).to receive(:get)
-        .with(request_uri, { "Accept" => "application/json", "Authorization" => "Bearer a-token-value" })
+        .with(request_uri, 'Accept' => 'application/json', 'Authorization' => 'Bearer a-token-value')
         .and_return(response)
       allow(response).to receive(:code)
       allow(response).to receive(:message)

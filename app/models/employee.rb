@@ -1,6 +1,8 @@
 class Employee < ActiveRecord::Base
   include AASM
 
+  has_ancestry
+
   before_validation :downcase_unique_attrs
   before_validation :strip_whitespace
 
@@ -188,6 +190,10 @@ class Employee < ActiveRecord::Base
     define_method :"#{attribute}" do
       current_profile.try(:send, "#{attribute}")
     end
+  end
+
+  def self_and_descendants
+    self.descendants << self
   end
 
   def current_profile
@@ -440,6 +446,10 @@ class Employee < ActiveRecord::Base
   end
 
   def cn
+    first_name + " " + last_name
+  end
+
+  def full_name
     first_name + " " + last_name
   end
 

@@ -3,9 +3,8 @@ class Country < ActiveRecord::Base
   has_many :addresses
 
   validates :name, presence: true
-  validates :iso_alpha_2_code, presence: true, uniqueness: true
+  validates :iso_alpha_2, presence: true, uniqueness: true
+  validates :iso_alpha_3, uniqueness: true
 
-  def code
-    iso_alpha_2_code if iso_alpha_2_code.present?
-  end
+  scope :code_collection, -> { all.pluck(:iso_alpha_3) }
 end

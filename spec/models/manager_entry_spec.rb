@@ -10,6 +10,12 @@ RSpec.describe ManagerEntry do
   let(:sp_3)              { FactoryGirl.create(:security_profile) }
   let(:sp_4)              { FactoryGirl.create(:security_profile) }
   let(:machine_bundle)    { FactoryGirl.create(:machine_bundle) }
+  let(:processer)         { double(TransactionProcesser) }
+
+  before do
+    allow(TransactionProcesser).to receive(:new).and_return(processer)
+    allow(processer).to receive(:call)
+  end
 
   describe '#save' do
     context 'Onboard' do
@@ -156,11 +162,6 @@ RSpec.describe ManagerEntry do
             expect(active_employee.profiles.pending.last.worker_type).to eq(worker_type)
           end
 
-          it 'does not update the employee status' do
-            active_employee.reload
-            expect(active_employee.status).to eq('active')
-          end
-
           it 'creates an emp_transaction with the right attrs' do
             expect(manager_entry.emp_transaction.kind).to eq('job_change')
             expect(manager_entry.emp_transaction.user_id).to eq(user.id)
@@ -274,10 +275,6 @@ RSpec.describe ManagerEntry do
             expect(old_employee.profiles.pending.last.start_date).to eq(DateTime.new(2018, 9, 1))
           end
 
-          it 'does not update the employee status' do
-            expect(old_employee.reload.status).to eq('pending')
-          end
-
           it 'creates an emp_transaction with the right attrs' do
             expect(manager_entry.emp_transaction.kind).to eq('job_change')
             expect(manager_entry.emp_transaction.user_id).to eq(user.id)
@@ -336,12 +333,6 @@ RSpec.describe ManagerEntry do
             expect{
               manager_entry.save
             }.to change{ Employee.count }.by(1)
-          end
-
-          it 'creates a pending employee' do
-            manager_entry.save
-
-            expect(employee.status).to eq('pending')
           end
 
           it 'gives pending employee one profile' do

@@ -16,6 +16,7 @@ class Department < ActiveRecord::Base
   default_scope { order('name ASC') }
 
   scope :active, -> { where(status: 'Active') }
+  scope :code_collection, -> { where(status: 'Active').pluck(:code) }
 
   def self.options_for_select
     order('LOWER(name)').map { |e| [e.name, e.id] }

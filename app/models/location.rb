@@ -94,9 +94,11 @@ class Location < ActiveRecord::Base
   has_many :profiles
   has_many :employees, through: :profiles
 
+  scope :code_collection, -> { where(status: 'Active', kind: 'Office').pluck(:code) }
+
   define_method :country do
     return nil if address.blank? || address.country.blank?
-    address.country.iso_alpha_2_code
+    address.country.iso_alpha_2
   end
 
   def self.options_for_select

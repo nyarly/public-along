@@ -19,7 +19,7 @@ module AdpService
         location = Location.find_by(code: code)
 
         if location.present?
-          location.update_attributes(name: name, status: 'Active')
+          location.update(name: name, status: 'Active')
         else
           new_location(code, name)
         end
@@ -27,16 +27,17 @@ module AdpService
 
       def new_location(code, name)
         new_location = Location.create(code: code, name: name, status: 'Active')
-        default_country = Country.find_or_create_by(iso_alpha_2_code: 'Pending Assignment', name: 'Pending Assignment')
+        default_country = Country.find_or_create_by(iso_alpha_2: 'Pending Assignment', name: 'Pending Assignment')
         new_location.build_address(country_id: default_country.id)
         new_location.save!
 
+        ActiveDirectory::GlobalGroups::Generator.new_group(new_location.code, 'Geographic')
         PeopleAndCultureMailer.code_list_alert([new_location]).deliver_now
       end
 
       def location_name(json)
         short_name = json['shortName'].present?
-        short_name.present? ? short_name : json['longName']
+        short_name.presence || json['longName']
       end
 
       def locations

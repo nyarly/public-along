@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180604233805) do
+ActiveRecord::Schema.define(version: 20180614190251) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -80,10 +80,11 @@ ActiveRecord::Schema.define(version: 20180604233805) do
 
   create_table "countries", force: :cascade do |t|
     t.string   "name"
-    t.string   "iso_alpha_2_code"
+    t.string   "iso_alpha_2"
     t.integer  "currency_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "iso_alpha_3"
   end
 
   add_index "countries", ["currency_id"], name: "index_countries_on_currency_id", using: :btree
@@ -199,8 +200,10 @@ ActiveRecord::Schema.define(version: 20180604233805) do
     t.string   "legal_first_name"
     t.string   "adp_status"
     t.string   "personal_email"
+    t.string   "ancestry"
   end
 
+  add_index "employees", ["ancestry"], name: "index_employees_on_ancestry", using: :btree
   add_index "employees", ["del_employee_id"], name: "index_employees_on_del_employee_id", unique: true, using: :btree
   add_index "employees", ["email"], name: "index_employees_on_email", unique: true, using: :btree
   add_index "employees", ["manager_id"], name: "index_employees_on_manager_id", using: :btree
@@ -270,7 +273,7 @@ ActiveRecord::Schema.define(version: 20180604233805) do
     t.integer  "worker_type_id",                          null: false
     t.integer  "job_title_id",                            null: false
     t.string   "adp_assoc_oid"
-    t.string   "adp_employee_id",         default: ""
+    t.string   "adp_employee_id",         default: "",    null: false
     t.datetime "created_at",                              null: false
     t.datetime "updated_at",                              null: false
     t.boolean  "management_position"

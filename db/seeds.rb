@@ -2,16 +2,16 @@
 # The data can then be loaded with the rake db:seed (or created alongside the db with db:setup).
 
 standard_countries = [
-  { name: 'Pending Assignment', iso_alpha_2_code: 'Pending Assignment'},
-  { name: 'Australia', iso_alpha_2_code: 'AU', currency: Currency.find_or_create_by(name: 'Australian Dollar', iso_alpha_code: 'AUD') },
-  { name: 'Canada', iso_alpha_2_code: 'CA', currency: Currency.find_or_create_by(name: 'Canadian Dollar', iso_alpha_code: 'CAD') },
-  { name: 'Germany', iso_alpha_2_code: 'DE', currency: Currency.find_or_create_by(name: 'Euro', iso_alpha_code: 'EUR') },
-  { name: 'Great Britain', iso_alpha_2_code: 'GB', currency: Currency.find_or_create_by(name: 'Pound Sterling', iso_alpha_code: 'GBP') },
-  { name: 'Ireland', iso_alpha_2_code: 'IE', currency: Currency.find_or_create_by(name: 'Euro', iso_alpha_code: 'EUR') },
-  { name: 'India', iso_alpha_2_code: 'IN', currency: Currency.find_or_create_by(name: 'Indian Rupee', iso_alpha_code: 'INR') },
-  { name: 'Japan', iso_alpha_2_code: 'JP', currency: Currency.find_or_create_by(name: 'Japanese Yen', iso_alpha_code: 'JPY') },
-  { name: 'Mexico', iso_alpha_2_code: 'MX', currency: Currency.find_or_create_by(name: 'Mexican Peso', iso_alpha_code: 'MXN') },
-  { name: 'United States', iso_alpha_2_code: 'US', currency: Currency.find_or_create_by(name: 'United States Dollar', iso_alpha_code: 'USD') }
+  { name: 'Pending Assignment', iso_alpha_3: 'Pending Assignment',iso_alpha_2: 'Pending Assignment'},
+  { name: 'Australia', iso_alpha_3: 'AUS',iso_alpha_2: 'AU', currency: Currency.find_or_create_by(name: 'Australian Dollar', iso_alpha_code: 'AUD') },
+  { name: 'Canada', iso_alpha_3: 'CAN',iso_alpha_2: 'CA', currency: Currency.find_or_create_by(name: 'Canadian Dollar', iso_alpha_code: 'CAD') },
+  { name: 'Germany', iso_alpha_3: 'DEU',iso_alpha_2: 'DE', currency: Currency.find_or_create_by(name: 'Euro', iso_alpha_code: 'EUR') },
+  { name: 'Great Britain', iso_alpha_3: 'GBR',iso_alpha_2: 'GB', currency: Currency.find_or_create_by(name: 'Pound Sterling', iso_alpha_code: 'GBP') },
+  { name: 'Ireland', iso_alpha_3: 'IRL',iso_alpha_2: 'IE', currency: Currency.find_or_create_by(name: 'Euro', iso_alpha_code: 'EUR') },
+  { name: 'India', iso_alpha_3: 'IND',iso_alpha_2: 'IN', currency: Currency.find_or_create_by(name: 'Indian Rupee', iso_alpha_code: 'INR') },
+  { name: 'Japan', iso_alpha_3: 'JPN',iso_alpha_2: 'JP', currency: Currency.find_or_create_by(name: 'Japanese Yen', iso_alpha_code: 'JPY') },
+  { name: 'Mexico', iso_alpha_3: 'MEX',iso_alpha_2: 'MX', currency: Currency.find_or_create_by(name: 'Mexican Peso', iso_alpha_code: 'MXN') },
+  { name: 'United States', iso_alpha_3: 'USA',iso_alpha_2: 'US', currency: Currency.find_or_create_by(name: 'United States Dollar', iso_alpha_code: 'USD') }
 ]
 
 depts = [
@@ -138,7 +138,7 @@ mach_bundles = [
 
 ActiveRecord::Base.transaction do
   standard_countries.each { |attrs|
-    country = Country.find_or_create_by(name: attrs[:name], iso_alpha_2_code: attrs[:iso_alpha_2_code])
+    country = Country.find_or_create_by(name: attrs[:name], iso_alpha_2: attrs[:iso_alpha_2], iso_alpha_3: attrs[:iso_alpha_3])
     country.update_attributes(attrs)
   }
   depts.each { |attrs|
@@ -157,7 +157,7 @@ end
 
 def populate_location_address(name, country_code)
   location = Location.find_by(name: name)
-  country = Country.find_by(iso_alpha_2_code: country_code)
+  country = Country.find_by(iso_alpha_2: country_code)
 
   if location.present? && country.present?
     location.build_address(country: country).save!

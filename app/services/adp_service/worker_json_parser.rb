@@ -236,7 +236,7 @@ module AdpService
 
     def find_country(country_code)
       return nil if country_code.blank?
-      country = Country.find_by(iso_alpha_2_code: country_code)
+      country = Country.find_by(iso_alpha_2: country_code)
       return nil if country.blank?
       country.id
     end

@@ -59,12 +59,21 @@ class ActiveDirectoryService
   end
 
   def terminate(employees)
-    employees.each do |e|
-      e.security_profiles.each do |sp|
-        sp.access_levels.each do |al|
-          if al.ad_security_group.present?
-            modify_sec_group("delete", al.ad_security_group, e)
+    employees.each do |employee|
+      ldap_entry = find_entry('sAMAccountName', employee.sam_account_name).first
+
+      remove_memberships_failure(employee, worker_not_found_msg(employee)) if ldap_entry.blank?
+
+      if ldap_entry.present?
+        if ldap_entry.respond_to? :memberOf
+          results = []
+          memberships = ldap_entry.memberof
+
+          memberships.each do |membership|
+            results << modify_sec_group('delete', membership, employee)
           end
+          failures = scan_for_failed_ldap_transactions(results.flatten)
+          remove_memberships_failure(employee, failures) if failures.present?
         end
       end
     end
@@ -97,10 +106,9 @@ class ActiveDirectoryService
     # objectClass, sAMAccountName, mail, userPrincipalName, and unicodePwd should not be updated via Mezzo
     [:objectclass, :sAMAccountName, :mail, :userPrincipalName, :unicodePwd].each { |k| attrs.delete(k) }
     # Only update attrs that differ
-    attrs.each { |k,v|
-      # LDAP returns ASCII-8BIT, coerce Mezzo data to this format for compare
-      val = v.present? ? v.force_encoding(Encoding::ASCII_8BIT) : v
-      if (ldap_entry.try(k).present? && ldap_entry.try(k).include?(val)) || (ldap_entry.try(k).blank? && val.blank?)
+    attrs.each { |k, v|
+      val = encoded_value(v)
+      if unchanged_attr?(ldap_entry, k, val) || blank_attr?(ldap_entry, k, val)
         attrs.delete(k)
       end
     }
@@ -252,5 +260,34 @@ class ActiveDirectoryService
     subject = "Failed Security Access Change for #{e.cn}"
     message = "Mezzo received a request to add and/or remove #{e.cn} from security groups in Active Directory. One or more of these transactions have failed."
     Errors::Handler.new(TechTableMailer, subject, message, failures).process!
+  end
+
+  def remove_memberships_failure(e, failures)
+    subject = "Failed to remove #{e.cn} from AD groups"
+    message = "Mezzo attempted to remove #{e.cn} from one or more Active Directory memberships. One or more of these transactions have failed."
+    Errors::Handler.new(TechTableMailer, subject, message, failures).process!
+  end
+
+  def encoded_value(v)
+    # LDAP returns ASCII-8BIT, coerce Mezzo data to this format for compare
+    v.present? ? v.force_encoding(Encoding::ASCII_8BIT) : v
+  end
+
+  def unchanged_attr?(ldap_entry, k, val)
+    ldap_value = ldap_entry.try(k)
+    return false if ldap_value.blank?
+
+    if k == :manager
+      # LDAP compares are case sensitive by default
+      # but manager is an exception here for unknown reason.
+      values = ldap_value.map { |lv| lv.downcase }
+      values.include?(val.downcase)
+    else
+      ldap_value.include?(val)
+    end
+  end
+
+  def blank_attr?(ldap_entry, k, val)
+    ldap_entry.try(k).blank? && val.blank?
   end
 end

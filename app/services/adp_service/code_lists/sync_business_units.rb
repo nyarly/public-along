@@ -19,7 +19,7 @@ module AdpService
         current_business_unit = BusinessUnit.find_by(code: code)
 
         if current_business_unit.present?
-          current_business_unit.update_attributes(name: name, active: true)
+          current_business_unit.update(name: name, active: true)
         else
           BusinessUnit.create(code: code, name: name, active: true)
         end
@@ -27,7 +27,7 @@ module AdpService
 
       def business_unit_name(unit_json)
         short_name = unit_json['shortName']
-        short_name.present? ? short_name : unit_json['longName']
+        short_name.presence || unit_json['longName']
       end
 
       def business_units
