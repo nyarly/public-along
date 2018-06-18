@@ -1,5 +1,5 @@
 class PeopleAndCultureMailer < ApplicationMailer
-  default to: ["pcemail@opentable.com"]
+  default to: ["peopleandculture@opentable.com"]
 
   def alert(subject, message, data)
     @subject = subject

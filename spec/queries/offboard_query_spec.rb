@@ -85,6 +85,14 @@ describe OffboardQuery, type: :query do
         status: 'terminated',
         termination_date: Date.new(2017, 11, 24)})
   end
+  let!(:early_contract_term) do
+    FactoryGirl.create(:profile,
+      profile_status: 'terminated',
+      employee_args: {
+        contract_end_date: Date.new(2017, 12, 10),
+        termination_date: Date.new(2017, 10, 10),
+        offboarded_at: Time.new(2017, 10, 10)})
+  end
 
   before do
     Timecop.freeze(Time.new(2017, 12, 11, 11, 0, 0, '+00:00'))

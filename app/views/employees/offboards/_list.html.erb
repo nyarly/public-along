@@ -18,7 +18,7 @@
     <tbody>
       <% offboards.each do |offboard| %>
         <tr>
-          <td><%= offboard.cn %></td>
+          <td><%= link_to "#{offboard.cn}", employee_path(offboard) %></td>
           <td><%= offboard.termination_date.try(:strftime, '%Y-%b-%e') %></td>
           <td><%= offboard.contract_end_date.try(:strftime, '%Y-%b-%e') %></td>
           <td><%= offboard.offboarded_at.try(:strftime, '%Y-%b-%e') %></td>

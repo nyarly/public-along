@@ -1,20 +1,12 @@
+<h3>Employees</h3>
 <div id="index-employee">
-  <%= form_tag(employees_path, :method => "get", id: "search-form") do %>
-    <div class="search-input-wrapper">
-      <%= autocomplete_field_tag :search, params[:search], autocomplete_name_employees_path, placeholder: "Search for Employee" %>
-    </div>
+  <%= form_for_filterrific @filterrific do |f| %>
+    <%= render partial: 'search_and_filter', locals: { f: f } %>
   <% end %>
-
-  <% if can? :create, ManagerEntry %>
-    <%= render partial: "simple_employees_table", locals: { employees: @employees } %>
-  <% else %>
-    <!-- Admin/helpdesk/hr only view -->
-    <%= render partial: "employees_table", locals: { employees: @employees } %>
-  <% end %>
+  <%= render partial: 'employees_table', locals: { employees: @employees } %>
 </div>
 
-<div id="employee-pagination">
+<div id='employee-pagination'>
   <%= paginate @employees %>
   <%= page_entries_info @employees %>
 </div>
-

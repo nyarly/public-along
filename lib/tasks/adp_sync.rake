@@ -1,11 +1,11 @@
 namespace :adp do
   desc "sync adp codelists"
   task :sync_codelists => :environment do
-    c = AdpService::CodeLists.new
-    c.sync_job_titles
-    c.sync_locations
-    c.sync_departments
-    c.sync_worker_types
+    AdpService::CodeLists::SyncJobTitles.call
+    AdpService::CodeLists::SyncLocations.call
+    AdpService::CodeLists::SyncDepartments.call
+    AdpService::CodeLists::SyncWorkerTypes.call
+    AdpService::CodeLists::SyncBusinessUnits.call
   end
 
   desc "poll adp events"

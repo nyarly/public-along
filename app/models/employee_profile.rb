@@ -21,7 +21,7 @@ class EmployeeProfile
   # attributes for profile model
   attribute :adp_assoc_oid, String
   attribute :adp_employee_id, String
-  attribute :company, String
+  attribute :business_unit_id, Integer
   attribute :department_id, Integer
   attribute :job_title_id, Integer
   attribute :location_id, Integer
@@ -98,6 +98,7 @@ class EmployeeProfile
 
   def create_employee(employee_hash)
     Employee.new(parse_attributes(Employee, employee_hash)).tap do |employee|
+      employee.parent_id = employee.manager_id
       employee.save!
     end
   end
@@ -106,6 +107,7 @@ class EmployeeProfile
   def build_employee(event)
     employee_hash = parse_event(event)
     Employee.new(parse_attributes(Employee, employee_hash)).tap do |employee|
+      employee.parent_id = employee.manager_id
       build_initial_profile(employee, employee_hash)
     end
   end
@@ -145,6 +147,7 @@ class EmployeeProfile
 
   def assign_employee_attributes(employee, employee_hash)
     employee.assign_attributes(parse_attributes(Employee, employee_hash))
+    employee.parent_id = employee.manager_id
   end
 
   def parse_attributes(klass, employee_hash)

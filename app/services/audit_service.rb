@@ -7,26 +7,27 @@ class AuditService
   # scenario: worker's contract has ended and they were not given a termination date
   def missed_terminations
     audit = []
-    audit_list.each do |employee|
-      data = check_adp(employee)
-      employee_hash = generate_employee_hash(employee, data)
-      audit << employee_hash
-    end unless audit_list.empty?
+    unless audit_list.empty?
+      audit_list.each do |employee|
+        data = check_adp(employee)
+        employee_hash = generate_employee_hash(employee, data)
+        audit << employee_hash
+      end
+    end
     audit
   end
 
   def audit_list
-    Employee.where('(status LIKE ?
-                    OR offboarded_at IS NULL)
+    Employee.where('status LIKE ?
                     AND (termination_date < ?
                     OR adp_status LIKE ?
                     OR updated_at < ?
                     OR contract_end_date < ?)',
-                    'active',
-                    1.day.ago,
-                    'Terminated',
-                    2.hours.ago,
-                    1.day.ago)
+      'active',
+      1.day.ago,
+      'Terminated',
+      2.hours.ago,
+      1.day.ago).order(:last_name)
   end
 
   def missed_deactivations
@@ -34,9 +35,7 @@ class AuditService
 
     terminated_employees.each do |t|
       ad_entry = check_active_directory(t)
-      if ad_entry.present? && deactivated?(ad_entry, t)
-        audit << generate_employee_hash(t, {'ldap_dn'=>ldap_dn(ad_entry)})
-      end
+      audit << generate_employee_hash(t, 'ldap_dn' => ldap_dn(ad_entry)) if ad_entry.present? && deactivated?(ad_entry, t)
     end
     audit
   end
@@ -46,7 +45,7 @@ class AuditService
       csv << data.first.keys
       data.each do |e|
         row = []
-        e.each do |_,v|
+        e.each do |_, v|
           row << v
         end
         csv << row
@@ -57,15 +56,15 @@ class AuditService
   private
 
   def terminated_employees
-    Employee.where(status: "terminated")
+    Employee.where(status: 'terminated')
   end
 
   def ad_service
     @ad_service ||= ActiveDirectoryService.new
   end
 
-  def check_active_directory(t)
-    ad_service.find_entry("sAMAccountName", t.sam_account_name).first
+  def check_active_directory(termed_worker)
+    ad_service.find_entry('sAMAccountName', termed_worker.sam_account_name).first
   end
 
   def ldap_dn(ad_entry)
@@ -80,32 +79,34 @@ class AuditService
     ldap_dn(ad_entry) != worker.dn.downcase || usr_acct_ctrl(ad_entry) != '514'
   end
 
-  def check_adp(e)
+  def check_adp(employee)
     data = {}
     adp = AdpService::Base.new
-    json = adp.worker("/#{e.adp_assoc_oid}")
-    if json["workers"].present?
-      data[:current_adp_status] = json.dig("workers", 0, "workerStatus", "statusCode", "codeValue")
-      data[:adp_term_date] = json.dig("workers", 0, "workerDates", "terminationDate")
+    json = adp.worker("/#{employee.adp_assoc_oid}")
+    if json['workers'].present?
+      data[:current_adp_status] = json.dig('workers', 0, 'workerStatus', 'statusCode', 'codeValue')
+      data[:adp_term_date] = json.dig('workers', 0, 'workerDates', 'terminationDate')
     end
     data
   end
 
-  def generate_employee_hash(e, opts={})
+  def generate_employee_hash(employee, opts = {})
     h = {}
-    h[:name] = e.cn
-    h[:job_title] = e.job_title.name
-    h[:department] = e.department.name
-    h[:location] = e.location.name
-    h[:manager] = e.manager_id.present? ? "#{e.manager.first_name} #{e.manager.last_name}" : ""
-    h[:status] = e.status
-    h[:adp_status] = e.adp_status
-    h[:term_date] = e.termination_date.present? ? e.termination_date.strftime("%Y-%m-%d") : ""
-    h[:contract_end_date] = e.contract_end_date.present? ? e.contract_end_date.strftime("%Y-%m-%d") : ""
-    h[:offboarded_at] = e.offboarded_at.present? ? e.offboarded_at.strftime("%Y-%m-%d") : ""
-    opts.each do |k,v|
-      h[k] = v
-    end unless opts.empty?
+    h[:name] = employee.cn
+    h[:job_title] = employee.job_title.name
+    h[:department] = employee.department.name
+    h[:location] = employee.location.name
+    h[:manager] = employee.manager_id.present? ? "#{employee.manager.first_name} #{employee.manager.last_name}" : ''
+    h[:status] = employee.status
+    h[:adp_status] = employee.adp_status
+    h[:term_date] = employee.termination_date.present? ? employee.termination_date.strftime('%Y-%m-%d') : ''
+    h[:contract_end_date] = employee.contract_end_date.present? ? employee.contract_end_date.strftime('%Y-%m-%d') : ''
+    h[:offboarded_at] = employee.offboarded_at.present? ? employee.offboarded_at.strftime('%Y-%m-%d') : ''
+    unless opts.empty?
+      opts.each do |k, v|
+        h[k] = v
+      end
+    end
     h
   end
 

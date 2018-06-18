@@ -116,8 +116,8 @@ describe AdpService::Workers, type: :service do
     let(:sas)         { double(SecAccessService) }
     let(:parser)      { double(AdpService::WorkerJsonParser) }
     let(:worker_type) { FactoryGirl.create(:worker_type) }
-    let(:manager)     { FactoryGirl.create(:active_employee)}
-    let(:employee)    { FactoryGirl.create(:employee, status: 'active', first_name: 'BOB') }
+    let(:manager)     { FactoryGirl.create(:employee) }
+    let(:employee)    { FactoryGirl.create(:employee, status: 'active', first_name: 'BOB', manager: manager) }
 
     let(:sorted) do
       [{
@@ -173,7 +173,8 @@ describe AdpService::Workers, type: :service do
           employee: employee,
           adp_employee_id: '101455',
           adp_assoc_oid: 'G32B8JAXA1W398Z8',
-          worker_type: worker_type)
+          worker_type: worker_type,
+          manager_adp_employee_id: '101734')
 
         allow(parser).to receive(:sort_workers).and_return(sorted)
         adp.sync_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
@@ -214,7 +215,7 @@ describe AdpService::Workers, type: :service do
           hire_date: "2013-08-05",
           contract_end_date: nil,
           company: "OpenTable Inc.",
-          manager_id: "101734",
+          manager_adp_employee_id: "101734",
           office_phone: "(212) 555-4411",
           personal_mobile_phone: "(212) 555-4411",
           department_id: new_department.id,
@@ -232,7 +233,8 @@ describe AdpService::Workers, type: :service do
           employee: employee,
           adp_employee_id: '101455',
           adp_assoc_oid: 'G32B8JAXA1W398Z8',
-          worker_type: worker_type)
+          worker_type: worker_type,
+          manager_adp_employee_id: '101734')
 
         allow(parser).to receive(:sort_workers).and_return(sorted)
         adp.sync_workers("https://api.adp.com/hr/v2/workers?$top=25&$skip=25")
@@ -264,7 +266,7 @@ describe AdpService::Workers, type: :service do
           hire_date: '2013-08-05',
           contract_end_date: nil,
           company: 'OpenTable Inc.',
-          manager_id: '101734',
+          manager_adp_employee_id: '101734',
           office_phone: '(212) 555-4411',
           personal_mobile_phone: '(212) 555-4411',
           department_id: FactoryGirl.create(:department).id,

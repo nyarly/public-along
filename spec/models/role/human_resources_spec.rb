@@ -14,5 +14,6 @@ describe Role::HumanResources, :type => :model do
     it_should_behave_like "role abilities", :new_hire, [:read]
     it_should_behave_like "role abilities", :offboard, [:read]
     it_should_behave_like "role abilities", :inactive, [:read]
+    it_should_behave_like "role abilities", EmpTransaction, [:read]
   end
 end

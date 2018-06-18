@@ -36,6 +36,7 @@ describe AdpService::WorkerJsonParser, type: :service do
     let!(:job_title_3)   { FactoryGirl.create(:job_title, name: 'Sales Associate', code: 'SADEN') }
     let!(:country)       { Country.find_or_create_by(iso_alpha_2: 'US') }
     let!(:germany)       { Country.find_or_create_by(iso_alpha_2: 'DE') }
+    let!(:business_unit) { FactoryGirl.create(:business_unit, code: 'OTUS') }
 
     it 'creates the hash from json' do
       w_json = json['workers'][2]
@@ -56,7 +57,6 @@ describe AdpService::WorkerJsonParser, type: :service do
         start_date: '2013-08-05',
         end_date: nil,
         rehire_date: nil,
-        company: 'OpenTable Inc.',
         job_title_id: job_title.id,
         worker_type_id: worker_type.id,
         manager_adp_employee_id: '101734',
@@ -66,7 +66,8 @@ describe AdpService::WorkerJsonParser, type: :service do
         business_card_title: 'Senior Backend Engineer, Restaurant Products',
         management_position: true,
         manager_id: manager.employee.id,
-        payroll_file_number: '101455'
+        payroll_file_number: '101455',
+        business_unit_id: business_unit.id
       })
     end
 

@@ -12,5 +12,6 @@ class Role::HumanResources < Role
     ability.can :read, :new_hire
     ability.can :read, :offboard
     ability.can :read, :inactive
+    ability.can :read, EmpTransaction
   end
 end

@@ -64,17 +64,6 @@ namespace :employee do
       end
     end
   end
-
-  desc "send contract end notifications"
-  task :send_contract_end_notifications => :environment do
-    contractors = EmployeeQuery.new.contract_end_reminder_group
-    contractors.each do |e|
-      if e.request_status == "none"
-        e.wait!
-        ContractorWorker.perform_async(e.id)
-      end
-    end
-  end
 end
 
 def in_time_window?(date, hour, zone)
