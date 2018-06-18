@@ -514,24 +514,7 @@ describe ActiveDirectoryService, type: :service do
 
   describe '#terminate' do
     let(:ldap_entry) { Net::LDAP::Entry.new(employee.dn) }
-    let(:employee) { FactoryGirl.create(:regular_employee,
-      termination_date: Date.today - 30.days) }
-    let!(:emp_transaction) { FactoryGirl.create(:onboarding_emp_transaction,
-      employee_id: employee.id) }
-    let!(:security_profile) { FactoryGirl.create(:security_profile)}
-    let!(:access_level) { FactoryGirl.create(:access_level,
-      ad_security_group: "cn=test")}
-    let!(:access_level_2) { FactoryGirl.create(:access_level,
-      ad_security_group: nil)}
-    let!(:sec_prof_access_level) { FactoryGirl.create(:sec_prof_access_level,
-      security_profile_id: security_profile.id,
-      access_level_id: access_level.id)}
-    let!(:sec_prof_access_level_2) { FactoryGirl.create(:sec_prof_access_level,
-      security_profile_id: security_profile.id,
-      access_level_id: access_level_2.id)}
-    let!(:emp_sec_profile) { FactoryGirl.create(:emp_sec_profile,
-      emp_transaction_id: emp_transaction.id,
-      security_profile_id: security_profile.id)}
+    let(:employee) { FactoryGirl.create(:regular_employee, termination_date: Date.today - 30.days) }
     let(:ldap_response) { OpenStruct.new(code: 0, message: "message") }
 
     before :each do
@@ -553,21 +536,20 @@ describe ActiveDirectoryService, type: :service do
       ldap_entry[:mobile] = employee.personal_mobile_phone
       ldap_entry[:telephoneNumber] = employee.office_phone
       ldap_entry[:thumbnailPhoto] = employee.decode_img_code
+      ldap_entry[:memberOf] = ['sec_group', 'dist_list']
 
+      allow(ldap).to receive(:search).and_return([ldap_entry])
       allow(ldap).to receive_message_chain(:get_operation_result).and_return(ldap_response)
       allow(ldap).to receive(:message)
       allow(ldap).to receive(:code)
+      allow(ldap).to receive(:modify)
+
+      ads.terminate([employee])
     end
 
     it "should remove the user from security groups and distribution lists" do
-      expect(ldap).to receive(:modify).with({:dn=>access_level.ad_security_group, :operations=>[[:delete, :member, "#{employee.dn}"]]})
-      ads.terminate([employee])
-    end
-
-    it "should not attempt to remove the user if the security group does not have an AD group" do
-      expect(ldap).not_to receive(:modify).with({:dn=>access_level_2.ad_security_group, :operations=>[[:delete, :member, "#{employee.dn}"]]})
-      ads.terminate([employee])
+      expect(ldap).to have_received(:modify).with({:dn=>'sec_group', :operations=>[[:delete, :member, "#{employee.dn}"]]})
+      expect(ldap).to have_received(:modify).with({:dn=>'dist_list', :operations=>[[:delete, :member, "#{employee.dn}"]]})
     end
   end
-
 end

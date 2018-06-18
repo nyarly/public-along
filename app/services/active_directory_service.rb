@@ -59,12 +59,21 @@ class ActiveDirectoryService
   end
 
   def terminate(employees)
-    employees.each do |e|
-      e.security_profiles.each do |sp|
-        sp.access_levels.each do |al|
-          if al.ad_security_group.present?
-            modify_sec_group("delete", al.ad_security_group, e)
+    employees.each do |employee|
+      ldap_entry = find_entry('sAMAccountName', employee.sam_account_name).first
+
+      remove_memberships_failure(employee, worker_not_found_msg(employee)) if ldap_entry.blank?
+
+      if ldap_entry.present?
+        if ldap_entry.respond_to? :memberOf
+          results = []
+          memberships = ldap_entry.memberof
+
+          memberships.each do |membership|
+            results << modify_sec_group('delete', membership, employee)
           end
+          failures = scan_for_failed_ldap_transactions(results.flatten)
+          remove_memberships_failure(employee, failures) if failures.present?
         end
       end
     end
@@ -250,6 +259,12 @@ class ActiveDirectoryService
   def sec_access_update_failure(e, failures)
     subject = "Failed Security Access Change for #{e.cn}"
     message = "Mezzo received a request to add and/or remove #{e.cn} from security groups in Active Directory. One or more of these transactions have failed."
+    Errors::Handler.new(TechTableMailer, subject, message, failures).process!
+  end
+
+  def remove_memberships_failure(e, failures)
+    subject = "Failed to remove #{e.cn} from AD groups"
+    message = "Mezzo attempted to remove #{e.cn} from one or more Active Directory memberships. One or more of these transactions have failed."
     Errors::Handler.new(TechTableMailer, subject, message, failures).process!
   end
 

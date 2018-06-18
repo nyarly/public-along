@@ -34,8 +34,8 @@ describe AdpService::WorkerJsonParser, type: :service do
     let!(:job_title)     { FactoryGirl.create(:job_title, name: 'Sr. People Business Partner', code: 'SRBP') }
     let!(:job_title_2)   { FactoryGirl.create(:job_title, name: 'Sales Representative, OTC', code: 'SROTC') }
     let!(:job_title_3)   { FactoryGirl.create(:job_title, name: 'Sales Associate', code: 'SADEN') }
-    let!(:country)       { Country.find_or_create_by(iso_alpha_2_code: 'US') }
-    let!(:germany)       { Country.find_or_create_by(iso_alpha_2_code: 'DE') }
+    let!(:country)       { Country.find_or_create_by(iso_alpha_2: 'US') }
+    let!(:germany)       { Country.find_or_create_by(iso_alpha_2: 'DE') }
     let!(:business_unit) { FactoryGirl.create(:business_unit, code: 'OTUS') }
 
     it 'creates the hash from json' do

@@ -20,7 +20,7 @@ module AdpService
         worker_type = WorkerType.find_by(code: code)
 
         if worker_type.present?
-          worker_type.update_attributes(name: name, status: 'Active')
+          worker_type.update(name: name, status: 'Active')
         elsif code.present?
           new_worker_type = WorkerType.create(code: code, name: name, status: 'Active')
           PeopleAndCultureMailer.code_list_alert([new_worker_type]).deliver_now
@@ -29,7 +29,7 @@ module AdpService
 
       def worker_type_name(json)
         short_name = json['shortName']
-        short_name.present? ? short_name : json['longName']
+        short_name.presence || json['longName']
       end
 
       def worker_types

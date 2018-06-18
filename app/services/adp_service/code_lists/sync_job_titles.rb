@@ -18,12 +18,12 @@ module AdpService
         name = job_title_name(title_json)
 
         job_title = JobTitle.find_or_create_by(code: code)
-        job_title.update_attributes(name: name, status: 'Active')
+        job_title.update(name: name, status: 'Active')
       end
 
       def job_title_name(title_json)
         short_name = title_json['shortName']
-        short_name.present? ? short_name : title_json['longName']
+        short_name.presence || title_json['longName']
       end
 
       def job_titles

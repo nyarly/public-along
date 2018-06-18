@@ -7,4 +7,6 @@ class ParentOrg < ActiveRecord::Base
             case_sensitive: false
 
   has_many :departments
+
+  scope :code_collection, -> { all.pluck(:code) }
 end

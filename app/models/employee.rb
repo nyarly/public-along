@@ -446,6 +446,10 @@ class Employee < ActiveRecord::Base
     first_name + " " + last_name
   end
 
+  def full_name
+    first_name + " " + last_name
+  end
+
   def nearest_time_zone
     # US has the broadest time zone spectrum, Pacific time is a sufficient middle ground to capture business hours between NYC and Hawaii
     location.country == 'US' ? "America/Los_Angeles" : TZInfo::Country.get(location.country).zone_identifiers.first

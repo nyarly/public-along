@@ -72,10 +72,11 @@ ActiveRecord::Schema.define(version: 20180614190251) do
 
   create_table "countries", force: :cascade do |t|
     t.string   "name"
-    t.string   "iso_alpha_2_code"
+    t.string   "iso_alpha_2"
     t.integer  "currency_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "iso_alpha_3"
   end
 
   add_index "countries", ["currency_id"], name: "index_countries_on_currency_id", using: :btree
@@ -263,7 +264,7 @@ ActiveRecord::Schema.define(version: 20180614190251) do
     t.integer  "worker_type_id",                          null: false
     t.integer  "job_title_id",                            null: false
     t.string   "adp_assoc_oid"
-    t.string   "adp_employee_id",                         null: false
+    t.string   "adp_employee_id",         default: "",    null: false
     t.datetime "created_at",                              null: false
     t.datetime "updated_at",                              null: false
     t.boolean  "management_position"

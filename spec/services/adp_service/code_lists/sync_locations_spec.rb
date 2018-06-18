@@ -8,6 +8,7 @@ describe AdpService::CodeLists::SyncLocations, type: :service do
   let(:request_uri) { '/auth/oauth/v2/token?grant_type=client_credentials' }
   let(:http)        { double(Net::HTTP) }
   let(:response)    { double(Net::HTTPResponse) }
+  let(:service)     { double(ActiveDirectory::GlobalGroups::Generator) }
 
   before do
     allow(uri).to receive(:host).and_return(host)
@@ -26,10 +27,12 @@ describe AdpService::CodeLists::SyncLocations, type: :service do
     allow(http).to receive(:post).with(
       request_uri,
       '',
-      { "Accept"=>"application/json",
-        "Authorization"=>"Basic #{SECRETS.adp_creds}",
-      }).and_return(response)
+      'Accept' => 'application/json',
+      'Authorization' => "Basic #{SECRETS.adp_creds}"
+    ).and_return(response)
     expect(response).to receive(:body).and_return('{"access_token": "a-token-value"}')
+    allow(ActiveDirectory::GlobalGroups::Generator).to receive(:new).and_return(service)
+    allow(service).to receive(:new_group)
   end
 
   describe '.call' do
@@ -53,7 +56,7 @@ describe AdpService::CodeLists::SyncLocations, type: :service do
         .with('https://api.adp.com/codelists/hr/v3/worker-management/locations/WFN/1')
         .and_return(uri)
       allow(http).to receive(:get)
-        .with(request_uri, { "Accept" => "application/json", "Authorization" => "Bearer a-token-value" })
+        .with(request_uri, 'Accept' => 'application/json', 'Authorization' => 'Bearer a-token-value')
         .and_return(response)
       allow(response).to receive(:code)
       allow(response).to receive(:message)
@@ -74,6 +77,10 @@ describe AdpService::CodeLists::SyncLocations, type: :service do
 
     it 'active location has status of Active' do
       expect(location.status).to eq('Active')
+    end
+
+    it 'creates the new groups in AD' do
+      expect(service).to have_received(:new_group).with('NEWLOC', 'Geographic')
     end
 
     it 'inactive location has status of Inactive' do

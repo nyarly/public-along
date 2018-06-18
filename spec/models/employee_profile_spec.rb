@@ -282,7 +282,7 @@ RSpec.describe EmployeeProfile do
           city: 'Los Angeles',
           state_territory: 'CA',
           postal_code: '90028',
-          country_id: Country.find_by(iso_alpha_2_code: 'US'))
+          country_id: Country.find_by(iso_alpha_2: 'US'))
       end
 
       before do
@@ -306,7 +306,7 @@ RSpec.describe EmployeeProfile do
       end
 
       it 'updates country' do
-        expect(remote_worker.address.country.iso_alpha_2_code).to eq('DE')
+        expect(remote_worker.address.country.iso_alpha_2).to eq('DE')
       end
     end
 
@@ -358,7 +358,7 @@ RSpec.describe EmployeeProfile do
       end
 
       it 'has the right country' do
-        expect(remote_worker.address.country.iso_alpha_2_code).to eq('DE')
+        expect(remote_worker.address.country.iso_alpha_2).to eq('DE')
       end
     end
 
@@ -533,7 +533,7 @@ RSpec.describe EmployeeProfile do
     end
 
     it 'has the right address country' do
-      expect(new_employee.address.country.iso_alpha_2_code).to eq('US')
+      expect(new_employee.address.country.iso_alpha_2).to eq('US')
     end
 
     it 'creates an employee profile' do

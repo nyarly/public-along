@@ -450,70 +450,34 @@ describe 'employee rake tasks', type: :tasks do
         Rake::Task['employee:change_status'].invoke
     end
 
-    it 'should remove worker from all security groups at 3am, 7 days after termination' do
-      manager = FactoryGirl.create(:regular_employee)
-      termination = FactoryGirl.create(:employee,
-        status: 'active',
-        manager_id: manager,
-        hire_date: Date.new(2014, 5, 3),
-        termination_date: Date.new(2016, 8, 21))
-      profile = FactoryGirl.create(:profile,
-        profile_status: 'active',
-        employee: termination,
-        department: Department.find_by(:name => 'Technology/CTO Admin'),
-        location: sf)
-      recent_termination = FactoryGirl.create(:terminated_employee,
-        manager: manager,
-        hire_date: Date.new(2014, 5, 3),
-        termination_date: Date.new(2016, 8, 20))
-      profile = FactoryGirl.create(:terminated_profile,
-        employee: recent_termination,
-        department: Department.find_by(:name => 'Technology/CTO Admin'),
-        location: sf)
+    context 'when removing worker from AD memberships' do
+      let!(:employee)   { FactoryGirl.create(:employee, termination_date: Date.new(2016, 8, 21)) }
+      let(:success)     { OpenStruct.new(code: 0, message: 'msg') }
+      let(:ldap_entry)  { Net::LDAP::Entry.new(employee) }
 
-      app_1 = FactoryGirl.create(:application)
-      app_2 = FactoryGirl.create(:application)
-      sec_prof = FactoryGirl.create(:security_profile)
-      access_level_1 = FactoryGirl.create(:access_level,
-        application_id: app_1.id,
-        ad_security_group: 'sec_dn_1')
-      sec_prof_access_level_2 = FactoryGirl.create(:sec_prof_access_level,
-        access_level_id: access_level_1.id,
-        security_profile_id: sec_prof.id)
-      access_level_2 = FactoryGirl.create(:access_level,
-        application_id: app_2.id,
-        ad_security_group: 'sec_dn_2')
-      sec_prof_access_level_2 = FactoryGirl.create(:sec_prof_access_level,
-        access_level_id: access_level_2.id,
-        security_profile_id: sec_prof.id)
+      before do
+        FactoryGirl.create(:profile, employee: employee, location: sf)
+        # 8/28/2016 at 3am PST/10am UTC
+        Timecop.freeze(Time.new(2016, 8, 28, 10, 0, 0, '+00:00'))
 
-      # Add security profile for termination worker
-      emp_trans_1 = FactoryGirl.create(:emp_transaction,
-        employee_id: termination.id,
-        kind: 'Onboarding')
-      emp_sec_prof_1 = FactoryGirl.create(:emp_sec_profile,
-        emp_transaction_id: emp_trans_1.id,
-        security_profile_id: sec_prof.id)
+        ldap_entry[:memberOf] = ['sec_dn_1', 'sec_dn_2']
+        allow(ldap).to receive(:search).and_return([ldap_entry])
+        allow(ldap).to receive(:modify)
+        allow(ldap).to receive(:get_operation_result).and_return(success)
 
-      # Add security profile for recent_termination worker
-      emp_trans_2 = FactoryGirl.create(:emp_transaction,
-        employee_id: recent_termination.id,
-        kind: 'Onboarding')
-      emp_sec_prof_2 = FactoryGirl.create(:emp_sec_profile,
-        emp_transaction_id: emp_trans_2.id,
-        security_profile_id: sec_prof.id)
-      ldap_success = OpenStruct.new(code: 0, message: 'message')
+        Rake::Task['employee:change_status'].invoke
+      end
 
-      # 8/28/2016 at 3am PST/10am UTC
-      Timecop.freeze(Time.new(2016, 8, 28, 10, 0, 0, '+00:00'))
-      allow(ldap).to receive(:get_operation_result).and_return(ldap_success)
+      after do
+        Timecop.return
+      end
 
-      expect(ldap).to receive(:modify).once.ordered.with({:dn => 'sec_dn_1', :operations => [[:delete, :member, termination.dn]]})
-      expect(ldap).to receive(:modify).once.ordered.with({:dn => 'sec_dn_2', :operations => [[:delete, :member, termination.dn]]})
-      expect(ldap).to_not receive(:modify).with({:dn => 'sec_dn_1', :operations => [[:delete, :member, recent_termination.dn]]})
-      expect(ldap).to_not receive(:modify).with({:dn => 'sec_dn_2', :operations => [[:delete, :member, recent_termination.dn]]})
-
-      Rake::Task['employee:change_status'].invoke
+      it 'removes from all security groups at 3am, 7 days after termination' do
+        expect(ldap).to have_received(:modify).once
+          .with({:dn => 'sec_dn_1', :operations => [[:delete, :member, employee.dn]]})
+        expect(ldap).to have_received(:modify).once
+          .with({:dn => 'sec_dn_2', :operations => [[:delete, :member, employee.dn]]})
+      end
     end
   end
 

@@ -19,16 +19,18 @@ module AdpService
         department = Department.find_by(code: code)
 
         if department.present?
-          department.update_attributes(name: name, status: 'Active')
+          department.update(name: name, status: 'Active')
         else
           new_department = Department.create(code: code, name: name, status: 'Active')
+
+          ActiveDirectory::GlobalGroups::Generator.new_group(new_department.code, 'Department')
           PeopleAndCultureMailer.code_list_alert([new_department]).deliver_now
         end
       end
 
       def department_name(department_json)
         short_name = department_json['shortName']
-        short_name.present? ? short_name : department_json['longName']
+        short_name.presence || department_json['longName']
       end
 
       def departments
