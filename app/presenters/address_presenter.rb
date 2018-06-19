@@ -25,6 +25,6 @@ class AddressPresenter < Presenter
   end
 
   def format_address(items=[])
-    items.compact.join(', ')
+    items.compact.split('').flatten.join(', ')
   end
 end

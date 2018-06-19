@@ -11,6 +11,8 @@ class Department < ActiveRecord::Base
   has_many :profiles, dependent: :nullify
   has_many :security_profiles, through: :dept_sec_profs
 
+  accepts_nested_attributes_for :approver_designations, reject_if: :all_blank, allow_destroy: true
+
   default_scope { order('name ASC') }
 
   scope :code_collection, -> { where(status: 'Active').pluck(:code) }
