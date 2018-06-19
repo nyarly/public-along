@@ -62,6 +62,20 @@ ActiveRecord::Schema.define(version: 20180614190251) do
     t.boolean  "ad_controls",           default: false, null: false
   end
 
+  create_table "approvals", force: :cascade do |t|
+    t.integer  "approver_designation_id"
+    t.integer  "emp_transaction_id"
+    t.integer  "request_emp_transaction_id"
+    t.string   "status"
+    t.datetime "requested_at"
+    t.datetime "cancelled_at"
+    t.datetime "approved_at"
+    t.datetime "rejected_at"
+    t.datetime "executed_at"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "business_units", force: :cascade do |t|
     t.string   "name",                       null: false
     t.string   "code",                       null: false
