@@ -95,7 +95,6 @@ class Location < ActiveRecord::Base
   accepts_nested_attributes_for :address, reject_if: :all_blank, allow_destroy: true
   accepts_nested_attributes_for :approver_designations, reject_if: :all_blank, allow_destroy: true
 
-
   scope :code_collection, -> { where(status: 'Active', kind: 'Office').pluck(:code) }
 
   define_method :country do
