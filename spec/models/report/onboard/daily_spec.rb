@@ -46,7 +46,7 @@ describe Report::Onboard::Daily, type: :model do
 
   let!(:onboard) do
     FactoryGirl.create(:emp_transaction,
-      kind: 'Onboarding',
+      kind: 'onboarding',
       created_at: Time.new(2018, 1, 31, 5, 0, 0, '+00:00'),
       employee: new_hire_1)
   end

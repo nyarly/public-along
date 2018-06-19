@@ -10,6 +10,12 @@ RSpec.describe ManagerEntry do
   let(:sp_3)              { FactoryGirl.create(:security_profile) }
   let(:sp_4)              { FactoryGirl.create(:security_profile) }
   let(:machine_bundle)    { FactoryGirl.create(:machine_bundle) }
+  let(:processer)         { double(TransactionProcesser) }
+
+  before do
+    allow(TransactionProcesser).to receive(:new).and_return(processer)
+    allow(processer).to receive(:call)
+  end
 
   describe '#save' do
     context 'Onboard' do
@@ -20,7 +26,7 @@ RSpec.describe ManagerEntry do
         context 'with valid params' do
           let(:params) do
             {
-              kind: 'Onboarding',
+              kind: 'onboarding',
               user_id: user.id,
               buddy_id: buddy.id,
               cw_email: 1,
@@ -33,12 +39,12 @@ RSpec.describe ManagerEntry do
           end
           let(:manager_entry) { ManagerEntry.new(params) }
 
-          before :each do
+          before do
             manager_entry.save
           end
 
           it 'creates an emp_transaction with the right attrs' do
-            expect(manager_entry.emp_transaction.kind).to eq('Onboarding')
+            expect(manager_entry.emp_transaction.kind).to eq('onboarding')
             expect(manager_entry.emp_transaction.user_id).to eq(user.id)
             expect(manager_entry.emp_transaction.notes).to eq('These notes')
             expect(manager_entry.emp_transaction.employee_id).to eq(employee.id)
@@ -68,10 +74,10 @@ RSpec.describe ManagerEntry do
           end
         end
 
-        context 'with invalid params' do
+        context 'with non-existant form type' do
           let(:params) do
             {
-              kind: 'Onboarding',
+              kind: 'hackery',
               user_id: user.id,
               buddy_id: buddy.id,
               cw_email: 1,
@@ -85,12 +91,9 @@ RSpec.describe ManagerEntry do
           end
 
           it 'reports errors' do
-            manager_entry = ManagerEntry.new(params)
-            manager_entry.save
-
-            expect(manager_entry.errors.messages).to eq({
-              base: ["Employee cannot be blank. Please revisit email link to refresh page."]
-            })
+            expect {
+              ManagerEntry.new(params)
+            }.to raise_error(KeyError)
           end
         end
       end
@@ -120,7 +123,7 @@ RSpec.describe ManagerEntry do
         context 'when accounts are linked by manager' do
           let(:link_on_params) do
             {
-              kind: 'Onboarding',
+              kind: 'job_change',
               event_id: event.id,
               user_id: user.id,
               buddy_id: nil,
@@ -159,13 +162,8 @@ RSpec.describe ManagerEntry do
             expect(active_employee.profiles.pending.last.worker_type).to eq(worker_type)
           end
 
-          it 'does not update the employee status' do
-            active_employee.reload
-            expect(active_employee.status).to eq('active')
-          end
-
           it 'creates an emp_transaction with the right attrs' do
-            expect(manager_entry.emp_transaction.kind).to eq('Onboarding')
+            expect(manager_entry.emp_transaction.kind).to eq('job_change')
             expect(manager_entry.emp_transaction.user_id).to eq(user.id)
             expect(manager_entry.emp_transaction.notes).to eq('These notes')
             expect(manager_entry.emp_transaction.employee_id).to eq(active_employee.id)
@@ -221,7 +219,7 @@ RSpec.describe ManagerEntry do
         context 'when accounts are linked by manager' do
           let(:link_on_params) do
             {
-              kind: 'Onboarding',
+              kind: 'job_change',
               event_id: event.id,
               user_id: user.id,
               buddy_id: nil,
@@ -277,12 +275,8 @@ RSpec.describe ManagerEntry do
             expect(old_employee.profiles.pending.last.start_date).to eq(DateTime.new(2018, 9, 1))
           end
 
-          it 'does not update the employee status' do
-            expect(old_employee.status).to eq('pending')
-          end
-
           it 'creates an emp_transaction with the right attrs' do
-            expect(manager_entry.emp_transaction.kind).to eq('Onboarding')
+            expect(manager_entry.emp_transaction.kind).to eq('job_change')
             expect(manager_entry.emp_transaction.user_id).to eq(user.id)
             expect(manager_entry.emp_transaction.notes).to eq('These notes')
             expect(manager_entry.emp_transaction.employee_id).to eq(old_employee.id)
@@ -320,7 +314,7 @@ RSpec.describe ManagerEntry do
         context 'when accounts are not linked by manager' do
           let(:link_off_params) do
             {
-              kind: 'Onboarding',
+              kind: 'job_change',
               event_id: event.id,
               user_id: user.id,
               buddy_id: nil,
@@ -341,12 +335,6 @@ RSpec.describe ManagerEntry do
             }.to change{ Employee.count }.by(1)
           end
 
-          it 'creates a pending employee' do
-            manager_entry.save
-
-            expect(employee.status).to eq('pending')
-          end
-
           it 'gives pending employee one profile' do
             manager_entry.save
 
@@ -356,7 +344,7 @@ RSpec.describe ManagerEntry do
           it 'creates an emp_transaction with the right attrs' do
             manager_entry.save
 
-            expect(manager_entry.emp_transaction.kind).to eq('Onboarding')
+            expect(manager_entry.emp_transaction.kind).to eq('job_change')
             expect(manager_entry.emp_transaction.user_id).to eq(user.id)
             expect(manager_entry.emp_transaction.notes).to eq('These notes')
             expect(manager_entry.emp_transaction.employee_id).to eq(employee.id)
@@ -422,7 +410,7 @@ RSpec.describe ManagerEntry do
                         revoking_transaction_id: nil) }
       let(:params) do
         {
-          kind: 'Security Access',
+          kind: 'security_access',
           user_id: user.id,
           employee_id: employee.id,
           security_profile_ids: [sp_1.id, sp_3.id, sp_4.id]
@@ -454,7 +442,7 @@ RSpec.describe ManagerEntry do
       end
     end
 
-    context 'Offboarding' do
+    context 'offboarding' do
       let(:forward)           { FactoryGirl.create(:employee) }
       let!(:employee)         { FactoryGirl.create(:active_employee,
                                 request_status: 'waiting') }
@@ -463,7 +451,7 @@ RSpec.describe ManagerEntry do
                                 security_profile_id: security_profile.id) }
       let(:params) do
         {
-          kind: 'Offboarding',
+          kind: 'offboarding',
           user_id: user.id,
           employee_id: employee.id,
           archive_data: true,
@@ -505,33 +493,100 @@ RSpec.describe ManagerEntry do
       end
     end
 
-    context 'Equipment' do
-      let(:employee) { FactoryGirl.create(:active_employee) }
+    context 'when new_contractor kind' do
+      subject(:contractor_entry) { NewContractorForm.new(params) }
+
+      let!(:employee)     { FactoryGirl.create(:regular_employee) }
+      let(:user)          { FactoryGirl.create(:user, employee: employee) }
+      let!(:department)   { FactoryGirl.create(:department) }
+      let!(:location)     { FactoryGirl.create(:location) }
+      let!(:biz_unit)     { FactoryGirl.create(:business_unit) }
+      let!(:worker_type)  { FactoryGirl.create(:worker_type, kind: 'Contractor') }
+
       let(:params) do
         {
-          kind: 'Equipment',
           user_id: user.id,
-          employee_id: employee.id,
-          machine_bundle_id: machine_bundle.id
+          notes: 'some notes',
+          req_or_po_number: '1234',
+          legal_approver: 'fname lname',
+          first_name: 'contractorfname',
+          last_name: 'contractorlname',
+          start_date: Date.new(2018, 7, 1),
+          contract_end_date: Date.new(2018, 12, 31),
+          business_title: 'a title',
+          personal_mobile_phone: '888-888-8888',
+          personal_email: 'email@example.com',
+          manager_id: employee.id,
+          business_unit_id: biz_unit.id,
+          location_id: location.id,
+          department_id: department.id,
+          worker_type_id: worker_type.id,
+          kind: 'new_contractor'
         }
       end
 
-      let(:manager_entry) { ManagerEntry.new(params) }
-
-      it 'creates emp transaction' do
-        expect{
-          manager_entry.save
-        }.to change{
-          employee.emp_transactions.count
-        }.by(1)
+      it 'creates one emp transaction' do
+        expect {
+          contractor_entry.save
+        }.to change { EmpTransaction.count }.by(1)
       end
 
-      it 'assigns machine bundle' do
-        manager_entry.save
+      it 'creates an emp transaction with the right info' do
+        contractor_entry.save
+        expect(contractor_entry.emp_transaction.user).to eq(user)
+        expect(contractor_entry.emp_transaction.kind).to eq('new_contractor')
+        expect(contractor_entry.emp_transaction.notes).to eq('some notes')
+      end
 
-        expect(manager_entry.emp_transaction.emp_mach_bundles.first.machine_bundle).to eq(machine_bundle)
+      it 'creates one contractor info' do
+        expect {
+          contractor_entry.save
+        }.to change { ContractorInfo.count }.by(1)
+      end
+
+      it 'creates a contractor info with the right info' do
+        contractor_entry.save
+        expect(contractor_entry.contractor_info.req_or_po_number).to eq('1234')
+        expect(contractor_entry.contractor_info.legal_approver).to eq('fname lname')
+      end
+
+      it 'creates one employee record' do
+        expect {
+          contractor_entry.save
+        }.to change { Employee.count }.by(1)
+      end
+
+      it 'creates a new employee with the right info' do
+        contractor_entry.save
+        expect(contractor_entry.employee.status).to eq('created')
+        expect(contractor_entry.employee.first_name).to eq('contractorfname')
+        expect(contractor_entry.employee.last_name).to eq('contractorlname')
+        expect(contractor_entry.employee.hire_date).to eq(Date.new(2018, 7, 1))
+        expect(contractor_entry.employee.contract_end_date).to eq(Date.new(2018, 12, 31))
+        expect(contractor_entry.employee.personal_mobile_phone).to eq('888-888-8888')
+        expect(contractor_entry.employee.personal_email).to eq('email@example.com')
+        expect(contractor_entry.employee.manager_id).to eq(employee.id)
+      end
+
+      it 'creates one new profile' do
+        expect {
+          contractor_entry.save
+        }.to change { Profile.count }.by(1)
+      end
+
+      it 'creates a profile with the right info' do
+        contractor_entry.save
+        expect(contractor_entry.employee.current_profile.profile_status).to eq('pending')
+        expect(contractor_entry.employee.profiles.count).to eq(1)
+        expect(contractor_entry.employee.current_profile.business_title).to eq('a title')
+        expect(contractor_entry.employee.current_profile.location).to eq(location)
+        expect(contractor_entry.employee.current_profile.department).to eq(department)
+        expect(contractor_entry.employee.current_profile.job_title.name).to eq('CONTRACTOR')
+        expect(contractor_entry.employee.current_profile.worker_type).to eq(worker_type)
+        expect(contractor_entry.employee.current_profile.business_unit).to eq(biz_unit)
+        expect(contractor_entry.employee.current_profile.start_date).to eq(Date.new(2018, 7, 1))
+        expect(contractor_entry.employee.current_profile.end_date).to eq(Date.new(2018, 12, 31))
       end
     end
   end
-
 end

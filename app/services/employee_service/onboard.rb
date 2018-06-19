@@ -16,7 +16,7 @@ module EmployeeService
 
     def send_manager_form
       employee.wait!
-      EmployeeWorker.perform_async("Onboarding", employee_id: employee.id)
+      EmployeeWorker.perform_async("onboarding", employee_id: employee.id)
     end
 
     private

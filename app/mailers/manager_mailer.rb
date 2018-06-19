@@ -3,8 +3,8 @@ class ManagerMailer < ApplicationMailer
     @kind = kind
     @manager = manager
     @employee = employee
-    if opts[:event]
-      @event = opts[:event]
+    if opts[:event_id]
+      @event = AdpEvent.find(opts[:event_id])
     end
     attachments.inline['techtable.png'] = File.read(Rails.root.join('app/assets/images/techtable.png'))
     mail(to: @manager.email, subject: "IMMEDIATE ACTION REQUIRED: Employee Event Form for #{employee.first_name} #{employee.last_name}")

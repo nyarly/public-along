@@ -10,21 +10,24 @@ class Employee < ActiveRecord::Base
 
   attr_accessor :nearest_time_zone
 
-  has_many :approver_designations, inverse_of: :employee, dependent: :destroy
-  has_one :current_profile, -> { where(profiles: { primary: true }) }, class_name: 'Profile', autosave: true
-  has_many :profiles, autosave: true
-  has_many :emp_transactions # on delete, cascade in db
-  has_many :onboarding_infos, through: :emp_transactions
-  has_many :offboarding_infos, through: :emp_transactions
-  has_many :emp_mach_bundles, through: :emp_transactions
-  has_many :machine_bundles, through: :emp_mach_bundles
-  has_many :emp_sec_profiles, through: :emp_transactions
-  has_many :security_profiles, through: :emp_sec_profiles
-  has_many :emp_deltas # on delete, cascade in db
-  has_many :direct_reports, class_name: "Employee", foreign_key: "manager_id"
   has_many :addresses, as: :addressable
-  belongs_to :manager, class_name: "Employee"
-  accepts_nested_attributes_for :current_profile
+  has_many :approver_designations, inverse_of: :employee, dependent: :destroy
+  has_many :contractor_infos, through: :emp_transactions
+  has_one :current_profile, -> { where(profiles: { primary: true }) }, class_name: 'Profile', autosave: true, inverse_of: :employee
+  has_many :direct_reports, class_name: 'Employee', foreign_key: 'manager_id'
+  has_many :emp_deltas
+  has_many :emp_mach_bundles, through: :emp_transactions
+  has_many :emp_sec_profiles, through: :emp_transactions
+  has_many :emp_transactions
+  has_many :machine_bundles, through: :emp_mach_bundles
+  belongs_to :manager, class_name: 'Employee'
+  has_many :profiles, autosave: true, inverse_of: :employee
+  has_many :offboarding_infos, through: :emp_transactions
+  has_many :onboarding_infos, through: :emp_transactions
+  has_many :security_profiles, through: :emp_sec_profiles
+  has_one :user
+
+  accepts_nested_attributes_for :profiles
 
   validates :first_name,
             presence: true

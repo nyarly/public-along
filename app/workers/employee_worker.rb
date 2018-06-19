@@ -15,7 +15,7 @@ class EmployeeWorker
       @event = AdpEvent.find(opts["event_id"])
       @employee = profiler.build_employee(@event)
       @manager = @employee.manager
-      @mailer = ManagerMailer.permissions(action, @manager, @employee, event: @event) if @manager.present?
+      @mailer = ManagerMailer.permissions(action, @manager, @employee, event_id: @event.id) if @manager.present?
       logger.info "on rehire/job change event for @employee.cn, sending to @manager.email"
     end
 

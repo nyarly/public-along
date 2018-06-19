@@ -1,81 +1,65 @@
 class EmpTransactionsController < ApplicationController
   before_action :set_emp_transaction, only: [:show]
 
-  # GET /emp_transactions
-  # GET /emp_transactions.json
   def index
     authorize! :index, EmpTransaction
 
     @emp_transactions = EmpTransaction.all
   end
 
-  # GET /emp_transactions/1
-  # GET /emp_transactions/1.json
   def show
     authorize! :show, EmpTransaction
-
-    @employee = @emp_transaction.employee
   end
 
-  # GET /emp_transactions/new
   def new
-    @kind = params[:kind]
-    @reason = params[:reason]
+    begin
+      token = EmpTransaction.token
+      session['submission_token'] = token
 
-    @manager_entry = ManagerEntry.new(params)
-    @emp_transaction = @manager_entry.emp_transaction
-    @employee = @manager_entry.find_employee
+      @manager_entry = ManagerEntry.new(params.merge({ user_id: current_user.id }))
+      @manager_entry.token = token
 
-    if params[:event_id].present?
-      @event = AdpEvent.find params[:event_id]
-    end
-
-    if params[:user_emp_id]
-      @manager_user = User.find_by(adp_employee_id: params[:user_emp_id])
-    elsif params[:user_id]
-      @manager_user = User.find params[:user_id]
-    end
-
-    set_machine_bundles
-
-    session['submission_token'] = @emp_transaction.token
-
-    if !params[:event_id].present?
-      authorize! :new, @manager_entry.emp_transaction
+      authorize! :new, EmpTransaction
+    rescue
+      flash[:notice] = 'Invalid form.'
+      redirect_to root_path
     end
   end
 
-  # POST /emp_transactions
-  # POST /emp_transactions.json
   def create
-    if !double_submit?
-      @manager_entry = ManagerEntry.new(manager_entry_params)
-      @emp_transaction = @manager_entry.emp_transaction
+    begin
+      if !double_submit?
+        @manager_entry = ManagerEntry.new(manager_entry_params)
+        @emp_transaction = @manager_entry.emp_transaction
 
-      authorize! :create, @manager_entry.emp_transaction
+        authorize! :create, @emp_transaction
 
-      respond_to do |format|
-        if @manager_entry.save
-          Sessionable.new(session).change_token
-          format.html { redirect_to emp_transaction_path(@emp_transaction), notice: 'Success! TechTable will be notified with the details of your request.' }
-          format.json { render :show, status: :created, location: @emp_transaction }
-        else
-          format.html { redirect_to new_emp_transaction_path(manager_entry_params) }
-          format.json { render json: @emp_transaction.errors, status: :unprocessable_entity }
-        end
-      end
-    else
-      if @emp_transaction.valid?
         respond_to do |format|
-          format.html { redirect_to emp_transaction_path(@emp_transaction), notice: 'Success! TechTable will be notified with the details of your request.' }
-          format.json { render :show, status: :created, location: @emp_transaction }
+          if @manager_entry.save
+            Sessionable.new(session).change_token
+            format.html { redirect_to emp_transaction_path(@emp_transaction), notice: 'Success! TechTable will be notified with the details of your request.' }
+            format.json { render :show, status: :created, location: @emp_transaction }
+          else
+            format.html { redirect_to new_emp_transaction_path(manager_entry_params) }
+            format.json { render json: @emp_transaction.errors, status: :unprocessable_entity }
+          end
         end
       else
-        respond_to do |format|
-          format.html { redirect_to new_emp_transaction_path(manager_entry_params) }
-          format.json { render json: @emp_transaction.errors, status: :unprocessable_entity }
+        if @emp_transaction.valid?
+          respond_to do |format|
+            format.html { redirect_to emp_transaction_path(@emp_transaction), notice: 'Success! TechTable will be notified with the details of your request.' }
+            format.json { render :show, status: :created, location: @emp_transaction }
+          end
+        else
+          respond_to do |format|
+            format.html { redirect_to new_emp_transaction_path(manager_entry_params) }
+            format.json { render json: @emp_transaction.errors, status: :unprocessable_entity }
+          end
         end
       end
+    rescue
+      flash[:notice] = 'Invalid form.'
+      redirect_to root_path
     end
   end
 
@@ -88,20 +72,10 @@ class EmpTransactionsController < ApplicationController
     true
   end
 
-  # Use callbacks to share common setup or constraints between actions.
   def set_emp_transaction
     @emp_transaction = EmpTransaction.find(params[:id])
   end
 
-  def set_machine_bundles
-    if @employee.worker_type.kind == "Regular"
-      @machine_bundles = MachineBundle.find_bundles_for(@employee.department.id) - MachineBundle.contingent_bundles
-    else
-      @machine_bundles = MachineBundle.contingent_bundles
-    end
-  end
-
-  # Never trust parameters from the scary internet, only allow the white list through.
   def manager_entry_params
     params.require(:manager_entry).permit(
       :submission_token,
@@ -119,10 +93,26 @@ class EmpTransactionsController < ApplicationController
       :notes,
       :event_id,
       :linked_account_id,
-      :link_email
+      :link_email,
+      :req_or_po_number,
+      :legal_approver,
+      :first_name,
+      :last_name,
+      :contract_end_date,
+      :business_title,
+      :personal_mobile_phone,
+      :personal_email,
+      :business_unit_id,
+      :location_id,
+      :start_date,
+      :worker_type_id,
+      :user_emp_id,
+      :department_id,
+      :manager_id
     ).tap do |allowed|
       allowed[:security_profile_ids] = params[:security_profile_ids]
       allowed[:machine_bundle_id] = params[:machine_bundle_id]
     end
   end
 end
+

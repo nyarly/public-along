@@ -13,7 +13,7 @@ RSpec.describe Employees::NewHiresController, type: :controller do
     let(:rehire)              { FactoryGirl.create(:employee, last_name: 'Ddd', status: 'pending', manager: manager, hire_date: 1.year.ago) }
     let(:conversion)          { FactoryGirl.create(:employee, last_name: 'Eee', status: 'active', manager: manager, hire_date: 1.year.ago) }
     let(:onboarded_new_hire)  { FactoryGirl.create(:employee, last_name: 'Fff', status: 'pending', manager: manager) }
-    let(:onboarded_emp_trans) { FactoryGirl.create(:emp_transaction, employee: onboarded_new_hire, kind: 'Onboarding') }
+    let(:onboarded_emp_trans) { FactoryGirl.create(:emp_transaction, employee: onboarded_new_hire, kind: 'onboarding') }
 
     before do
       login_as user

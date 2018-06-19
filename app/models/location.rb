@@ -87,6 +87,8 @@ class Location < ActiveRecord::Base
             allow_nil: true,
             inclusion: { in: TIMEZONES + ["Pending Assignment"] }
 
+  scope :active, -> { where(status: 'Active') }
+
   has_one :address, as: :addressable
   has_many :approver_designations, as: :approver_designatable, inverse_of: :location, dependent: :destroy
   has_many :employees, through: :profiles

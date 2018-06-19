@@ -28,7 +28,7 @@ describe EmployeeService::GrantManagerAccess, type: :service do
     it "should add basic manager security profile to employee" do
       EmployeeService::GrantManagerAccess.new(employee).process!
       expect(employee.reload.security_profiles).to eq([manager_sec_profile])
-      expect(employee.emp_transactions.last.kind).to eq("Service")
+      expect(employee.emp_transactions.last.kind).to eq("service")
     end
   end
 end

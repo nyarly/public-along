@@ -6,7 +6,7 @@ module EmployeeService
 
     def prepare_termination
       TechTableMailer.offboard_notice(employee).deliver_now
-      EmployeeWorker.perform_async('Offboarding', employee_id: employee.id)
+      EmployeeWorker.perform_async('offboarding', employee: employee.id)
     end
 
     def execute_termination
