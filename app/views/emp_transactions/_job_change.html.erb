@@ -21,7 +21,7 @@
     <!-- End toggle controls -->
 
     <%= f.hidden_field :link_email, value: "off" %>
-    <%= f.hidden_field :event_id, value: @event.id %>
+    <%= f.hidden_field :event_id, value: manager_entry.event.id %>
 
     <!-- Autocomplete employee email search box -->
     <div id="find-email"
@@ -68,3 +68,5 @@
   <!-- End final confirmation -->
 </div>
 <!-- End linked account panel -->
+
+<%= render partial: 'onboarding', locals: { f: f, manager_entry: manager_entry } %>

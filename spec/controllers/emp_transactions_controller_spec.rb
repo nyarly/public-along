@@ -19,7 +19,7 @@ RSpec.describe EmpTransactionsController, type: :controller do
 
   let(:valid_attributes) {
     {
-      kind: "Security Access",
+      kind: 'security_access',
       employee_id: employee.id,
       user_id: user.id,
       machine_bundle_id: machine_bundle.id,
@@ -59,62 +59,53 @@ RSpec.describe EmpTransactionsController, type: :controller do
   describe "GET #new" do
     it "assigns a new emp_transaction as @emp_transaction" do
       should_authorize(:new, EmpTransaction)
-      get :new, { employee_id: employee.id, kind: "Security Access", user_emp_id: "12345"}
-      expect(assigns(:emp_transaction)).to be_a_new(EmpTransaction)
-      expect(assigns(:employee)).to eq(employee)
-      expect(assigns(:manager_user)).to eq(user)
-      expect(assigns(:kind)).to eq("Security Access")
+      get :new, { employee_id: employee.id, kind: 'security_access' }
+      expect(assigns(:manager_entry).emp_transaction).to be_a(EmpTransaction)
+      expect(assigns(:manager_entry).employee).to eq(employee)
+      expect(assigns(:manager_entry).kind).to eq('security_access')
     end
   end
 
   describe "POST #create" do
-    before :each do
-      should_authorize(:create, EmpTransaction)
-    end
-
     context "with valid params" do
+      before do
+        should_authorize(:create, EmpTransaction)
+      end
+
       it "creates a new EmpTransaction" do
-        allow(TechTableMailer).to receive_message_chain(:permissions, :deliver_now)
         expect {
-          post :create, { :manager_entry => valid_attributes }
+          post :create, { manager_entry: valid_attributes }
         }.to change(EmpTransaction, :count).by(1)
       end
 
       it "assigns a newly created emp_transaction as @emp_transaction" do
-        allow(TechTableMailer).to receive_message_chain(:permissions, :deliver_now)
-        post :create, { :manager_entry => valid_attributes }
+        post :create, { manager_entry: valid_attributes }
         expect(assigns(:emp_transaction)).to be_a(EmpTransaction)
         expect(assigns(:emp_transaction)).to be_persisted
       end
 
       it "redirects to the created emp_transaction" do
-        allow(TechTableMailer).to receive_message_chain(:permissions, :deliver_now)
-        post :create, { :manager_entry => valid_attributes }
+        post :create, { manager_entry: valid_attributes }
         expect(response).to redirect_to(emp_transaction_path(EmpTransaction.last))
       end
 
       it "only sends the data once" do
         expect {
-          post :create, {:manager_entry => valid_attributes}
-          post :create, {:manager_entry => valid_attributes}
+          post :create, { manager_entry: valid_attributes }
+          post :create, { manager_entry: valid_attributes }
         }.to change(EmpTransaction, :count).by(1)
       end
     end
 
-    context "with invalid params" do
-      it "assigns a newly created but unsaved emp_transaction as @emp_transaction" do
-        post :create, {:manager_entry => invalid_attributes}
-        expect(assigns(:emp_transaction)).to be_a_new(EmpTransaction)
+    context 'with invalid form kind' do
+      it 'redirects to root' do
+        post :create, { manager_entry: invalid_attributes }
+        expect(response).to redirect_to(root_path)
       end
 
-      it "re-renders the 'new' template" do
-        post :create, {:manager_entry => invalid_attributes}
-        expect(response).to redirect_to("http://test.host/emp_transactions/new?employee_id=#{employee.id}&kind=Something+else&submission_token=present&user_id=12345")
-      end
-
-      it "does not send an email to Tech Table" do
-        expect(TechTableMailer).to_not receive(:permissions)
-        post :create, {:manager_entry => invalid_attributes}
+      it 'displays an error' do
+        post :create, { manager_entry: invalid_attributes }
+        expect(flash[:notice]).to eq('Invalid form.')
       end
     end
   end

@@ -4,7 +4,7 @@ RSpec.describe EmpSecProfile, type: :model do
   let!(:employee)         { FactoryGirl.create(:employee) }
   let!(:security_profile) { FactoryGirl.create(:security_profile) }
   let!(:emp_transaction)  { FactoryGirl.create(:emp_transaction,
-                                            kind: "Onboarding",
+                                            kind: "onboarding",
                                             employee_id: employee.id) }
   let!(:emp_sec_profile)  { FactoryGirl.create(:emp_sec_profile,
                                             security_profile_id: security_profile.id,
@@ -19,14 +19,14 @@ RSpec.describe EmpSecProfile, type: :model do
     let!(:employee)        { FactoryGirl.create(:employee, first_name: "bablablblab") }
     let!(:security_prof_2) { FactoryGirl.create(:security_profile) }
     let!(:emp_transaction) { FactoryGirl.create(:emp_transaction,
-                                               kind: "Service",
+                                               kind: "service",
                                                employee_id: employee.id) }
     let(:esp)             { FactoryGirl.create(:emp_sec_profile,
                                                revoking_transaction_id: nil,
                                                security_profile_id: security_prof_2.id,
                                                emp_transaction_id: emp_transaction.id) }
     let!(:emp_trans_2)     { FactoryGirl.create(:emp_transaction,
-                                               kind: "Onboarding",
+                                               kind: "onboarding",
                                                employee_id: employee.id)}
     let(:esp_2)           { FactoryGirl.build(:emp_sec_profile,
                                               emp_transaction_id: emp_trans_2.id,
@@ -38,7 +38,7 @@ RSpec.describe EmpSecProfile, type: :model do
                                               security_profile_id: security_prof_2.id) }
     let(:revoking_transaction) { FactoryGirl.create(:emp_transaction,
                                                employee_id: employee.id,
-                                               kind: "Security Access")}
+                                               kind: "security_access")}
 
     it "should reject a dup esp if the older one does not have a revoke date" do
       expect(esp).to be_valid

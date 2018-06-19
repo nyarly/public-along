@@ -3,6 +3,6 @@ class Address < ActiveRecord::Base
   belongs_to :country
 
   def complete_street
-    [line_1, line_2, line_3].compact.join(', ')
+    [line_1, line_2, line_3].compact.split('').flatten.join(', ')
   end
 end

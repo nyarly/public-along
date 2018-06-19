@@ -8,7 +8,7 @@ describe MezzoTransactionService, type: :service do
     it "should create an emp transaction and emp sec profile for security profile" do
       MezzoTransactionService.new(employee.id, security_profile.id).process!
       expect(employee.emp_transactions.count).to eq(1)
-      expect(employee.emp_transactions.last.kind).to eq("Service")
+      expect(employee.emp_transactions.last.kind).to eq('service')
       expect(employee.emp_transactions.last.emp_sec_profiles.count).to eq(1)
       expect(employee.emp_transactions.last.emp_sec_profiles.last.security_profile_id).to eq(security_profile.id)
       expect(employee.security_profiles).to eq([security_profile])

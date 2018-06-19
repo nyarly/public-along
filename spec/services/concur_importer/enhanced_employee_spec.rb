@@ -36,7 +36,6 @@ describe ConcurImporter::EnhancedEmployee, type: :service do
     end
     let(:manager) do
       FactoryGirl.create(:employee,
-        status: 'active',
         legal_first_name: 'Brandon',
         first_name: 'Bran',
         last_name: 'Smith',

@@ -1,36 +1,44 @@
-<p>
-  <strong>Name:</strong>
-  <%= @department.name %>
-</p>
+<p id='notice'><%= notice %></p>
+
+<h4><%= @department.name %></h4>
 
 <p>
-  <strong>Code:</strong>
+  <h5>Code</h5>
   <%= @department.code %>
 </p>
 
 <p>
-  <strong>Parent Org:</strong>
-  <%= @department.parent_org.try(:name) %>
+ <h5>Parent Org</h5>
+ <%= @department.parent_org.try(:name) %>
 </p>
 
 <p>
-  <strong>Security Profiles:</strong>
+  <h4>Security Profiles</h4>
   <% @department.security_profiles.each do |sp| %>
-    <br><%= sp.name %>
+    <h5><%= sp.name %></h5>
     <ul>
       <% sp.access_levels.find_each do |al| %>
-        <li class="indent-1"><small><%= al.name %> <%= al.application.name %></small></li>
+        <li class='indent-1'><%= al.name %> <%= al.application.name %></li>
       <% end %>
     </ul>
   <% end %>
 </p>
 
 <p>
-  <strong>Machine Bundles:</strong>
-  <% @department.machine_bundles.each do |mb| %>
-    <br><%= mb.name %>
-  <% end %>
+  <h4>Machine Bundles</h4>
+  <ul>
+    <% @department.machine_bundles.each do |mb| %>
+        <li class='indent-1'><%= mb.name %></li>
+    <% end %>
+  </ul>
 </p>
+
+<div>
+  <h4>Approvers</h4>
+  <% @department.approver_designations.each do |approver| %>
+    <%= render partial: 'approver_designations/display', locals: { approver: approver } %>
+  <% end %>
+</div>
 
 <% if can? :update, Department %>
   <%= link_to 'Edit', edit_department_path(@department) %> |

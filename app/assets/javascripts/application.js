@@ -17,6 +17,7 @@
 //= require autocomplete-rails
 //= require filterrific/filterrific-jquery
 //= require_tree .
+//= require cocoon
 
 $(function(){ $(document).foundation(); });
 

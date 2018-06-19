@@ -1,17 +1,17 @@
 class EmpTransaction < ActiveRecord::Base
-  include Tokenable
-  attr_accessor :token
+  extend Tokenable
 
-  KINDS = ['Approval',
-           'Equipment',
-           'Offboarding',
-           'Onboarding',
-           'Security Access',
-           'Service']
+  FORMS = {
+    'job_change' => JobChangeForm,
+    'new_contractor' => NewContractorForm,
+    'offboarding' => OffboardingForm,
+    'onboarding' => OnboardingForm,
+    'security_access' => SecurityAccessForm,
+    'service' => ''
+  }.freeze
 
-  validates :kind,
-            presence: true,
-            inclusion: { in: KINDS }
+  validates :kind, presence: true, inclusion: { in: FORMS.keys }
+  validates :employee, presence: true
 
   has_many :approvals, inverse_of: :emp_transaction
   has_many :approval_requests, class_name: 'Approval', inverse_of: :request_emp_transaction, foreign_key: 'request_emp_transaction_id'
@@ -23,22 +23,27 @@ class EmpTransaction < ActiveRecord::Base
   has_many :machine_bundles, through: :emp_mach_bundles
   has_many :revoked_emp_sec_profiles, class_name: 'EmpSecProfile', inverse_of: :revoking_transaction, :foreign_key => "revoking_transaction_id"
   has_many :revoked_security_profiles, through: :revoked_emp_sec_profiles, source: :security_profile
-  has_many :onboarding_infos
-  has_many :offboarding_infos
+  has_many :onboarding_infos, inverse_of: :emp_transaction
+  has_many :offboarding_infos, inverse_of: :emp_transaction
+  has_many :contractor_infos, inverse_of: :emp_transaction
 
-  KINDS.each do |transaction_type|
-    method_name = transaction_type.gsub(" ","_").downcase + "?"
+  accepts_nested_attributes_for :onboarding_infos
+  accepts_nested_attributes_for :offboarding_infos
+  accepts_nested_attributes_for :contractor_infos
+
+  FORMS.keys.each do |transaction_type|
+    method_name = transaction_type + "?"
     define_method method_name.to_sym do
       transaction_type == kind
     end
   end
 
-  def token
-    @token ||= generate_token
+  def self.token
+    generate_token
   end
 
   def performed_by
-    return "Mezzo" if service?
+    return 'Mezzo' if service?
     self.user.try(:full_name)
   end
 

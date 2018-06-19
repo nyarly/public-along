@@ -154,7 +154,7 @@ module AdpService
     end
 
     def send_onboard_form_with_event(event)
-      EmployeeWorker.perform_async('Onboarding', event_id: event.id)
+      EmployeeWorker.perform_async('job_change', event_id: event.id)
     end
 
     def event_json_to_hash(json)
