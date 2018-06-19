@@ -2,6 +2,7 @@ class Role::Admin < Role
   Role.register 'Admin', self
 
   def set_abilities(ability)
+    ability.can :manage, Approval
     ability.can :manage, Employee
     ability.can :manage, MachineBundle
     ability.can :manage, Location

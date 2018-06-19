@@ -2,6 +2,7 @@ class Role::Helpdesk < Role
   Role.register 'Helpdesk', self
 
   def set_abilities(ability)
+    ability.can [:read, :create, :update], Approval
     ability.can :manage, MachineBundle
     ability.can :manage, DeptSecProf
     ability.can :manage, SecurityProfile
