@@ -1,7 +1,7 @@
 require 'sidekiq/web'
 
 Rails.application.routes.draw do
-  resources :approvals, except: :destroy
+  resources :approvals, except: [:new, :create, :destroy]
   resources :access_levels
   resources :applications
   resources :departments

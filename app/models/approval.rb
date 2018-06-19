@@ -12,7 +12,7 @@ class Approval < ActiveRecord::Base
     state :requested
     state :approved
     state :rejected
-    state :executeds
+    state :executed
 
     event :request do
       transitions from: :created, to: :requested
