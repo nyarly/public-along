@@ -1,0 +1,15 @@
+<div class='nested-fields'>
+  <div class='field'>
+    <%= f.label 'Employee' %>
+    <%= f.collection_select :employee_id, Employee.active, :id, :cn, include_blank: true %>
+  </div>
+  <div class='field'>
+    <%= f.label :kind %>
+    <%= f.select :kind, ApproverDesignation::KINDS, include_blank: true %>
+  </div>
+  <div class='field'>
+    <%= f.label :active %>
+    <%= f.check_box :active %>
+  </div>
+</div>
+<hr>

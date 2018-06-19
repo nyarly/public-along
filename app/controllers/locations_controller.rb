@@ -88,6 +88,15 @@ class LocationsController < ApplicationController
           :state_territory,
           :postal_code,
           :country_id
+        ],
+        approver_designations_attributes: [
+          :id,
+          :approver_designatable_id,
+          :approver_designatable_type,
+          :employee_id,
+          :kind,
+          :active,
+          :_destroy
         ]
       )
     end

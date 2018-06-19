@@ -1,6 +1,6 @@
-<% if @level == "reminder" %>
+<% if @level == 'reminder' %>
 You have an onboarding form for a new employee due tomorrow, <%= @employee.onboarding_due_date %>. TechTable needs this information to provide equipment, access, and training on the new hire’s first day. Please complete it as soon as possible, or the worker’s start date may be delayed.
-<% elsif @level == "escalation" %>
+<% elsif @level == 'escalation' %>
 <%= @employee.manager.cn %> has not yet filled out the onboarding form for new worker <%= @employee.cn %>, who is starting on <%= @employee.start_date %>. This form is due tomorrow, <%= @employee.onboarding_due_date %>. You may fill it out on the manager's behalf.
 <% end %>
 
@@ -13,7 +13,5 @@ Department: <%= @employee.department.name %>
 Location: <%= @employee.location.name %>
 
 Please note you must be logged into the OpenTable VPN to access Mezzo. Use your OpenTable user name and password to log in. Follow the link below to complete the employee event form:
-<%= link_to "Employee Event Form for #{@employee.cn}", new_emp_transaction_url({
-  :employee => @employee.id,
-  :kind => "onboarding"}) %>
-For any questions, please contact <%= mail_to "othelpme@opentable.com" %>.
+<%= new_emp_transaction_url({ employee_id: @employee.id, kind: 'onboarding' }) %>
+For any questions, please contact <%= mail_to 'othelpme@opentable.com' %>.

@@ -54,9 +54,12 @@ RSpec.describe ManagerMailer, type: :mailer do
           .to include('Follow the link below to complete the employee event form')
       end
 
-      it 'includes a mezzo link for the manager' do
-        expect(reminder_email.text_part.body).to include("employee=#{employee.id}&amp;kind=onboarding")
-        expect(reminder_email.html_part.body).to include("employee=#{employee.id}&amp;kind=onboarding")
+      it 'includes a mezzo form link in the txt body' do
+        expect(reminder_email.text_part.body).to include("employee_id=#{employee.id}&kind=onboarding")
+      end
+
+      it 'includes a mezzo form link in the html body' do
+        expect(reminder_email.html_part.body).to include("employee_id=#{employee.id}&amp;kind=onboarding")
       end
     end
 
@@ -94,9 +97,12 @@ RSpec.describe ManagerMailer, type: :mailer do
           .to include('Follow the link below to complete the employee event form')
       end
 
-      it "includes a mezzo link for the manager's manager" do
-        expect(escalation_email.text_part.body).to include("employee=#{employee.id}&amp;kind=onboarding")
-        expect(escalation_email.html_part.body).to include("employee=#{employee.id}&amp;kind=onboarding")
+      it 'includes a mezzo form link in the txt body' do
+        expect(escalation_email.text_part.body).to include("employee_id=#{employee.id}")
+      end
+
+      it "includes a mezzo form link in the html body" do
+        expect(escalation_email.html_part.body).to include("employee_id=#{employee.id}")
       end
     end
   end
@@ -129,13 +135,13 @@ RSpec.describe ManagerMailer, type: :mailer do
       it 'has the correct txt body' do
         expect(email.text_part.body)
           .to include('Follow the link below to complete the employee event form')
-        expect(email.text_part.body).to include("employee=#{employee.id}&kind=security_access")
+        expect(email.text_part.body).to include("employee_id=#{employee.id}")
       end
 
       it 'has the correct html body' do
         expect(email.html_part.body)
           .to include('Follow the link below to complete the employee event form')
-        expect(email.html_part.body).to include("employee=#{employee.id}&amp;kind=security_access")
+        expect(email.html_part.body).to include("employee_id=#{employee.id}")
       end
     end
 
@@ -166,13 +172,13 @@ RSpec.describe ManagerMailer, type: :mailer do
       it 'has the correct due date in the txt body' do
         expect(email.text_part.body)
           .to include("You must complete this form by #{employee.onboarding_due_date.try(:strftime, "%B %e, %Y")}")
-        expect(email.text_part.body).to include("employee=#{employee.id}&kind=onboarding")
+        expect(email.text_part.body).to include("employee_id=#{employee.id}&kind=onboarding")
       end
 
       it 'has the correct due date in the html body' do
         expect(email.html_part.body)
           .to include("You must complete this form by #{employee.onboarding_due_date.try(:strftime, "%B %e, %Y")}")
-        expect(email.html_part.body).to include("employee=#{employee.id}&amp;kind=onboarding")
+        expect(email.html_part.body).to include("employee_id=#{employee.id}&amp;kind=onboarding")
       end
     end
 
@@ -209,7 +215,7 @@ RSpec.describe ManagerMailer, type: :mailer do
       it 'has the correct due date in the txt body' do
         expect(email.text_part.body)
           .to include('You must complete this form by August 24, 2018')
-        expect(email.text_part.body).to include("event_id=#{event.id}&amp;kind=job_change")
+        expect(email.text_part.body).to include("event_id=#{event.id}&kind=job_change")
       end
 
       it 'has the correct due date in the html body' do
@@ -249,9 +255,12 @@ RSpec.describe ManagerMailer, type: :mailer do
           .to eq("IMMEDIATE ACTION REQUIRED: Employee Event Form for #{worker.first_name} #{worker.last_name}")
       end
 
-      it 'includes a link for the manager' do
-        expect(email.text_part.body).to include("employee=#{worker.id}&kind=offboarding")
-        expect(email.html_part.body).to include("employee=#{worker.id}&amp;kind=offboarding")
+      it 'includes a in the txt body' do
+        expect(email.text_part.body).to include("employee_id=#{worker.id}&kind=offboarding")
+      end
+
+      it 'includes a in the html body' do
+        expect(email.html_part.body).to include("employee_id=#{worker.id}&amp;kind=offboarding")
       end
 
       it 'has the correct due date in the txt body' do
@@ -295,9 +304,12 @@ RSpec.describe ManagerMailer, type: :mailer do
           .to eq("IMMEDIATE ACTION REQUIRED: Employee Event Form for #{worker.first_name} #{worker.last_name}")
       end
 
-      it 'includes a link for the manager' do
-        expect(email.text_part.body).to include("employee=#{worker.id}&kind=offboarding")
-        expect(email.html_part.body).to include("employee=#{worker.id}&amp;kind=offboarding")
+      it 'includes a link in the txt body' do
+        expect(email.text_part.body).to include("employee_id=#{worker.id}&kind=offboarding")
+      end
+
+      it 'includes a link in the html body' do
+        expect(email.html_part.body).to include("employee_id=#{worker.id}&amp;kind=offboarding")
       end
 
       it 'has the correct due date in the txt body' do

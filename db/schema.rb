@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180614190251) do
+ActiveRecord::Schema.define(version: 20180618203644) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -60,6 +60,30 @@ ActiveRecord::Schema.define(version: 20180614190251) do
     t.datetime "updated_at",                            null: false
     t.text     "offboard_instructions"
     t.boolean  "ad_controls",           default: false, null: false
+  end
+
+  create_table "approvals", force: :cascade do |t|
+    t.integer  "approver_designation_id"
+    t.integer  "emp_transaction_id"
+    t.integer  "request_emp_transaction_id"
+    t.string   "status"
+    t.datetime "requested_at"
+    t.datetime "cancelled_at"
+    t.datetime "approved_at"
+    t.datetime "rejected_at"
+    t.datetime "executed_at"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "approver_designations", force: :cascade do |t|
+    t.integer  "employee_id"
+    t.integer  "approver_designatable_id"
+    t.string   "approver_designatable_type"
+    t.string   "kind",                                      null: false
+    t.boolean  "active",                     default: true, null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "business_units", force: :cascade do |t|
@@ -199,8 +223,8 @@ ActiveRecord::Schema.define(version: 20180614190251) do
     t.datetime "offboarded_at"
     t.string   "legal_first_name"
     t.string   "adp_status"
-    t.string   "personal_email"
     t.string   "ancestry"
+    t.string   "personal_email"
   end
 
   add_index "employees", ["ancestry"], name: "index_employees_on_ancestry", using: :btree
@@ -273,7 +297,7 @@ ActiveRecord::Schema.define(version: 20180614190251) do
     t.integer  "worker_type_id",                          null: false
     t.integer  "job_title_id",                            null: false
     t.string   "adp_assoc_oid"
-    t.string   "adp_employee_id",         default: "",    null: false
+    t.string   "adp_employee_id",         default: ""
     t.datetime "created_at",                              null: false
     t.datetime "updated_at",                              null: false
     t.boolean  "management_position"

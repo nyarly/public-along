@@ -1,17 +1,17 @@
 class Department < ActiveRecord::Base
-  validates :name,
-            presence: true
-  validates :code,
-            uniqueness: true,
-            case_sensitive: false
+  validates :code, uniqueness: true, case_sensitive: false
+  validates :name, presence: true
 
-  belongs_to :parent_org
-  has_many :profiles
+  has_many :approver_designations, as: :approver_designatable, inverse_of: :department, dependent: :destroy
+  has_many :dept_mach_bundles, dependent: :destroy
+  has_many :dept_sec_profs, dependent: :destroy
   has_many :employees, through: :profiles
-  has_many :dept_sec_profs # on_delete, cascade in db
-  has_many :security_profiles, through: :dept_sec_profs
-  has_many :dept_mach_bundles # on_delete, cascade in db
   has_many :machine_bundles, through: :dept_mach_bundles
+  belongs_to :parent_org
+  has_many :profiles, dependent: :nullify
+  has_many :security_profiles, through: :dept_sec_profs
+
+  accepts_nested_attributes_for :approver_designations, reject_if: :all_blank, allow_destroy: true
 
   default_scope { order('name ASC') }
 
