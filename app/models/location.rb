@@ -92,7 +92,9 @@ class Location < ActiveRecord::Base
   has_many :employees, through: :profiles
   has_many :profiles
 
-  accepts_nested_attributes_for :address
+  accepts_nested_attributes_for :address, reject_if: :all_blank, allow_destroy: true
+  accepts_nested_attributes_for :approver_designations, reject_if: :all_blank, allow_destroy: true
+
 
   scope :code_collection, -> { where(status: 'Active', kind: 'Office').pluck(:code) }
 

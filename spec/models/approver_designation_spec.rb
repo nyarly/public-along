@@ -14,8 +14,4 @@ RSpec.describe ApproverDesignation, type: :model do
   it 'meets kind inclusion in KINDS validation' do
     expect(approver_designation).not_to allow_value('other').for(:kind)
   end
-
-  it 'meets active inclusion validation' do
-    expect(approver_designation).not_to allow_value(nil).for(:active)
-  end
 end

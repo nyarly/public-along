@@ -1,4 +1,4 @@
-<p id="notice"><%= notice %></p>
+<p id='notice'><%= notice %></p>
 
 <p>
   <strong>Name:</strong>
@@ -26,11 +26,16 @@
 </p>
 
 <p>
-  <strong>Address:</strong>
-  <div style="margin-left:2em">
-    <%= render partial: "addresses/full", locals: { address: address_for(@location) } %>
-  </div>
+  <h5>Address</h5>
+  <%= render partial: 'addresses/full', locals: { address: address_for(@location) } %>
 </p>
+
+<div>
+  <h5>Approvers</h5>
+  <% @location.approver_designations.each do |approver| %>
+    <%= render partial: 'approver_designations/display', locals: { approver: approver } %>
+  <% end %>
+</div>
 
 <%= link_to 'Edit', edit_location_path(@location) %> |
 <%= link_to 'Back', locations_path %>
