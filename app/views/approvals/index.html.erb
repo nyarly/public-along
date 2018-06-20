@@ -17,7 +17,7 @@
   <tbody>
     <% @approvals.each do |approval| %>
       <tr>
-        <td><%= approval.request_emp_transaction.kind %></td>
+        <td><%= link_to "#{approval.request_emp_transaction.kind}", approval_path(approval) %></td>
         <td><%= approval.request_emp_transaction.employee.cn %></td>
         <td><%= approval.status %></td>
         <% if approval.approver_designation.present? %>

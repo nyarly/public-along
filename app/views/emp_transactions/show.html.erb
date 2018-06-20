@@ -20,6 +20,25 @@
       </h5>
     </div>
 
+    <% if @emp_transaction.contractor_infos.present? %>
+      <div class='row'>
+        <h4>Contractor Request Info</h4>
+        <p>Requisition or PO Number: <%= @emp_transaction.contractor_infos.first.req_or_po_number %></p>
+        <p>Legal Approver: <%= @emp_transaction.contractor_infos.first.legal_approver %></p>
+      </div>
+      <div class='row'>
+        <h4>New Contractor Info</h4>
+        <p>Name: <%= @emp_transaction.employee.cn %></p>
+        <p>Contractor Type: <%= @emp_transaction.employee.worker_type.name %></p>
+        <p>Start Date: <%= @emp_transaction.employee.current_profile.start_date %></p>
+        <p>Contract End Date: <%= @emp_transaction.employee.contract_end_date %></p>
+        <p>Manager: <%= @emp_transaction.employee.manager.cn %></p>
+        <p>Location: <%= @emp_transaction.employee.location.name %></p>
+        <p>Department: <%= @emp_transaction.employee.department.name %></p>
+        <p>Job Title: <%= @emp_transaction.employee.current_profile.try(:business_title) %></p>
+      </div>
+    <% end %>
+
     <% if @emp_transaction.onboarding_infos.present? %>
       <% if is_contingent_worker?(@emp_transaction.employee) %>
         <div class='row'>

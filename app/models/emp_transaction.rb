@@ -2,6 +2,7 @@ class EmpTransaction < ActiveRecord::Base
   extend Tokenable
 
   FORMS = {
+    'approval' => '',
     'job_change' => JobChangeForm,
     'new_contractor' => NewContractorForm,
     'offboarding' => OffboardingForm,
@@ -13,7 +14,7 @@ class EmpTransaction < ActiveRecord::Base
   validates :kind, presence: true, inclusion: { in: FORMS.keys }
   validates :employee, presence: true
 
-  has_many :approvals, inverse_of: :emp_transaction
+  has_many :approvals, inverse_of: :emp_transaction, foreign_key: 'emp_transaction_id'
   has_many :approval_requests, class_name: 'Approval', inverse_of: :request_emp_transaction, foreign_key: 'request_emp_transaction_id'
   belongs_to :user
   belongs_to :employee

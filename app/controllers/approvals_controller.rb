@@ -1,5 +1,5 @@
 class ApprovalsController < ApplicationController
-  # load_and_authorize_resource
+  load_and_authorize_resource
 
   def index; end
 
@@ -10,15 +10,18 @@ class ApprovalsController < ApplicationController
   end
 
   def update
-    approval = Approval.find(params[:id])
-    @approval_form = ApprovalForm.new(approval_params)
+    request_action = params[:commit]
+    approval_id = params[:id]
+    @approval_form = ApprovalForm.new(approval_params.merge(request_action: request_action, approval_id: approval_id))
 
     respond_to do |format|
-      if @approval_form.save
+      begin
+        @approval_form.save
         format.html { redirect_to @approval, notice: 'Approval processed successfully.' }
         format.json { render :show, status: :ok, location: @approval }
-      else
-        format.html { render :edit }
+      rescue StandardError => e
+        flash[:notice] = e.message
+        format.html { render :edit, notice: e.message }
         format.json { render json: @approval.errors, status: :unprocessable_entity }
       end
     end
@@ -28,7 +31,6 @@ class ApprovalsController < ApplicationController
 
   def approval_params
     params.require(:approval_form).permit(
-      :approval_decision,
       :notes,
       :user_id,
       :approver_designation_id,

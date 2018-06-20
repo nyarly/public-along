@@ -1,3 +1,18 @@
-<div>
-  <%= @approval.inspect %>
+<div class='row'>
+  <h3><%= @approval.request_emp_transaction.kind.titleize %> Approval</h3>
+  <p>Status: <%= @approval.status.titleize %></p>
+</div>
+<div class='row'>
+  <h4>Approval Info</h4>
+  <p>Approver Name: <%= @approval.approver_designation.employee.cn %></p>
+  <p>Approver Role: <%= @approval.approver_designation.kind %></p>
+  <p>Requested By: <%= @approval.request_emp_transaction.user.employee.cn %></p>
+  <p>Requested At: <%= @approval.requested_at %></p>
+  <p>Approved At: <%= @approval.approved_at %></p>
+  <p>Rejected At: <%= @approval.rejected_at %></p>
+  <p>Executed At: <%= @approval.executed_at %></p>
+</div>
+<div class='row'>
+  <h4>Transaction Info</h4>
+  <p>Notes: <%= @approval.emp_transaction.notes %></p>
 </div>

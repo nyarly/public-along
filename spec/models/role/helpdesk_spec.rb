@@ -5,6 +5,7 @@ describe Role::Helpdesk, :type => :model do
   let :user do FactoryGirl.create(:user, :helpdesk) end
 
   describe 'abilities' do
+    it_should_behave_like "role abilities", MachineBundle, [:manage]
     it_should_behave_like "role abilities", DeptSecProf, [:manage]
     it_should_behave_like "role abilities", SecurityProfile, [:manage]
     it_should_behave_like "role abilities", SecProfAccessLevel, [:manage]

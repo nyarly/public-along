@@ -5,10 +5,10 @@ class ApprovalForm
   include ActiveModel::Conversion
   include ActiveModel::Validations
 
-  attr_accessor :approval
-  attr_accessor :approver_designation
-  attr_accessor :emp_transaction
-  attr_accessor :request_emp_transaction
+  attr_reader :approval
+  attr_reader :approver_designation
+  attr_reader :emp_transaction
+  attr_reader :request_emp_transaction
 
   attribute :approval_id, Integer
   attribute :approver_designation_id, Integer
@@ -16,7 +16,7 @@ class ApprovalForm
   attribute :user_id, Integer
   attribute :employee_id, Integer
   attribute :status, String
-  attribute :decision, String
+  attribute :request_action, String
   attribute :notes, String
 
   def initialize(params)
@@ -33,7 +33,43 @@ class ApprovalForm
     approval.request_emp_transaction
   end
 
+  def approver_designation
+    approval.approver_designation
+  end
+
+  def emp_transaction
+    EmpTransaction.new(
+      kind: 'approval',
+      user_id: user_id,
+      employee: request_emp_transaction.employee,
+      notes: notes)
+  end
+
   def save
-    byebug
+    ActiveRecord::Base.transaction do
+      raise  'Request not permitted' if !valid_request_action?
+      emp_transaction.save!
+      approval.emp_transaction = emp_transaction
+      approval.send(state_change)
+      approval.save!
+    end
+  end
+
+  private
+
+  def state_change
+    request_action.parameterize.underscore.to_sym
+  end
+
+  def valid_request_action?
+    permitted_events.include? state_change
+  end
+
+  def permitted_events
+    approval.aasm.events(permitted: true).map(&:name)
+  end
+
+  def persisted?
+    true
   end
 end
