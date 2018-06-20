@@ -2,7 +2,7 @@
   <div id='form_content'>
     <h3><%= @approval_form.request_emp_transaction.kind.titleize %> Approval Request</h3>
 
-    <% if @approavl_form.request_emp_transaction.kind == 'new_contractor' %>
+    <% if @approval_form.request_emp_transaction.kind == 'new_contractor' %>
       <h4>Contractor Request Info</h4>
       <p>Requisition or PO Number: <%= @approval_form.request_emp_transaction.contractor_infos.first.req_or_po_number %></p>
       <p>Legal Approver: <%= approval_form.request_emp_transaction.contractor_infos.first.legal_approver %></p>
