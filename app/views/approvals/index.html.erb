@@ -1,0 +1,36 @@
+<h3>Approvals</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Request</th>
+      <th>Requester</th>
+      <th>Status</th>
+      <th>Approver</th>
+      <th>Requested At</th>
+      <th>Approved At</th>
+      <th>Rejected At</th>
+      <th>Cancelled At</th>
+      <th>Executed At</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @approvals.each do |approval| %>
+      <tr>
+        <td><%= link_to "#{approval.request_emp_transaction.kind}", approval_path(approval) %></td>
+        <td><%= approval.request_emp_transaction.employee.cn %></td>
+        <td><%= approval.status %></td>
+        <% if approval.approver_designation.present? %>
+          <td><%= approval.approver_designation.employee.cn %></td>
+        <% else %>
+          <td></td>
+        <% end %>
+        <td><%= approval.requested_at %></td>
+        <td><%= approval.approved_at %></td>
+        <td><%= approval.rejected_at %></td>
+        <td><%= approval.cancelled_at %></td>
+        <td><%= approval.executed_at %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

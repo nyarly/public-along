@@ -1,0 +1,31 @@
+<%= form_for(@approval_form, url: approval_path(@approval), html: { class: 'form' }) do |f| %>
+  <div id='form_content'>
+    <h3><%= @approval_form.request_emp_transaction.kind.titleize %> Approval Request</h3>
+
+    <% if @approval_form.request_emp_transaction.kind == 'new_contractor' %>
+      <h4>Contractor Request Info</h4>
+      <p>Requisition or PO Number: <%= @approval_form.request_emp_transaction.contractor_infos.first.req_or_po_number %></p>
+      <p>Legal Approver: <%= approval_form.request_emp_transaction.contractor_infos.first.legal_approver %></p>
+      <h4>New Contractor Info</h4>
+      <p>Name: <%= approval_form.request_emp_transaction.employee.cn %></p>
+      <p>Contractor Type: <%= approval_form.request_emp_transaction.employee.worker_type.name %></p>
+      <p>Start Date: <%= approval_form.request_emp_transaction.employee.current_profile.start_date %></p>
+      <p>Contract End Date: <%= approval_form.request_emp_transaction.employee.contract_end_date %></p>
+      <p>Manager: <%= approval_form.request_emp_transaction.employee.manager.cn %></p>
+      <p>Location: <%= approval_form.request_emp_transaction.employee.location.name %></p>
+      <p>Department: <%= approval_form.request_emp_transaction.employee.department.name %></p>
+      <p>Job Title: <%= approval_form.request_emp_transaction.employee.current_profile.try(:business_title) %></p>
+    <% end %>
+
+    <p>Approver Name: <%= @approval_form.approver_designation.employee.cn %></p>
+    <p>Approver Role: <%= @approval_form.approver_designation.kind %></p>
+    <p>Requested By: <%= @approval_form.request_emp_transaction.user.employee.cn %></p>
+    <p>Requested On: <%= @approval_form.approval.requested_at %></p>
+    <%= f.label :notes %>
+    <%= f.text_area :notes %>
+    <%= f.hidden_field :user_id, value: current_user.id %>
+    <%= f.submit 'Approve', class: 'button' %>
+    <%= f.submit 'Reject', class: 'button' %>
+    <%= f.submit 'Request Changes', class: 'button' %>
+  </div>
+<% end %>
