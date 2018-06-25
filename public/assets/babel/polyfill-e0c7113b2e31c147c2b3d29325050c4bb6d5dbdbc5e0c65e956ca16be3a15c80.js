@@ -488,7 +488,7 @@ module.exports = function(NAME, wrapper, methods, common, IS_MAP, IS_WEAK){
       , ACCEPT_ITERABLES     = $iterDetect(function(iter){ new C(iter); }) // eslint-disable-line no-new
       // for early implementations -0 and +0 not the same
       , BUGGY_ZERO;
-    if(!ACCEPT_ITERABLES){ 
+    if(!ACCEPT_ITERABLES){
       C = wrapper(function(target, iterable){
         strictNew(target, C, NAME);
         var that = new Base;

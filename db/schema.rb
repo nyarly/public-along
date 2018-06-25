@@ -223,8 +223,8 @@ ActiveRecord::Schema.define(version: 20180618203644) do
     t.datetime "offboarded_at"
     t.string   "legal_first_name"
     t.string   "adp_status"
-    t.string   "ancestry"
     t.string   "personal_email"
+    t.string   "ancestry"
   end
 
   add_index "employees", ["ancestry"], name: "index_employees_on_ancestry", using: :btree
@@ -297,7 +297,7 @@ ActiveRecord::Schema.define(version: 20180618203644) do
     t.integer  "worker_type_id",                          null: false
     t.integer  "job_title_id",                            null: false
     t.string   "adp_assoc_oid"
-    t.string   "adp_employee_id",         default: ""
+    t.string   "adp_employee_id"
     t.datetime "created_at",                              null: false
     t.datetime "updated_at",                              null: false
     t.boolean  "management_position"
