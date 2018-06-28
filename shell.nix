@@ -8,6 +8,12 @@ let
 
     gemdir = ./.;
 
+    groups = [
+      "default"
+      "development"
+      "test"
+    ];
+
     gemConfig = defaultGemConfig // {
       tiny_tds = attrs: {
         nativeBuildInputs = [pkgconfig openssl];
