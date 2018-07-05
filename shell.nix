@@ -22,5 +22,5 @@ let
   };
 in
   pkgs.mkShell {
-    buildInputs = [ruby_2_3 rubyEnv nodejs];
+    buildInputs = [ruby_2_3 rubyEnv nodejs rake];
   }
