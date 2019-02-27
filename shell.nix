@@ -1,6 +1,6 @@
 { pkgs ? import <nixpkgs> {} }:
 let
-  inherit (pkgs) lib stdenv ruby_2_3 rake bundler bundlerEnv openssl defaultGemConfig pkgconfig nodejs;
+  inherit (pkgs) lib stdenv ruby_2_3 rake bundler bundlerEnv openssl defaultGemConfig pkgconfig nodejs freetds;
 
   rubyEnv = bundlerEnv {
     name = "mezzo";
@@ -16,11 +16,11 @@ let
 
     gemConfig = defaultGemConfig // {
       tiny_tds = attrs: {
-        nativeBuildInputs = [pkgconfig openssl];
+        nativeBuildInputs = [pkgconfig openssl freetds];
       };
     };
   };
 in
   pkgs.mkShell {
-    buildInputs = [ruby_2_3 rubyEnv nodejs rake];
+    buildInputs = [ruby_2_3 rubyEnv rake nodejs];
   }
