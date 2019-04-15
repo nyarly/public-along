@@ -4,7 +4,9 @@ let
     name = "rhet-butler";
     pname = "rhet-butler";
 
-    gemdir = ./.;
+    gemfile = ./Gemfile;
+    lockfile = ./Gemfile.lock;
+    gemset = ./gemset.nix;
 
     groups = [
       "deploy"
