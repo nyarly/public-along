@@ -1,8 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
 let
   rubyEnv = pkgs.bundlerEnv {
-    name = "rhet-butler";
-    pname = "rhet-butler";
+    name = "rubygem";
 
     gemfile = ./Gemfile;
     lockfile = ./Gemfile.lock;

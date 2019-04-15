@@ -1,1 +1,2 @@
+-I spec_support
 -r cadre_helper.rb
