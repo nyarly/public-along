@@ -1,19 +1,17 @@
 { pkgs ? import <nixpkgs> {} }:
 let
-  inherit (pkgs) lib stdenv ruby rake bundlerEnv nodejs;
-
-  rubyEnv = bundlerEnv {
-    name = "rails-app";
+  rubyEnv = pkgs.bundlerEnv {
+    name = "rhet-butler";
+    pname = "rhet-butler";
 
     gemdir = ./.;
 
     groups = [
+      "deploy"
       "default"
       "development"
       "test"
     ];
   };
 in
-  pkgs.mkShell {
-    buildInputs = [ruby rubyEnv rake nodejs];
-  }
+  rubyEnv.env
