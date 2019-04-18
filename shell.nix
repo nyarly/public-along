@@ -3,7 +3,7 @@ let
   inherit (pkgs) lib stdenv ruby_2_3 rake bundler bundlerEnv openssl defaultGemConfig pkgconfig nodejs freetds redis;
 
   rubyEnv = bundlerEnv {
-    name = "mezzo";
+    name = "iamintrouble";
     ruby = ruby_2_3;
 
     gemfile = ./Gemfile;
