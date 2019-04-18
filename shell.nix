@@ -6,7 +6,9 @@ let
     name = "mezzo";
     ruby = ruby_2_3;
 
-    gemdir = ./.;
+    gemfile = ./Gemfile;
+    lockfile = ./Gemfile.lock;
+    gemset = ./gemset.nix;
 
     groups = [
       "default"
