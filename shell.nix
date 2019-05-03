@@ -1,6 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
 let
-  inherit (pkgs) lib stdenv ruby_2_3 rake bundler bundlerEnv openssl defaultGemConfig pkgconfig nodejs freetds redis;
+  inherit (pkgs) lib stdenv ruby_2_3 rake bundler bundlerEnv openssl freetds defaultGemConfig pkgconfig nodejs;
+
 
   rubyEnv = bundlerEnv {
     name = "mezzo";
@@ -24,5 +25,5 @@ let
   };
 in
   pkgs.mkShell {
-    buildInputs = [ruby_2_3 rubyEnv rake nodejs redis];
+    buildInputs = [rubyEnv rubyEnv.wrappedRuby rubyEnv.envPaths nodejs];
   }
