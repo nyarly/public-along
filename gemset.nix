@@ -966,6 +966,17 @@
     };
     version = "2.0.5";
   };
+  rack-proxy = {
+    dependencies = ["rack"];
+    groups = ["default"];
+    platforms = [];
+    source = {
+      remotes = ["https://rubygems.org"];
+      sha256 = "1v40xd3xhzhbdqfynd03gn88j1pga2zhrv58xs9fl4hzrlbp096s";
+      type = "gem";
+    };
+    version = "0.6.5";
+  };
   rack-test = {
     dependencies = ["rack"];
     source = {
@@ -1053,6 +1064,17 @@
       type = "gem";
     };
     version = "4.2.2";
+  };
+  react-rails = {
+    dependencies = ["babel-transpiler" "connection_pool" "execjs" "railties" "tilt"];
+    groups = ["default"];
+    platforms = [];
+    source = {
+      remotes = ["https://rubygems.org"];
+      sha256 = "1kcjc5r24fs1544n6ccrrka4r3fky07sz7kzrdby9j8h2hhygim0";
+      type = "gem";
+    };
+    version = "2.5.0";
   };
   redis = {
     groups = ["default" "development" "test"];
@@ -1452,6 +1474,17 @@
       type = "gem";
     };
     version = "2.3.0";
+  };
+  webpacker = {
+    dependencies = ["activesupport" "rack-proxy" "railties"];
+    groups = ["default"];
+    platforms = [];
+    source = {
+      remotes = ["https://rubygems.org"];
+      sha256 = "0rci5q5cph283a8950klc6hbmrgb444p4i5l77hyd637h5rcs1lz";
+      type = "gem";
+    };
+    version = "4.0.2";
   };
   websocket = {
     source = {
